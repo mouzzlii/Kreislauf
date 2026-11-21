@@ -1,13 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ListingVisual } from "@/components/listing-card";
+import { ListingConversation } from "@/components/listing-conversation";
+import { EscrowPanel } from "@/components/escrow-panel";
 import { Shell } from "@/components/shell";
 import { Button, fieldClass } from "@/components/ui";
 import {
   addReview,
   getListing,
   getMeetingPoint,
-  releaseEscrow,
   reserveListing,
   tradeListing,
   transitionBooking,
@@ -177,8 +178,7 @@ function ListingPage() {
           {listing.status === "completed" && user ? <Button className="mt-4" variant="ghost" onClick={() => navigate({ to: "/inserat/neu", search: { reuse: listing.itemUuid } })}>Erneut im Kreislauf einstellen</Button> : null}
 
           {meetingPointUrl ? <a href={meetingPointUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex text-sm text-forest underline">Privaten Treffpunkt in what3words öffnen</a> : null}
-          {detail.escrowPending ? <p className="mt-3 rounded-xl border border-line bg-elev-2 p-3 text-sm text-muted">Community-Treuhand ist aktiv. Eine verifizierte, aktive Moderationsperson begleitet die Freigabe.</p> : null}
-          {profile && profile.moderatorRank > 0 && detail.escrowPending ? <Button className="mt-3" variant="ghost" disabled={busy} onClick={() => void run(() => releaseEscrow({ data: { id: listing.id } }))}>Treuhand freigeben</Button> : null}
+          {user && detail.escrowPending ? <EscrowPanel listingId={listing.id} /> : null}
 
           {booking ? (
             <div className="mt-5 rounded-3xl border border-line bg-elev p-4">
@@ -234,6 +234,8 @@ function ListingPage() {
           ) : null}
         </div>
       </div>
+
+      <ListingConversation listingId={listing.id} ownerId={listing.userId} currentUserId={user?.id ?? null} />
 
       <section className="mt-8 grid gap-4 md:grid-cols-2">
         <div className="rounded-3xl border border-line bg-elev p-4">

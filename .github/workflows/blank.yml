@@ -2,7 +2,7 @@ name: KREISLAUF – Build und Tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, demo/local-auth-off]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -13,28 +13,22 @@ jobs:
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v5
-
       - name: Node.js einrichten
         uses: actions/setup-node@v5
         with:
           node-version: 22
-
       - name: Abhängigkeiten installieren
         id: install
         run: npm ci --no-audit --no-fund
-
       - name: TypeScript prüfen
         id: typecheck
         run: npm run typecheck
-
       - name: Automatisierte Tests
         id: tests
         run: npm test
-
       - name: Code-Qualität prüfen
         if: ${{ always() && steps.install.outcome == 'success' && steps.typecheck.outcome == 'success' }}
         run: npm run lint
-
       - name: Produktions-Build erstellen
         if: ${{ always() && steps.install.outcome == 'success' && steps.typecheck.outcome == 'success' }}
         run: npm run build:dev
