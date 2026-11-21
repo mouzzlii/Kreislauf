@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-elev: var(--elev);
+  --color-elev-2: var(--elev-2);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-line: var(--line);
+  --color-forest: var(--forest);
+  --color-paper: var(--paper);
+  --color-copper: var(--copper);
+  --color-ink: var(--ink);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+:root {
+  --bg: #121816;
+  --elev: #1c2420;
+  --elev-2: #26302b;
+  --fg: #f4f0e6;
+  --muted: #b7c2b8;
+  --subtle: #8d9a90;
+  --line: color-mix(in oklab, #f4f0e6 14%, transparent);
+  --forest: #245c3a;
+  --paper: #f4f0e6;
+  --copper: #c4784a;
+  --ink: #1a211c;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+
+html.light {
+  --bg: #f3efe6;
+  --elev: #fffdf8;
+  --elev-2: #e7e1d4;
+  --fg: #1a211c;
+  --muted: #5c675f;
+  --subtle: #7a857c;
+  --line: color-mix(in oklab, #1a211c 14%, transparent);
+  --forest: #1f5c38;
+  --copper: #9a542c;
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--forest);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: var(--elev-2);
+  font-family: var(--font-body);
+}
+
+.pin {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: -14px;
+  margin-top: -28px;
+  border-radius: 999px 999px 999px 4px;
+  transform: rotate(-45deg);
+  background: var(--forest);
+  color: var(--paper);
+  border: 2px solid var(--paper);
+  box-shadow: 0 6px 16px color-mix(in oklab, #000 28%, transparent);
+}
+
+.pin > span {
+  transform: rotate(45deg);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pin-sharing { background: var(--copper); color: var(--ink); }
+.pin-service { background: var(--elev); color: var(--fg); }

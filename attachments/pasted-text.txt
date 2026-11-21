@@ -1,0 +1,62 @@
+# Projektspezifikation: "KREISLAUF" – Regionale Tausch-, Service- und Sharing-Plattform
+
+## 1. Vision & Produktziel
+"KREISLAUF" ist eine dezentrale, hyperlocal ausgerichtete Web-Applikation (Next.js, Tailwind CSS, Supabase) für regionale Communities (z. B. B36 / Yspertal), die den Tausch von Gütern, Dienstleistungen, Werkzeugen (Sharingflotte) und handwerklichen Hilfen über ein faires, inflationgsgeschütztes Karmapunkte-System organisiert. 
+
+Das System ist so aufgebaut, dass es modular und mandantenfähig ("Multi-Tenant") in jeder beliebigen Region per Konfiguration ausgerollt werden kann (jede Region hat ihren eigenen geschlossenen Marktplatz, aber eine einheitliche Core-Logik).
+
+---
+
+## 2. Tech-Stack & Architektur
+- **Frontend:** Next.js (App Router, Server Components, TypeScript, Tailwind CSS, Lucide Icons).
+- **Backend / DB:** Supabase (PostgreSQL, Row Level Security - RLS, Realtime Subscriptions).
+- **State / UI:** Mobile-first, extrem performant, PWA-fähig (für den Einsatz auf dem Smartphone im Feld / in der Werkstatt).
+- **Architektur-Prinzip:** Clean Architecture / Feature-First Folder Structure.
+
+---
+
+## 3. Core Features & Datenbank-Schema (Supabase / PostgreSQL)
+
+### A. Benutzer & Regionen (Profiles & Tenants)
+- **Profiles:** ID, Username, Avatar, Trust-Score (Karmapunkte-Historie), Geo-Location (Latitude, Longitude), Region-ID.
+- **Regions:** ID, Name (z. B. "Yspertal-B36"), Slug, Radius/Bounding Box, Administrator-ID.
+
+### B. Marktplatz (Assets, Goods & Services)
+Jedes Inserat gehört genau einer von drei Kategorien an:
+1. **Güter / Tausch:** Physische Gegenstände (Sourcing, Konsolen, Werkzeug, Lebensmittel).
+2. **Services / Hilfe:** Handwerkliche Unterstützung, IT-Hilfe, Nachhilfe, Transport.
+3. **Sharingflotte (E-Bikes, Anhänger, Spezialwerkzeug):** Zeitbasierte Buchung mit GPS/Standort-Check und Status (Verfügbar, In Nutzung, Wartung).
+
+*Datenbank-Felder (listings):*
+- ID, User_ID, Region_ID, Title, Description, Category (goods | service | sharing), Price_Karma (Karmapunkte-Wert), Status (active | booked | completed), Images (Array von URLs), Created_At.
+
+### C. Das Karmapunkte- & Transaktions-System (The Engine)
+Kein klassisches Fiat-Geld, sondern ein geschlossener Kreislauf mit Wertstabilisierungs-Mechanismus:
+- **Transaktionen (transactions):** ID, Sender_ID, Receiver_ID, Listing_ID, Amount_Karma, Message, Timestamp.
+- **Anti-Hoarding / Demurrage-Logik (optional aktivierbar):** Guthaben, das über Monate ungenutzt rumliegt, verliert einen winzigen Prozentsatz (z. B. 0.5% pro Monat), um den Umlauf (die Zirkulation) zu erzwingen – genau das ist der Kern des "Kreislauf"-Prinzips.
+- **Trust & Verification:** Jede erfolgreiche Transaktion bewertet den User (Pünktlichkeit, Zustand, Zuverlässigkeit), was den Karmascore berechnet.
+
+---
+
+## 4. UI/UX Design-Vorgaben
+- **Look & Feel:** Modern, "Clean Tech meets Community", kein steriler Konzern-Look, sondern ein robuster, ehrlicher Style (Dark/Light Mode mit tiefen Schiefer-Tönen und warmen Akzent-Farben wie Waldgrün/Kupfer).
+- **Mobile First:** Die Ansicht muss auf einem Smartphone (z. B. Google Pixel im Taschenformat) perfekt mit einer Hand bedienbar sein (Bottom-Navigation, große Touch-Targets).
+- **Interaktive Live-Karte:** Eine integrierte Kartenansicht (Mapbox oder Leaflet), die Sharing-Fahrzeuge und lokale Angebote in der Nähe anzeigt.
+
+---
+
+## 5. Entwicklungs-Phasen (Sprint-Plan für den KI-Coder)
+
+### Sprint 1: Fundament & Auth
+- Supabase-Anbindung, Auth (Magic Link & Google Login), Profil-Erstellung und Regions-Auswahl.
+
+### Sprint 2: Core Marktplatz & Inserate
+- CRUD-Operationen für Listings (Güter & Services), Bild-Upload in Supabase Storage, Filter nach Umkreis und Kategorie.
+
+### Sprint 3: Das Buchungs- & Sharing-Modul
+- Kalender- / Zeitfenster-Reservierung für die Sharingflotte (E-Bikes / Anhänger).
+- Statuswechsel (Reserviert -> Übergeben -> Rückgegeben).
+
+### Sprint 4: Das Karmapunkte-Ledger
+- Transaktions-Engine mit automatischer Guthaben-Prüfung vor dem Tausch.
+- Ledger-Tabelle, die absolut fälschungssicher und immutable (unveränderlich) alle Bewegungen protokolliert.

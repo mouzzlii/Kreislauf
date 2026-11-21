@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "KREISLAUF",
+      "hasCanvas": false,
+      "bodyTextLen": 1183,
+      "bodyTextHash": "2f0e381cae4b76c5f169df242989cae785ae760d7c87dfbff1b29d8add3f8b71",
+      "bodyTextPrefix": "Kreislauf Markt Karte Inserieren Konto Region Donautal Süd Ysper",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "KREISLAUF",
+      "hasCanvas": false,
+      "bodyTextLen": 1188,
+      "bodyTextHash": "e426c9d29469eb92ba59ff82d126be01c0ccd05b4977cf9785e5ffb8c830438a",
+      "bodyTextPrefix": "Kreislauf Region Donautal Süd Yspertal · B36 Yspertal · B36 Taus",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
