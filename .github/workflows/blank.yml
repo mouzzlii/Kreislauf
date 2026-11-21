@@ -32,8 +32,6 @@ jobs:
           unzip -q kreislauf-v2.zip -d /tmp/kreislauf-source
           test -f /tmp/kreislauf-source/kreislauf_work/package.json
           rsync -a \
-            --exclude='.grok/skills/' \
-            --exclude='.grok/references/' \
             --exclude='.vercel/' \
             --exclude='.tanstack/' \
             --exclude='node_modules/' \
@@ -51,23 +49,28 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A -- . ':!.github' ':!README.md' ':!kreislauf-v2.zip'
           if ! git diff --cached --quiet; then
-            git commit -m "Add extracted KREISLAUF v2 application source"
+            git commit -m "Add complete KREISLAUF v2 project support files"
             git push origin HEAD:main
           else
             echo "Projektdateien sind bereits aktuell."
           fi
 
       - name: Abhängigkeiten installieren
+        id: install
         run: npm ci --no-audit --no-fund
 
       - name: TypeScript prüfen
+        id: typecheck
         run: npm run typecheck
 
       - name: Automatisierte Tests
+        id: tests
         run: npm test
 
       - name: Code-Qualität prüfen
+        if: ${{ always() && steps.install.outcome == 'success' && steps.typecheck.outcome == 'success' }}
         run: npm run lint
 
       - name: Produktions-Build erstellen
+        if: ${{ always() && steps.install.outcome == 'success' && steps.typecheck.outcome == 'success' }}
         run: npm run build:dev
