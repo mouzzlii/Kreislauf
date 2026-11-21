@@ -1184,3 +1184,49 @@ export const voteEscrow = createServerFn({ method: "POST" })
       votes, approvals, rejections, required,
     };
   });
+
+
+export type EscrowSummary = {
+  status: "pending" | "released" | "disputed" | null;
+  votes: number;
+  approvals: number;
+  rejections: number;
+  assigned: number;
+  canVote: boolean;
+  hasVoted: boolean;
+};
+
+export const getEscrowSummary = createServerFn({ method: "GET" })
+  .validator((input: unknown) => ({ id: idOf(input, "id") }))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<EscrowSummary> => {
+    const sql = await getSql();
+    const cases = await sql.query<{ id: string; status: string }>(
+      "select id, status from escrow_cases where listing_id = $1 order by created_at desc limit 1",
+      [data.id],
+    );
+    if (!cases.length) return { status: null, votes: 0, approvals: 0, rejections: 0, assigned: 0, canVote: false, hasVoted: false };
+    const escrowId = cases[0].id;
+    const [counts, assignment, ownVote] = await Promise.all([
+      sql.query<Row>(
+        `select count(v.id)::int as votes,
+          count(*) filter (where v.vote = 'approve')::int as approvals,
+          count(*) filter (where v.vote = 'reject')::int as rejections,
+          (select count(*)::int from escrow_moderators a where a.escrow_id = $1) as assigned
+         from escrow_votes v where v.escrow_id = $1`, [escrowId]),
+      sql.query(
+        `select 1 from escrow_moderators a join profiles p on p.user_id = a.moderator_id
+         where a.escrow_id = $1 and a.moderator_id = $2 and p.is_verified = true
+           and p.moderator_rank > 0 and p.last_active_at >= now() - interval '30 days'`,
+        [escrowId, context.userId]),
+      sql.query("select 1 from escrow_votes where escrow_id = $1 and moderator_id = $2", [escrowId, context.userId]),
+    ]);
+    const row = counts[0] ?? {};
+    return {
+      status: asString(cases[0].status, "pending") as "pending" | "released" | "disputed",
+      votes: asNumber(row.votes), approvals: asNumber(row.approvals),
+      rejections: asNumber(row.rejections), assigned: asNumber(row.assigned),
+      canVote: assignment.length > 0 && cases[0].status === "pending",
+      hasVoted: ownVote.length > 0,
+    };
+  });
