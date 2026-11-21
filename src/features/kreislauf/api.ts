@@ -1048,6 +1048,13 @@ export const sendListingMessage = createServerFn({ method: "POST" })
     const ownerId = listing[0].user_id;
     const requesterId = context.userId === ownerId ? data.requesterId : context.userId;
     if (!requesterId || requesterId === ownerId) return fail("Unterhaltung nicht ausgewählt.");
+    if (context.userId === ownerId) {
+      const existing = await sql.query(
+        "select id from listing_conversations where listing_id = $1 and requester_id = $2 and owner_id = $3",
+        [data.id, requesterId, ownerId],
+      );
+      if (!existing.length) return fail("Du kannst erst antworten, wenn das andere Mitglied eine Unterhaltung begonnen hat.");
+    }
     const other = await sql.query("select user_id from profiles where user_id = $1", [requesterId]);
     if (!other.length) return fail("Mitglied nicht gefunden.");
     const conversationId = `conv-${crypto.randomUUID()}`;

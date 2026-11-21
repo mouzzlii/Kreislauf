@@ -14,7 +14,7 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
   }, [listingId]);
   if (!summary) return error ? <p className="mt-3 text-sm text-copper">{error}</p> : null;
   if (!summary.status) return null;
-  const required = Math.max(4, Math.ceil(summary.assigned * 2 / 3));
+  const required = 4;
   async function cast(vote: "approve" | "reject") {
     setBusy(true); setError("");
     try {
@@ -34,7 +34,7 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
         <Button disabled={busy} onClick={() => void cast("approve")}>Freigeben</Button>
         <Button variant="ghost" disabled={busy} onClick={() => void cast("reject")}>Ablehnen</Button>
       </div> : summary.hasVoted ? <p className="mt-2 text-xs text-subtle">Deine Stimme ist bereits abgegeben und kann nicht geändert werden.</p> : null}
-      <p className="mt-2 text-xs text-subtle">{summary.assigned} Moderationspersonen zugeteilt · Ziel: mindestens {required} Stimmen.</p>
+      <p className="mt-2 text-xs text-subtle">{summary.assigned} Moderationspersonen zugeteilt · Ab 4 abgegebenen Stimmen gilt die Zweidrittelmehrheit der abgegebenen Stimmen.</p>
     </> : summary.status === "released" ?
       <p className="mt-1 text-sm text-forest">Die Treuhand wurde nach Mehrheitsbeschluss freigegeben.</p> :
       <p className="mt-1 text-sm text-copper">Die Treuhand wurde abgelehnt und ist zur weiteren Klärung markiert.</p>}

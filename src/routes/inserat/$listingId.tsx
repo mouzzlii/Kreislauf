@@ -178,7 +178,7 @@ function ListingPage() {
           {listing.status === "completed" && user ? <Button className="mt-4" variant="ghost" onClick={() => navigate({ to: "/inserat/neu", search: { reuse: listing.itemUuid } })}>Erneut im Kreislauf einstellen</Button> : null}
 
           {meetingPointUrl ? <a href={meetingPointUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex text-sm text-forest underline">Privaten Treffpunkt in what3words öffnen</a> : null}
-          <EscrowPanel listingId={listing.id} />
+          {user && detail.escrowPending ? <EscrowPanel listingId={listing.id} /> : null}
 
           {booking ? (
             <div className="mt-5 rounded-3xl border border-line bg-elev p-4">
