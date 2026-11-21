@@ -501,7 +501,7 @@ export const createListing = createServerFn({ method: "POST" })
     }
     const id = `lst-${crypto.randomUUID()}`;
     let handsCount = 0;
-    let itemUuid = data.itemUuid ?? `item-${crypto.randomUUID()}`;
+    const itemUuid = data.itemUuid ?? `item-${crypto.randomUUID()}`;
     if (data.itemUuid) {
       const owned = await sql.query<{ hands_count: number }>(
         `select l.hands_count from listings l where l.item_uuid = $1 and exists (
