@@ -103,7 +103,13 @@ begin
   select region_id, user_id into v_region, v_owner from listings where id = NEW.listing_id;
   if NEW.moderator_id is not null then
     insert into escrow_moderators(escrow_id, moderator_id)
-    values (NEW.id, NEW.moderator_id) on conflict do nothing;
+    select NEW.id, p.user_id from profiles p
+    where p.user_id = NEW.moderator_id
+      and p.user_id <> coalesce(NEW.requester_id, '')
+      and p.user_id <> coalesce(v_owner, '')
+      and p.is_verified = true and p.moderator_rank > 0
+      and p.last_active_at >= now() - interval '30 days'
+    on conflict do nothing;
   end if;
   insert into escrow_moderators(escrow_id, moderator_id)
   select NEW.id, p.user_id
@@ -126,4 +132,27 @@ for each row execute function kreislauf_assign_escrow_moderators();
 insert into escrow_moderators(escrow_id, moderator_id)
 select id, moderator_id from escrow_cases
 where moderator_id is not null
+on conflict do nothing;
+
+-- Complete assignments for already-open cases. Never assign either party.
+insert into escrow_moderators(escrow_id, moderator_id)
+select e.id, candidates.user_id
+from escrow_cases e
+join listings l on l.id = e.listing_id
+cross join lateral (
+  select p.user_id
+  from profiles p
+  where p.region_id = l.region_id
+    and p.user_id <> coalesce(e.requester_id, '')
+    and p.user_id <> l.user_id
+    and p.is_verified = true and p.moderator_rank > 0
+    and p.last_active_at >= now() - interval '30 days'
+    and not exists (
+      select 1 from escrow_moderators assigned
+      where assigned.escrow_id = e.id and assigned.moderator_id = p.user_id
+    )
+  order by random()
+  limit greatest(0, 7 - (select count(*) from escrow_moderators assigned where assigned.escrow_id = e.id))
+) candidates
+where e.status = 'pending'
 on conflict do nothing;
