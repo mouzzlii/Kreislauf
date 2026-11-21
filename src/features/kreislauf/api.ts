@@ -931,64 +931,256 @@ export const getMeetingPoint = createServerFn({ method: "GET" })
   });
 
 
+/**
+ * Legacy one-person release is intentionally disabled. All releases must use
+ * the quorum vote endpoint below so a single moderator cannot release escrow.
+ */
 export const releaseEscrow = createServerFn({ method: "POST" })
   .validator((input: unknown) => ({ id: idOf(input, "id") }))
   .middleware([authMiddleware])
+  .handler(async (): Promise<ActionResult> =>
+    fail("Einzel-Freigaben sind deaktiviert. Bitte die Treuhand-Abstimmung verwenden."),
+  );
+
+export type ListingThread = {
+  requesterId: string;
+  requesterName: string;
+  lastMessage: string;
+  updatedAt: string;
+};
+
+export type ListingMessage = {
+  id: number;
+  senderId: string | null;
+  senderName: string;
+  body: string;
+  kind: "user" | "system";
+  createdAt: string;
+  isMine: boolean;
+};
+
+export const getListingThreads = createServerFn({ method: "GET" })
+  .validator((input: unknown) => ({ id: idOf(input, "id") }))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ListingThread[]> => {
+    const sql = await getSql();
+    const allowed = await sql.query<{ owner_id: string }>(
+      "select user_id as owner_id from listings where id = $1", [data.id],
+    );
+    if (!allowed.length) return [];
+    const rows = await sql.query<Row>(
+      `select c.requester_id as "requesterId", p.username as "requesterName",
+        coalesce((select m.body from listing_messages m where m.conversation_id = c.id order by m.id desc limit 1), '') as "lastMessage",
+        to_char(c.updated_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "updatedAt"
+       from listing_conversations c join profiles p on p.user_id = c.requester_id
+       where c.listing_id = $1 and (c.owner_id = $2 or c.requester_id = $2)
+       order by c.updated_at desc`,
+      [data.id, context.userId],
+    );
+    if (allowed[0].owner_id !== context.userId &&
+        !rows.some((row) => asString(row.requesterId) === context.userId)) return [];
+    return rows.map((row) => ({
+      requesterId: asString(row.requesterId),
+      requesterName: asString(row.requesterName),
+      lastMessage: asString(row.lastMessage),
+      updatedAt: asString(row.updatedAt),
+    }));
+  });
+
+export const getListingMessages = createServerFn({ method: "GET" })
+  .validator((input: unknown) => {
+    const id = idOf(input, "id");
+    const requesterId = input && typeof input === "object" && "requesterId" in input
+      ? String((input as Record<string, unknown>).requesterId ?? "") : "";
+    if (requesterId && !/^[a-zA-Z0-9_-]{2,128}$/.test(requesterId)) throw new Error("Ungültige Unterhaltung");
+    return { id, requesterId };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ListingMessage[]> => {
+    const sql = await getSql();
+    const listing = await sql.query<{ user_id: string }>("select user_id from listings where id = $1", [data.id]);
+    if (!listing.length) return [];
+    const requesterId = listing[0].user_id === context.userId ? data.requesterId : context.userId;
+    if (!requesterId || listing[0].user_id === requesterId) return [];
+    const rows = await sql.query<Row>(
+      `select m.id, m.sender_id as "senderId", coalesce(p.username, 'KREISLAUF') as "senderName",
+        m.body, m.message_kind as kind,
+        to_char(m.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt"
+       from listing_conversations c join listing_messages m on m.conversation_id = c.id
+       left join profiles p on p.user_id = m.sender_id
+       where c.listing_id = $1 and c.requester_id = $2 and c.owner_id = $3
+         and (c.requester_id = $4 or c.owner_id = $4)
+       order by m.id asc limit 200`,
+      [data.id, requesterId, listing[0].user_id, context.userId],
+    );
+    await sql.query(
+      `update listing_messages set read_at = now()
+       where conversation_id in (select id from listing_conversations where listing_id = $1 and requester_id = $2)
+         and sender_id is distinct from $3 and read_at is null`,
+      [data.id, requesterId, context.userId],
+    );
+    return rows.map((row) => ({
+      id: asNumber(row.id), senderId: row.senderId == null ? null : asString(row.senderId),
+      senderName: asString(row.senderName), body: asString(row.body),
+      kind: asString(row.kind, "user") as "user" | "system",
+      createdAt: asString(row.createdAt), isMine: row.senderId === context.userId,
+    }));
+  });
+
+export const sendListingMessage = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    if (!input || typeof input !== "object") throw new Error("Ungültige Nachricht");
+    const source = input as Record<string, unknown>;
+    const id = idOf(source, "id");
+    const body = typeof source.body === "string" ? source.body.trim() : "";
+    if (!body || body.length > 2000) throw new Error("Nachricht muss 1 bis 2000 Zeichen haben");
+    const requesterId = typeof source.requesterId === "string" ? source.requesterId : "";
+    if (requesterId && !/^[a-zA-Z0-9_-]{2,128}$/.test(requesterId)) throw new Error("Ungültige Unterhaltung");
+    return { id, body, requesterId };
+  })
+  .middleware([authMiddleware])
   .handler(async ({ data, context }): Promise<ActionResult> => {
     const sql = await getSql();
-    const highValue = await sql.query<{ id: string }>(
-      `select id from escrow_cases where listing_id = $1 and moderator_id = $2
-       and status = 'pending' and reason = 'Hochwertiges Tauschgeschäft'`, [data.id, context.userId]);
-    if (highValue.length) {
-      const completed = await sql.query(
-        `with c as materialized (
-           select ec.id as escrow_id, ec.listing_id, ec.requester_id, l.user_id as seller,
-             l.region_id, l.price_karma, l.title, l.item_uuid, l.place_label
-           from escrow_cases ec join listings l on l.id = ec.listing_id
-           join profiles mod on mod.user_id = ec.moderator_id
-           where ec.listing_id = $1 and ec.moderator_id = $2 and ec.status = 'pending'
-             and ec.reason = 'Hochwertiges Tauschgeschäft' and l.status = 'booked'
-             and mod.is_verified = true and mod.moderator_rank > 0
-             and mod.last_active_at >= now() - interval '30 days'
-           for update of ec, l
-         ),
-         moved as (
-           update profiles p set karma_balance = p.karma_balance +
-             case when p.user_id = c.requester_id then -c.price_karma + 1 else c.price_karma end,
-             last_activity_at = now()
-           from c where (p.user_id = c.requester_id or p.user_id = c.seller)
-             and exists (select 1 from profiles buyer where buyer.user_id = c.requester_id and buyer.karma_balance >= c.price_karma)
-           returning p.user_id
-         ),
-         closed as (
-           update listings l set status = 'completed', hands_count = hands_count + 1
-           from c where l.id = c.listing_id and (select count(*) from moved) = 2 returning l.id
-         ),
-         transfer_log as (
-           insert into ledger_entries (region_id,sender_id,receiver_id,listing_id,amount_karma,entry_kind,message)
-           select c.region_id,c.requester_id,c.seller,c.listing_id,c.price_karma,'transfer','Treuhand-Tausch: ' || c.title
-           from c where exists (select 1 from closed) returning id
-         ),
-         bonus_log as (
-           insert into ledger_entries (region_id,receiver_id,listing_id,amount_karma,entry_kind,message)
-           select c.region_id,c.requester_id,c.listing_id,1,'activity','Aktivitätsbonus für erfolgreiche Weitergabe: ' || c.title
-           from c where exists (select 1 from closed) returning id
-         ),
-         history_log as (
-           insert into item_history (item_uuid,listing_id,owner_id,place_label,event_kind)
-           select c.item_uuid,c.listing_id,c.requester_id,c.place_label,'transferred'
-           from c where exists (select 1 from closed) returning id
-         ),
-         resolved as (
-           update escrow_cases set status = 'released', resolved_at = now()
-           where id in (select escrow_id from c) and exists (select 1 from closed) returning id
-         ) select id from resolved`, [data.id, context.userId]);
-      return completed.length ? { ok: true } : fail("Treuhand-Freigabe nicht möglich. Guthaben oder Status prüfen.");
+    const listing = await sql.query<{ user_id: string; status: string }>(
+      "select user_id, status from listings where id = $1", [data.id],
+    );
+    if (!listing.length) return fail("Inserat nicht gefunden.");
+    const ownerId = listing[0].user_id;
+    const requesterId = context.userId === ownerId ? data.requesterId : context.userId;
+    if (!requesterId || requesterId === ownerId) return fail("Unterhaltung nicht ausgewählt.");
+    const other = await sql.query("select user_id from profiles where user_id = $1", [requesterId]);
+    if (!other.length) return fail("Mitglied nicht gefunden.");
+    const conversationId = `conv-${crypto.randomUUID()}`;
+    await sql.query(
+      `insert into listing_conversations(id, listing_id, requester_id, owner_id)
+       values ($1,$2,$3,$4) on conflict (listing_id, requester_id)
+       do update set updated_at = now()`,
+      [conversationId, data.id, requesterId, ownerId],
+    );
+    const conversation = await sql.query<{ id: string }>(
+      "select id from listing_conversations where listing_id = $1 and requester_id = $2",
+      [data.id, requesterId],
+    );
+    if (!conversation.length) return fail("Unterhaltung konnte nicht geöffnet werden.");
+    await sql.query(
+      "insert into listing_messages(conversation_id, sender_id, body, message_kind) values ($1,$2,$3,'user')",
+      [conversation[0].id, context.userId, data.body],
+    );
+    await sql.query("update listing_conversations set updated_at = now() where id = $1", [conversation[0].id]);
+    return { ok: true };
+  });
+
+export type EscrowVoteResult = {
+  status: "pending" | "released" | "disputed";
+  votes: number;
+  approvals: number;
+  rejections: number;
+  required: number;
+};
+
+export const voteEscrow = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    if (!input || typeof input !== "object") throw new Error("Ungültige Abstimmung");
+    const source = input as Record<string, unknown>;
+    const id = idOf(source, "id");
+    const vote = source.vote === "approve" || source.vote === "reject" ? source.vote : null;
+    if (!vote) throw new Error("Stimme muss Freigabe oder Ablehnung sein");
+    const note = typeof source.note === "string" ? source.note.trim().slice(0, 500) : "";
+    return { id, vote, note };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<EscrowVoteResult | ActionResult> => {
+    const sql = await getSql();
+    const eligible = await sql.query<{ id: string; status: string }>(
+      `select e.id, e.status from escrow_cases e
+       join escrow_moderators a on a.escrow_id = e.id and a.moderator_id = $2
+       join profiles p on p.user_id = a.moderator_id
+       where e.listing_id = $1 and e.status = 'pending'
+         and p.is_verified = true and p.moderator_rank > 0
+         and p.last_active_at >= now() - interval '30 days'`,
+      [data.id, context.userId],
+    );
+    if (!eligible.length) return fail("Du bist für diese offene Treuhand nicht als aktive Moderation eingeteilt.");
+    const escrowId = eligible[0].id;
+    try {
+      await sql.query(
+        "insert into escrow_votes(escrow_id, moderator_id, vote, note) values ($1,$2,$3,$4)",
+        [escrowId, context.userId, data.vote, data.note],
+      );
+    } catch (error) {
+      const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+      if (code === "23505") return fail("Du hast bereits abgestimmt. Eine Stimme kann nicht nachträglich geändert werden.");
+      throw error;
     }
-    const rows = await sql.query(
-      `update escrow_cases set status = 'released', resolved_at = now()
-       where listing_id = $1 and moderator_id = $2 and status = 'pending'
-         and exists (select 1 from profiles p where p.user_id = $2 and p.is_verified = true and p.moderator_rank > 0 and p.last_active_at >= now() - interval '30 days')
-       returning id`, [data.id, context.userId]);
-    return rows.length ? { ok: true } : fail("Keine offene Treuhand für dich zugeordnet.");
+    const tally = await sql.query<{ votes: number; approvals: number; rejections: number; assigned: number }>(
+      `select count(v.id)::int as votes,
+        count(*) filter (where v.vote = 'approve')::int as approvals,
+        count(*) filter (where v.vote = 'reject')::int as rejections,
+        (select count(*)::int from escrow_moderators a where a.escrow_id = $1) as assigned
+       from escrow_votes v where v.escrow_id = $1`,
+      [escrowId],
+    );
+    const row = tally[0];
+    const votes = asNumber(row?.votes), approvals = asNumber(row?.approvals), rejections = asNumber(row?.rejections);
+    const required = Math.max(4, Math.ceil(asNumber(row?.assigned) * 2 / 3));
+    if (votes >= 4 && approvals >= Math.ceil(votes * 2 / 3)) {
+      const caseRows = await sql.query<{ reason: string }>(
+        "select reason from escrow_cases where id = $1 and status = 'pending'", [escrowId],
+      );
+      if (caseRows[0]?.reason === "Hochwertiges Tauschgeschäft") {
+        const settled = await sql.query(
+          `with c as materialized (
+             select ec.id as escrow_id, ec.listing_id, ec.requester_id, l.user_id as seller,
+               l.region_id, l.price_karma, l.title, l.item_uuid, l.place_label
+             from escrow_cases ec join listings l on l.id = ec.listing_id
+             where ec.id = $1 and ec.status = 'pending' and l.status = 'booked'
+               and (select count(*) from escrow_votes v where v.escrow_id = ec.id) >= 4
+               and (select count(*) from escrow_votes v where v.escrow_id = ec.id and v.vote = 'approve')
+                   >= ceil((select count(*) from escrow_votes v where v.escrow_id = ec.id) * 2.0 / 3.0)
+             for update of ec, l
+           ),
+           moved as (
+             update profiles p set karma_balance = p.karma_balance +
+               case when p.user_id = c.requester_id then -c.price_karma + 1 else c.price_karma end,
+               last_activity_at = now()
+             from c where (p.user_id = c.requester_id or p.user_id = c.seller)
+               and exists (select 1 from profiles buyer where buyer.user_id = c.requester_id and buyer.karma_balance >= c.price_karma)
+             returning p.user_id
+           ),
+           closed as (
+             update listings l set status = 'completed', hands_count = hands_count + 1
+             from c where l.id = c.listing_id and (select count(*) from moved) = 2 returning l.id
+           ),
+           transfer_log as (
+             insert into ledger_entries(region_id,sender_id,receiver_id,listing_id,amount_karma,entry_kind,message)
+             select c.region_id,c.requester_id,c.seller,c.listing_id,c.price_karma,'transfer','Treuhand-Tausch nach Mehrheitsbeschluss: ' || c.title
+             from c where exists (select 1 from closed) returning id
+           ),
+           bonus_log as (
+             insert into ledger_entries(region_id,receiver_id,listing_id,amount_karma,entry_kind,message)
+             select c.region_id,c.requester_id,c.listing_id,1,'activity','Aktivitätsbonus nach Treuhand: ' || c.title
+             from c where exists (select 1 from closed) returning id
+           ),
+           history_log as (
+             insert into item_history(item_uuid,listing_id,owner_id,place_label,event_kind)
+             select c.item_uuid,c.listing_id,c.requester_id,c.place_label,'transferred'
+             from c where exists (select 1 from closed) returning id
+           )
+           update escrow_cases set status = 'released', resolved_at = now()
+           where id = $1 and status = 'pending' and exists (select 1 from closed)
+           returning id`,
+          [escrowId],
+        );
+        if (!settled.length) return fail("Mehrheit erreicht, aber die sichere Karma-Abwicklung ist fehlgeschlagen. Bitte Admin-Prüfung.");
+      } else {
+        await sql.query("update escrow_cases set status = 'released', resolved_at = now() where id = $1 and status = 'pending'", [escrowId]);
+      }
+    } else if (votes >= 4 && rejections >= Math.ceil(votes * 2 / 3)) {
+      await sql.query("update escrow_cases set status = 'disputed', resolved_at = now() where id = $1 and status = 'pending'", [escrowId]);
+    }
+    const state = await sql.query<{ status: string }>("select status from escrow_cases where id = $1", [escrowId]);
+    return {
+      status: asString(state[0]?.status, "pending") as "pending" | "released" | "disputed",
+      votes, approvals, rejections, required,
+    };
   });
