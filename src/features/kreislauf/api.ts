@@ -741,6 +741,7 @@ export const reserveListing = createServerFn({ method: "POST" })
              and p.moderator_rank > 0
              and p.last_active_at >= now() - interval '30 days'
              and p.user_id <> $2
+             and p.user_id <> t.user_id
            order by random()
            limit 1
          ) moderator on true
