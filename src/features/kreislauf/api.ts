@@ -1012,7 +1012,7 @@ export const transitionBooking = createServerFn({ method: "POST" })
       settled: boolean;
       payerAvailable: boolean;
     }>(
-      `with b as materialized (
+      `with target as materialized (
          select * from bookings
          where id = $1 and status = 'reserved' and (renter_id = $2 or owner_id = $2)
            and (
@@ -1020,6 +1020,13 @@ export const transitionBooking = createServerFn({ method: "POST" })
              or exists (select 1 from escrow_cases e where e.booking_id = bookings.id and e.status = 'released')
            )
          for update
+       ),
+       locked_profiles as materialized (
+         select p.user_id, p.karma_balance
+         from profiles p
+         join target on p.user_id = target.renter_id or p.user_id = target.owner_id
+         order by p.user_id
+         for update of p
        ),
        confirmed as (
          update bookings as booking
@@ -1030,77 +1037,81 @@ export const transitionBooking = createServerFn({ method: "POST" })
              owner_handover_at = case
                when booking.owner_id = $2 then coalesce(booking.owner_handover_at, now())
                else booking.owner_handover_at
+             end,
+             status = case
+               when coalesce(booking.renter_handover_at, case when booking.renter_id = $2 then now() end) is not null
+                and coalesce(booking.owner_handover_at, case when booking.owner_id = $2 then now() end) is not null
+                and exists (
+                  select 1 from locked_profiles lp
+                  where lp.user_id = booking.renter_id and lp.karma_balance >= booking.amount_karma
+                )
+               then 'handed_over'
+               else booking.status
              end
-         where booking.id = (select id from b)
+         from target
+         where booking.id = target.id
          returning booking.*
-       ),
-       ready as materialized (
-         select * from confirmed
-         where renter_handover_at is not null and owner_handover_at is not null
-       ),
-       payer as materialized (
-         select p.user_id
-         from profiles p join ready on ready.renter_id = p.user_id
-         where p.karma_balance >= ready.amount_karma
-         for update of p
        ),
        moved as (
          update profiles p
          set karma_balance = p.karma_balance + case
-               when p.user_id = ready.renter_id then -ready.amount_karma + 1
-               else ready.amount_karma
+               when p.user_id = confirmed.renter_id then -confirmed.amount_karma + 1
+               else confirmed.amount_karma
              end,
              last_activity_at = now()
-         from ready
-         where exists (select 1 from payer)
-           and (p.user_id = ready.renter_id or p.user_id = ready.owner_id)
+         from confirmed
+         where confirmed.status = 'handed_over'
+           and (p.user_id = confirmed.renter_id or p.user_id = confirmed.owner_id)
+           and (select count(*) from locked_profiles) = 2
          returning p.user_id
-       ),
-       upd as (
-         update bookings set status = 'handed_over'
-         where id = (select id from ready)
-           and (select count(*) from moved) = 2
-         returning id, listing_id, amount_karma, renter_id, owner_id
        ),
        transfer_log as (
          insert into ledger_entries (
            region_id, sender_id, receiver_id, listing_id, booking_id, amount_karma, entry_kind, message
          )
          select l.region_id,
-           case when upd.amount_karma = 0 then null else upd.renter_id end,
-           case when upd.amount_karma = 0 then upd.renter_id else upd.owner_id end,
-           upd.listing_id, upd.id, greatest(upd.amount_karma, 1),
-           case when upd.amount_karma = 0 then 'activity' else 'transfer' end,
-           case when upd.amount_karma = 0 then 'Aktivitäts-Karma für kostenlose Übernahme: ' || l.title else 'Flotte: ' || l.title end
-         from upd join listings l on l.id = upd.listing_id
+           case when confirmed.amount_karma = 0 then null else confirmed.renter_id end,
+           case when confirmed.amount_karma = 0 then confirmed.renter_id else confirmed.owner_id end,
+           confirmed.listing_id, confirmed.id, greatest(confirmed.amount_karma, 1),
+           case when confirmed.amount_karma = 0 then 'activity' else 'transfer' end,
+           case when confirmed.amount_karma = 0 then 'Aktivitäts-Karma für kostenlose Übernahme: ' || l.title else 'Flotte: ' || l.title end
+         from confirmed join listings l on l.id = confirmed.listing_id
+         where confirmed.status = 'handed_over'
+           and (select count(*) from moved) = 2
          returning id
        ),
        bonus_log as (
          insert into ledger_entries (region_id, receiver_id, listing_id, booking_id, amount_karma, entry_kind, message)
-         select l.region_id, upd.renter_id, l.id, upd.id, 1, 'activity',
+         select l.region_id, confirmed.renter_id, l.id, confirmed.id, 1, 'activity',
            'Aktivitätsbonus für erfolgreiche Übergabe: ' || l.title
-         from upd join listings l on l.id = upd.listing_id
-         where upd.amount_karma > 0
+         from confirmed join listings l on l.id = confirmed.listing_id
+         where confirmed.status = 'handed_over'
+           and confirmed.amount_karma > 0
+           and exists (select 1 from transfer_log)
          returning id
        ),
        count_log as (
          update listings l set hands_count = l.hands_count + 1
-         from upd where l.id = upd.listing_id
+         from confirmed
+         where l.id = confirmed.listing_id and exists (select 1 from transfer_log)
          returning l.id
        ),
        history_log as (
          insert into item_history (item_uuid,listing_id,owner_id,place_label,event_kind)
-         select l.item_uuid,l.id,upd.owner_id,l.place_label,
-           case when l.category = 'sharing' then 'loaned' when upd.amount_karma = 0 then 'gifted' else 'transferred' end
-         from upd join listings l on l.id = upd.listing_id
+         select l.item_uuid,l.id,confirmed.owner_id,l.place_label,
+           case when l.category = 'sharing' then 'loaned' when confirmed.amount_karma = 0 then 'gifted' else 'transferred' end
+         from confirmed join listings l on l.id = confirmed.listing_id
          where exists (select 1 from count_log)
          returning id
        )
        select
          confirmed.renter_handover_at is not null as "renterConfirmed",
          confirmed.owner_handover_at is not null as "ownerConfirmed",
-         exists (select 1 from upd) as settled,
-         exists (select 1 from payer) as "payerAvailable"
+         (confirmed.status = 'handed_over' and exists (select 1 from transfer_log)) as settled,
+         exists (
+           select 1 from locked_profiles lp
+           where lp.user_id = confirmed.renter_id and lp.karma_balance >= confirmed.amount_karma
+         ) as "payerAvailable"
        from confirmed`,
       [data.id, context.userId],
     );
