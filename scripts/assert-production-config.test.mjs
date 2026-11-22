@@ -12,6 +12,16 @@ function run(env) {
   });
 }
 
+const validProduction = {
+  VERCEL_ENV: "production",
+  DATABASE_URL: "postgresql://app:placeholder@db.example.invalid:5432/app",
+  VITE_AUTH_ENABLED: "true",
+  BETTER_AUTH_SECRET: "x".repeat(48),
+  BETTER_AUTH_URL: "https://kreislauf.example.at",
+  BLOB_READ_WRITE_TOKEN: "vercel_blob_rw_placeholder",
+  ID_AUSTRIA_MOCK_MODE: "false",
+};
+
 describe("production release guard", () => {
   it("keeps preview builds available without production secrets", () => {
     const result = run({
@@ -20,48 +30,43 @@ describe("production release guard", () => {
       VITE_AUTH_ENABLED: "false",
       BETTER_AUTH_SECRET: "",
       BETTER_AUTH_URL: "",
+      BLOB_READ_WRITE_TOKEN: "",
     });
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /checks skipped/);
   });
 
-  it("blocks production while persistent database and real auth are missing", () => {
+  it("blocks production while persistent database, real auth and media storage are missing", () => {
     const result = run({
-      VERCEL_ENV: "production",
+      ...validProduction,
       DATABASE_URL: "",
       VITE_AUTH_ENABLED: "false",
       BETTER_AUTH_SECRET: "",
       BETTER_AUTH_URL: "",
+      BLOB_READ_WRITE_TOKEN: "",
     });
     assert.equal(result.status, 1);
     assert.match(result.stderr, /DATABASE_URL/);
     assert.match(result.stderr, /VITE_AUTH_ENABLED=true/);
     assert.match(result.stderr, /BETTER_AUTH_SECRET/);
     assert.match(result.stderr, /BETTER_AUTH_URL/);
+    assert.match(result.stderr, /BLOB_READ_WRITE_TOKEN/);
   });
 
-  it("allows production only with a persistent DB and secure real-auth config", () => {
-    const result = run({
-      VERCEL_ENV: "production",
-      DATABASE_URL: "postgresql://app:placeholder@db.example.invalid:5432/app",
-      VITE_AUTH_ENABLED: "true",
-      BETTER_AUTH_SECRET: "x".repeat(48),
-      BETTER_AUTH_URL: "https://kreislauf.example.at",
-      ID_AUSTRIA_MOCK_MODE: "false",
-    });
+  it("rejects a non-PostgreSQL database URL", () => {
+    const result = run({ ...validProduction, DATABASE_URL: "https://db.example.invalid" });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /DATABASE_URL/);
+  });
+
+  it("allows production only with PostgreSQL, secure auth and media storage configured", () => {
+    const result = run(validProduction);
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stdout, /Mindestkonfiguration/);
+    assert.match(result.stdout, /PostgreSQL, Anmeldung und Medien-Storage/);
   });
 
   it("blocks production when the ID Austria mock is enabled", () => {
-    const result = run({
-      VERCEL_ENV: "production",
-      DATABASE_URL: "postgresql://app:placeholder@db.example.invalid:5432/app",
-      VITE_AUTH_ENABLED: "true",
-      BETTER_AUTH_SECRET: "x".repeat(48),
-      BETTER_AUTH_URL: "https://kreislauf.example.at",
-      ID_AUSTRIA_MOCK_MODE: "true",
-    });
+    const result = run({ ...validProduction, ID_AUSTRIA_MOCK_MODE: "true" });
     assert.equal(result.status, 1);
     assert.match(result.stderr, /ID_AUSTRIA_MOCK_MODE/);
   });
