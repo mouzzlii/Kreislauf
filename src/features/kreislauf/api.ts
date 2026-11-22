@@ -414,12 +414,17 @@ export const setRegion = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .handler(async ({ data, context }): Promise<Profile> => {
     const sql = await getSql();
-    await sql.query(
-      `update profiles set region_id = $1
-       where user_id = $2
-         and exists (select 1 from regions where id = $1)`,
-      [data.regionId, context.userId],
+    // Karma and ledger entries belong to a region. Moving a profile without a
+    // reviewed balance-transfer workflow would silently move regional supply
+    // and could strand active listings/bookings in the old region.
+    const current = await sql.query<{ region_id: string }>(
+      "select region_id from profiles where user_id = $1 for update",
+      [context.userId],
     );
+    if (!current.length) throw new Error("Noch kein Profil");
+    if (current[0].region_id !== data.regionId) {
+      throw new Error("Ein Regionswechsel ist derzeit gesperrt, weil Karma und laufende Tauschvorgänge regional gebunden sind.");
+    }
     const profile = await loadProfile(context.userId);
     if (!profile) throw new Error("Noch kein Profil");
     return profile;
