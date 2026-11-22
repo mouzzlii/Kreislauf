@@ -28,7 +28,9 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
   return <div className="mt-4 rounded-2xl border border-line bg-elev-2 p-4">
     <h3 className="font-display text-lg">Community-Treuhand</h3>
     {summary.status === "pending" ? <>
-      <p className="mt-1 text-sm text-muted">Abstimmung läuft: {summary.votes} Stimmen, davon {summary.approvals} Freigaben und {summary.rejections} Ablehnungen. Mindestens 4 Stimmen sind erforderlich; anschließend entscheidet die Zweidrittelmehrheit.</p>
+      {summary.votes >= 4 && summary.approvals >= Math.ceil(summary.votes * 2 / 3) ? (
+        <p className="mt-1 text-sm text-copper">Die Community-Mehrheit hat zugestimmt. Die hochwertige Treuhand bleibt aber bewusst gesperrt: Erst wenn beide Tauschparteien die Übergabe und den Empfang bestätigen und ein dokumentierter Streitfallprozess verfügbar ist, dürfen Punkte übertragen werden. Es wurden noch keine Punkte freigegeben.</p>
+      ) : <p className="mt-1 text-sm text-muted">Abstimmung läuft: {summary.votes} Stimmen, davon {summary.approvals} Freigaben und {summary.rejections} Ablehnungen. Mindestens 4 Stimmen sind erforderlich; anschließend entscheidet die Zweidrittelmehrheit.</p>}
       {summary.canVote && !summary.hasVoted ? <div className="mt-3 flex flex-wrap gap-2">
         <Button disabled={busy} onClick={() => void cast("approve")}>Freigeben</Button>
         <Button variant="ghost" disabled={busy} onClick={() => void cast("reject")}>Ablehnen</Button>
