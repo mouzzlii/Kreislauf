@@ -40,7 +40,10 @@ test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
       `insert into profiles(user_id, username, region_id, karma_balance, is_verified, moderator_rank, last_active_at)
        values
         ('test-renter', 'Test Renter', 'yspertal-b36', 100, true, 0, now()),
-        ('test-moderator', 'Test Moderator', 'yspertal-b36', 100, true, 1, now())
+        ('test-moderator', 'Test Moderator 1', 'yspertal-b36', 100, true, 1, now()),
+        ('test-moderator-2', 'Test Moderator 2', 'yspertal-b36', 100, true, 1, now()),
+        ('test-moderator-3', 'Test Moderator 3', 'yspertal-b36', 100, true, 1, now()),
+        ('test-moderator-4', 'Test Moderator 4', 'yspertal-b36', 100, true, 1, now())
        on conflict (user_id) do update set
          is_verified = excluded.is_verified,
          moderator_rank = excluded.moderator_rank,
@@ -123,7 +126,7 @@ test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
          (select requester_id from escrow_cases where id = $2) as requester_id,
          (select count(*)::int from escrow_moderators where escrow_id = $2 and moderator_id = 'test-renter') as renter_moderator_count,
          (select count(*)::int from escrow_moderators where escrow_id = $2 and moderator_id = 'seed-leonie') as owner_moderator_count,
-         (select count(*)::int from escrow_moderators where escrow_id = $2 and moderator_id = 'test-moderator') as assigned_moderator_count,
+         (select count(*)::int from escrow_moderators where escrow_id = $2) as assigned_moderator_count,
          (select count(*)::int from listing_messages m join listing_conversations c on c.id = m.conversation_id
            where c.listing_id = 'test-sharing' and c.requester_id = 'test-renter' and m.message_kind = 'system') as system_message_count`,
       [bookingId, escrowId],
@@ -134,7 +137,7 @@ test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
     assert.equal(result.requester_id, "test-renter");
     assert.equal(result.renter_moderator_count, 0, "requester must never be assigned as moderator");
     assert.equal(result.owner_moderator_count, 0, "listing owner must never be assigned as moderator");
-    assert.equal(result.assigned_moderator_count, 1, "eligible moderator should be assigned");
+    assert.ok(result.assigned_moderator_count >= 4, "at least four eligible moderators should be assigned for quorum");
     assert.ok(result.system_message_count >= 1, "booking should create an in-app system message");
 
     const secondAttempt = await db.query(
