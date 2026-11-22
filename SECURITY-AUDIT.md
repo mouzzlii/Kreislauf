@@ -116,3 +116,8 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 ## Karma-Ledger: Aktivitätsbuchungen
 
 Der ursprüngliche `entry_kind`-Check erlaubte `activity` nicht, obwohl Tausch- und Übergabe-Code Aktivitätsboni als diesen Typ protokolliert. Migration `0017_allow_activity_ledger_entries.sql` ergänzt den erlaubten Typ; `SUPABASE-SETUP.sql` enthält dieselbe Regel. Ein PGlite-Regressionstest prüft, dass ein Aktivitäts-Ledgereintrag angenommen wird. Ein Live-Supabase-Lauf wurde dadurch nicht nachgewiesen.
+
+
+## Sharing-Übergabe: beidseitige Bestätigung
+
+Die bisherige Übergabefunktion ließ eine einzelne Buchungspartei die Übergabe und Karma-Übertragung auslösen, obwohl die Oberfläche eine Bestätigung beider Seiten ankündigte. Die Funktion speichert nun je eine Bestätigung für Abholende und Anbietende und setzt die Buchung erst nach beiden Bestätigungen auf `handed_over`. Beide Profile werden vor der Abwicklung gesperrt; Karma, Ledger und Artikelhistorie werden in derselben SQL-Anweisung aktualisiert. Nach der ersten Bestätigung ist eine Stornierung gesperrt. Migration `0018_booking_bilateral_handover.sql` backfüllt bereits abgeschlossene Buchungen und erzwingt die Bestätigungen für abgeschlossene Status.
