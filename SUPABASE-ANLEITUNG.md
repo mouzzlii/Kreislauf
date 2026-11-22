@@ -53,3 +53,6 @@ Die Migrationen 0009 und 0010 sperren alte Prototyp-Tabellen und entfernen autom
 ### Schutz vor Nachrichten-Spam
 
 Migration 0011 begrenzt normale Inserat-Nachrichten pro Benutzer auf 12 innerhalb einer Minute und 80 innerhalb einer Stunde. Die Datenbank prüft das vor dem Speichern und serialisiert parallele Sendeversuche desselben Kontos, damit gleichzeitige Anfragen das Limit nicht einfach umgehen. Automatische Systemmeldungen bleiben davon ausgenommen.
+
+
+Die Limits werden durch atomare Datenbankzähler pro Konto durchgesetzt: maximal 12 Nachrichten pro Minute und 80 pro Stunde. Die Zählertabelle ist ebenfalls mit RLS gesperrt und für Browserrollen nicht zugänglich.
