@@ -136,7 +136,9 @@ test("sharing handover is blocked until its escrow has been released", () => {
   const handover = transition.slice(transition.indexOf('const rows = await sql.query(', transition.indexOf('if (data.action === "return")')));
   assert.match(handover, /not exists \(select 1 from escrow_cases e where e\.booking_id = bookings\.id\)/);
   assert.match(handover, /exists \(select 1 from escrow_cases e where e\.booking_id = bookings\.id and e\.status = 'released'\)/);
-  assert.match(transition, /Treuhandfreigabe und Karma/);
+  assert.match(handover, /locked_profiles as materialized/);
+  assert.match(handover, /p\.karma_balance >= booking\.amount_karma/);
+  assert.match(handover, /where confirmed\.status = 'handed_over'/);
 });
 
 test("cancelled escrow is represented separately in the API and user interface", () => {
