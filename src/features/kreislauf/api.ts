@@ -1034,7 +1034,6 @@ export const transitionBooking = createServerFn({ method: "POST" })
       if (!confirmation) return fail("Rückgabe nicht möglich. Prüfe Buchung, Berechtigung und ob ein Streitfall offen ist.");
       return { ok: true };
     }
-    }
     const rows = await sql.query<{
       renterConfirmed: boolean;
       ownerConfirmed: boolean;
