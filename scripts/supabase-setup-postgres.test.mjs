@@ -48,13 +48,18 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     assert.equal(access.rows[0].member_can_cast_arbitrary_vote, false);
     assert.equal(access.rows[0].server_can_cast_vote, true);
 
+    const defaultAcl = await db.query(
+      "select coalesce(array_to_string(defaclacl, ','), '') as acl from pg_default_acl where defaclrole = (select oid from pg_roles where rolname = 'postgres') and defaclnamespace = 'public'::regnamespace and defaclobjtype = 'r'",
+    );
+    assert.doesNotMatch(defaultAcl.rows[0]?.acl ?? "", /anon=|authenticated=|service_role=/);
+
     const trigger = await db.query(
       "select exists (select 1 from pg_trigger where tgname = 'bookings_status_message_updated') as installed",
     );
     assert.equal(trigger.rows[0].installed, true, "booking state notifications must be installed");
 
     const applied = await db.query("select name from _migrations order by name");
-    assert.equal(applied.rows.length, 8);
+    assert.equal(applied.rows.length, 9);
   } finally {
     await db.close();
   }
