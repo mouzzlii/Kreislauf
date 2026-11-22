@@ -23,6 +23,7 @@ function AccountPage() {
   const [myListings, setMyListings] = useState<Listing[] | null>(null);
   const [listingBusy, setListingBusy] = useState<string | null>(null);
   const [listingMessage, setListingMessage] = useState<string | null>(null);
+  const [listingLoadError, setListingLoadError] = useState(false);
   const [name, setName] = useState("");
 
   useEffect(() => {
@@ -62,7 +63,7 @@ function AccountPage() {
   useEffect(() => {
     if (!user) { setMyListings(null); return; }
     let cancel = false;
-    getMyListings().then((items) => { if (!cancel) setMyListings(items); }).catch(() => { if (!cancel) setMyListings([]); });
+    getMyListings().then((items) => { if (!cancel) { setMyListings(items); setListingLoadError(false); } }).catch(() => { if (!cancel) { setMyListings([]); setListingLoadError(true); } });
     return () => { cancel = true; };
   }, [user, version]);
 
@@ -105,7 +106,9 @@ function AccountPage() {
           <h2 className="font-display text-2xl text-fg">Meine Inserate</h2>
           <p className="mt-1 text-sm text-subtle">Pausierte Inserate sind für andere nicht mehr aufrufbar. Du kannst sie hier wieder freigeben.</p>
           <ul className="mt-4 space-y-3">
-            {(myListings ?? []).length === 0 ? <li className="rounded-2xl border border-line bg-elev p-4 text-sm text-muted">Du hast noch keine Inserate.</li> : null}
+            {myListings === null ? <li className="rounded-2xl border border-line bg-elev p-4 text-sm text-muted">Inserate werden geladen…</li> : null}
+            {myListings !== null && listingLoadError ? <li className="rounded-2xl border border-line bg-elev p-4 text-sm text-muted">Deine Inserate konnten nicht geladen werden. Bitte versuche es später erneut.</li> : null}
+            {myListings !== null && !listingLoadError && myListings.length === 0 ? <li className="rounded-2xl border border-line bg-elev p-4 text-sm text-muted">Du hast noch keine Inserate.</li> : null}
             {myListings?.map((listing) => (
               <li key={listing.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-elev p-4">
                 <div className="min-w-0">
