@@ -293,9 +293,19 @@ function ListingPage() {
                     </>
                   ) : null}
                   {booking.status === "handed_over" ? (
-                    <Button disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "return" } }))}>
-                      Zurückgeben
-                    </Button>
+                    <>
+                      <p className="w-full text-sm text-subtle">
+                        Rückgabebestätigung: {booking.renterReturned ? "Abholende Person bestätigt" : "Abholende Person offen"} · {booking.ownerReturned ? "Anbietende Person bestätigt" : "Anbietende Person offen"}.
+                        Die Rückgabe wird erst nach beiden Bestätigungen abgeschlossen.
+                      </p>
+                      {!(user?.id === booking.renterId ? booking.renterReturned : booking.ownerReturned) ? (
+                        <Button disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "return" } }))}>
+                          Rückgabe bestätigen
+                        </Button>
+                      ) : (
+                        <Button disabled>Rückgabe bestätigt</Button>
+                      )}
+                    </>
                   ) : null}
                 </div>
               ) : null}
