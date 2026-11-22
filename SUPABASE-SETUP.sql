@@ -147,11 +147,17 @@ create table if not exists bookings (
   amount_karma integer not null check (amount_karma >= 0),
   renter_handover_at timestamptz,
   owner_handover_at timestamptz,
+  renter_return_at timestamptz,
+  owner_return_at timestamptz,
   created_at timestamptz not null default now(),
   check (ends_at > starts_at),
   check (
     status not in ('handed_over', 'returned')
     or (renter_handover_at is not null and owner_handover_at is not null)
+  ),
+  check (
+    status <> 'returned'
+    or (renter_return_at is not null and owner_return_at is not null)
   )
 );
 
