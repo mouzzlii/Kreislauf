@@ -14,6 +14,10 @@ export function approximatePublicCoordinates(
   candidate: Coordinates | null,
   _seed: string,
 ): Coordinates {
+  const safeCenter = {
+    lat: Number.isFinite(regionCenter.lat) && regionCenter.lat >= -90 && regionCenter.lat <= 90 ? regionCenter.lat : 48.2,
+    lng: Number.isFinite(regionCenter.lng) && regionCenter.lng >= -180 && regionCenter.lng <= 180 ? regionCenter.lng : 15.1,
+  };
   const validCandidate =
     candidate !== null &&
     Number.isFinite(candidate.lat) &&
@@ -22,10 +26,10 @@ export function approximatePublicCoordinates(
     candidate.lat <= 90 &&
     candidate.lng >= -180 &&
     candidate.lng <= 180 &&
-    Math.abs(candidate.lat - regionCenter.lat) < 0.4 &&
-    Math.abs(candidate.lng - regionCenter.lng) < 0.6;
+    Math.abs(candidate.lat - safeCenter.lat) < 0.4 &&
+    Math.abs(candidate.lng - safeCenter.lng) < 0.6;
 
-  const base = validCandidate ? candidate : regionCenter;
+  const base = validCandidate ? candidate : safeCenter;
   return {
     lat: clamp(base.lat + randomOffset(), -90, 90),
     lng: clamp(base.lng + randomOffset(), -180, 180),
