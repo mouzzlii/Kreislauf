@@ -2,7 +2,7 @@
 
 ## Demo öffnen
 
-Öffne den aktuellen Vorschau-Link in Chrome auf deinem Android-Handy und tippe auf **Demo öffnen**. Es gibt in dieser Version keine persönliche Registrierung.
+Öffne den zuletzt verfügbaren Vorschau-Link in Chrome auf deinem Android-Handy und tippe auf **Demo öffnen**. Hinweis: Der derzeit verfügbare Vercel-Preview kann noch einen älteren Stand enthalten, bis ein neuer Deployment-Lauf möglich ist. Es gibt in dieser Version keine persönliche Registrierung.
 
 **Wichtig:** Alle Besucher verwenden denselben Demo-Zugang. Namen, Inserate und Testaktionen sind nicht privat. Bitte keine echten persönlichen Daten, Adressen oder vertraulichen Nachrichten eingeben. Die Demo-Datenbank läuft derzeit im Arbeitsspeicher; Daten können nach einem Neustart verschwinden.
 
