@@ -238,21 +238,7 @@ export const getListing = createServerFn({ method: "GET" })
     const listingRows = await sql.query<Row>(`${LISTING_SQL} where l.id = $1`, [data.id]);
     const listing = listingRows[0] ? mapListing(listingRows[0]) : null;
     if (!listing) return null;
-    const [bookingRows, historyRows, escrowRows, reviewRows] = await Promise.all([
-      sql.query<Row>(
-        `select b.id, b.listing_id as "listingId", b.renter_id as "renterId", b.owner_id as "ownerId",
-           renter.username as "renterName", owner.username as "ownerName",
-           to_char(b.starts_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "startsAt",
-           to_char(b.ends_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "endsAt",
-           b.status, b.amount_karma as "amountKarma"
-         from bookings b
-         join profiles renter on renter.user_id = b.renter_id
-         join profiles owner on owner.user_id = b.owner_id
-         where b.listing_id = $1 and b.status <> 'cancelled'
-         order by b.created_at desc
-         limit 1`,
-        [listing.id],
-      ),
+    const [historyRows, escrowRows, reviewRows] = await Promise.all([
       sql.query<Row>(
         `select h.place_label as "placeLabel", h.event_kind as "eventKind",
            to_char(h.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt"
@@ -271,21 +257,8 @@ export const getListing = createServerFn({ method: "GET" })
         [listing.id],
       ),
     ]);
-    const bookingRow = bookingRows[0];
-    const booking: Booking | null = bookingRow
-      ? {
-          id: asString(bookingRow.id),
-          listingId: asString(bookingRow.listingId),
-          renterId: asString(bookingRow.renterId),
-          ownerId: asString(bookingRow.ownerId),
-          renterName: asString(bookingRow.renterName),
-          ownerName: asString(bookingRow.ownerName),
-          startsAt: asString(bookingRow.startsAt),
-          endsAt: asString(bookingRow.endsAt),
-          status: asString(bookingRow.status) as BookingStatus,
-          amountKarma: asNumber(bookingRow.amountKarma),
-        }
-      : null;
+    // Private booking data is loaded separately by the authenticated booking endpoint.
+    const booking: Booking | null = null;
     const reviews: Review[] = reviewRows.map((row) => ({
       id: asString(row.id),
       reviewerName: asString(row.reviewerName),
@@ -301,6 +274,42 @@ export const getListing = createServerFn({ method: "GET" })
       createdAt: asString(row.createdAt),
     }));
     return { listing, booking, reviews, history, escrowPending: escrowRows.length > 0 };
+  });
+
+export const getListingBooking = createServerFn({ method: "GET" })
+  .validator((input: unknown) => ({ id: idOf(input, "id") }))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<Booking | null> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      `select b.id, b.listing_id as "listingId", b.renter_id as "renterId", b.owner_id as "ownerId",
+         renter.username as "renterName", owner.username as "ownerName",
+         to_char(b.starts_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "startsAt",
+         to_char(b.ends_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "endsAt",
+         b.status, b.amount_karma as "amountKarma"
+       from bookings b
+       join profiles renter on renter.user_id = b.renter_id
+       join profiles owner on owner.user_id = b.owner_id
+       where b.listing_id = $1 and b.status <> 'cancelled'
+         and (b.renter_id = $2 or b.owner_id = $2)
+       order by b.created_at desc
+       limit 1`,
+      [data.id, context.userId],
+    );
+    const row = rows[0];
+    if (!row) return null;
+    return {
+      id: asString(row.id),
+      listingId: asString(row.listingId),
+      renterId: asString(row.renterId),
+      ownerId: asString(row.ownerId),
+      renterName: asString(row.renterName),
+      ownerName: asString(row.ownerName),
+      startsAt: asString(row.startsAt),
+      endsAt: asString(row.endsAt),
+      status: asString(row.status) as BookingStatus,
+      amountKarma: asNumber(row.amountKarma),
+    };
   });
 
 export const ensureProfile = createServerFn({ method: "POST" })
