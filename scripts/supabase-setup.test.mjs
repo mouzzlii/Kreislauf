@@ -13,6 +13,7 @@ test("Supabase production setup includes all current application migrations", ()
     "0005_escrow_atomicity.sql",
     "0006_escrow_cancellation.sql",
     "0007_harden_function_search_path.sql",
+    "0009_lock_down_legacy_tables.sql",
   ]) {
     assert.ok(sql.includes(name), `missing migration ${name}`);
   }
@@ -49,7 +50,7 @@ test("Supabase setup includes escrow cancellation and the final four-vote policy
   assert.match(sql, /limit greatest\(0, 7 - \(select count\(\*\) from escrow_moderators/);
 });
 
-test("Supabase migration bookkeeping is protected by RLS", () => {
+test("legacy prototype tables are locked down by the upgrade migration", async () => {\n  const legacy = await readFile(new URL("../migrations/0009_lock_down_legacy_tables.sql", import.meta.url), "utf8");\n  assert.match(legacy, /drop policy/i);\n  assert.match(legacy, /enable row level security/i);\n  assert.match(legacy, /revoke all on table/i);\n});\n\ntest("Supabase migration bookkeeping is protected by RLS", () => {
   assert.match(sql, /alter table public\._migrations enable row level security/);
   assert.match(sql, /public\._migrations[\s\S]*?from anon, authenticated/);
 });
