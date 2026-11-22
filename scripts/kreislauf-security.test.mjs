@@ -83,6 +83,7 @@ test("cancelling or returning a booking closes its unresolved escrow", () => {
 test("cancelled escrow is represented separately in the API and user interface", () => {
   assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled" \| null/);
   assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled";/);
+  assert.match(api, /as "pending" \| "released" \| "disputed" \| "cancelled"/);
   assert.match(escrowPanel, /summary\.status === "cancelled"/);
   assert.doesNotMatch(escrowPanel, /summary\.status === "cancelled"[\s\S]*?Treuhand wurde abgelehnt/);
 });
