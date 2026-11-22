@@ -71,6 +71,13 @@ test("listing requests and trade events create system messages in the linked con
   assert.match(messagingSql, /message_kind\)\s*values \(v_conversation_id, null, left\(p_body, 2000\), 'system'\)/);
 });
 
+test("global demurrage stays blocked unless the caller administers every enabled region", () => {
+  const demurrage = serverFunction("runDemurrage");
+  assert.match(demurrage, /count\(\*\) filter \(where admin_user_id = \$1\)/);
+  assert.match(demurrage, /administeredRegions !== enabledRegions/);
+  assert.match(demurrage, /Umlaufprämie ist gesperrt/);
+});
+
 test("listing messages are restricted to the owner and the selected requester", () => {
   const threads = serverFunction("getListingThreads");
   const messages = serverFunction("getListingMessages");
