@@ -604,8 +604,8 @@ export const tradeListing = createServerFn({ method: "POST" })
       const moderators = await sql.query<{ user_id: string }>(
         `select user_id from profiles where region_id = $1 and user_id <> $2 and user_id <> $3
          and is_verified = true and moderator_rank > 0 and last_active_at >= now() - interval '30 days'
-         order by random() limit 1`, [highValue[0].region_id, context.userId, highValue[0].user_id]);
-      if (!moderators[0]) return fail("Für dieses hochwertige Tauschgeschäft ist derzeit keine aktive verifizierte Moderation verfügbar.");
+         order by random() limit 7`, [highValue[0].region_id, context.userId, highValue[0].user_id]);
+      if (moderators.length < 4) return fail("Für die Treuhand müssen mindestens vier aktive, verifizierte Moderationspersonen verfügbar sein.");
       const held = await sql.query(
         `with target as (select id from listings where id = $1 and status = 'active' for update),
          escrow as (insert into escrow_cases (id,listing_id,requester_id,moderator_id,reason)
@@ -714,6 +714,19 @@ export const reserveListing = createServerFn({ method: "POST" })
     );
     if (!verification[0]?.is_verified) {
       return fail("Bitte verifiziere zuerst dein Konto mit ID Austria.");
+    }
+
+    const moderatorCount = await sql.query<{ count: number }>(
+      `select count(*)::int as count
+       from profiles p
+       join listings l on l.region_id = p.region_id
+       where l.id = $1 and p.user_id <> $2 and p.user_id <> l.user_id
+         and p.is_verified = true and p.moderator_rank > 0
+         and p.last_active_at >= now() - interval '30 days'`,
+      [data.id, context.userId],
+    );
+    if ((moderatorCount[0]?.count ?? 0) < 4) {
+      return fail("Für eine sichere Treuhand müssen mindestens vier aktive, verifizierte Moderationspersonen verfügbar sein.");
     }
 
     const bookingId = `bkg-${crypto.randomUUID()}`;
