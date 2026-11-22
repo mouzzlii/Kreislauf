@@ -126,3 +126,8 @@ Die bisherige Übergabefunktion ließ eine einzelne Buchungspartei die Übergabe
 ## Sharing-Rückgabe: beidseitige Bestätigung
 
 Vorher konnte eine einzelne Buchungspartei eine Sharing-Rückgabe abschließen und das Inserat wieder freigeben. Die Rückgabefunktion speichert nun getrennte Bestätigungen von abholender und anbietender Partei. Erst die zweite Bestätigung setzt den Buchungsstatus auf `returned` und aktiviert das Inserat wieder. Die Datenbank erzwingt beide Zeitstempel; die PGlite-Integration führt den echten Rückgabe-SQL-Ablauf mit beiden Konten aus. Migration `0019_booking_bilateral_return.sql` backfüllt bestehende abgeschlossene Rückgaben.
+
+
+## Nachrichtenpersistenz
+
+Das Öffnen bzw. Aktualisieren einer Inserat-Unterhaltung und das Einfügen der dazugehörigen Nachricht erfolgen in einem einzigen SQL-Statement. Scheitert das Einfügen der Nachricht, wird auch die neue Unterhaltung nicht separat gespeichert. Ein Regressionstest schützt diese Atomaritätsanforderung. Dies ist eine Code-/Testabsicherung; ein Live-Test gegen die produktive Datenbank ist davon getrennt.
