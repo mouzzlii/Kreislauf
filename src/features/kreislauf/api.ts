@@ -1087,7 +1087,11 @@ export const verifyWithIdAustria = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .handler(async ({ context }): Promise<{ verified: boolean; mode: "mock" | "live" }> => {
     const mockMode = process.env.ID_AUSTRIA_MOCK_MODE === "true";
-    if (!mockMode) throw new Error("ID Austria Live-Verifikation ist noch nicht konfiguriert. Der OIDC-Client benötigt die offiziellen A-Trust-Zugangsdaten und Callback-Freigabe.");
+    // Mock identity checks are for local/demo environments only. A mistakenly
+    // enabled flag must never let production users self-verify without A-Trust.
+    if (process.env.NODE_ENV === "production" || !mockMode) {
+      throw new Error("ID Austria ist im Produktivbetrieb noch nicht angebunden. Eine Demo-Verifikation ist dort gesperrt.");
+    }
     const sql = await getSql();
     await sql.query(`update profiles set is_verified = true, last_active_at = now(), last_activity_at = now() where user_id = $1`, [context.userId]);
     return { verified: true, mode: "mock" };
