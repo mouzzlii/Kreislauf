@@ -21,6 +21,7 @@ const pausedMigration = await readFile(new URL("../migrations/0015_listing_pause
 const marketRoute = await readFile(new URL("../src/routes/index.tsx", import.meta.url), "utf8");
 const shell = await readFile(new URL("../src/components/shell.tsx", import.meta.url), "utf8");
 const listingDetail = await readFile(new URL("../src/routes/inserat/$listingId.tsx", import.meta.url), "utf8");
+const listingTypes = await readFile(new URL("../src/features/kreislauf/types.ts", import.meta.url), "utf8");
 const listingConversation = await readFile(new URL("../src/components/listing-conversation.tsx", import.meta.url), "utf8");
 
 function serverFunction(name) {
@@ -251,8 +252,8 @@ test("unread listing notifications open the exact conversation, including multip
 test("disputed escrow remains visible on the listing detail instead of disappearing", () => {
   assert.match(api, /from escrow_cases where listing_id = \$1 and status in \('pending', 'disputed'\)/);
   assert.match(api, /escrowVisible: escrowRows.length > 0/);
-  assert.match(detail, /detail\.escrowVisible/);
-  assert.match(types, /escrowVisible: boolean/);
+  assert.match(listingDetail, /detail\.escrowVisible/);
+  assert.match(listingTypes, /escrowVisible: boolean/);
   assert.match(escrowPanel, /summary\.status === "disputed"/);
   assert.match(escrowPanel, /Das Inserat bleibt gesperrt/);
 });
