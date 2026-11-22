@@ -22,6 +22,7 @@ const migrations = [
   "0014_foreign_key_indexes.sql",
   "0015_listing_paused_status.sql",
   "0016_reconcile_demo_karma_ledger.sql",
+  "0017_allow_activity_ledger_entries.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
@@ -118,6 +119,16 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
          moderator_rank = excluded.moderator_rank,
          last_active_at = now()`,
     );
+    await db.query("update profiles set karma_balance = karma_balance + 1 where user_id = 'test-renter'");
+    await db.query(
+      `insert into ledger_entries(region_id, receiver_id, amount_karma, entry_kind, message)
+       values ('yspertal-b36', 'test-renter', 1, 'activity', 'Regressionstest Aktivitätsbonus')`,
+    );
+    const activityEntry = await db.query(
+      "select entry_kind from ledger_entries where receiver_id = 'test-renter' and message = 'Regressionstest Aktivitätsbonus'",
+    );
+    assert.equal(activityEntry.rows[0].entry_kind, "activity", "activity rewards must be accepted by the ledger constraint");
+
     await db.query(
       `insert into listings(
          id, user_id, region_id, title, description, category, price_karma, status,
