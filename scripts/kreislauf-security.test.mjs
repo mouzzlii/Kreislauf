@@ -147,8 +147,8 @@ test("every mutating or private server function enforces verified identity", () 
 
 
 test("Better Auth generic OAuth uses the patched 1.7 social sign-in API", () => {
-  assert.doesNotMatch(authClient, /genericOAuthClient|signIn\\.oauth2/);
-  assert.match(authClient, /authClient\\.signIn\\.social\\(\\{\\s*provider: providerId/);
+  assert.doesNotMatch(authClient, /genericOAuthClient|signIn\.oauth2/);
+  assert.match(authClient, /authClient\.signIn\.social\(\{\s*provider: providerId/);
   assert.doesNotMatch(authPopup, /signInWithOAuth2/);
-  assert.match(authPopup, /auth\\.api\\.signInSocial/);
+  assert.match(authPopup, /auth\.api\.signInSocial/);
 });
