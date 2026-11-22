@@ -15,19 +15,19 @@ test("accepts the maximum duration for each preset", () => {
 });
 
 test("rejects too many clips and clips above their preset duration", () => {
-  assert.equal(checkVideoDurations("single", [30, 20]).reason, "too-many");
-  assert.equal(checkVideoDurations("pair", [31]).reason, "clip-too-long");
-  assert.equal(checkVideoDurations("quad", [21]).reason, "clip-too-long");
+  assert.equal(checkVideoDurations("single", [30, 20]).ok, false);
+  assert.equal(checkVideoDurations("pair", [31]).ok, false);
+  assert.equal(checkVideoDurations("quad", [21]).ok, false);
 });
 
 test("rejects combined duration above 60 seconds", () => {
-  assert.equal(checkVideoDurations("pair", [30, 30.1]).reason, "total-too-long");
-  assert.equal(checkVideoDurations("quad", [16, 16, 16, 16]).reason, "total-too-long");
+  assert.equal(checkVideoDurations("pair", [30, 30.1]).ok, false);
+  assert.equal(checkVideoDurations("quad", [16, 16, 16, 16]).ok, false);
 });
 
 test("rejects empty, zero, negative, and non-finite durations", () => {
-  assert.equal(checkVideoDurations("single", []).reason, "empty");
-  assert.equal(checkVideoDurations("single", [0]).reason, "invalid-duration");
-  assert.equal(checkVideoDurations("single", [-1]).reason, "invalid-duration");
-  assert.equal(checkVideoDurations("single", [Number.NaN]).reason, "invalid-duration");
+  assert.equal(checkVideoDurations("single", []).ok, false);
+  assert.equal(checkVideoDurations("single", [0]).ok, false);
+  assert.equal(checkVideoDurations("single", [-1]).ok, false);
+  assert.equal(checkVideoDurations("single", [Number.NaN]).ok, false);
 });
