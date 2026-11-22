@@ -266,6 +266,13 @@ test("paused listings stay out of the public market feed", () => {
 });
 
 
+test("high-value escrow copy does not promise automatic settlement after moderator votes", () => {
+  assert.match(listingDetail, /Die Moderation allein überträgt noch kein Karma/);
+  assert.match(listingDetail, /Beide Tauschparteien müssen die Übergabe und den Empfang bestätigen/);
+  assert.match(listingDetail, /Nach dem Mehrheitsbeschluss bleibt der Vorgang gesperrt/);
+  assert.doesNotMatch(listingDetail, /Karma wird erst nach mindestens vier Stimmen und einer Zweidrittelmehrheit übertragen/);
+});
+
 test("paused listings stay out of both market and map views", () => {
   assert.match(marketRoute, /listing\.status === "maintenance" \|\| listing\.status === "paused"\) return false/);
   assert.match(mapRoute, /!\["completed", "maintenance", "paused"\]\.includes\(listing\.status\)/);
