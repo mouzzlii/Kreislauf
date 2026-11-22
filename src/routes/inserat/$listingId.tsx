@@ -10,6 +10,7 @@ import {
   addReview,
   getListing,
   getListingBooking,
+  getProviderListings,
   getMeetingPoint,
   reserveListing,
   tradeListing,
@@ -25,7 +26,7 @@ import {
   formatWhen,
   priceCaption,
 } from "@/features/kreislauf/format";
-import type { Booking, ListingDetail } from "@/features/kreislauf/types";
+import type { Booking, Listing, ListingDetail } from "@/features/kreislauf/types";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/inserat/$listingId")({
@@ -41,6 +42,7 @@ function ListingPage() {
   const { user, isPending } = useCurrentUserState();
   const [detail, setDetail] = useState<ListingDetail | null>(initial);
   const [booking, setBooking] = useState<Booking | null>(null);
+  const [providerListings, setProviderListings] = useState<Listing[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [meetingPointUrl, setMeetingPointUrl] = useState<string | null>(null);
@@ -59,6 +61,14 @@ function ListingPage() {
       cancel = true;
     };
   }, [listingId, version]);
+
+  useEffect(() => {
+    let cancel = false;
+    getProviderListings({ data: { id: initial.listing.id, excludeId: listingId } })
+      .then((items) => { if (!cancel) setProviderListings(items); })
+      .catch(() => { if (!cancel) setProviderListings([]); });
+    return () => { cancel = true; };
+  }, [initial.listing.userId, listingId]);
 
   useEffect(() => {
     if (!user) {
@@ -251,6 +261,29 @@ function ListingPage() {
       </div>
 
       <ListingConversation listingId={listing.id} ownerId={listing.userId} currentUserId={user?.id ?? null} />
+
+      {providerListings.length > 0 ? (
+        <section className="mt-8">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-forest">Vom selben Anbieter</p>
+              <h2 className="mt-1 font-display text-2xl text-fg">Weitere Inserate</h2>
+            </div>
+            <span className="text-xs text-subtle">{providerListings.length} aktiv</span>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {providerListings.map((item) => (
+              <Link key={item.id} to="/inserat/$listingId" params={{ listingId: item.id }} className="group overflow-hidden rounded-2xl border border-line bg-elev">
+                <ListingVisual listing={item} className="aspect-[4/3] w-full" />
+                <div className="p-3">
+                  <p className="line-clamp-2 text-sm font-medium text-fg group-hover:underline">{item.title}</p>
+                  <p className="mt-1 text-xs text-muted">{priceCaption(item.category, item.priceKarma)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <QrScanner onOpenListing={(id) => void navigate({ to: "/inserat/$listingId", params: { listingId: id } })} />
 
