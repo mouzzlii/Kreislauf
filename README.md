@@ -6,6 +6,8 @@ Regionales Kreislauf- und Tauschsystem für das Yspertal / die B36.
 
 Die aktuelle Vorschau ist eine gemeinsame Testversion, kein produktiver Mehrbenutzerbetrieb.
 
+**[KREISLAUF jetzt öffnen](https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/)** – die gemeinsame Testversion für Smartphone und Desktop.
+
 **[Deutsche Anleitung zum Ausprobieren](DEMO-ANLEITUNG.md)**
 
 Für die spätere Produktiv-Anbindung an das vorhandene Supabase-Projekt: **[Supabase vorbereiten](SUPABASE-ANLEITUNG.md)** · [SQL-Schema ohne Demo-Datensätze](SUPABASE-SETUP.sql).
