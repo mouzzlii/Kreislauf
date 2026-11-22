@@ -175,6 +175,64 @@ test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
       ["test-sharing", "test-renter"],
     );
     assert.equal(secondAttempt.rows[0].eligible, 0, "booked listing must not be reservable again");
+
+    await db.query(
+      `insert into listings(
+         id, user_id, region_id, title, description, category, price_karma, status,
+         images, lat, lng, place_label, offer_type, item_uuid
+       ) values (
+         'test-high-value', 'seed-leonie', 'yspertal-b36', 'Wertvoller Testartikel', 'Treuhand-Abstimmung testen',
+         'goods', 100, 'booked', '[]'::jsonb, 48.3, 15.06, 'Testort', 'sell', 'item-test-high-value'
+       )`,
+    );
+    await db.query(
+      `insert into escrow_cases(id, listing_id, requester_id, moderator_id, reason)
+       values ('test-high-value-escrow', 'test-high-value', 'test-renter', 'test-moderator', 'Hochwertiges Tauschgeschäft')`,
+    );
+    const balancesBefore = await db.query(
+      `select user_id, karma_balance from profiles where user_id in ('test-renter', 'seed-leonie') order by user_id`,
+    );
+    const before = Object.fromEntries(balancesBefore.rows.map((row) => [row.user_id, row.karma_balance]));
+
+    await db.query(
+      "select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)",
+      ["test-high-value", "test-moderator", "approve", "Prüfung 1"],
+    );
+    await db.query(
+      "select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)",
+      ["test-high-value", "test-moderator-2", "approve", "Prüfung 2"],
+    );
+    await db.query(
+      "select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)",
+      ["test-high-value", "test-moderator-3", "approve", "Prüfung 3"],
+    );
+    const beforeQuorum = await db.query(
+      "select status from escrow_cases where id = 'test-high-value-escrow'",
+    );
+    assert.equal(beforeQuorum.rows[0].status, "pending", "fewer than four votes must not release escrow");
+
+    const finalVote = await db.query(
+      "select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)",
+      ["test-high-value", "test-moderator-4", "reject", "Prüfung 4"],
+    );
+    assert.equal(finalVote.rows[0].votes, 4);
+    assert.equal(finalVote.rows[0].approvals, 3);
+    assert.equal(finalVote.rows[0].status, "released", "three of four votes should release the high-value escrow");
+
+    const settled = await db.query(
+      `select
+         (select status from listings where id = 'test-high-value') as listing_status,
+         (select status from escrow_cases where id = 'test-high-value-escrow') as escrow_status,
+         (select karma_balance from profiles where user_id = 'test-renter') as buyer_balance,
+         (select karma_balance from profiles where user_id = 'seed-leonie') as seller_balance,
+         (select count(*)::int from ledger_entries where listing_id = 'test-high-value' and entry_kind = 'transfer') as transfer_count`,
+    );
+    assert.equal(settled.rows[0].listing_status, "completed");
+    assert.equal(settled.rows[0].escrow_status, "released");
+    assert.equal(settled.rows[0].buyer_balance, before["test-renter"] - 99);
+    assert.equal(settled.rows[0].seller_balance, before["seed-leonie"] + 100);
+    assert.equal(settled.rows[0].transfer_count, 1, "settlement should write exactly one immutable transfer");
+
   } finally {
     await db.close();
   }
