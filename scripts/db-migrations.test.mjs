@@ -12,9 +12,16 @@ const migrations = [
   "0004_messages_escrow.sql",
   "0005_escrow_atomicity.sql",
   "0006_escrow_cancellation.sql",
+  "0007_harden_function_search_path.sql",
+  "0008_harden_legacy_function_search_path.sql",
+  "0009_lock_down_legacy_tables.sql",
+  "0010_lock_down_default_privileges.sql",
+  "0011_limit_listing_message_rate.sql",
+  "0012_atomic_listing_message_rate_limits.sql",
+  "0013_listing_video_urls.sql",
 ];
 
-test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
+test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
   const db = new PGlite();
   try {
     await db.waitReady;
