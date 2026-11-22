@@ -25,6 +25,18 @@ export const Route = createFileRoute("/api/upload")({
 
           assertSameSiteRequest();
           const userId = await requireUserId();
+          const { getSql } = await import("@/lib/db");
+          const sql = await getSql();
+          const profile = await sql.query<{ is_verified: boolean }>(
+            "select is_verified from profiles where user_id = $1",
+            [userId],
+          );
+          if (!profile[0]?.is_verified) {
+            return Response.json(
+              { error: "Bitte verifiziere zuerst dein Konto, bevor du Videos hochlädst." },
+              { status: 403, headers: { "Cache-Control": "no-store" } },
+            );
+          }
           const body = await request.json();
           const response = await handleUpload({
             body,
