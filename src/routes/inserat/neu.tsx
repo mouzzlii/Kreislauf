@@ -212,7 +212,7 @@ function NewListing() {
           <Field label="Videos (maximal 60 Sekunden Gesamtzeit)">
             <select
               className={fieldClass}
-              disabled={videoLoading}
+              disabled
               value={videoPreset}
               onChange={(event) => {
                 const preset = event.target.value as VideoPreset;
@@ -234,7 +234,7 @@ function NewListing() {
             <input
               className="mt-2 block w-full text-sm text-muted file:mr-3 file:h-11 file:rounded-lg file:border-0 file:bg-elev-2 file:px-4 file:text-fg"
               type="file"
-              disabled={videoLoading}
+              disabled
               accept="video/mp4,video/webm,video/quicktime"
               multiple={VIDEO_PRESETS[videoPreset].maxFiles > 1}
               onChange={(event) => {
@@ -291,12 +291,12 @@ function NewListing() {
               }}
             />
             <span className="mt-1 block text-xs text-subtle">
-              {videos.length} von {VIDEO_PRESETS[videoPreset].maxFiles} Videos ausgewählt · höchstens {VIDEO_PRESETS[videoPreset].maxEachSeconds} Sekunden je Clip. Die Dauer wird am Gerät geprüft.
+              Videoauswahl derzeit deaktiviert. Die tatsächliche Dauer muss vor der Freigabe zusätzlich am Server geprüft werden.
             </span>
             {videoLoading ? <span className="mt-2 block text-xs text-muted">Videodauer wird geprüft…</span> : null}
             {!authEnabled ? (
               <p className="mt-2 rounded-xl border border-copper/30 bg-copper/5 p-3 text-xs text-muted">
-                In der gemeinsamen Demo sind Video-Uploads zum Schutz der Testdaten gesperrt. Mit persönlichen Konten werden Videos dauerhaft dem jeweiligen Mitglied zugeordnet.
+                Video-Uploads bleiben vorerst in allen Umgebungen gesperrt. Die Prüfung im Browser allein reicht nicht aus, weil sie manipuliert werden kann. Erst nach unabhängiger Serverprüfung werden die Formate 1 × 60 s, 2 × 30 s oder 4 × 20 s freigeschaltet.
               </p>
             ) : null}
             {busy && videos.length > 0 ? <p className="mt-2 text-xs text-muted">Video-Upload: {videoUploadProgress} %</p> : null}
