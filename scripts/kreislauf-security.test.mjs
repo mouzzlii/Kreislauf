@@ -198,3 +198,13 @@ test("listing creation rejects video references until server-side media inspecti
   assert.match(videoMigration, /add column if not exists video_urls jsonb/);
   assert.match(videoMigration, /jsonb_array_length\(video_urls\) <= 4/);
 });
+
+
+test("listing owners can pause and resume only their own active or paused listings", () => {
+  const availability = serverFunction("setListingAvailability");
+  assert.match(availability, /\.middleware\(\[authMiddleware\]\)/);
+  assert.match(availability, /action !== "pause" && action !== "resume"/);
+  assert.match(availability, /where id = \$1 and user_id = \$2 and status = \$4/);
+  assert.match(availability, /returning id/);
+  assert.match(availability, /Das Inserat ist nicht mehr verfügbar oder gehört nicht zu deinem Konto/);
+});
