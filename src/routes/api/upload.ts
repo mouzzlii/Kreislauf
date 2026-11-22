@@ -7,6 +7,8 @@ export const Route = createFileRoute("/api/upload")({
       POST: async ({ request }) => {
         try {
           const { authConfigured, requireUserId } = await import("@/lib/auth/verify.server");
+          const { assertSameSiteRequest } = await import("@/lib/auth/isolation.server");
+          assertSameSiteRequest();
           if (!authConfigured) {
             return Response.json(
               { error: "Video-Uploads benötigen persönliche, aktivierte Konten." },
@@ -20,7 +22,8 @@ export const Route = createFileRoute("/api/upload")({
             request,
             onBeforeGenerateToken: async (pathname, clientPayload) => {
               const prefix = `listings/${encodeURIComponent(userId)}/`;
-              if (!pathname.startsWith(prefix)) throw new Error("Ungültiger Upload-Pfad");
+              const filename = pathname.startsWith(prefix) ? pathname.slice(prefix.length) : "";
+              if (!/^[0-9a-f-]{36}\.(mp4|webm|mov)$/i.test(filename)) throw new Error("Ungültiger Upload-Pfad");
               let payload: { duration?: unknown };
               try { payload = JSON.parse(clientPayload ?? "{}"); } catch { throw new Error("Ungültige Videodaten"); }
               if (typeof payload.duration !== "number" || !Number.isFinite(payload.duration) || payload.duration <= 0 || payload.duration > 60) {
