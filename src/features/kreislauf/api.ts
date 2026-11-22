@@ -508,7 +508,7 @@ export const createListing = createServerFn({ method: "POST" })
         : [];
     if (rawImages.length > 4) throw new Error("Maximal 4 Fotos pro Inserat");
     const imageDataUrls = rawImages.map((image) => {
-      if (typeof image !== "string" || !/^data:image\\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(image) || image.length > 280_000) {
+      if (typeof image !== "string" || !/^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(image) || image.length > 280_000) {
         throw new Error("Ein Foto ist zu groß oder im falschen Format");
       }
       return image;
