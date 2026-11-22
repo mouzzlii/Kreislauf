@@ -14,7 +14,7 @@ import {
   tradeListing,
   transitionBooking,
 } from "@/features/kreislauf/api";
-import { useKreislauf } from "@/features/kreislauf/context";
+import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import {
   BOOKING_LABEL,
   CATEGORY_LABEL,
