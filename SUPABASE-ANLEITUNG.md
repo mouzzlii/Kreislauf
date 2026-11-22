@@ -28,7 +28,7 @@ Die derzeitige Vorschau verwendet absichtlich einen gemeinsamen Demo-Zugang. **E
 3. Danach zuerst Konto anlegen, abmelden und wieder anmelden testen. E-Mail/Passwort ist in der Anmeldemaske vorgesehen.
 4. Google/X-Anmeldung benötigt zusätzlich eine eigene, für die KREISLAUF-Domain freigeschaltete Broker-Anwendung. Dafür sind `GROK_AUTH_ISSUER`, `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` erforderlich. Diese Werte müssen vom Betreiber des Auth-Brokers bereitgestellt werden; die Vorschau-Zugangsdaten sind keine Produktions-Zugangsdaten.
 
-Die SQL-Datei markiert die Migrationen `0001_auth.sql` bis `0005_escrow_atomicity.sql` als angewendet. Dadurch werden sie beim ersten Build mit DATABASE_URL nicht nochmals ausgeführt.
+Die SQL-Datei markiert die Migrationen `0001_auth.sql` bis `0006_escrow_cancellation.sql` als angewendet. Dadurch werden sie beim ersten Build mit DATABASE_URL nicht nochmals ausgeführt.
 
 ## Noch nicht enthalten
 
