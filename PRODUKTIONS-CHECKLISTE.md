@@ -86,3 +86,5 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - Vercel-Preview für den aktuellen Commit weiterhin blockiert: Deployment-Tageslimit erreicht (HTTP 402 / 24-Stunden-Sperre). Kein Upgrade und keine Änderung der Abrechnung vorgenommen.
 - PR #1 bleibt offen und nicht zusammengeführt. Keine Veröffentlichung oder Produktivfreigabe.
 - Weiterhin offen: echte Mehrbenutzer-Authentifizierung, produktiv angebundene dauerhafte Datenbank, beidseitige hochwertige Treuhand-Abwicklung, echte ID-Austria-Prüfung, Video-Upload und Android-Ende-zu-Ende-Praxistests.
+
+- Karma-Aktivitätsbuchungen verwenden den Ledger-Typ `activity`. Migration `0017_allow_activity_ledger_entries.sql` erlaubt diesen Typ ausdrücklich; das Supabase-Setup-Skript ist synchronisiert. Die PGlite-Migrationstests prüfen die Annahme eines Aktivitätsbonus. Das belegt die Schema-Kompatibilität im Test, nicht die Ausführung gegen eine echte Supabase-Produktionsdatenbank.
