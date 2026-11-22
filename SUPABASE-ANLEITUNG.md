@@ -14,7 +14,7 @@ Diese Anleitung ist für das vorhandene Supabase-Projekt gedacht. Die SQL-Datei 
 
 1. Öffne im Supabase-Dashboard **Connect** und wähle die PostgreSQL-Verbindungszeichenfolge für den **Session Pooler**.
 2. Verwende die URI für Serververbindungen. Achte darauf, dass Sonderzeichen im Datenbankpasswort URL-kodiert sind.
-3. Hinterlege die Verbindungszeichenfolge in Vercel als geheime Umgebungsvariable **DATABASE_URL** für Production, Preview und Development.
+3. Hinterlege die Verbindungszeichenfolge in Vercel zunächst ausschließlich als geheime Umgebungsvariable **DATABASE_URL** für **Production**. Für Preview und Development darf dieselbe Produktionsdatenbank nicht verwendet werden. Wenn du dort eine echte Datenbank benötigst, muss dafür eine getrennte Supabase-Datenbank mit eigenem Schema und eigenen Zugangsdaten eingerichtet werden.
 4. **BETTER_AUTH_URL** und **BETTER_AUTH_SECRET** sind bereits in Vercel hinterlegt. Das Secret wurde zufällig erzeugt und verschlüsselt gespeichert; du musst es weder sehen noch weitergeben.
 5. Gib Datenbankpasswort und Geheimnisse niemals im Chat, in GitHub-Dateien oder in einer `VITE_*`-Variable weiter.
 6. Noch **keinen neuen Deploy starten**, bevor auch der Auth-Schalter aus Abschnitt 3 gesetzt ist. Die App verweigert absichtlich den Zugriff, wenn eine echte Datenbank aktiv ist, aber die Anmeldung ausgeschaltet bleibt.
@@ -34,8 +34,8 @@ Der Produktions-Build prüft zusätzlich, ob `DATABASE_URL` eine gültige Postgr
 
 Die derzeitige Vorschau verwendet absichtlich einen gemeinsamen Demo-Zugang. **BETTER_AUTH_URL und BETTER_AUTH_SECRET sind bereits gesetzt. Es fehlt noch DATABASE_URL.** Erst wenn die Datenbankverbindung gespeichert und erreichbar ist, darf die Anmeldung aktiviert werden.
 
-1. In Vercel **zusammen mit den Datenbank- und Better-Auth-Werten** `VITE_AUTH_ENABLED=true` für Production, Preview und Development setzen.
-2. Erst wenn alle Variablen gespeichert sind, einen neuen Build/Deploy starten. Nicht zwischenzeitlich mit `DATABASE_URL` und ausgeschalteter Anmeldung deployen.
+1. In Vercel `VITE_AUTH_ENABLED=true` zunächst ausschließlich für **Production** setzen, sobald die Produktionsdatenbank, die Auth-Broker-Anwendung und alle unten genannten Voraussetzungen bereitstehen. Preview bleibt bis zu einer getrennten Testdatenbank im Demo-Modus.
+2. Erst wenn alle Variablen für Production gespeichert sind, einen neuen Produktions-Build/Deploy starten. Nicht zwischenzeitlich mit `DATABASE_URL` und ausgeschalteter Anmeldung deployen. Preview-Deployments dürfen keine Produktionsdatenbank verwenden.
 3. Danach zuerst Konto anlegen, abmelden und wieder anmelden testen. E-Mail/Passwort ist in der Anmeldemaske vorgesehen.
 4. Google/X-Anmeldung benötigt zusätzlich eine eigene, für die KREISLAUF-Domain freigeschaltete Broker-Anwendung. Dafür sind `GROK_AUTH_ISSUER`, `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` erforderlich. Diese Werte müssen vom Betreiber des Auth-Brokers bereitgestellt werden; die Vorschau-Zugangsdaten sind keine Produktions-Zugangsdaten.
 
