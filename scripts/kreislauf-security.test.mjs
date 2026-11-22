@@ -6,6 +6,7 @@ const api = await readFile(new URL("../src/features/kreislauf/api.ts", import.me
 const escrowSql = await readFile(new URL("../migrations/0005_escrow_atomicity.sql", import.meta.url), "utf8");
 const moderatorSql = await readFile(new URL("../migrations/0004_messages_escrow.sql", import.meta.url), "utf8");
 const cancellationSql = await readFile(new URL("../migrations/0006_escrow_cancellation.sql", import.meta.url), "utf8");
+const escrowPanel = await readFile(new URL("../src/components/escrow-panel.tsx", import.meta.url), "utf8");
 
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
@@ -52,4 +53,11 @@ test("cancelling or returning a booking closes its unresolved escrow", () => {
   assert.match(transition, /update escrow_cases set status = 'cancelled', resolved_at = now\(\)/);
   assert.match(transition, /where booking_id = \$1 and status = 'pending'/);
   assert.match(cancellationSql, /'pending', 'released', 'disputed', 'cancelled'/);
+});
+
+test("cancelled escrow is represented separately in the API and user interface", () => {
+  assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled" \| null/);
+  assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled";/);
+  assert.match(escrowPanel, /summary\.status === "cancelled"/);
+  assert.doesNotMatch(escrowPanel, /summary\.status === "cancelled"[\s\S]*?Treuhand wurde abgelehnt/);
 });
