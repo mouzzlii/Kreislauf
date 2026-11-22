@@ -3,7 +3,7 @@ import { Map, Moon, Plus, Store, Sun, Wallet } from "lucide-react";
 import type { ReactNode } from "react";
 import { SignedIn, SignedOut } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { useKreislauf } from "@/features/kreislauf/context";
+import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import { formatKarma } from "@/features/kreislauf/format";
 import type { Region } from "@/features/kreislauf/types";
 
