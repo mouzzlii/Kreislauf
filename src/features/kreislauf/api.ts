@@ -744,7 +744,7 @@ export const reserveListing = createServerFn({ method: "POST" })
          set status = 'booked'
          from ins i
          where l.id = i.listing_id and l.status = 'active'
-         returning l.id, l.region_id, i.id as booking_id
+         returning l.id, l.region_id, l.user_id as owner_id, i.id as booking_id
        ),
        escrow as (
          insert into escrow_cases (id, listing_id, booking_id, requester_id, moderator_id, reason)
@@ -758,7 +758,7 @@ export const reserveListing = createServerFn({ method: "POST" })
              and p.moderator_rank > 0
              and p.last_active_at >= now() - interval '30 days'
              and p.user_id <> $2
-             and p.user_id <> t.user_id
+             and p.user_id <> r.owner_id
            order by random()
            limit 1
          ) moderator on true
