@@ -36,7 +36,7 @@ import { validateListingVideoSet, validateVideoUpload } from "./video-upload.ts"
 
 test("server accepts only user-scoped UUID video paths and valid upload durations", () => {
   const userId = "member-123";
-  const path = `listings/${encodeURIComponent(userId)}/123e4567-e89b-12d3-a456-426614174000.mp4`;
+  const path = `listings/${encodeURIComponent(userId)}/123e4567-e89b-42d3-a456-426614174000.mp4`;
   assert.deepEqual(validateVideoUpload(path, userId, JSON.stringify({ duration: 60 })), { duration: 60 });
   assert.throws(() => validateVideoUpload(path, "other-user", JSON.stringify({ duration: 60 })));
   assert.throws(() => validateVideoUpload(path.replace(".mp4", ".exe"), userId, JSON.stringify({ duration: 10 })));
