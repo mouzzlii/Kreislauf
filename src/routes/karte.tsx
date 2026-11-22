@@ -29,7 +29,7 @@ function MapPage() {
     };
   }, [hydrated, initial.region.id, regionId, version]);
 
-  const pins = board.listings.filter((listing) => listing.status !== "completed");
+  const pins = board.listings.filter((listing) => !["completed", "maintenance", "paused"].includes(listing.status));
 
   return (
     <Shell regions={board.regions}>
