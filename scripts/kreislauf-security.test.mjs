@@ -129,3 +129,16 @@ test("deployment sends baseline browser security headers", () => {
   assert.equal(values["x-content-type-options"], "nosniff");
   assert.equal(values["referrer-policy"], "strict-origin-when-cross-origin");
 });
+
+
+test("every mutating or private server function enforces verified identity", () => {
+  const declarations = [...api.matchAll(/export const (\w+) = createServerFn\(\{ method: "(GET|POST)" \}\)/g)];
+  const publicReads = new Set(["getBoard", "getListing", "getProviderListings"]);
+  declarations.forEach((match, index) => {
+    const end = declarations[index + 1]?.index ?? api.length;
+    const source = api.slice(match.index, end);
+    if (match[2] === "POST" || !publicReads.has(match[1])) {
+      assert.match(source, /\.middleware\(\[authMiddleware\]\)/, match[1] + " must require verified identity");
+    }
+  });
+});
