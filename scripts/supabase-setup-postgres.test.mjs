@@ -28,6 +28,20 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     ]) {
       assert.equal(tables.get(table), true, `RLS is not enabled for ${table}`);
     }
+    const access = await db.query(`
+      select
+        has_table_privilege('anon', 'public.listings', 'select') as anon_can_read_listings,
+        has_table_privilege('authenticated', 'public.profiles', 'update') as member_can_update_profiles,
+        has_function_privilege('anon', 'public.apply_demurrage()', 'execute') as anon_can_run_demurrage,
+        has_function_privilege('authenticated', 'public.kreislauf_cast_escrow_vote(text,text,text,text)', 'execute') as member_can_cast_arbitrary_vote,
+        has_function_privilege('service_role', 'public.kreislauf_cast_escrow_vote(text,text,text,text)', 'execute') as server_can_cast_vote
+    `);
+    assert.equal(access.rows[0].anon_can_read_listings, false);
+    assert.equal(access.rows[0].member_can_update_profiles, false);
+    assert.equal(access.rows[0].anon_can_run_demurrage, false);
+    assert.equal(access.rows[0].member_can_cast_arbitrary_vote, false);
+    assert.equal(access.rows[0].server_can_cast_vote, true);
+
     const applied = await db.query("select name from _migrations order by name");
     assert.equal(applied.rows.length, 5);
   } finally {
