@@ -28,6 +28,26 @@ try {
 } catch {
   missing.push("BETTER_AUTH_URL (gültige HTTPS-Adresse)");
 }
+
+// The baked-in OAuth client is restricted to sandbox preview callback hosts.
+// Production must use its own broker client, otherwise login callbacks will fail
+// (or accidentally couple the production app to preview credentials).
+const brokerIssuer = (process.env.GROK_AUTH_ISSUER ?? "").trim();
+try {
+  const url = new URL(brokerIssuer);
+  if (url.protocol !== "https:" || !url.hostname) {
+    missing.push("GROK_AUTH_ISSUER (eigener HTTPS-Auth-Broker)");
+  }
+} catch {
+  missing.push("GROK_AUTH_ISSUER (eigener HTTPS-Auth-Broker)");
+}
+if (!(process.env.GROK_AUTH_CLIENT_ID ?? "").trim()) {
+  missing.push("GROK_AUTH_CLIENT_ID (eigene OAuth-Client-ID)");
+}
+if ((process.env.GROK_AUTH_CLIENT_SECRET ?? "").trim().length < 32) {
+  missing.push("GROK_AUTH_CLIENT_SECRET (eigener OAuth-Client-Schlüssel)");
+}
+
 if (!(process.env.BLOB_READ_WRITE_TOKEN ?? "").trim()) {
   missing.push("BLOB_READ_WRITE_TOKEN (sicherer Medien-Storage)");
 }
@@ -42,4 +62,4 @@ if (missing.length) {
   process.exit(1);
 }
 
-console.log("[release-guard] Mindestkonfiguration für PostgreSQL, Anmeldung und Medien-Storage vorhanden.");
+console.log("[release-guard] Mindestkonfiguration für PostgreSQL, eigene OAuth-Anmeldung und Medien-Storage vorhanden.");
