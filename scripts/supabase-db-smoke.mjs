@@ -13,7 +13,7 @@ const parsedConnection = new URL(connectionString);
 console.log("[supabase-smoke] Verbindungsziel (ohne Passwort):", {
   host: parsedConnection.hostname,
   port: parsedConnection.port || "(Standard)",
-  database: parsedConnection.pathname.replace(/^\\//, ""),
+  database: parsedConnection.pathname.slice(1),
   user: decodeURIComponent(parsedConnection.username),
 });
 
