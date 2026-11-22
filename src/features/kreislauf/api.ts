@@ -966,9 +966,15 @@ export const transitionBooking = createServerFn({ method: "POST" })
     }
     if (data.action === "return") {
       const rows = await sql.query(
-        `with b as (
+        `with escrow_guard as materialized (
+           select id, status from escrow_cases
+           where booking_id = $1
+           for update
+         ),
+         b as (
            select id, listing_id from bookings
            where id = $1 and status = 'handed_over' and (renter_id = $2 or owner_id = $2)
+             and not exists (select 1 from escrow_guard where status = 'disputed')
            for update
          ),
          upd as (
@@ -987,7 +993,7 @@ export const transitionBooking = createServerFn({ method: "POST" })
          returning id`,
         [data.id, context.userId],
       );
-      return rows.length ? { ok: true } : fail("Rückgabe erst nach der Übergabe.");
+      return rows.length ? { ok: true } : fail("Rückgabe nicht möglich. Eine strittige Treuhand muss zuerst geklärt werden.");
     }
     const rows = await sql.query(
       `with b as materialized (
