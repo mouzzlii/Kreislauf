@@ -167,8 +167,23 @@ function NewListing() {
             <span className="mt-1 block text-xs text-subtle">Die Fotos werden für die Vorschau verkleinert. Videos können derzeit noch nicht hochgeladen werden.</span>
           </Field>
           {images.length ? (
-            <div className="grid grid-cols-2 gap-2">
-              {images.map((src, index) => <img key={index} src={src} alt={`Foto ${index + 1}`} className="aspect-[4/3] w-full rounded-xl object-cover" />)}
+            <div className="grid grid-cols-2 gap-3">
+              {images.map((src, index) => (
+                <div key={index} className="relative overflow-hidden rounded-xl border border-line bg-elev">
+                  <img src={src} alt={`Foto ${index + 1}`} className="aspect-[4/3] w-full object-cover" />
+                  <div className="flex items-center justify-between gap-2 px-3 py-2">
+                    <span className="text-xs text-muted">Foto {index + 1} von {images.length}</span>
+                    <button
+                      type="button"
+                      onClick={() => setImages((current) => current.filter((_, photoIndex) => photoIndex !== index))}
+                      className="text-xs font-medium text-copper underline-offset-4 hover:underline"
+                      aria-label={`Foto ${index + 1} entfernen`}
+                    >
+                      Entfernen
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : null}
           {error ? <p className="text-sm text-copper">{error}</p> : null}
