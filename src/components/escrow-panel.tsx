@@ -36,7 +36,8 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
       <p className="mt-2 text-xs text-subtle">{summary.assigned} Moderationspersonen zugeteilt · Ab 4 abgegebenen Stimmen gilt die Zweidrittelmehrheit der abgegebenen Stimmen.</p>
     </> : summary.status === "released" ?
       <p className="mt-1 text-sm text-forest">Die Treuhand wurde nach Mehrheitsbeschluss freigegeben.</p> :
-      <p className="mt-1 text-sm text-copper">Die Treuhand wurde abgelehnt und ist zur weiteren Klärung markiert.</p>}
+      summary.status === "disputed" ?
+      <p className="mt-1 text-sm text-copper">Die Treuhand wurde abgelehnt und ist zur weiteren Klärung markiert.</p> : null}
     {summary.status === "cancelled" ? <p className="mt-1 text-sm text-muted">Der Vorgang wurde beendet. Die offene Treuhand-Abstimmung ist geschlossen.</p> : null}
     {error ? <p className="mt-2 text-sm text-copper">{error}</p> : null}
   </div>;
