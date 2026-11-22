@@ -4,6 +4,7 @@ import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { approximatePublicCoordinates } from "./geo-privacy";
 import { assertOwnedListingImageUrl } from "./media";
+import { canUseIdAustriaMock } from "./id-austria-mode";
 import {
   WELCOME_KARMA,
   type Board,
@@ -1248,9 +1249,13 @@ export const verifyWithIdAustria = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .handler(async ({ context }): Promise<{ verified: boolean; mode: "mock" | "live" }> => {
     const mockMode = process.env.ID_AUSTRIA_MOCK_MODE === "true";
-    // Mock identity checks are for local/demo environments only. A mistakenly
-    // enabled flag must never let production users self-verify without A-Trust.
-    if (process.env.NODE_ENV === "production" || !mockMode) {
+    // Vercel Preview uses NODE_ENV=production too; allow the explicitly enabled
+    // mock there, while keeping all production deployments fail-closed.
+    if (!canUseIdAustriaMock({
+      mockMode,
+      nodeEnv: process.env.NODE_ENV,
+      vercelEnv: process.env.VERCEL_ENV,
+    })) {
       throw new Error("ID Austria ist im Produktivbetrieb noch nicht angebunden. Eine Demo-Verifikation ist dort gesperrt.");
     }
     const sql = await getSql();
