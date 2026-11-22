@@ -1,6 +1,6 @@
 export type Category = "goods" | "service" | "sharing";
 export type OfferType = "sell" | "search" | "gift";
-export type ListingStatus = "active" | "booked" | "completed" | "maintenance";
+export type ListingStatus = "active" | "booked" | "completed" | "maintenance" | "paused";
 export type BookingStatus = "reserved" | "handed_over" | "returned" | "cancelled";
 
 export type Region = {
