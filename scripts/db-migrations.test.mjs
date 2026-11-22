@@ -165,6 +165,19 @@ test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
     assert.equal(notifications.rows[0].listingId, "test-sharing");
 
     await db.query(
+      "update bookings set status = 'cancelled' where id = $1 and status = 'reserved'",
+      [bookingId],
+    );
+    const cancellationMessage = await db.query(
+      `select count(*)::int as count from listing_messages m
+       join listing_conversations c on c.id = m.conversation_id
+       where c.listing_id = 'test-sharing' and c.requester_id = 'test-renter'
+         and m.message_kind = 'system'
+         and m.body = 'Reservierung storniert: Die Buchung wurde beendet.'`,
+    );
+    assert.equal(cancellationMessage.rows[0].count, 1, "cancellation should create a linked system message");
+
+    await db.query(
       "update escrow_cases set status = 'cancelled', resolved_at = now() where id = $1 and status = 'pending'",
       [escrowId],
     );
