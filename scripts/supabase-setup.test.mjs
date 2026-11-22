@@ -50,7 +50,12 @@ test("Supabase setup includes escrow cancellation and the final four-vote policy
   assert.match(sql, /limit greatest\(0, 7 - \(select count\(\*\) from escrow_moderators/);
 });
 
-test("legacy prototype tables are locked down by the upgrade migration", async () => {\n  const legacy = await readFile(new URL("../migrations/0009_lock_down_legacy_tables.sql", import.meta.url), "utf8");\n  assert.match(legacy, /drop policy/i);\n  assert.match(legacy, /enable row level security/i);\n  assert.match(legacy, /revoke all on table/i);\n});\n\ntest("Supabase migration bookkeeping is protected by RLS", () => {
+test("legacy prototype tables are locked down by the upgrade migration", async () => {
+  const legacy = await readFile(new URL("../migrations/0009_lock_down_legacy_tables.sql", import.meta.url), "utf8");
+  assert.match(legacy, /drop policy/i);
+  assert.match(legacy, /enable row level security/i);
+  assert.match(legacy, /revoke all on table/i);
+});\n\ntest("Supabase migration bookkeeping is protected by RLS", () => {
   assert.match(sql, /alter table public\._migrations enable row level security/);
   assert.match(sql, /public\._migrations[\s\S]*?from anon, authenticated/);
 });
