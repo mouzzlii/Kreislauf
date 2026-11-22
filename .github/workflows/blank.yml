@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: 22
       - name: Sicherheitsupdates innerhalb erlaubter Versionsbereiche auflösen
-        run: npm audit fix --package-lock-only --ignore-scripts --no-fund
+        run: npm audit fix --package-lock-only --ignore-scripts --no-fund --fetch-retries=1 --fetch-timeout=30000
       - name: Abhängigkeiten installieren
         id: install
         run: npm ci --no-audit --no-fund
