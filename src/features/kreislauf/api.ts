@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { del, put } from "@vercel/blob";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { approximatePublicCoordinates } from "./geo-privacy";
@@ -474,9 +475,29 @@ export const getItemTemplate = createServerFn({ method: "GET" })
     const images = asImages(row.images);
     return { itemUuid: data.itemUuid, title: asString(row.title), description: asString(row.description),
       category: asString(row.category, "goods") as Category, priceKarma: asNumber(row.priceKarma),
-      placeLabel: asString(row.placeLabel), imageDataUrl: images[0]?.startsWith("data:image/jpeg;base64,") ? images[0] : null };
+      placeLabel: asString(row.placeLabel), imageUrl: images[0] ?? null };
   });
 
+async function storeListingImages(userId: string, imageDataUrls: string[]): Promise<string[]> {
+  const uploaded: string[] = [];
+  try {
+    for (const image of imageDataUrls) {
+      const encoded = image.slice("data:image/jpeg;base64,".length);
+      const bytes = Buffer.from(encoded, "base64");
+      if (bytes.length < 4 || bytes.length > 210_000 || bytes[0] !== 0xff || bytes[1] !== 0xd8 || bytes[2] !== 0xff) {
+        throw new Error("Ein Foto ist keine gültige JPEG-Datei oder überschreitet die Größenbegrenzung.");
+      }
+      const blob = await put("listings/" + encodeURIComponent(userId) + "/" + crypto.randomUUID() + ".jpg", bytes, {
+        access: "public", contentType: "image/jpeg", addRandomSuffix: true, cacheControlMaxAge: 60 * 60 * 24 * 30,
+      });
+      uploaded.push(blob.url);
+    }
+    return uploaded;
+  } catch (error) {
+    if (uploaded.length > 0) { try { await del(uploaded); } catch { /* preserve original error */ } }
+    throw error;
+  }
+}
 export const createListing = createServerFn({ method: "POST" })
   .validator((input: unknown) => {
     if (!input || typeof input !== "object") throw new Error("Ungültige Eingabe");
@@ -561,7 +582,12 @@ export const createListing = createServerFn({ method: "POST" })
       if (!owned.length) throw new Error("Du bist laut Artikelhistorie nicht die aktuelle Station dieses Artikels.");
       handsCount = asNumber(owned[0].hands_count);
     }
-    const images = data.imageDataUrls;
+    if (process.env.VERCEL_ENV === "production" && !process.env.BLOB_READ_WRITE_TOKEN?.trim()) {
+      throw new Error("Der Medien-Speicher ist noch nicht eingerichtet. Das Inserat wurde nicht gespeichert.");
+    }
+    const images = process.env.BLOB_READ_WRITE_TOKEN?.trim()
+      ? await storeListingImages(context.userId, data.imageDataUrls)
+      : data.imageDataUrls;
     for (const videoUrl of data.videoUrls) {
       const pathname = new URL(videoUrl).pathname;
       if (!pathname.includes(`/listings/${encodeURIComponent(context.userId)}/`)) throw new Error("Dieses Video gehört nicht zu deinem Konto.");
@@ -569,37 +595,44 @@ export const createListing = createServerFn({ method: "POST" })
     const assetKind = data.category === "sharing" ? "tool" : null;
     // One SQL statement makes the listing and its ownership-history event atomic:
     // either both rows commit, or neither row is persisted.
-    await sql.query(
-      `with created_listing as (
-         insert into listings (
-           id, user_id, region_id, title, description, category, offer_type, price_karma, status,
-           images, video_urls, lat, lng, place_label, asset_kind, item_uuid, what3words_address, hands_count
-         ) values ($1,$2,$3,$4,$5,$6,$7,$8,'active',$9::jsonb,$10::jsonb,$11,$12,$13,$14,$15,$16,$17)
-         returning id
-       )
-       insert into item_history (item_uuid, listing_id, owner_id, place_label, event_kind)
-       select $15, id, $2, $13, 'listed' from created_listing
-       returning listing_id`,
-      [
-        id,
-        context.userId,
-        data.regionId,
-        data.title,
-        data.description,
-        data.category,
-        data.offerType,
-        data.priceKarma,
-        JSON.stringify(images),
-        JSON.stringify(data.videoUrls),
-        lat,
-        lng,
-        data.placeLabel,
-        assetKind,
-        itemUuid,
-        data.what3wordsAddress || null,
-        handsCount,
-      ],
-    );
+    try {
+      await sql.query(
+        `with created_listing as (
+           insert into listings (
+             id, user_id, region_id, title, description, category, offer_type, price_karma, status,
+             images, video_urls, lat, lng, place_label, asset_kind, item_uuid, what3words_address, hands_count
+           ) values ($1,$2,$3,$4,$5,$6,$7,$8,'active',$9::jsonb,$10::jsonb,$11,$12,$13,$14,$15,$16,$17)
+           returning id
+         )
+         insert into item_history (item_uuid, listing_id, owner_id, place_label, event_kind)
+         select $15, id, $2, $13, 'listed' from created_listing
+         returning listing_id`,
+        [
+          id,
+          context.userId,
+          data.regionId,
+          data.title,
+          data.description,
+          data.category,
+          data.offerType,
+          data.priceKarma,
+          JSON.stringify(images),
+          JSON.stringify(data.videoUrls),
+          lat,
+          lng,
+          data.placeLabel,
+          assetKind,
+          itemUuid,
+          data.what3wordsAddress || null,
+          handsCount,
+        ],
+      );
+    } catch (error) {
+      if (process.env.BLOB_READ_WRITE_TOKEN?.trim() && images.length > 0) {
+        try { await del(images); } catch { /* preserve database error */ }
+      }
+      throw error;
+    }
     return { id, itemUuid };
   });
 
