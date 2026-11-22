@@ -174,6 +174,8 @@ test("listing video upload requires a real signed-in member and constrained Blob
   assert.match(videoUploadRoute, /!authConfigured \|\| !process\.env\.DATABASE_URL/);
   assert.match(videoUploadRoute, /!process\.env\.BLOB_READ_WRITE_TOKEN/);
   assert.match(videoUploadRoute, /await requireUserId\(\)/);
+  assert.match(videoUploadRoute, /select is_verified from profiles where user_id = \$1/);
+  assert.match(videoUploadRoute, /if \(!profile\[0\]\?\.is_verified\)/);
   assert.match(videoUploadRoute, /validateVideoUpload\(pathname, userId, clientPayload\)/);
   assert.match(videoUploadValidation, /pathname\.startsWith\(prefix\)/);
   assert.match(videoUploadValidation, /duration > 60/);
