@@ -242,8 +242,10 @@ function IdAustriaVerification({ refreshProfile }: { refreshProfile: () => Promi
 }
 
 function LedgerRow({ entry }: { entry: LedgerEntry }) {
-  const who =
-    entry.entryKind === "mint"
+  const isDemoAdjustment = entry.message === "Demo-Kontostand-Abgleich 0016";
+  const who = isDemoAdjustment
+    ? "Korrektur der vorbereiteten Demo-Daten"
+    : entry.entryKind === "mint"
       ? `Startguthaben an ${entry.receiverName ?? "Mitglied"}`
       : entry.entryKind === "demurrage"
         ? `${entry.senderName ?? "Mitglied"} an die Umlaufsicherung`
