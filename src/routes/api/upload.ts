@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { handleUpload } from "@vercel/blob/client";
 import { validateVideoUpload } from "@/features/kreislauf/video-upload";
 
-export const Route = createFileRoute("/api/upload")({
+export const Route = createFileRoute("/api/upload" as never)({
   server: {
     handlers: {
       POST: async ({ request }) => {
