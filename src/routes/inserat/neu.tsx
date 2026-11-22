@@ -153,6 +153,7 @@ function NewListing() {
           </Field>
           <Field label="Ungefährer Ort (öffentlich)">
             <input className={fieldClass} value={place} onChange={(event) => setPlace(event.target.value)} placeholder="z. B. Yspertal, Altenmarkt, Pöggstall" />
+            <span className="mt-1 block text-xs text-subtle">Der Kartenpunkt wird aus Datenschutzgründen nur ungefähr angezeigt. Dein genauer Treffpunkt bleibt privat und wird erst für bestätigte Tauschparteien freigegeben.</span>
           </Field>
           <Field label="what3words-Treffpunkt (privat)">
             <input className={fieldClass} value={what3words} onChange={(event) => setWhat3words(event.target.value)} placeholder="///apfel.baum.strasse" />
