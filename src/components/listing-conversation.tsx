@@ -23,12 +23,17 @@ export function ListingConversation({
   useEffect(() => {
     if (!currentUserId || !isOwner) return;
     let cancelled = false;
-    getListingThreads({ data: { id: listingId } }).then((items) => {
-      if (cancelled) return;
-      setThreads(items);
-      setActiveRequester((current) => current || items[0]?.requesterId || "");
-    }).catch(() => { if (!cancelled) setError("Unterhaltungen konnten nicht geladen werden."); });
-    return () => { cancelled = true; };
+    const refresh = () => {
+      if (document.visibilityState !== "visible") return;
+      getListingThreads({ data: { id: listingId } }).then((items) => {
+        if (cancelled) return;
+        setThreads(items);
+        setActiveRequester((current) => current || items[0]?.requesterId || "");
+      }).catch(() => { if (!cancelled) setError("Unterhaltungen konnten nicht geladen werden."); });
+    };
+    refresh();
+    const interval = window.setInterval(refresh, 15_000);
+    return () => { cancelled = true; window.clearInterval(interval); };
   }, [currentUserId, isOwner, listingId]);
 
   const requesterId = isOwner ? activeRequester : currentUserId ?? "";
@@ -36,10 +41,15 @@ export function ListingConversation({
   useEffect(() => {
     if (!currentUserId || !requesterId) { setMessages([]); return; }
     let cancelled = false;
-    getListingMessages({ data: { id: listingId, requesterId } })
-      .then((items) => { if (!cancelled) setMessages(items); })
-      .catch(() => { if (!cancelled) setError("Nachrichten konnten nicht geladen werden."); });
-    return () => { cancelled = true; };
+    const refresh = () => {
+      if (document.visibilityState !== "visible") return;
+      getListingMessages({ data: { id: listingId, requesterId } })
+        .then((items) => { if (!cancelled) setMessages(items); })
+        .catch(() => { if (!cancelled) setError("Nachrichten konnten nicht geladen werden."); });
+    };
+    refresh();
+    const interval = window.setInterval(refresh, 8_000);
+    return () => { cancelled = true; window.clearInterval(interval); };
   }, [currentUserId, listingId, requesterId]);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
