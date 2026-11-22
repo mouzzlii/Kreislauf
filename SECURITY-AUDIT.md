@@ -57,17 +57,17 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 ## Medien-Uploads (neuer Stand)
 
 - Inseratvideos werden über einen authentifizierten Vercel-Blob-Client-Upload direkt vom Browser übertragen; der App-Server nimmt keine großen Videodateien entgegen.
-- Der Upload-Endpunkt lehnt Uploads ohne aktivierte echte Anmeldung, Datenbankverbindung, Blob-Token und verifiziertes Mitgliedsprofil ab, prüft Same-Site-Anfragen, bindet den Pfad an die verifizierte Benutzer-ID und erlaubt nur MP4, WebM und QuickTime bis 50 MB pro Datei.
+- Der Upload-Endpunkt nimmt derzeit keine Dateien an. Er antwortet absichtlich mit HTTP 503, bis die tatsächliche Videodauer serverseitig aus der Datei selbst geprüft wird.
 - Inserate speichern höchstens vier Video-URLs; die URLs werden serverseitig auf den eigenen Benutzerpfad und den Vercel-Blob-Host geprüft.
 - Die gemeinsame Demo bleibt absichtlich ohne Video-Upload, solange persönliche Anmeldung deaktiviert ist.
-- Die Dauerprüfung erfolgt in der Browseroberfläche und wird vom Upload-Endpunkt zusätzlich auf höchstens 60 Sekunden je Clip begrenzt. Eine serverseitige Transkodierung/forensische Medienprüfung ist nicht implementiert.
+- Die Browser-Dauerprüfung ist nicht vertrauenswürdig und wird nicht als Sicherheitskontrolle verwendet. Eine unabhängige serverseitige Medienprüfung ist noch nicht implementiert.
 
 
 ## Aktueller Entwicklungsstand Video
 
 - Migration `0013_listing_video_urls.sql` wurde auf dem verbundenen Supabase-Projekt eingespielt.
-- Der Upload-Endpunkt `/api/upload` wurde ergänzt und ist bis zur Konfiguration von `DATABASE_URL`, echter Authentifizierung und `BLOB_READ_WRITE_TOKEN` fail-closed.
-- Der neue Router-Endpunkt und die Upload-Validierung wurden erfolgreich durch CI geprüft. Der Vercel-Preview-Build auf Commit `a7502d9` wurde zwar als READY markiert, der erste echte Seitenaufruf schlug jedoch beim PGLite-Start fehl (`role "anon" does not exist`). Dieser Preview-Link ist deshalb nicht als funktionierende Demo freizugeben. Der Fehler wurde im Branch mit Commit `d91b83b` durch eine PGlite-Rolleninitialisierung behoben und die CI ist erneut grün. Ein korrigierter Vercel-Preview-Build konnte wegen des Vercel-Limits von mehr als 100 Deployments pro Tag (Sperre für 24 Stunden) noch nicht erstellt werden.
+- Der Upload-Endpunkt `/api/upload` antwortet aktuell fail-closed mit HTTP 503 in allen Umgebungen. Das verhindert, dass manipulierte Client-Metadaten für einen Upload ausreichen.
+- Der gesperrte Router-Endpunkt und die dazugehörigen Sicherheitstests wurden erfolgreich durch CI geprüft. Der Vercel-Preview-Build auf Commit `a7502d9` wurde zwar als READY markiert, der erste echte Seitenaufruf schlug jedoch beim PGLite-Start fehl (`role "anon" does not exist`). Dieser Preview-Link ist deshalb nicht als funktionierende Demo freizugeben. Der Fehler wurde im Branch mit Commit `d91b83b` durch eine PGlite-Rolleninitialisierung behoben und die CI ist erneut grün. Ein korrigierter Vercel-Preview-Build konnte wegen des Vercel-Limits von mehr als 100 Deployments pro Tag (Sperre für 24 Stunden) noch nicht erstellt werden.
 
 
 ## Verifikation am 22.11.2026
