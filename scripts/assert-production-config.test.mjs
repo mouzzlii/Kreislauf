@@ -55,6 +55,8 @@ describe("production release guard", () => {
       GROK_AUTH_CLIENT_ID: "",
       GROK_AUTH_CLIENT_SECRET: "",
       BLOB_READ_WRITE_TOKEN: "",
+      KREISLAUF_MEDIA_STORAGE_READY: "false",
+      ID_AUSTRIA_PROVIDER_READY: "false",
     });
     assert.equal(result.status, 1);
     for (const variable of ["DATABASE_URL", "VITE_AUTH_ENABLED=true", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "GROK_AUTH_ISSUER", "GROK_AUTH_CLIENT_ID", "GROK_AUTH_CLIENT_SECRET", "BLOB_READ_WRITE_TOKEN", "KREISLAUF_MEDIA_STORAGE_READY", "ID_AUSTRIA_PROVIDER_READY"]) {
