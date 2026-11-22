@@ -322,7 +322,9 @@ export const getListingBooking = createServerFn({ method: "GET" })
          renter.username as "renterName", owner.username as "ownerName",
          to_char(b.starts_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "startsAt",
          to_char(b.ends_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "endsAt",
-         b.status, b.amount_karma as "amountKarma"
+         b.status, b.amount_karma as "amountKarma",
+         (b.renter_handover_at is not null) as "renterConfirmed",
+         (b.owner_handover_at is not null) as "ownerConfirmed"
        from bookings b
        join profiles renter on renter.user_id = b.renter_id
        join profiles owner on owner.user_id = b.owner_id
@@ -345,6 +347,8 @@ export const getListingBooking = createServerFn({ method: "GET" })
       endsAt: asString(row.endsAt),
       status: asString(row.status) as BookingStatus,
       amountKarma: asNumber(row.amountKarma),
+      renterConfirmed: row.renterConfirmed === true,
+      ownerConfirmed: row.ownerConfirmed === true,
     };
   });
 
@@ -949,6 +953,7 @@ export const transitionBooking = createServerFn({ method: "POST" })
          b as (
            select id, listing_id from bookings
            where id = $1 and status = 'reserved' and (renter_id = $2 or owner_id = $2)
+             and renter_handover_at is null and owner_handover_at is null
              and not exists (select 1 from escrow_guard where status = 'disputed')
            for update
          ),
@@ -1001,7 +1006,12 @@ export const transitionBooking = createServerFn({ method: "POST" })
       );
       return rows.length ? { ok: true } : fail("Rückgabe nicht möglich. Eine strittige Treuhand muss zuerst geklärt werden.");
     }
-    const rows = await sql.query(
+    const rows = await sql.query<{
+      renterConfirmed: boolean;
+      ownerConfirmed: boolean;
+      settled: boolean;
+      payerAvailable: boolean;
+    }>(
       `with b as materialized (
          select * from bookings
          where id = $1 and status = 'reserved' and (renter_id = $2 or owner_id = $2)
@@ -1011,27 +1021,44 @@ export const transitionBooking = createServerFn({ method: "POST" })
            )
          for update
        ),
+       confirmed as (
+         update bookings as booking
+         set renter_handover_at = case
+               when booking.renter_id = $2 then coalesce(booking.renter_handover_at, now())
+               else booking.renter_handover_at
+             end,
+             owner_handover_at = case
+               when booking.owner_id = $2 then coalesce(booking.owner_handover_at, now())
+               else booking.owner_handover_at
+             end
+         where booking.id = (select id from b)
+         returning booking.*
+       ),
+       ready as materialized (
+         select * from confirmed
+         where renter_handover_at is not null and owner_handover_at is not null
+       ),
        payer as materialized (
          select p.user_id
-         from profiles p join b on b.renter_id = p.user_id
-         where p.karma_balance >= b.amount_karma
+         from profiles p join ready on ready.renter_id = p.user_id
+         where p.karma_balance >= ready.amount_karma
          for update of p
        ),
        moved as (
          update profiles p
          set karma_balance = p.karma_balance + case
-               when p.user_id = b.renter_id then -b.amount_karma + 1
-               else b.amount_karma
+               when p.user_id = ready.renter_id then -ready.amount_karma + 1
+               else ready.amount_karma
              end,
              last_activity_at = now()
-         from b
+         from ready
          where exists (select 1 from payer)
-           and (p.user_id = b.renter_id or p.user_id = b.owner_id)
+           and (p.user_id = ready.renter_id or p.user_id = ready.owner_id)
          returning p.user_id
        ),
        upd as (
          update bookings set status = 'handed_over'
-         where id = (select id from b)
+         where id = (select id from ready)
            and (select count(*) from moved) = 2
          returning id, listing_id, amount_karma, renter_id, owner_id
        ),
@@ -1069,10 +1096,24 @@ export const transitionBooking = createServerFn({ method: "POST" })
          where exists (select 1 from count_log)
          returning id
        )
-       select id from transfer_log`,
+       select
+         confirmed.renter_handover_at is not null as "renterConfirmed",
+         confirmed.owner_handover_at is not null as "ownerConfirmed",
+         exists (select 1 from upd) as settled,
+         exists (select 1 from payer) as "payerAvailable"
+       from confirmed`,
       [data.id, context.userId],
     );
-    if (!rows.length) return fail("Übergabe nicht möglich. Prüfe Reservierung, Berechtigung, Treuhandfreigabe und Karma.");
+    const confirmation = rows[0];
+    if (!confirmation) return fail("Übergabe nicht möglich. Prüfe Reservierung, Berechtigung und Treuhandfreigabe.");
+    if (!confirmation.renterConfirmed || !confirmation.ownerConfirmed) {
+      return { ok: true };
+    }
+    if (!confirmation.settled) {
+      return fail(confirmation.payerAvailable
+        ? "Die Übergabe konnte nicht abgeschlossen werden. Bitte erneut versuchen."
+        : "Beide Seiten haben bestätigt, aber das Karma-Guthaben reicht nicht aus.");
+    }
     return { ok: true };
   });
 
