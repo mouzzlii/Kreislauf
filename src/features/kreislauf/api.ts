@@ -1314,9 +1314,13 @@ export const getListingMessages = createServerFn({ method: "GET" })
     );
     await sql.query(
       `update listing_messages set read_at = now()
-       where conversation_id in (select id from listing_conversations where listing_id = $1 and requester_id = $2)
-         and sender_id is distinct from $3 and read_at is null`,
-      [data.id, requesterId, context.userId],
+       where conversation_id in (
+         select id from listing_conversations
+         where listing_id = $1 and requester_id = $2 and owner_id = $3
+           and (requester_id = $4 or owner_id = $4)
+       )
+         and sender_id is distinct from $4 and read_at is null`,
+      [data.id, requesterId, listing[0].user_id, context.userId],
     );
     return rows.map((row) => ({
       id: asNumber(row.id), senderId: row.senderId == null ? null : asString(row.senderId),
