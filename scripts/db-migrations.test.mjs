@@ -20,6 +20,7 @@ const migrations = [
   "0012_atomic_listing_message_rate_limits.sql",
   "0013_listing_video_urls.sql",
   "0014_foreign_key_indexes.sql",
+  "0015_listing_paused_status.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
@@ -44,6 +45,14 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     assert.ok(schema.rows[0].conversations);
     assert.ok(schema.rows[0].escrow_moderators);
     assert.ok(schema.rows[0].vote_function);
+
+    const listingStatusConstraint = await db.query(
+      "select pg_get_constraintdef(oid) as definition from pg_constraint where conrelid = 'public.listings'::regclass and conname = 'listings_status_check'",
+    );
+    assert.match(listingStatusConstraint.rows[0].definition, /'maintenance'/);
+    assert.match(listingStatusConstraint.rows[0].definition, /'paused'/);
+    const maintenanceRows = await db.query("select count(*)::int as count from listings where status = 'maintenance'");
+    assert.ok(maintenanceRows.rows[0].count >= 1, "existing maintenance listings must retain their original state");
 
     const fkIndexes = await db.query(
       "select count(*)::int as count from pg_indexes where schemaname = 'public' and indexname like '%_fk_idx'",
