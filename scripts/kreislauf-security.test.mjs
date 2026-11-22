@@ -341,5 +341,5 @@ test("profile creation and regional welcome Karma mint are atomic", () => {
   assert.match(ensure, /on conflict \(user_id\) do nothing/);
   assert.match(ensure, /insert into ledger_entries[\s\S]*?select region_id, null, user_id, \$3, 'mint'/);
   assert.doesNotMatch(ensure, /if \(created\.length > 0\)/);
-  assert.doesNotMatch(ensure, /await sql\.query\([\s\S]*?insert into ledger_entries/);
+  assert.match(ensure, /await sql\.query\(\s*`with created_profile as[\s\S]*?insert into ledger_entries/);
 });
