@@ -76,6 +76,26 @@ function AccountPage() {
         </div>
       )}
 
+      {user ? (
+        <section className="mt-8">
+          <h2 className="font-display text-2xl text-fg">Meine Inserate</h2>
+          <p className="mt-1 text-sm text-subtle">Pausierte Inserate sind für andere nicht mehr aufrufbar. Du kannst sie hier wieder freigeben.</p>
+          <ul className="mt-4 space-y-3">
+            {(myListings ?? []).length === 0 ? <li className="rounded-2xl border border-line bg-elev p-4 text-sm text-muted">Du hast noch keine Inserate.</li> : null}
+            {myListings?.map((listing) => (
+              <li key={listing.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-elev p-4">
+                <div className="min-w-0">
+                  <p className="font-medium text-fg">{listing.title}</p>
+                  <p className="mt-1 text-xs text-subtle">{listing.status === "paused" ? "Pausiert" : listing.status === "active" ? "Aktiv" : listing.status === "booked" ? "Angefragt / gebucht" : "Abgeschlossen"}</p>
+                </div>
+                {listing.status === "paused" ? <Button disabled={listingBusy === listing.id} onClick={() => void changeListingStatus(listing.id)}>{listingBusy === listing.id ? "Wird freigegeben…" : "Wieder freigeben"}</Button> : <Link to="/inserat/$listingId" params={{ listingId: listing.id }} className="text-sm text-forest underline-offset-4 hover:underline">Inserat öffnen</Link>}
+              </li>
+            ))}
+          </ul>
+          {listingMessage ? <p className="mt-3 text-sm text-muted" role="status">{listingMessage}</p> : null}
+        </section>
+      ) : null}
+
       <section className="mt-8">
         <h2 className="font-display text-2xl text-fg">{user ? "Deine Bewegungen" : "Letzter Umlauf"}</h2>
         <p className="mt-1 text-sm text-subtle">Einträge im Ledger bleiben stehen. Ändern und Löschen ist gesperrt.</p>
