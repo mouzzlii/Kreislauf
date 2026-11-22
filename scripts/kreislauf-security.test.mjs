@@ -81,6 +81,14 @@ test("cancelling or returning a booking closes its unresolved escrow", () => {
   assert.match(cancellationSql, /'pending', 'released', 'disputed', 'cancelled'/);
 });
 
+test("sharing handover is blocked until its escrow has been released", () => {
+  const transition = serverFunction("transitionBooking");
+  const handover = transition.slice(transition.indexOf('const rows = await sql.query(', transition.indexOf('if (data.action === "return")')));
+  assert.match(handover, /not exists \(select 1 from escrow_cases e where e\.booking_id = bookings\.id\)/);
+  assert.match(handover, /exists \(select 1 from escrow_cases e where e\.booking_id = bookings\.id and e\.status = 'released'\)/);
+  assert.match(transition, /Treuhandfreigabe und Karma passen nicht/);
+});
+
 test("cancelled escrow is represented separately in the API and user interface", () => {
   assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled" \| null/);
   assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled";/);
