@@ -611,38 +611,52 @@ export const tradeListing = createServerFn({ method: "POST" })
       return held.length ? { ok: true } : fail("Dieses Inserat wurde inzwischen angefragt.");
     }
     const rows = await sql.query<{ id: number }>(
-      `with ok as (
+      `with target as materialized (
          select l.id, l.user_id as seller, l.region_id, l.price_karma, l.title, l.offer_type
          from listings l
-         join profiles buyer on buyer.user_id = $2
+         join profiles buyer on buyer.user_id = $2 and buyer.region_id = l.region_id
          where l.id = $1
            and l.status = 'active'
            and l.category in ('goods', 'service')
            and l.offer_type in ('sell','gift')
            and l.user_id <> $2
            and (l.offer_type <> 'gift' or l.price_karma = 0)
-           and buyer.region_id = l.region_id
-           and buyer.karma_balance >= l.price_karma
+         for update of l
+       ),
+       locked_profiles as materialized (
+         select p.user_id, p.karma_balance
+         from profiles p
+         join target t on p.user_id = $2 or p.user_id = t.seller
+         order by p.user_id
+         for update of p
+       ),
+       eligible as materialized (
+         select t.*
+         from target t
+         where (select count(*) from locked_profiles) = 2
+           and (t.offer_type = 'gift' or
+             (select lp.karma_balance from locked_profiles lp where lp.user_id = $2) >= t.price_karma)
        ),
        moved as (
          update profiles p
          set karma_balance = p.karma_balance + case
-               when ok.offer_type = 'gift' and p.user_id = $2 then 1
-               when ok.offer_type = 'gift' then 0
-               when p.user_id = $2 then -ok.price_karma + 1
-               else ok.price_karma
+               when eligible.offer_type = 'gift' and p.user_id = $2 then 1
+               when eligible.offer_type = 'gift' then 0
+               when p.user_id = $2 then -eligible.price_karma + 1
+               else eligible.price_karma
              end,
              last_activity_at = now()
-         from ok
-         where p.user_id = $2 or p.user_id = ok.seller
+         from eligible
+         where p.user_id = $2 or p.user_id = eligible.seller
          returning p.user_id
        ),
        closed as (
          update listings l
          set status = 'completed',
            hands_count = hands_count + 1
-         from ok
-         where l.id = ok.id
+         from eligible
+         where l.id = eligible.id
+           and l.status = 'active'
            and (select count(*) from moved) = 2
          returning l.id
        ),
@@ -650,30 +664,30 @@ export const tradeListing = createServerFn({ method: "POST" })
          insert into ledger_entries (
            region_id, sender_id, receiver_id, listing_id, amount_karma, entry_kind, message
          )
-         select ok.region_id,
-           case when ok.offer_type = 'gift' then null else $2 end,
-           case when ok.offer_type = 'gift' then $2 else ok.seller end,
-           ok.id, greatest(ok.price_karma, 1),
-           case when ok.offer_type = 'gift' then 'activity' else 'transfer' end,
-           case when ok.offer_type = 'gift' then 'Aktivitäts-Karma für erfolgreiche Weitergabe: ' || ok.title else 'Tausch: ' || ok.title end
-         from ok
+         select eligible.region_id,
+           case when eligible.offer_type = 'gift' then null else $2 end,
+           case when eligible.offer_type = 'gift' then $2 else eligible.seller end,
+           eligible.id, greatest(eligible.price_karma, 1),
+           case when eligible.offer_type = 'gift' then 'activity' else 'transfer' end,
+           case when eligible.offer_type = 'gift' then 'Aktivitäts-Karma für erfolgreiche Weitergabe: ' || eligible.title else 'Tausch: ' || eligible.title end
+         from eligible
          where exists (select 1 from closed)
          returning id
        ),
        bonus_log as (
          insert into ledger_entries (region_id, receiver_id, listing_id, amount_karma, entry_kind, message)
-         select ok.region_id, $2, ok.id, 1, 'activity',
-           'Aktivitätsbonus für erfolgreiche Weitergabe: ' || ok.title
-         from ok
-         where ok.offer_type <> 'gift' and exists (select 1 from closed)
+         select eligible.region_id, $2, eligible.id, 1, 'activity',
+           'Aktivitätsbonus für erfolgreiche Weitergabe: ' || eligible.title
+         from eligible
+         where eligible.offer_type <> 'gift' and exists (select 1 from closed)
          returning id
        ),
        history_log as (
          insert into item_history (item_uuid, listing_id, owner_id, place_label, event_kind)
          select l.item_uuid, l.id, $2, l.place_label,
-           case when l.offer_type = 'gift' then 'gifted' else 'transferred' end
+           case when eligible.offer_type = 'gift' then 'gifted' else 'transferred' end
          from listings l
-         join ok on ok.id = l.id
+         join eligible on eligible.id = l.id
          where exists (select 1 from closed)
          returning id
        )
