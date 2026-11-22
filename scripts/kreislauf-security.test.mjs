@@ -41,6 +41,19 @@ test("private KREISLAUF actions require verified server-side identity middleware
   }
 });
 
+test("high-value trades are reserved in community escrow before any settlement", () => {
+  const trade = serverFunction("tradeListing");
+  const highValue = trade.slice(trade.indexOf("if (highValue[0])"), trade.indexOf("const rows = await sql.query", trade.indexOf("if (highValue[0])")));
+  assert.match(highValue, /moderators\.length < 4/);
+  assert.match(highValue, /with target as \(select id from listings where id = \$1 and status = 'active' for update\)/);
+  assert.match(highValue, /insert into escrow_cases/);
+  assert.match(highValue, /update listings set status = 'booked'/);
+  assert.doesNotMatch(highValue, /update profiles|insert into ledger_entries/);
+  assert.match(escrowSql, /update profiles[\s\S]*?karma_balance = p\.karma_balance[\s\S]*?where p\.user_id = v_case\.requester_id/);
+  assert.match(escrowSql, /update listings[\s\S]*?set status = 'completed'/);
+  assert.match(moderatorSql, /create unique index if not exists escrow_one_pending_per_listing_idx[\s\S]*?where status = 'pending'/);
+});
+
 test("direct trades serialize listing and account locks before settlement", () => {
   const trade = serverFunction("tradeListing");
   assert.match(trade, /target as materialized[\s\S]*?for update of l/);
