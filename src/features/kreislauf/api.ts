@@ -215,7 +215,22 @@ export const getBoard = createServerFn({ method: "GET" })
          from profiles where region_id = $1`,
         [region.id],
       ),
-      sql.query<Row>(`${LEDGER_SQL} where e.region_id = $1 order by e.id desc limit 12`, [region.id]),
+      sql.query<Row>(
+        `select e.id::int as id, e.amount_karma as "amountKarma", e.entry_kind as "entryKind",
+          case
+            when e.entry_kind = 'mint' then 'Startguthaben der Region'
+            when e.entry_kind = 'demurrage' then 'Umlaufsicherung'
+            else 'Karma-Bewegung'
+          end as message,
+          to_char(e.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt",
+          case when e.sender_id is null then null else 'Mitglied' end as "senderName",
+          case when e.receiver_id is null then null else 'Mitglied' end as "receiverName",
+          null::text as "listingTitle"
+         from ledger_entries e
+         where e.region_id = $1
+         order by e.id desc limit 12`,
+        [region.id],
+      ),
     ]);
     const stats = statRows[0] ?? {};
     return {
@@ -1252,8 +1267,20 @@ export const getEscrowSummary = createServerFn({ method: "GET" })
   .handler(async ({ data, context }): Promise<EscrowSummary> => {
     const sql = await getSql();
     const cases = await sql.query<{ id: string; status: string }>(
-      "select id, status from escrow_cases where listing_id = $1 order by created_at desc limit 1",
-      [data.id],
+      `select e.id, e.status from escrow_cases e
+       where e.listing_id = $1
+         and (
+           exists (
+             select 1 from listings l
+             where l.id = e.listing_id and (l.user_id = $2 or e.requester_id = $2)
+           )
+           or exists (
+             select 1 from escrow_moderators a
+             where a.escrow_id = e.id and a.moderator_id = $2
+           )
+         )
+       order by e.created_at desc limit 1`,
+      [data.id, context.userId],
     );
     if (!cases.length) return { status: null, votes: 0, approvals: 0, rejections: 0, assigned: 0, canVote: false, hasVoted: false };
     const escrowId = cases[0].id;
