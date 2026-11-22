@@ -538,6 +538,19 @@ export const createListing = createServerFn({ method: "POST" })
     if (imageDataUrls.reduce((total, image) => total + image.length, 0) > 1_000_000) {
       throw new Error("Alle Fotos zusammen dürfen maximal 1 MB groß sein. Bitte wähle kleinere Bilder.");
     }
+    const rawExistingImageUrls = Array.isArray(source.existingImageUrls) ? source.existingImageUrls : [];
+    if (rawExistingImageUrls.length > 4 || imageDataUrls.length + rawExistingImageUrls.length > 4) {
+      throw new Error("Maximal 4 Fotos pro Inserat");
+    }
+    const existingImageUrls = rawExistingImageUrls.map((value) => {
+      if (typeof value !== "string") throw new Error("Ungültige Bildadresse");
+      let parsed: URL;
+      try { parsed = new URL(value); } catch { throw new Error("Ungültige Bildadresse"); }
+      if (parsed.protocol !== "https:" || !parsed.hostname.endsWith(".public.blob.vercel-storage.com")) {
+        throw new Error("Nur eigene, gespeicherte Inseratbilder können übernommen werden.");
+      }
+      return value;
+    });
     const rawVideoUrls = Array.isArray(source.videoUrls) ? source.videoUrls : [];
     // Upload is deliberately disabled until the server inspects the real media
     // container. Never trust client-supplied durations or accept a guessed public
@@ -551,7 +564,7 @@ export const createListing = createServerFn({ method: "POST" })
     const lat = typeof source.lat === "number" ? source.lat : null;
     const lng = typeof source.lng === "number" ? source.lng : null;
     const itemUuid = typeof source.itemUuid === "string" && /^item-[a-z0-9-]{8,80}$/.test(source.itemUuid) ? source.itemUuid : null;
-    return { regionId, title, description, category, offerType, priceKarma, placeLabel, imageDataUrls, videoUrls, videoPreset, videoDurations, lat, lng, what3wordsAddress, itemUuid };
+    return { regionId, title, description, category, offerType, priceKarma, placeLabel, imageDataUrls, existingImageUrls, videoUrls, videoPreset, videoDurations, lat, lng, what3wordsAddress, itemUuid };
   })
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
@@ -585,9 +598,19 @@ export const createListing = createServerFn({ method: "POST" })
     if (process.env.VERCEL_ENV === "production" && !process.env.BLOB_READ_WRITE_TOKEN?.trim()) {
       throw new Error("Der Medien-Speicher ist noch nicht eingerichtet. Das Inserat wurde nicht gespeichert.");
     }
-    const images = process.env.BLOB_READ_WRITE_TOKEN?.trim()
+    for (const imageUrl of data.existingImageUrls) {
+      const parsed = new URL(imageUrl);
+      if (parsed.pathname.split("/").slice(1, 3).join("/") !== `listings/${encodeURIComponent(context.userId)}`) {
+        throw new Error("Ein übernommenes Foto gehört nicht zu deinem Konto.");
+      }
+    }
+    if (data.existingImageUrls.length > 0 && !process.env.BLOB_READ_WRITE_TOKEN?.trim()) {
+      throw new Error("Gespeicherte Fotos können erst übernommen werden, wenn der Medien-Speicher eingerichtet ist.");
+    }
+    const newImages = process.env.BLOB_READ_WRITE_TOKEN?.trim()
       ? await storeListingImages(context.userId, data.imageDataUrls)
       : data.imageDataUrls;
+    const images = [...data.existingImageUrls, ...newImages];
     for (const videoUrl of data.videoUrls) {
       const pathname = new URL(videoUrl).pathname;
       if (!pathname.includes(`/listings/${encodeURIComponent(context.userId)}/`)) throw new Error("Dieses Video gehört nicht zu deinem Konto.");
@@ -628,8 +651,8 @@ export const createListing = createServerFn({ method: "POST" })
         ],
       );
     } catch (error) {
-      if (process.env.BLOB_READ_WRITE_TOKEN?.trim() && images.length > 0) {
-        try { await del(images); } catch { /* preserve database error */ }
+      if (process.env.BLOB_READ_WRITE_TOKEN?.trim() && newImages.length > 0) {
+        try { await del(newImages); } catch { /* preserve database error */ }
       }
       throw error;
     }
