@@ -56,7 +56,9 @@ test("legacy prototype tables are locked down by the upgrade migration", async (
   assert.match(legacy, /drop policy/i);
   assert.match(legacy, /enable row level security/i);
   assert.match(legacy, /revoke all on table/i);
-});\n\ntest("future public-schema objects are not granted to browser roles by default", () => {
+});
+
+test("future public-schema objects are not granted to browser roles by default", () => {
   assert.match(sql, /alter default privileges for role postgres in schema public[\s\S]*?revoke all on tables from anon, authenticated, service_role/i);
   assert.match(sql, /revoke execute on functions from public, anon, authenticated, service_role/i);
 });
