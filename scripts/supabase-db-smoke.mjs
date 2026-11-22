@@ -202,7 +202,7 @@ try {
       console.log("[supabase-smoke] ROLLBACK erfolgreich – keine Testdaten wurden gespeichert.");
     } catch (error) {
       console.error("[supabase-smoke] WARNUNG: Rollback fehlgeschlagen:", error);
-      throw error;
+      process.exitCode = 1;
     }
   }
   await client.end().catch(() => undefined);
