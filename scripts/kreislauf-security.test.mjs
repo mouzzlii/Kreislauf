@@ -10,6 +10,7 @@ const legacySql = await readFile(new URL("../migrations/0009_lock_down_legacy_ta
 const setupSql = await readFile(new URL("../SUPABASE-SETUP.sql", import.meta.url), "utf8");
 const messagingSql = await readFile(new URL("../migrations/0004_messages_escrow.sql", import.meta.url), "utf8");
 const escrowPanel = await readFile(new URL("../src/components/escrow-panel.tsx", import.meta.url), "utf8");
+const vercelConfig = await readFile(new URL("../vercel.json", import.meta.url), "utf8");
 
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
@@ -107,4 +108,14 @@ test("retired prototype tables have no permissive browser policies", () => {
   assert.match(legacySql, /users/);
   assert.match(legacySql, /transactions/);
   assert.match(legacySql, /marketplace_items/);
+});
+
+
+test("deployment sends baseline browser security headers", () => {
+  const config = JSON.parse(vercelConfig);
+  const headers = config.headers.find((entry) => entry.source === "/(.*)")?.headers ?? [];
+  const values = Object.fromEntries(headers.map(({ key, value }) => [key.toLowerCase(), value]));
+  assert.match(values["strict-transport-security"] ?? "", /max-age=31536000/);
+  assert.equal(values["x-content-type-options"], "nosniff");
+  assert.equal(values["referrer-policy"], "strict-origin-when-cross-origin");
 });
