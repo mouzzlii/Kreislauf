@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ListingCard } from "@/components/listing-card";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui";
-import { getBoard, runDemurrage, type DemurrageCut } from "@/features/kreislauf/api";
+import { getBoard } from "@/features/kreislauf/api";
 import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import { CATEGORY_LABEL, formatKarma, haversineKm } from "@/features/kreislauf/format";
 import { DEFAULT_REGION, type Board, type Category } from "@/features/kreislauf/types";
@@ -23,13 +23,11 @@ const FILTERS: Array<{ id: "all" | Category; label: string }> = [
 function Home() {
   const initial = Route.useLoaderData();
   const { board } = useLiveBoard(initial);
-  const { profile, bump, refreshProfile } = useKreislauf();
+  const { profile } = useKreislauf();
   const [filter, setFilter] = useState<"all" | Category>("all");
   const [offerFilter, setOfferFilter] = useState<"all" | "sell" | "search" | "gift">("all");
   const [near, setNear] = useState(false);
   const [showDone, setShowDone] = useState(false);
-  const [cuts, setCuts] = useState<DemurrageCut[] | null>(null);
-  const [working, setWorking] = useState(false);
 
   const origin =
     profile?.lat != null && profile.lng != null
@@ -59,33 +57,15 @@ function Home() {
       </dl>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <Button
-          variant="ghost"
-          disabled={working || board.stats.idle < 1}
-          onClick={() => {
-            setWorking(true);
-            void runDemurrage()
-              .then(async (next) => {
-                setCuts(next);
-                bump();
-                await refreshProfile();
-              })
-              .finally(() => setWorking(false));
-          }}
-        >
-          {working ? "Rechnet…" : "Umlauf sichern"}
-        </Button>
+        <span className="inline-flex h-10 items-center rounded-full border border-line bg-elev px-4 text-sm text-muted">
+          Umlaufsicherung · Admin-Funktion
+        </span>
         <p className="max-w-sm text-sm text-subtle">
-          0,5 % je stillen Monat. Das Karma verfällt, es wandert an niemanden.
+          0,5 % je vollem stillen Monat. In dieser Testdemo ist die Ausführung gesperrt,
+          bis eine regionale Administration eingerichtet ist. Das Karma verfällt und
+          wird niemandem gutgeschrieben.
         </p>
       </div>
-      {cuts ? (
-        <p className="mt-3 text-sm text-muted">
-          {cuts.length
-            ? cuts.map((cut) => `${cut.username} −${formatKarma(cut.cut)}`).join(" · ")
-            : "Gerade liegt nichts lange genug still."}
-        </p>
-      ) : null}
 
       <div className="mt-8 flex flex-wrap gap-2" aria-label="Inseratstyp">
         {[{ id: "all", label: "Alle Inserate" }, { id: "sell", label: "Biete" }, { id: "search", label: "Suche" }, { id: "gift", label: "Verschenke" }].map((item) => (
