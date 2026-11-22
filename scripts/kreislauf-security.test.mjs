@@ -14,6 +14,7 @@ const vercelConfig = await readFile(new URL("../vercel.json", import.meta.url), 
 const authClient = await readFile(new URL("../src/lib/auth/client.ts", import.meta.url), "utf8");
 const authPopup = await readFile(new URL("../src/lib/auth/popup.server.ts", import.meta.url), "utf8");
 const videoUploadRoute = await readFile(new URL("../src/routes/api/upload.ts", import.meta.url), "utf8");
+const videoUploadValidation = await readFile(new URL("../src/features/kreislauf/video-upload.ts", import.meta.url), "utf8");
 const videoMigration = await readFile(new URL("../migrations/0013_listing_video_urls.sql", import.meta.url), "utf8");
 
 function serverFunction(name) {
@@ -170,12 +171,16 @@ test("listing creation validates image payloads and atomically writes ownership 
 
 
 test("listing video upload requires a real signed-in member and constrained Blob tokens", () => {
-  assert.match(videoUploadRoute, /if \(!authConfigured\)/);
+  assert.match(videoUploadRoute, /!authConfigured \|\| !process\.env\.DATABASE_URL/);
+  assert.match(videoUploadRoute, /!process\.env\.BLOB_READ_WRITE_TOKEN/);
   assert.match(videoUploadRoute, /await requireUserId\(\)/);
-  assert.match(videoUploadRoute, /pathname\.startsWith\(prefix\)/);
+  assert.match(videoUploadRoute, /validateVideoUpload\(pathname, userId, clientPayload\)/);
+  assert.match(videoUploadValidation, /pathname\.startsWith\(prefix\)/);
+  assert.match(videoUploadValidation, /duration > 60/);
+  assert.match(videoUploadValidation, /listings\/\$\{encodeURIComponent\(userId\)\}/);
   assert.match(videoUploadRoute, /allowedContentTypes: \["video\/mp4", "video\/webm", "video\/quicktime"\]/);
   assert.match(videoUploadRoute, /maximumSizeInBytes: 50 \* 1024 \* 1024/);
-  assert.match(videoUploadRoute, /payload\.duration > 60/);
+
 });
 
 test("listing video references are limited, owned by the caller and persisted", () => {
