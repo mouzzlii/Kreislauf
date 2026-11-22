@@ -603,35 +603,50 @@ export const tradeListing = createServerFn({ method: "POST" })
        ),
        closed as (
          update listings l
-         set status = 'completed'
+         set status = 'completed',
+           hands_count = hands_count + 1
          from ok
          where l.id = ok.id
            and (select count(*) from moved) = 2
          returning l.id
+       ),
+       transfer_log as (
+         insert into ledger_entries (
+           region_id, sender_id, receiver_id, listing_id, amount_karma, entry_kind, message
+         )
+         select ok.region_id,
+           case when ok.offer_type = 'gift' then null else $2 end,
+           case when ok.offer_type = 'gift' then $2 else ok.seller end,
+           ok.id, greatest(ok.price_karma, 1),
+           case when ok.offer_type = 'gift' then 'activity' else 'transfer' end,
+           case when ok.offer_type = 'gift' then 'Aktivitäts-Karma für erfolgreiche Weitergabe: ' || ok.title else 'Tausch: ' || ok.title end
+         from ok
+         where exists (select 1 from closed)
+         returning id
+       ),
+       bonus_log as (
+         insert into ledger_entries (region_id, receiver_id, listing_id, amount_karma, entry_kind, message)
+         select ok.region_id, $2, ok.id, 1, 'activity',
+           'Aktivitätsbonus für erfolgreiche Weitergabe: ' || ok.title
+         from ok
+         where ok.offer_type <> 'gift' and exists (select 1 from closed)
+         returning id
+       ),
+       history_log as (
+         insert into item_history (item_uuid, listing_id, owner_id, place_label, event_kind)
+         select l.item_uuid, l.id, $2, l.place_label,
+           case when l.offer_type = 'gift' then 'gifted' else 'transferred' end
+         from listings l
+         join ok on ok.id = l.id
+         where exists (select 1 from closed)
+         returning id
        )
-       insert into ledger_entries (
-         region_id, sender_id, receiver_id, listing_id, amount_karma, entry_kind, message
-       )
-       select ok.region_id,
-         case when ok.offer_type = 'gift' then null else $2 end,
-         case when ok.offer_type = 'gift' then $2 else ok.seller end,
-         ok.id, greatest(ok.price_karma, 1),
-         case when ok.offer_type = 'gift' then 'activity' else 'transfer' end,
-         case when ok.offer_type = 'gift' then 'Aktivitäts-Karma für erfolgreiche Weitergabe: ' || ok.title else 'Tausch: ' || ok.title end
-       from ok
-       where exists (select 1 from closed)
-       returning id::int as id`,
+       select id::int as id from transfer_log`,
       [data.id, context.userId],
     );
     if (!rows.length) {
       return fail("Tausch nicht möglich. Prüfe Guthaben, Region und ob das Inserat noch frei ist.");
     }
-    await sql.query(`insert into ledger_entries (region_id, receiver_id, listing_id, amount_karma, entry_kind, message)
-      select region_id, $2, id, 1, 'activity', 'Aktivitätsbonus für erfolgreiche Weitergabe: ' || title from listings where id = $1 and offer_type <> 'gift'`, [data.id, context.userId]);
-    await sql.query(`update listings set hands_count = hands_count + 1 where id = $1`, [data.id]);
-    await sql.query(`insert into item_history (item_uuid, listing_id, owner_id, place_label, event_kind)
-      select item_uuid, id, $2, place_label, case when offer_type = 'gift' then 'gifted' else 'transferred' end
-      from listings where id = $1`, [data.id, context.userId]);
     return { ok: true };
   });
 
