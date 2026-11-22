@@ -29,6 +29,7 @@ export type Listing = {
   priceKarma: number;
   status: ListingStatus;
   images: string[];
+  videoUrls: string[];
   lat: number;
   lng: number;
   placeLabel: string;
