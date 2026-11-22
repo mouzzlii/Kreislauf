@@ -579,7 +579,7 @@ export const createListing = createServerFn({ method: "POST" })
          returning id
        )
        insert into item_history (item_uuid, listing_id, owner_id, place_label, event_kind)
-       select $14, id, $2, $12, 'listed' from created_listing
+       select $15, id, $2, $13, 'listed' from created_listing
        returning listing_id`,
       [
         id,
