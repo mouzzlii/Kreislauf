@@ -24,13 +24,14 @@ export function Shell({
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { user, isPending } = useCurrentUserState();
+  const userId = user?.id;
   const { regionId, setRegion, profile, theme, toggleTheme } = useKreislauf();
   const [notifications, setNotifications] = useState<ListingNotification[]>([]);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const unreadCount = notifications.reduce((total, item) => total + item.unreadCount, 0);
 
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setNotifications([]);
       setNotificationsOpen(false);
       return;
@@ -47,7 +48,7 @@ export function Shell({
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [user?.id, pathname]);
+  }, [userId, pathname]);
 
   return (
     <div className="min-h-dvh bg-bg text-fg">
