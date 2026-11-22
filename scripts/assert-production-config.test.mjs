@@ -18,6 +18,9 @@ const validProduction = {
   VITE_AUTH_ENABLED: "true",
   BETTER_AUTH_SECRET: "x".repeat(48),
   BETTER_AUTH_URL: "https://kreislauf.example.at",
+  GROK_AUTH_ISSUER: "https://auth.example.at",
+  GROK_AUTH_CLIENT_ID: "kreislauf-production",
+  GROK_AUTH_CLIENT_SECRET: "y".repeat(48),
   BLOB_READ_WRITE_TOKEN: "vercel_blob_rw_placeholder",
   ID_AUSTRIA_MOCK_MODE: "false",
 };
@@ -30,27 +33,31 @@ describe("production release guard", () => {
       VITE_AUTH_ENABLED: "false",
       BETTER_AUTH_SECRET: "",
       BETTER_AUTH_URL: "",
+      GROK_AUTH_ISSUER: "",
+      GROK_AUTH_CLIENT_ID: "",
+      GROK_AUTH_CLIENT_SECRET: "",
       BLOB_READ_WRITE_TOKEN: "",
     });
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /checks skipped/);
   });
 
-  it("blocks production while persistent database, real auth and media storage are missing", () => {
+  it("blocks production while database, auth, broker client and media storage are missing", () => {
     const result = run({
       ...validProduction,
       DATABASE_URL: "",
       VITE_AUTH_ENABLED: "false",
       BETTER_AUTH_SECRET: "",
       BETTER_AUTH_URL: "",
+      GROK_AUTH_ISSUER: "",
+      GROK_AUTH_CLIENT_ID: "",
+      GROK_AUTH_CLIENT_SECRET: "",
       BLOB_READ_WRITE_TOKEN: "",
     });
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /DATABASE_URL/);
-    assert.match(result.stderr, /VITE_AUTH_ENABLED=true/);
-    assert.match(result.stderr, /BETTER_AUTH_SECRET/);
-    assert.match(result.stderr, /BETTER_AUTH_URL/);
-    assert.match(result.stderr, /BLOB_READ_WRITE_TOKEN/);
+    for (const variable of ["DATABASE_URL", "VITE_AUTH_ENABLED=true", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "GROK_AUTH_ISSUER", "GROK_AUTH_CLIENT_ID", "GROK_AUTH_CLIENT_SECRET", "BLOB_READ_WRITE_TOKEN"]) {
+      assert.match(result.stderr, new RegExp(variable.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    }
   });
 
   it("rejects a non-PostgreSQL database URL", () => {
@@ -59,10 +66,29 @@ describe("production release guard", () => {
     assert.match(result.stderr, /DATABASE_URL/);
   });
 
-  it("allows production only with PostgreSQL, secure auth and media storage configured", () => {
+  it("rejects missing production-specific OAuth broker credentials", () => {
+    const result = run({
+      ...validProduction,
+      GROK_AUTH_ISSUER: "",
+      GROK_AUTH_CLIENT_ID: "",
+      GROK_AUTH_CLIENT_SECRET: "",
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /GROK_AUTH_ISSUER/);
+    assert.match(result.stderr, /GROK_AUTH_CLIENT_ID/);
+    assert.match(result.stderr, /GROK_AUTH_CLIENT_SECRET/);
+  });
+
+  it("rejects an insecure OAuth broker URL", () => {
+    const result = run({ ...validProduction, GROK_AUTH_ISSUER: "http://auth.example.at" });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /GROK_AUTH_ISSUER/);
+  });
+
+  it("allows production only with PostgreSQL, dedicated auth broker and media storage", () => {
     const result = run(validProduction);
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stdout, /PostgreSQL, Anmeldung und Medien-Storage/);
+    assert.match(result.stdout, /eigene OAuth-Anmeldung/);
   });
 
   it("blocks production when the ID Austria mock is enabled", () => {
