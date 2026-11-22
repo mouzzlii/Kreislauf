@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ListingVisual } from "@/components/listing-card";
 import { ListingConversation } from "@/components/listing-conversation";
@@ -39,6 +39,8 @@ function ListingPage() {
   const initial = Route.useLoaderData();
   const { listingId } = Route.useParams();
   const navigate = useNavigate();
+  const locationSearch = useRouterState({ select: (state) => state.location.search as Record<string, unknown> });
+  const requestedConversationId = typeof locationSearch.conversation === "string" ? locationSearch.conversation : "";
   const { version, bump, refreshProfile, profile } = useKreislauf();
   const { user, isPending } = useCurrentUserState();
   const [detail, setDetail] = useState<ListingDetail | null>(initial);
