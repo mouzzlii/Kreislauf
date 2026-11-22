@@ -136,7 +136,8 @@ test("a disputed sharing escrow cannot be bypassed by cancelling or returning it
 test("sharing handover is blocked until its escrow has been released", () => {
   const transition = serverFunction("transitionBooking");
   const returnStart = transition.indexOf('if (data.action === "return")');
-  const handoverStart = transition.indexOf("const rows = await sql.query<{\\n      renterConfirmed: boolean;", returnStart);
+  const handoverMarker = transition.indexOf("renterConfirmed: boolean;", returnStart);
+  const handoverStart = transition.lastIndexOf("const rows = await sql.query<{", handoverMarker);
   const handover = transition.slice(handoverStart);
   assert.match(handover, /not exists \(select 1 from escrow_cases e where e\.booking_id = bookings\.id\)/);
   assert.match(handover, /exists \(select 1 from escrow_cases e where e\.booking_id = bookings\.id and e\.status = 'released'\)/);
@@ -382,7 +383,8 @@ test("sharing handover and Karma settlement require both booking parties", () =>
   const transition = serverFunction("transitionBooking");
   const cancelStart = transition.indexOf('if (data.action === "cancel")');
   const returnStart = transition.indexOf('if (data.action === "return")');
-  const handoverStart = transition.indexOf("const rows = await sql.query<{\\n      renterConfirmed: boolean;", returnStart);
+  const handoverMarker = transition.indexOf("renterConfirmed: boolean;", returnStart);
+  const handoverStart = transition.lastIndexOf("const rows = await sql.query<{", handoverMarker);
   const confirmationStart = transition.indexOf("const confirmation = rows[0];", handoverStart);
   const cancel = transition.slice(cancelStart, returnStart);
   const handover = transition.slice(handoverStart, confirmationStart);
@@ -404,7 +406,8 @@ test("sharing return and listing reactivation require both booking parties", () 
   const transition = serverFunction("transitionBooking");
   const returnStart = transition.indexOf('if (data.action === "return")');
   const returnQueryStart = transition.indexOf("const rows = await sql.query<{", returnStart);
-  const handoverStart = transition.indexOf("const rows = await sql.query<{\\n      renterConfirmed: boolean;", returnQueryStart + 20);
+  const handoverMarker = transition.indexOf("renterConfirmed: boolean;", returnQueryStart);
+  const handoverStart = transition.lastIndexOf("const rows = await sql.query<{", handoverMarker);
   const returning = transition.slice(returnStart, handoverStart);
   assert.match(returning, /renter_return_at = case[\s\S]*owner_return_at = case/);
   assert.match(returning, /when coalesce\(booking\.renter_return_at[\s\S]*is not null[\s\S]*and coalesce\(booking\.owner_return_at[\s\S]*is not null/);
