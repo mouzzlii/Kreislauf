@@ -29,6 +29,16 @@ test("private KREISLAUF actions require verified server-side identity middleware
   }
 });
 
+test("direct trades serialize listing and account locks before settlement", () => {
+  const trade = serverFunction("tradeListing");
+  assert.match(trade, /target as materialized[\\s\\S]*?for update of l/);
+  assert.match(trade, /locked_profiles as materialized[\\s\\S]*?for update of p/);
+  assert.match(trade, /select count\\(\\*\\) from locked_profiles/);
+  assert.match(trade, /karma_balance[\\s\\S]*?locked_profiles lp where lp.user_id = \\$2/);
+  assert.match(trade, /l\\.status = 'active'/);
+  assert.match(trade, /select count\\(\\*\\) from moved/);
+});
+
 test("private meeting point is not exposed by public listing queries", () => {
   const queryStart = api.indexOf("const LISTING_SQL =");
   const queryEnd = api.indexOf("\n`;", queryStart);
