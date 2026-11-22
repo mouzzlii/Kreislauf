@@ -37,6 +37,17 @@ test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
     assert.ok(schema.rows[0].escrow_moderators);
     assert.ok(schema.rows[0].vote_function);
 
+    const demurrage = await db.query("select affected_user, cut_amount from apply_demurrage()");
+    const jonasCut = demurrage.rows.find((row) => row.affected_user === "seed-jonas");
+    assert.ok(jonasCut, "a member idle for more than two full months should receive demurrage");
+    assert.equal(jonasCut.cut_amount, 6, "0.5% per full idle month should be applied to the 640-Karma balance");
+    const demurrageLedger = await db.query(
+      "select amount_karma, receiver_id, entry_kind from ledger_entries where sender_id = 'seed-jonas' and entry_kind = 'demurrage'",
+    );
+    assert.equal(demurrageLedger.rows.length, 1);
+    assert.equal(demurrageLedger.rows[0].amount_karma, 6);
+    assert.equal(demurrageLedger.rows[0].receiver_id, null, "expired Karma must not be credited to another member");
+
     await db.query(
       `insert into profiles(user_id, username, region_id, karma_balance, is_verified, moderator_rank, last_active_at)
        values
