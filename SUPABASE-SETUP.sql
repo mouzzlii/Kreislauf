@@ -172,7 +172,7 @@ create table if not exists ledger_entries (
   listing_id text references listings (id),
   booking_id text references bookings (id),
   amount_karma integer not null check (amount_karma > 0),
-  entry_kind text not null check (entry_kind in ('mint', 'transfer', 'demurrage')),
+  entry_kind text not null check (entry_kind in ('mint', 'transfer', 'demurrage', 'activity')),
   message text not null default '',
   created_at timestamptz not null default now()
 );
