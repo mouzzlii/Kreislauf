@@ -919,9 +919,15 @@ export const transitionBooking = createServerFn({ method: "POST" })
     const sql = await getSql();
     if (data.action === "cancel") {
       const rows = await sql.query(
-        `with b as (
+        `with escrow_guard as materialized (
+           select id, status from escrow_cases
+           where booking_id = $1
+           for update
+         ),
+         b as (
            select id, listing_id from bookings
            where id = $1 and status = 'reserved' and (renter_id = $2 or owner_id = $2)
+             and not exists (select 1 from escrow_guard where status = 'disputed')
            for update
          ),
          upd as (
