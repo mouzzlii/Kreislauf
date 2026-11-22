@@ -83,6 +83,17 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
       "every seeded demo balance must reconcile exactly with its append-only ledger",
     );
 
+    const reconciliationCount = await db.query(
+      `select count(*)::int as count from ledger_entries where message = 'Demo-Kontostand-Abgleich 0016'`,
+    );
+    assert.equal(reconciliationCount.rows[0].count, 6, "each mismatched demo account should receive one explicit journal adjustment");
+    const reconciliationSql = await readFile(join(root, "migrations", "0016_reconcile_demo_karma_ledger.sql"), "utf8");
+    await db.exec(reconciliationSql);
+    const repeatedReconciliationCount = await db.query(
+      `select count(*)::int as count from ledger_entries where message = 'Demo-Kontostand-Abgleich 0016'`,
+    );
+    assert.equal(repeatedReconciliationCount.rows[0].count, 6, "manual re-runs must not duplicate demo adjustments");
+
     const demurrage = await db.query("select affected_user, cut_amount from apply_demurrage()");
     const jonasCut = demurrage.rows.find((row) => row.affected_user === "seed-jonas");
     assert.ok(jonasCut, "a member idle for more than two full months should receive demurrage");
