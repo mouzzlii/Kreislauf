@@ -2,30 +2,30 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { approximatePublicCoordinates } from "./geo-privacy.ts";
 
-test("public coordinates are generated from the region center, not a private GPS point", () => {
-  const center = { lat: 48.2, lng: 15.1 };
-  const privatePoint = { lat: 48.211234, lng: 15.123456 };
-  const result = approximatePublicCoordinates(center, privatePoint, "listing-123");
+test("public listing coordinates are offset from the private GPS point", () => {
+  const privatePoint = { lat: 48.2, lng: 15.1 };
+  const result = approximatePublicCoordinates(privatePoint, privatePoint, "listing-123");
   assert.notDeepEqual(result, privatePoint);
-  assert.ok(Math.abs(result.lat - center.lat) >= 0.003);
-  assert.ok(Math.abs(result.lat - center.lat) <= 0.01);
-  assert.ok(Math.abs(result.lng - center.lng) >= 0.003);
-  assert.ok(Math.abs(result.lng - center.lng) <= 0.01);
+  assert.ok(Math.abs(result.lat - privatePoint.lat) >= 0.008);
+  assert.ok(Math.abs(result.lat - privatePoint.lat) <= 0.02);
+  assert.ok(Math.abs(result.lng - privatePoint.lng) >= 0.008);
+  assert.ok(Math.abs(result.lng - privatePoint.lng) <= 0.02);
 });
 
-test("changing a private candidate never changes the public map point", () => {
+test("public coordinates do not use an out-of-region private point", () => {
   const center = { lat: 48.2, lng: 15.1 };
-  const first = approximatePublicCoordinates(center, { lat: 48.21, lng: 15.12 }, "same-listing");
-  const second = approximatePublicCoordinates(center, { lat: 48.23, lng: 15.18 }, "same-listing");
-  assert.deepEqual(first, second);
+  const result = approximatePublicCoordinates(center, { lat: 47, lng: 14 }, "listing-456");
+  assert.ok(Math.abs(result.lat - center.lat) >= 0.008);
+  assert.ok(Math.abs(result.lat - center.lat) <= 0.02);
+  assert.ok(Math.abs(result.lng - center.lng) >= 0.008);
+  assert.ok(Math.abs(result.lng - center.lng) <= 0.02);
 });
 
-test("the same listing seed yields stable approximate regional coordinates", () => {
+test("the public offset is not predictable from a listing identifier", () => {
   const center = { lat: 48.2, lng: 15.1 };
-  assert.deepEqual(
-    approximatePublicCoordinates(center, null, "stable-listing"),
-    approximatePublicCoordinates(center, null, "stable-listing"),
-  );
+  const first = approximatePublicCoordinates(center, center, "same-listing");
+  const second = approximatePublicCoordinates(center, center, "same-listing");
+  assert.notDeepEqual(first, second);
 });
 
 test("invalid regional centers fall back to a safe coordinate", () => {
