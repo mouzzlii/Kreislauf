@@ -8,6 +8,7 @@ import { Button, fieldClass } from "@/components/ui";
 import {
   addReview,
   getListing,
+  getListingBooking,
   getMeetingPoint,
   reserveListing,
   tradeListing,
@@ -23,7 +24,7 @@ import {
   formatWhen,
   priceCaption,
 } from "@/features/kreislauf/format";
-import type { ListingDetail } from "@/features/kreislauf/types";
+import type { Booking, ListingDetail } from "@/features/kreislauf/types";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/inserat/$listingId")({
@@ -38,6 +39,7 @@ function ListingPage() {
   const { version, bump, refreshProfile, profile } = useKreislauf();
   const { user, isPending } = useCurrentUserState();
   const [detail, setDetail] = useState<ListingDetail | null>(initial);
+  const [booking, setBooking] = useState<Booking | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [meetingPointUrl, setMeetingPointUrl] = useState<string | null>(null);
@@ -56,6 +58,18 @@ function ListingPage() {
       cancel = true;
     };
   }, [listingId, version]);
+
+  useEffect(() => {
+    if (!user) {
+      setBooking(null);
+      return;
+    }
+    let cancel = false;
+    getListingBooking({ data: { id: listingId } })
+      .then((result) => { if (!cancel) setBooking(result); })
+      .catch(() => { if (!cancel) setBooking(null); });
+    return () => { cancel = true; };
+  }, [listingId, user?.id, version]);
 
   useEffect(() => {
     setQrTarget(`${window.location.origin}/inserat/${listingId}`);
@@ -81,7 +95,7 @@ function ListingPage() {
     );
   }
 
-  const { listing, booking, reviews } = detail;
+  const { listing, reviews } = detail;
   const mine = user?.id === listing.userId;
   const party = user && booking && (user.id === booking.renterId || user.id === booking.ownerId);
 
