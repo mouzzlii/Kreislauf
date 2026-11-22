@@ -19,6 +19,8 @@ const videoUploadValidation = await readFile(new URL("../src/features/kreislauf/
 const videoMigration = await readFile(new URL("../migrations/0013_listing_video_urls.sql", import.meta.url), "utf8");
 const pausedMigration = await readFile(new URL("../migrations/0015_listing_paused_status.sql", import.meta.url), "utf8");
 const marketRoute = await readFile(new URL("../src/routes/index.tsx", import.meta.url), "utf8");
+const shell = await readFile(new URL("../src/components/shell.tsx", import.meta.url), "utf8");
+const listingDetail = await readFile(new URL("../src/routes/inserat/$listingId.tsx", import.meta.url), "utf8");
 
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
@@ -225,4 +227,15 @@ test("maintenance and user-paused listings remain distinct database states", () 
   assert.match(setupSql, /'maintenance', 'paused'/);
   assert.match(api, /data\.action === "pause" \? "active" : "paused"/);
   assert.match(api, /data\.action === "pause" \? "paused" : "active"/);
+});
+
+
+test("unread listing notifications open the exact conversation, including multiple requesters per listing", () => {
+  const notifications = serverFunction("getUnreadListingNotifications");
+  assert.match(notifications, /c\.requester_id as "requesterId"/);
+  assert.match(notifications, /requesterId: asString\(row\.requesterId\)/);
+  assert.match(shell, /key=\{\`\$\{item\.listingId\}:\$\{item\.requesterId\}\`\}/);
+  assert.match(shell, /conversation=\$\{encodeURIComponent\(item\.requesterId\)\}/);
+  assert.match(listingDetail, /locationSearch\.conversation/);
+  assert.match(listingDetail, /requestedConversationId \|\| items\[0\]\?\.requesterId/);
 });
