@@ -42,6 +42,7 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 - ID Austria ist weiterhin nur ein gekennzeichneter Mock, keine echte Behördenanbindung.
 - Videoauswahl und Video-Upload sind derzeit in allen Umgebungen gesperrt. `/api/upload` antwortet absichtlich mit HTTP 503. Eine unabhängige serverseitige Prüfung der tatsächlichen Laufzeit aus der Videodatei selbst ist noch nicht implementiert. Vor Freigabe sind diese Prüfung sowie Upload-/Lösch- und Quoten-Tests erforderlich.
 - Hochwert-Treuhand bleibt nach Moderationsmehrheit absichtlich im Status `pending`; Inserat und Punkte werden nicht freigegeben, bevor beidseitige Übergabe-/Empfangsbestätigung und ein autorisierter Streitfallprozess existieren.
+- Sharing-Buchungen mit Status `disputed` können weder storniert noch über die Rückgabe abgeschlossen werden. Die Buchungs-/Inseratsstatus bleiben gesperrt, bis der Streitfall ausdrücklich geklärt ist. Regressionstest im CI-Lauf `45066586697` auf Commit `956cf525270d828ebf4514aba3cdca30ed585b5b` erfolgreich.
 - Es fehlt ein vollständiger End-to-End-Test mit mehreren echten Benutzerkonten.
 - Datenschutz, Nutzungsbedingungen und Impressum müssen rechtlich geprüft und ergänzt werden.
 
