@@ -105,7 +105,9 @@ export function Shell({
                         {notifications.map((item) => (
                           <li key={`${item.listingId}:${item.requesterId}`}>
                             <Link
-                              to={`/inserat/${encodeURIComponent(item.listingId)}?conversation=${encodeURIComponent(item.requesterId)}`}
+                              to="/inserat/$listingId"
+                              params={{ listingId: item.listingId }}
+                              search={{ conversation: item.requesterId }}
                               onClick={() => setNotificationsOpen(false)}
                               className="block px-4 py-3 hover:bg-elev-2"
                             >
