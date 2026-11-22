@@ -236,7 +236,7 @@ function ListingPage() {
           {mine ? (
             <div className="mt-5 rounded-2xl border border-line bg-elev p-4">
               <p className="text-sm text-muted">Das ist dein Inserat. Du kannst es vorübergehend aus dem Markt nehmen und später wieder freischalten.</p>
-              {listing.status === "active" || listing.status === "maintenance" ? (
+              {listing.status === "active" || listing.status === "paused" ? (
                 <Button
                   className="mt-3"
                   variant={listing.status === "active" ? "ghost" : "primary"}
@@ -246,7 +246,7 @@ function ListingPage() {
                   {listing.status === "active" ? "Inserat pausieren" : "Inserat wieder freigeben"}
                 </Button>
               ) : (
-                <p className="mt-2 text-xs text-subtle">Dieses Inserat kann wegen seines aktuellen Tauschstatus nicht pausiert werden.</p>
+                <p className="mt-2 text-xs text-subtle">Dieses Inserat kann wegen seines aktuellen Status nicht pausiert werden.</p>
               )}
             </div>
           ) : null}
