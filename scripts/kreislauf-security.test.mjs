@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const api = await readFile(new URL("../src/features/kreislauf/api.ts", import.meta.url), "utf8");
+const idAustriaMode = await readFile(new URL("../src/features/kreislauf/id-austria-mode.ts", import.meta.url), "utf8");
 const listingMedia = await readFile(new URL("../src/features/kreislauf/media.ts", import.meta.url), "utf8");
 const escrowSql = await readFile(new URL("../migrations/0005_escrow_atomicity.sql", import.meta.url), "utf8");
 const coreSql = await readFile(new URL("../migrations/0003_kreislauf_v2.sql", import.meta.url), "utf8");
