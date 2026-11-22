@@ -11,7 +11,13 @@ create index if not exists item_history_listing_id_fk_idx on public.item_history
 create index if not exists item_history_owner_id_fk_idx on public.item_history(owner_id);
 create index if not exists ledger_entries_booking_id_fk_idx on public.ledger_entries(booking_id);
 create index if not exists ledger_entries_listing_id_fk_idx on public.ledger_entries(listing_id);
-create index if not exists legacy_bookings_user_id_fk_idx on public.legacy_bookings(user_id);
+do $
+begin
+  if to_regclass('public.legacy_bookings') is not null then
+    execute 'create index if not exists legacy_bookings_user_id_fk_idx on public.legacy_bookings(user_id)';
+  end if;
+end
+$;
 create index if not exists listings_user_id_fk_idx on public.listings(user_id);
 create index if not exists marketplace_items_seller_id_fk_idx on public.marketplace_items(seller_id);
 create index if not exists rentals_user_id_fk_idx on public.rentals(user_id);
