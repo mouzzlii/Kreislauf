@@ -103,7 +103,7 @@ test("cancelling or returning a booking closes its unresolved escrow", () => {
 test("a disputed sharing escrow cannot be bypassed by cancelling or returning its booking", () => {
   const transition = serverFunction("transitionBooking");
   const cancel = transition.slice(transition.indexOf('if (data.action === "cancel")'), transition.indexOf('if (data.action === "return")'));
-  const returning = transition.slice(transition.indexOf('if (data.action === "return")'), transition.indexOf('const rows = await sql.query(', transition.indexOf('if (data.action === "return")') + 1));
+  const returning = transition.slice(transition.indexOf('if (data.action === "return")'), transition.lastIndexOf('const rows = await sql.query('));
   for (const action of [cancel, returning]) {
     assert.match(action, /escrow_guard as materialized/);
     assert.match(action, /where booking_id = \$1\s+for update/);
