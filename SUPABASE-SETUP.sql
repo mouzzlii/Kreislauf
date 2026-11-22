@@ -756,6 +756,15 @@ begin
 end
 $legacy_lockdown$;
 
+
+-- 0010_lock_down_default_privileges.sql: new app objects are private by default.
+alter default privileges for role postgres in schema public
+  revoke all on tables from anon, authenticated, service_role;
+alter default privileges for role postgres in schema public
+  revoke all on sequences from anon, authenticated, service_role;
+alter default privileges for role postgres in schema public
+  revoke execute on functions from public, anon, authenticated, service_role;
+
 -- Optional legacy migration 0008 is intentionally excluded from this clean-install script.
 -- It is applied separately only on upgraded projects where the legacy function exists.
 
@@ -768,7 +777,8 @@ insert into _migrations(name) values
   ('0005_escrow_atomicity.sql'),
   ('0006_escrow_cancellation.sql'),
   ('0007_harden_function_search_path.sql'),
-  ('0009_lock_down_legacy_tables.sql')
+  ('0009_lock_down_legacy_tables.sql'),
+  ('0010_lock_down_default_privileges.sql')
 on conflict (name) do nothing;
 
 commit;
