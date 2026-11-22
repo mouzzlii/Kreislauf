@@ -675,8 +675,8 @@ export const setListingAvailability = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .handler(async ({ data, context }): Promise<ActionResult> => {
     const sql = await getSql();
-    const fromStatus = data.action === "pause" ? "active" : "maintenance";
-    const toStatus = data.action === "pause" ? "maintenance" : "active";
+    const fromStatus = data.action === "pause" ? "active" : "paused";
+    const toStatus = data.action === "pause" ? "paused" : "active";
     const changed = await sql.query<{ id: string }>(
       `update listings
        set status = $3
