@@ -208,6 +208,7 @@ function NewListing() {
             <input
               className="mt-2 block w-full text-sm text-muted file:mr-3 file:h-11 file:rounded-lg file:border-0 file:bg-elev-2 file:px-4 file:text-fg"
               type="file"
+              disabled={videoLoading}
               accept="video/mp4,video/webm,video/quicktime"
               multiple={VIDEO_PRESETS[videoPreset].maxFiles > 1}
               onChange={(event) => {
