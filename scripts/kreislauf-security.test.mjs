@@ -17,6 +17,7 @@ const authPopup = await readFile(new URL("../src/lib/auth/popup.server.ts", impo
 const videoUploadRoute = await readFile(new URL("../src/routes/api/upload.ts", import.meta.url), "utf8");
 const videoUploadValidation = await readFile(new URL("../src/features/kreislauf/video-upload.ts", import.meta.url), "utf8");
 const videoMigration = await readFile(new URL("../migrations/0013_listing_video_urls.sql", import.meta.url), "utf8");
+const marketRoute = await readFile(new URL("../src/routes/index.tsx", import.meta.url), "utf8");
 
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
@@ -207,4 +208,9 @@ test("listing owners can pause and resume only their own active or paused listin
   assert.match(availability, /where id = \$1 and user_id = \$2 and status = \$4/);
   assert.match(availability, /returning id/);
   assert.match(availability, /Das Inserat ist nicht mehr verfügbar oder gehört nicht zu deinem Konto/);
+});
+
+
+test("paused listings stay out of the public market feed", () => {
+  assert.match(marketRoute, /listing\.status === "maintenance"\) return false/);
 });
