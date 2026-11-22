@@ -15,13 +15,13 @@ Diese Anleitung ist für das vorhandene Supabase-Projekt gedacht. Die SQL-Datei 
 1. Öffne im Supabase-Dashboard **Connect** und wähle die PostgreSQL-Verbindungszeichenfolge für den **Session Pooler**.
 2. Verwende die URI für Serververbindungen. Achte darauf, dass Sonderzeichen im Datenbankpasswort URL-kodiert sind.
 3. Hinterlege die Verbindungszeichenfolge in Vercel als geheime Umgebungsvariable **DATABASE_URL** für Production, Preview und Development.
-4. Lege zusätzlich **BETTER_AUTH_URL** auf die dauerhaft verwendete öffentliche KREISLAUF-Domain und **BETTER_AUTH_SECRET** als zufälliges, starkes Geheimnis an.
+4. **BETTER_AUTH_URL** und **BETTER_AUTH_SECRET** sind bereits in Vercel hinterlegt. Das Secret wurde zufällig erzeugt und verschlüsselt gespeichert; du musst es weder sehen noch weitergeben.
 5. Gib Datenbankpasswort und Geheimnisse niemals im Chat, in GitHub-Dateien oder in einer `VITE_*`-Variable weiter.
 6. Noch **keinen neuen Deploy starten**, bevor auch der Auth-Schalter aus Abschnitt 3 gesetzt ist. Die App verweigert absichtlich den Zugriff, wenn eine echte Datenbank aktiv ist, aber die Anmeldung ausgeschaltet bleibt.
 
 ## 3. Persönliche Konten sicher aktivieren
 
-Die derzeitige Vorschau verwendet absichtlich einen gemeinsamen Demo-Zugang. **Erst wenn SQL erfolgreich ausgeführt wurde, DATABASE_URL erreichbar ist und BETTER_AUTH_URL sowie BETTER_AUTH_SECRET gesetzt sind, darf die Anmeldung aktiviert werden.**
+Die derzeitige Vorschau verwendet absichtlich einen gemeinsamen Demo-Zugang. **BETTER_AUTH_URL und BETTER_AUTH_SECRET sind bereits gesetzt. Es fehlt noch DATABASE_URL.** Erst wenn die Datenbankverbindung gespeichert und erreichbar ist, darf die Anmeldung aktiviert werden.
 
 1. In Vercel **zusammen mit den Datenbank- und Better-Auth-Werten** `VITE_AUTH_ENABLED=true` für Production, Preview und Development setzen.
 2. Erst wenn alle Variablen gespeichert sind, einen neuen Build/Deploy starten. Nicht zwischenzeitlich mit `DATABASE_URL` und ausgeschalteter Anmeldung deployen.
@@ -34,14 +34,14 @@ Die SQL-Datei markiert die Migrationen `0001_auth.sql` bis `0008_harden_legacy_f
 ## 4. Sicherheitsprüfung vor dem öffentlichen Start
 
 - Die App greift serverseitig mit einer privaten PostgreSQL-Verbindung auf die Datenbank zu. Diese Verbindung darf niemals im Browser landen.
-- Supabase meldet bei älteren, nicht mehr verwendeten Tabellen `legacy_bookings` und `rentals` deaktivierte RLS. Vorhandene Daten und Abhängigkeiten müssen vor einer Änderung geprüft werden; diese Tabellen nicht öffentlich freigeben.
+- Auch die älteren Tabellen `legacy_bookings`, `rentals` und `marketplace_items` haben RLS aktiviert. Die Browserrollen besitzen keine direkten Tabellenrechte; diese Alt-Tabellen werden nicht als öffentlicher App-Zugriffsweg verwendet.
 - Die neuen KREISLAUF-Tabellen haben RLS aktiviert. Die App nutzt für den Datenzugriff serverseitige, sitzungsgeprüfte Funktionen; direkte Browserzugriffe über die Supabase-API sind nicht als App-Zugriffsweg vorgesehen.
 - Vor Freigabe müssen Registrierung, Anmeldung, Abmeldung, Mehrbenutzer-Isolation, Nachrichten, Tausch, Punktebuchungen und Treuhand mit getrennten Testkonten erfolgreich getestet werden.
 
 ## Noch nicht enthalten
 
 - Die echte ID-Austria-Anbindung braucht die offizielle Freigabe und Zugangsdaten.
-- Der Video-Upload braucht noch einen authentifizierten Upload-Endpunkt.
+- Video-Uploads sind aktuell absichtlich vollständig gesperrt. Vor der Freigabe muss die tatsächliche Laufzeit serverseitig aus der Videodatei geprüft werden.
 - Vor dem öffentlichen Start sind Mehrbenutzer-, Rollen-, Treuhand- und Datenschutztests erforderlich.
 
 
@@ -59,6 +59,13 @@ Die Limits werden durch atomare Datenbankzähler pro Konto durchgesetzt: maximal
 
 ### Inseratvideos
 
-Die Plattform unterstützt beim Erstellen eines Inserats diese Varianten: 1 Video bis 60 Sekunden, 2 Videos bis je 30 Sekunden oder 4 Videos bis je 20 Sekunden; die Gesamtzeit bleibt auf 60 Sekunden begrenzt. Die Videos werden direkt vom Gerät in Vercel Blob hochgeladen, nicht über den App-Server. Pro Datei gilt zusätzlich eine Größenbegrenzung von 50 MB. Die Datenbank speichert nur die Video-URLs beim Inserat.
+Die geplanten Varianten bleiben: 1 Video bis 60 Sekunden, 2 Videos bis je 30 Sekunden oder 4 Videos bis je 20 Sekunden; insgesamt höchstens 60 Sekunden. Pro Datei ist eine Größenbegrenzung von 50 MB vorgesehen.
 
-Der Upload-Endpunkt verlangt eine echte angemeldete Person, prüft den Same-Site-Aufruf und vergibt nur kurzlebige Upload-Berechtigungen für den eigenen Benutzerpfad und die erlaubten Videoformate. In der gemeinsamen Demo mit deaktivierter Anmeldung bleiben Video-Uploads absichtlich gesperrt. Für den öffentlichen Betrieb müssen daher zuerst persönliche Anmeldung, `DATABASE_URL` und `BETTER_AUTH_SECRET` in Vercel korrekt eingerichtet und geprüft sein. Der vorhandene Vercel-Blob-Speicher benötigt außerdem ein gültiges `BLOB_READ_WRITE_TOKEN`; den geheimen Wert niemals im Chat teilen.
+**Derzeit sind Videoauswahl und Upload in allen Umgebungen deaktiviert.** Der Endpunkt antwortet absichtlich mit HTTP 503, bis eine unabhängige serverseitige Prüfung der tatsächlichen Videodauer und des Dateiformats implementiert und getestet ist. Die Prüfung im Browser allein ist manipulierbar und reicht nicht aus. Die Datenbankspalte für Video-URLs ist bereits vorhanden.
+
+Für die spätere Freigabe müssen persönliche Anmeldung, `DATABASE_URL`, ein gültiges `BLOB_READ_WRITE_TOKEN` und die serverseitige Medienprüfung vollständig eingerichtet und geprüft sein. Das vorhandene `BETTER_AUTH_SECRET` ist bereits verschlüsselt in Vercel gespeichert; den Wert niemals im Chat teilen.
+
+
+### Datenbankleistung
+
+Migration 0014 ergänzt Indizes für die Fremdschlüssel der aktuell verwendeten Tabellen. Auf dem verbundenen Supabase-Projekt wurden 19 Fremdschlüssel-Indizes angelegt; die Performance-Prüfung meldet keine unindizierten Fremdschlüssel mehr. Einige Indizes erscheinen derzeit als unbenutzt, weil die Plattform noch keinen echten Nutzerbetrieb mit entsprechender Datenlast hat.
