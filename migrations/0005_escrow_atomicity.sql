@@ -107,3 +107,21 @@ begin
   return query select v_case.status, v_votes, v_approvals, v_rejections, v_assigned, v_required;
 end;
 $fn$;
+
+
+-- The vote function trusts the moderator ID supplied by the authenticated server.
+-- Prevent direct calls from browser-facing Supabase roles.
+revoke all on function kreislauf_cast_escrow_vote(text, text, text, text) from public;
+do $permissions$
+begin
+  if exists (select 1 from pg_roles where rolname = 'anon') then
+    execute 'revoke all on function kreislauf_cast_escrow_vote(text, text, text, text) from anon';
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'authenticated') then
+    execute 'revoke all on function kreislauf_cast_escrow_vote(text, text, text, text) from authenticated';
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'service_role') then
+    execute 'grant execute on function kreislauf_cast_escrow_vote(text, text, text, text) to service_role';
+  end if;
+end;
+$permissions$;
