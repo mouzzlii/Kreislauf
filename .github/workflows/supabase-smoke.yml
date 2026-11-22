@@ -1,4 +1,4 @@
-name: KREISLAUF – Supabase PostgreSQL Smoke-Test
+name: KREISLAUF – Datenbanktests (lokal, ohne Passwort)
 
 on:
   workflow_dispatch:
@@ -7,14 +7,14 @@ on:
       - demo/local-auth-off
     paths:
       - .github/workflows/supabase-smoke.yml
-      - scripts/supabase-db-smoke.mjs
+      - scripts/db-migrations.test.mjs
       - migrations/**
 
 permissions:
   contents: read
 
 jobs:
-  supabase-smoke:
+  local-database-test:
     runs-on: ubuntu-latest
     steps:
       - name: Repository auschecken
@@ -25,9 +25,8 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22
+          cache: npm
       - name: Abhängigkeiten installieren
         run: npm ci --no-audit --no-fund
-      - name: Supabase PostgreSQL testen (nur temporäre Transaktion)
-        env:
-          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
-        run: node scripts/supabase-db-smoke.mjs
+      - name: PostgreSQL-Migrationen in temporärer Testdatenbank prüfen
+        run: node --test scripts/db-migrations.test.mjs
