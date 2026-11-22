@@ -859,6 +859,36 @@ revoke all on function public.kreislauf_limit_listing_messages() from public;
 -- Optional legacy migration 0008 is intentionally excluded from this clean-install script.
 -- It is applied separately only on upgraded projects where the legacy function exists.
 
+-- 0016_reconcile_demo_karma_ledger.sql: align demo balances with journal history.
+with demo_balances as (
+  select p.user_id, p.region_id, p.karma_balance::bigint as profile_balance,
+    coalesce(sum(case
+      when e.receiver_id = p.user_id then e.amount_karma::bigint
+      when e.sender_id = p.user_id then -e.amount_karma::bigint
+      else 0::bigint
+    end), 0::bigint) as ledger_balance
+  from public.profiles p
+  left join public.ledger_entries e on e.receiver_id = p.user_id or e.sender_id = p.user_id
+  where p.user_id like 'seed-%'
+  group by p.user_id, p.region_id, p.karma_balance
+), adjustments as (
+  select user_id, region_id, profile_balance - ledger_balance as difference
+  from demo_balances where profile_balance <> ledger_balance
+)
+insert into public.ledger_entries (region_id, sender_id, receiver_id, amount_karma, entry_kind, message)
+select a.region_id,
+  case when a.difference < 0 then a.user_id else null end,
+  case when a.difference > 0 then a.user_id else null end,
+  abs(a.difference)::integer,
+  case when a.difference > 0 then 'mint' else 'demurrage' end,
+  'Demo-Kontostand-Abgleich 0016'
+from adjustments a
+where not exists (
+  select 1 from public.ledger_entries existing
+  where existing.region_id = a.region_id
+    and existing.message = 'Demo-Kontostand-Abgleich 0016'
+    and (existing.sender_id = a.user_id or existing.receiver_id = a.user_id)
+);
 -- Mark the bundled migrations as applied so the app does not rerun them at deploy.
 insert into _migrations(name) values
   ('0001_auth.sql'),
@@ -873,7 +903,8 @@ insert into _migrations(name) values
   ('0011_limit_listing_message_rate.sql'),
   ('0012_atomic_listing_message_rate_limits.sql'),
   ('0013_listing_video_urls.sql'),
-  ('0015_listing_paused_status.sql')
+  ('0015_listing_paused_status.sql'),
+  ('0016_reconcile_demo_karma_ledger.sql')
 on conflict (name) do nothing;
 
 commit;
