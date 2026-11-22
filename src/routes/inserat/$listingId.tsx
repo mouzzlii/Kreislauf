@@ -41,6 +41,7 @@ function ListingPage() {
   const { version, bump, refreshProfile, profile } = useKreislauf();
   const { user, isPending } = useCurrentUserState();
   const [detail, setDetail] = useState<ListingDetail | null>(initial);
+  const providerUserId = detail?.listing?.userId;
   const [booking, setBooking] = useState<Booking | null>(null);
   const [providerListings, setProviderListings] = useState<Listing[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -64,13 +65,13 @@ function ListingPage() {
   }, [listingId, version]);
 
   useEffect(() => {
-    if (!detail?.listing) { setProviderListings([]); return; }
+    if (!providerUserId) { setProviderListings([]); return; }
     let cancel = false;
     getProviderListings({ data: { id: listingId, excludeId: listingId } })
       .then((items) => { if (!cancel) setProviderListings(items); })
       .catch(() => { if (!cancel) setProviderListings([]); });
     return () => { cancel = true; };
-  }, [detail?.listing.userId, listingId]);
+  }, [providerUserId, listingId]);
 
   useEffect(() => {
     if (!user) {
