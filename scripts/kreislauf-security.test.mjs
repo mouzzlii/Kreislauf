@@ -268,7 +268,8 @@ test("ID Austria mock verification is limited to local and Preview environments"
   assert.match(api, /canUseIdAustriaMock\(\{/);
   assert.match(api, /vercelEnv: process\.env\.VERCEL_ENV/);
   assert.match(idAustriaMode, /environment\.vercelEnv === "production"/);
-  assert.match(idAustriaMode, /environment\.nodeEnv === "production" && environment\.vercelEnv !== "preview"/);
+  assert.match(idAustriaMode, /environment\.vercelEnv === "preview"/);
+  assert.match(idAustriaMode, /return environment\.nodeEnv === "development" \|\| environment\.nodeEnv === "test"/);
   assert.match(api, /Eine Demo-Verifikation ist dort gesperrt/);
 });
 
