@@ -54,7 +54,7 @@ export const Route = createFileRoute("/api/upload")({
         } catch (error) {
           const message = error instanceof Error ? error.message : "Upload nicht möglich";
           const status = message === "Unauthorized" ? 401
-            : error instanceof Error && error.name === "CrossSiteRequestError" ? 403 : 400;
+            : error instanceof CrossSiteRequestError ? 403 : 400;
           return Response.json(
             { error: status === 401 ? "Bitte melde dich erneut an."
               : status === 403 ? "Upload-Anfrage wurde aus Sicherheitsgründen blockiert."
