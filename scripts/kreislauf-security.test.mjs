@@ -235,7 +235,8 @@ test("unread listing notifications open the exact conversation, including multip
   assert.match(notifications, /c\.requester_id as "requesterId"/);
   assert.match(notifications, /requesterId: asString\(row\.requesterId\)/);
   assert.match(shell, /key=\{\`\$\{item\.listingId\}:\$\{item\.requesterId\}\`\}/);
-  assert.match(shell, /conversation=\$\{encodeURIComponent\(item\.requesterId\)\}/);
-  assert.match(listingDetail, /locationSearch\.conversation/);
+  assert.match(shell, /search=\{\{ conversation: item\.requesterId \}\}/);
+  assert.match(listingDetail, /validateSearch:[\s\S]*conversation: typeof search\.conversation === "string"/);
+  assert.match(listingDetail, /Route\.useSearch\(\)/);
   assert.match(listingDetail, /requestedConversationId \|\| items\[0\]\?\.requesterId/);
 });
