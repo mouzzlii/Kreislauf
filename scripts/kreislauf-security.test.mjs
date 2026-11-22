@@ -13,6 +13,8 @@ const escrowPanel = await readFile(new URL("../src/components/escrow-panel.tsx",
 const vercelConfig = await readFile(new URL("../vercel.json", import.meta.url), "utf8");
 const authClient = await readFile(new URL("../src/lib/auth/client.ts", import.meta.url), "utf8");
 const authPopup = await readFile(new URL("../src/lib/auth/popup.server.ts", import.meta.url), "utf8");
+const videoUploadRoute = await readFile(new URL("../src/routes/api/upload.ts", import.meta.url), "utf8");
+const videoMigration = await readFile(new URL("../migrations/0013_listing_video_urls.sql", import.meta.url), "utf8");
 
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
@@ -164,4 +166,24 @@ test("listing creation validates image payloads and atomically writes ownership 
   assert.ok(create.includes("with created_listing as"));
   assert.ok(create.includes("insert into item_history"));
   assert.ok(!create.includes("await sql.query(`insert into item_history"));
+});
+
+
+test("listing video upload requires a real signed-in member and constrained Blob tokens", () => {
+  assert.match(videoUploadRoute, /if \(!authConfigured\)/);
+  assert.match(videoUploadRoute, /await requireUserId\(\)/);
+  assert.match(videoUploadRoute, /pathname\.startsWith\(prefix\)/);
+  assert.match(videoUploadRoute, /allowedContentTypes: \["video\/mp4", "video\/webm", "video\/quicktime"\]/);
+  assert.match(videoUploadRoute, /maximumSizeInBytes: 50 \* 1024 \* 1024/);
+  assert.match(videoUploadRoute, /payload\.duration > 60/);
+});
+
+test("listing video references are limited, owned by the caller and persisted", () => {
+  const create = serverFunction("createListing");
+  assert.match(create, /rawVideoUrls\.length > 4/);
+  assert.match(create, /public\.blob\.vercel-storage\.com/);
+  assert.match(create, /listings\/\$\{encodeURIComponent\(context\.userId\)\}/);
+  assert.match(create, /video_urls/);
+  assert.match(videoMigration, /add column if not exists video_urls jsonb/);
+  assert.match(videoMigration, /jsonb_array_length\(video_urls\) <= 4/);
 });
