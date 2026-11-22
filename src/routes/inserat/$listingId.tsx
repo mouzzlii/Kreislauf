@@ -134,7 +134,7 @@ function ListingPage() {
         Markt
       </Link>
       <div className="mt-3 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-        <ListingVisual listing={listing} className="aspect-[4/3] w-full rounded-3xl" />
+        <ListingGallery listing={listing} />
         <div>
           <p className="text-sm text-copper">
             {listing.offerType === "sell" ? "Biete / Verkaufe" : listing.offerType === "search" ? "Suche nach" : "Verschenke"} · {CATEGORY_LABEL[listing.category]} · {STATUS_LABEL[listing.status]}
@@ -321,6 +321,48 @@ function ListingPage() {
         )}
       </section>
     </Shell>
+  );
+}
+
+
+function ListingGallery({ listing }: { listing: Listing }) {
+  const images = listing.images.slice(0, 4);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setActiveIndex(0);
+    setFailed(false);
+  }, [listing.id]);
+
+  if (images.length <= 1 || failed) {
+    return <ListingVisual listing={listing} className="aspect-[4/3] w-full rounded-3xl" />;
+  }
+
+  return (
+    <div className="min-w-0">
+      <img
+        src={images[activeIndex]}
+        alt={`${listing.title} – Bild ${activeIndex + 1}`}
+        className="aspect-[4/3] w-full rounded-3xl object-cover"
+        onError={() => setFailed(true)}
+      />
+      <div className="mt-3 grid grid-cols-4 gap-2" aria-label="Weitere Produktfotos">
+        {images.map((image, index) => (
+          <button
+            key={`${listing.id}-image-${index}`}
+            type="button"
+            aria-label={`Bild ${index + 1} anzeigen`}
+            aria-pressed={activeIndex === index}
+            onClick={() => setActiveIndex(index)}
+            className={`overflow-hidden rounded-xl border-2 ${activeIndex === index ? "border-forest" : "border-transparent"}`}
+          >
+            <img src={image} alt="" className="aspect-[4/3] w-full object-cover" />
+          </button>
+        ))}
+      </div>
+      <p className="mt-2 text-right text-xs text-subtle">{activeIndex + 1} von {images.length} Fotos</p>
+    </div>
   );
 }
 
