@@ -1,5 +1,5 @@
-import type { VideoPreset } from "./video-rules";
-import { VIDEO_PRESETS, checkVideoDurations } from "./video-rules";
+import type { VideoPreset } from "./video-rules.ts";
+import { VIDEO_PRESETS, checkVideoDurations } from "./video-rules.ts";
 
 export function validateVideoUpload(
   pathname: string,
