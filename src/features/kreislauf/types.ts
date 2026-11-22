@@ -108,7 +108,7 @@ export type ItemHistoryEntry = { placeLabel: string; createdAt: string; eventKin
 export type ListingDetail = {
   listing: Listing;
   history: ItemHistoryEntry[];
-  escrowPending: boolean;
+  escrowVisible: boolean;
   booking: Booking | null;
   reviews: Review[];
 };
