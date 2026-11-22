@@ -971,6 +971,10 @@ export const transitionBooking = createServerFn({ method: "POST" })
       `with b as materialized (
          select * from bookings
          where id = $1 and status = 'reserved' and (renter_id = $2 or owner_id = $2)
+           and (
+             not exists (select 1 from escrow_cases e where e.booking_id = bookings.id)
+             or exists (select 1 from escrow_cases e where e.booking_id = bookings.id and e.status = 'released')
+           )
          for update
        ),
        payer as materialized (
@@ -1034,7 +1038,7 @@ export const transitionBooking = createServerFn({ method: "POST" })
        select id from transfer_log`,
       [data.id, context.userId],
     );
-    if (!rows.length) return fail("Übergabe nicht möglich. Reservierung, Berechtigung oder Karma passen nicht.");
+    if (!rows.length) return fail("Übergabe nicht möglich. Prüfe Reservierung, Berechtigung, Treuhandfreigabe und Karma.");
     return { ok: true };
   });
 
