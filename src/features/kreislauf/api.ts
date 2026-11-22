@@ -1117,7 +1117,7 @@ export const transitionBooking = createServerFn({ method: "POST" })
       [data.id, context.userId],
     );
     const confirmation = rows[0];
-    if (!confirmation) return fail("Übergabe nicht möglich. Prüfe Reservierung, Berechtigung und Treuhandfreigabe.");
+    if (!confirmation) return fail("Übergabe nicht möglich. Prüfe Reservierung, Berechtigung, Treuhandfreigabe und Karma.");
     if (!confirmation.renterConfirmed || !confirmation.ownerConfirmed) {
       return { ok: true };
     }
