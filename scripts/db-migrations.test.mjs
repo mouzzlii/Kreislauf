@@ -20,6 +20,7 @@ const migrations = [
   "0012_atomic_listing_message_rate_limits.sql",
   "0013_listing_video_urls.sql",
   "0014_foreign_key_indexes.sql",
+  "0014_foreign_key_indexes.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
@@ -44,6 +45,11 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     assert.ok(schema.rows[0].conversations);
     assert.ok(schema.rows[0].escrow_moderators);
     assert.ok(schema.rows[0].vote_function);
+
+    const fkIndexes = await db.query(
+      "select count(*)::int as count from pg_indexes where schemaname = 'public' and indexname like '%_fk_idx'",
+    );
+    assert.equal(fkIndexes.rows[0].count, 19, "all 19 foreign-key performance indexes must be present");
 
     const fkIndexes = await db.query(
       "select count(*)::int as count from pg_indexes where schemaname = 'public' and indexname like '%_fk_idx'",
