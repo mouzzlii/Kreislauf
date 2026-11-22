@@ -4,7 +4,7 @@ import { ListingCard } from "@/components/listing-card";
 import { Shell } from "@/components/shell";
 import { Button } from "@/components/ui";
 import { getBoard, runDemurrage, type DemurrageCut } from "@/features/kreislauf/api";
-import { useKreislauf } from "@/features/kreislauf/context";
+import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import { CATEGORY_LABEL, formatKarma, haversineKm } from "@/features/kreislauf/format";
 import { DEFAULT_REGION, type Board, type Category } from "@/features/kreislauf/types";
 
