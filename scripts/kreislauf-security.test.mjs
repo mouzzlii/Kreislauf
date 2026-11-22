@@ -396,3 +396,16 @@ test("sharing reservations cannot be created for a past start time", () => {
   const reserve = serverFunction("reserveListing");
   assert.match(reserve, /start\.getTime\(\) < Date\.now\(\)/);
 });
+
+test("sharing return and listing reactivation require both booking parties", () => {
+  const transition = serverFunction("transitionBooking");
+  const returnStart = transition.indexOf('if (data.action === "return")');
+  const handoverStart = transition.indexOf("const rows = await sql.query<{", returnStart);
+  const handoverEnd = transition.indexOf("const rows = await sql.query<{", handoverStart + 20);
+  const returning = transition.slice(returnStart, handoverStart);
+  assert.match(returning, /renter_return_at = case[\s\S]*owner_return_at = case/);
+  assert.match(returning, /when coalesce\(booking\.renter_return_at[\s\S]*is not null[\s\S]*and coalesce\(booking\.owner_return_at[\s\S]*is not null/);
+  assert.match(returning, /where id = \(select listing_id from confirmed where status = 'returned'\)/);
+  assert.match(listingDetail, /booking\.renterReturned[\s\S]*booking\.ownerReturned/);
+  assert.match(listingDetail, /Die Rückgabe wird erst nach beiden Bestätigungen abgeschlossen/);
+});
