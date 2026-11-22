@@ -6,6 +6,7 @@ import { getBoard } from "@/features/kreislauf/api";
 import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import { CATEGORY_LABEL, formatKarma, haversineKm } from "@/features/kreislauf/format";
 import { DEFAULT_REGION, type Board, type Category } from "@/features/kreislauf/types";
+import { authEnabled } from "@/lib/auth/client";
 
 export const Route = createFileRoute("/")({
   loader: () => getBoard({ data: { regionId: DEFAULT_REGION } }),
@@ -48,6 +49,17 @@ function Home() {
         <h1 className="mt-2 font-display text-4xl leading-tight text-fg">Tauschen, helfen, teilen.</h1>
         <p className="mt-3 text-muted">{board.region.description}</p>
       </section>
+
+      {!authEnabled ? (
+        <aside className="mt-5 rounded-2xl border border-copper/30 bg-copper/5 p-4" role="status">
+          <p className="text-sm font-semibold text-fg">KREISLAUF läuft derzeit als gemeinsame Testversion</p>
+          <p className="mt-1 text-sm text-muted">
+            Inserate und Testnachrichten können für andere Testbesucher sichtbar sein.
+            Bitte verwende keine echten privaten Daten, Telefonnummern oder vertraulichen Treffpunkte.
+            Persönliche Konten und dauerhafte Speicherung werden vor dem öffentlichen Start eingerichtet.
+          </p>
+        </aside>
+      ) : null}
 
       <dl className="mt-6 grid grid-cols-3 gap-px overflow-hidden rounded-3xl border border-line bg-line sm:max-w-xl">
         <Stat label="Karma im Umlauf" value={formatKarma(board.stats.inCirculation)} />
