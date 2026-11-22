@@ -723,6 +723,39 @@ alter function public.kreislauf_system_message(text, text, text, text) set searc
 alter function public.kreislauf_transfer_message() set search_path = pg_catalog, public, pg_temp;
 
 
+
+-- 0009_lock_down_legacy_tables.sql: remove permissive policies from retired prototype tables.
+do $legacy_lockdown$
+declare
+  item record;
+  pol record;
+begin
+  for item in
+    select * from (values
+      ('users'), ('transactions'), ('marketplace_items'),
+      ('legacy_bookings'), ('rentals')
+    ) as legacy(table_name)
+  loop
+    if to_regclass(format('public.%I', item.table_name)) is not null then
+      for pol in
+        select policyname from pg_policies
+        where schemaname = 'public' and tablename = item.table_name
+      loop
+        execute format('drop policy %I on public.%I', pol.policyname, item.table_name);
+      end loop;
+      execute format('alter table public.%I enable row level security', item.table_name);
+      execute format('revoke all on table public.%I from public', item.table_name);
+      if exists (select 1 from pg_roles where rolname = 'anon') then
+        execute format('revoke all on table public.%I from anon', item.table_name);
+      end if;
+      if exists (select 1 from pg_roles where rolname = 'authenticated') then
+        execute format('revoke all on table public.%I from authenticated', item.table_name);
+      end if;
+    end if;
+  end loop;
+end
+$legacy_lockdown$;
+
 -- Optional legacy migration 0008 is intentionally excluded from this clean-install script.
 -- It is applied separately only on upgraded projects where the legacy function exists.
 
@@ -734,7 +767,8 @@ insert into _migrations(name) values
   ('0004_messages_escrow.sql'),
   ('0005_escrow_atomicity.sql'),
   ('0006_escrow_cancellation.sql'),
-  ('0007_harden_function_search_path.sql')
+  ('0007_harden_function_search_path.sql'),
+  ('0009_lock_down_legacy_tables.sql')
 on conflict (name) do nothing;
 
 commit;
