@@ -43,3 +43,8 @@ Die SQL-Datei markiert die Migrationen `0001_auth.sql` bis `0008_harden_legacy_f
 - Die echte ID-Austria-Anbindung braucht die offizielle Freigabe und Zugangsdaten.
 - Der Video-Upload braucht noch einen authentifizierten Upload-Endpunkt.
 - Vor dem öffentlichen Start sind Mehrbenutzer-, Rollen-, Treuhand- und Datenschutztests erforderlich.
+
+
+### Zusätzliche Datenbank-Härtung
+
+Die Migrationen 0009 und 0010 sperren alte Prototyp-Tabellen und entfernen automatische Standardrechte für neue Tabellen, Sequenzen und Funktionen. Die App greift ausschließlich über serverseitige PostgreSQL-Verbindungen zu. Browser-Rollen erhalten keine direkten Tabellenrechte.
