@@ -31,9 +31,11 @@ jobs:
         id: audit
         run: npm audit --audit-level=high
       - name: TypeScript prüfen
+        if: ${{ always() && steps.install.outcome == 'success' }}
         id: typecheck
         run: npm run typecheck
       - name: Automatisierte Tests
+        if: ${{ always() && steps.install.outcome == 'success' && steps.typecheck.outcome == 'success' }}
         id: tests
         run: npm test
       - name: Code-Qualität prüfen
