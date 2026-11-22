@@ -1217,6 +1217,7 @@ export type ListingMessage = {
 
 export type ListingNotification = {
   listingId: string;
+  requesterId: string;
   listingTitle: string;
   otherName: string;
   lastMessage: string;
@@ -1229,7 +1230,7 @@ export const getUnreadListingNotifications = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<ListingNotification[]> => {
     const sql = await getSql();
     const rows = await sql.query<Row>(
-      `select c.listing_id as "listingId", l.title as "listingTitle",
+      `select c.listing_id as "listingId", c.requester_id as "requesterId", l.title as "listingTitle",
         coalesce(p.username, 'Mitglied') as "otherName",
         count(m.id)::int as "unreadCount",
         coalesce((select lm.body from listing_messages lm
@@ -1248,6 +1249,7 @@ export const getUnreadListingNotifications = createServerFn({ method: "GET" })
     );
     return rows.map((row) => ({
       listingId: asString(row.listingId),
+      requesterId: asString(row.requesterId),
       listingTitle: asString(row.listingTitle),
       otherName: asString(row.otherName),
       lastMessage: asString(row.lastMessage),
