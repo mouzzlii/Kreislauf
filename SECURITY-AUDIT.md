@@ -28,6 +28,7 @@ Prüfumfang: Repository-Zweig `demo/local-auth-off`, verbundene Supabase-Datenba
 
 - 0 öffentliche Tabellen ohne RLS.
 - 0 öffentliche Tabellen mit direkten Tabellen-Lese-/Schreibrechten für `anon` oder `authenticated`.
+- Der Chat-Rate-Limit-Trigger ist aktiv; seine Zählertabelle hat RLS und keine Lese-/Schreibrechte für Browserrollen.
 - Keine direkten Ausführungsrechte für öffentliche Datenbankfunktionen durch diese Browser-Rollen.
 - Supabase meldet noch INFO-Hinweise zu RLS-Tabellen ohne Policies. Das ist hier beabsichtigt, weil die App ausschließlich über serverseitige Datenbankverbindungen zugreift und Browser-Rollen keine Tabellenrechte erhalten.
 
@@ -44,3 +45,9 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 - Datenschutz, Nutzungsbedingungen und Impressum müssen rechtlich geprüft und ergänzt werden.
 
 **Freigabestatus: Nicht produktionsfreigegeben.** Erst nach Konfiguration der Authentifizierung, erfolgreichen CI- und Funktionstests sowie einem unabhängigen Penetrationstest sollte die Plattform für echte Nutzer geöffnet werden.
+
+
+## Aktuelle zusätzliche Datenbankmigrationen
+
+- `0011_limit_listing_message_rate.sql`: erster Nachrichtenlimit-Schutz.
+- `0012_atomic_listing_message_rate_limits.sql`: atomare, gegen parallele Anfragen gehärtete Zähler; auf dem verbundenen Supabase-Projekt eingespielt.
