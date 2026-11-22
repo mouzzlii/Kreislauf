@@ -1482,23 +1482,27 @@ export const sendListingMessage = createServerFn({ method: "POST" })
     }
     const other = await sql.query("select user_id from profiles where user_id = $1", [requesterId]);
     if (!other.length) return fail("Mitglied nicht gefunden.");
-    const conversationId = `conv-${crypto.randomUUID()}`;
-    await sql.query(
-      `insert into listing_conversations(id, listing_id, requester_id, owner_id)
-       values ($1,$2,$3,$4) on conflict (listing_id, requester_id)
-       do update set updated_at = now()`,
-      [conversationId, data.id, requesterId, ownerId],
+    // Create/update the conversation and append its message in one SQL statement.
+    // This prevents a failed message insert from leaving a conversation that
+    // looks active but contains no first message, and removes the read-after-write race.
+    const inserted = await sql.query<{ id: number }>(
+      `with conversation as (
+         insert into listing_conversations(id, listing_id, requester_id, owner_id)
+         values ($1, $2, $3, $4)
+         on conflict (listing_id, requester_id)
+         do update set updated_at = now()
+         returning id
+       ),
+       message as (
+         insert into listing_messages(conversation_id, sender_id, body, message_kind)
+         select conversation.id, $5, $6, 'user'
+         from conversation
+         returning id
+       )
+       select id from message`,
+      [`conv-${crypto.randomUUID()}`, data.id, requesterId, ownerId, context.userId, data.body],
     );
-    const conversation = await sql.query<{ id: string }>(
-      "select id from listing_conversations where listing_id = $1 and requester_id = $2",
-      [data.id, requesterId],
-    );
-    if (!conversation.length) return fail("Unterhaltung konnte nicht geöffnet werden.");
-    await sql.query(
-      "insert into listing_messages(conversation_id, sender_id, body, message_kind) values ($1,$2,$3,'user')",
-      [conversation[0].id, context.userId, data.body],
-    );
-    await sql.query("update listing_conversations set updated_at = now() where id = $1", [conversation[0].id]);
+    if (!inserted.length) return fail("Nachricht konnte nicht gespeichert werden.");
     return { ok: true };
   });
 
