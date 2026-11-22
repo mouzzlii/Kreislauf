@@ -24,7 +24,7 @@ function NewListing() {
   const [what3words, setWhat3words] = useState("");
   const [price, setPrice] = useState("10");
   const [place, setPlace] = useState("");
-  const [image, setImage] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [reuseLoading, setReuseLoading] = useState(false);
@@ -36,7 +36,7 @@ function NewListing() {
     getItemTemplate({ data: { itemUuid: reuse } }).then((template) => {
       if (cancel) return;
       setTitle(template.title); setDescription(template.description); setCategory(template.category);
-      setPrice(String(template.priceKarma)); setPlace(template.placeLabel); setImage(template.imageDataUrl);
+      setPrice(String(template.priceKarma)); setPlace(template.placeLabel); setImages(template.imageDataUrl ? [template.imageDataUrl] : []);
     }).catch((error: unknown) => { if (!cancel) setError(error instanceof Error ? error.message : "Artikel konnte nicht übernommen werden"); })
       .finally(() => { if (!cancel) setReuseLoading(false); });
     return () => { cancel = true; };
@@ -82,7 +82,7 @@ function NewListing() {
                 itemUuid: reuse ?? null,
                 priceKarma: Number(price),
                 placeLabel: place,
-                imageDataUrl: image,
+                imageDataUrls: images,
                 lat: profile?.lat ?? null,
                 lng: profile?.lng ?? null,
               },
@@ -145,22 +145,32 @@ function NewListing() {
             <input className={fieldClass} value={what3words} onChange={(event) => setWhat3words(event.target.value)} placeholder="///apfel.baum.strasse" />
             <span className="mt-1 block text-xs text-subtle">Wird öffentlich nicht angezeigt. Freigabe nur für bestätigte Buchungsparteien.</span>
           </Field>
-          <Field label="Foto, optional">
+          <Field label="Fotos (bis zu 4)">
             <input
               className="block w-full text-sm text-muted file:mr-3 file:h-11 file:rounded-lg file:border-0 file:bg-elev-2 file:px-4 file:text-fg"
               type="file"
               accept="image/*"
+              multiple
               onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (!file) {
-                  setImage(null);
+                const files = Array.from(event.target.files ?? []);
+                if (files.length > 4) {
+                  setError("Bitte höchstens 4 Fotos auswählen.");
+                  event.target.value = "";
                   return;
                 }
-                void compressImage(file).then(setImage).catch(() => setError("Foto ließ sich nicht lesen"));
+                setError(null);
+                void Promise.all(files.map(compressImage))
+                  .then(setImages)
+                  .catch(() => setError("Mindestens ein Foto ließ sich nicht lesen"));
               }}
             />
+            <span className="mt-1 block text-xs text-subtle">Die Fotos werden für die Vorschau verkleinert. Videos können derzeit noch nicht hochgeladen werden.</span>
           </Field>
-          {image ? <img src={image} alt="" className="aspect-[4/3] w-full rounded-xl object-cover" /> : null}
+          {images.length ? (
+            <div className="grid grid-cols-2 gap-2">
+              {images.map((src, index) => <img key={index} src={src} alt={`Foto ${index + 1}`} className="aspect-[4/3] w-full rounded-xl object-cover" />)}
+            </div>
+          ) : null}
           {error ? <p className="text-sm text-copper">{error}</p> : null}
           <Button type="submit" disabled={busy}>
             {busy ? "Speichert…" : "Inserat stellen"}
