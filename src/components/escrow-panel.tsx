@@ -30,6 +30,8 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
     {summary.status === "pending" ? <>
       {summary.votes >= 4 && summary.approvals >= Math.ceil(summary.votes * 2 / 3) ? (
         <p className="mt-1 text-sm text-copper">Die Community-Mehrheit hat zugestimmt. Die hochwertige Treuhand bleibt aber bewusst gesperrt: Erst wenn beide Tauschparteien die Übergabe und den Empfang bestätigen und ein dokumentierter Streitfallprozess verfügbar ist, dürfen Punkte übertragen werden. Es wurden noch keine Punkte freigegeben.</p>
+      ) : summary.votes >= 4 ? (
+        <p className="mt-1 text-sm text-muted">Bisher keine Zweidrittelmehrheit: {summary.votes} Stimmen, davon {summary.approvals} Freigaben und {summary.rejections} Ablehnungen. Weitere zugeteilte Moderationspersonen können noch abstimmen.</p>
       ) : <p className="mt-1 text-sm text-muted">Abstimmung läuft: {summary.votes} Stimmen, davon {summary.approvals} Freigaben und {summary.rejections} Ablehnungen. Mindestens 4 Stimmen sind erforderlich; anschließend entscheidet die Zweidrittelmehrheit.</p>}
       {summary.canVote && !summary.hasVoted ? <div className="mt-3 flex flex-wrap gap-2">
         <Button disabled={busy} onClick={() => void cast("approve")}>Freigeben</Button>
