@@ -10,7 +10,7 @@ Prüfumfang: Repository-Zweig `demo/local-auth-off`, verbundene Supabase-Datenba
 - Prüfung, ob öffentliche Datenbanktabellen Row-Level-Security verwenden.
 - Prüfung der Ausführungsrechte für Datenbankfunktionen und der Function-`search_path`-Einstellungen.
 - Supabase Security Advisor.
-- Automatisierte Projekt-, SQL-Migrations-, Typ-, Build- und Abhängigkeitstests über GitHub Actions (laufend/je nach Commit).
+- Automatisierte Projekt-, SQL-Migrations-, Typ-, Build- und Abhängigkeitstests über GitHub Actions; Ergebnisse gelten jeweils nur für den konkret geprüften Commit.
 - Quellcodeprüfung der Tausch-, Buchungs-, Nachrichten- und Treuhandabläufe.
 
 ## Behobene bzw. gehärtete Punkte
@@ -40,7 +40,7 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 
 - Vercel fehlen weiterhin `DATABASE_URL` und `BETTER_AUTH_SECRET`; echte Authentifizierung bleibt deaktiviert. Diese Werte müssen vom Projektinhaber direkt in Vercel hinterlegt werden und dürfen nicht im Chat geteilt werden.
 - ID Austria ist weiterhin nur ein gekennzeichneter Mock, keine echte Behördenanbindung.
-- Video-Upload bis 60 Sekunden ist noch nicht vollständig implementiert.
+- Der Video-Upload-Code ist vorhanden, bleibt in der gemeinsamen Demo aber absichtlich gesperrt. Die Videodauer wird derzeit im Browser ausgelesen und als Metadatum mitgesendet; eine unabhängige Prüfung der tatsächlichen Laufzeit aus der Videodatei selbst ist noch nicht implementiert. Vor Echtbetrieb sind diese Prüfung sowie Upload-/Lösch- und Quoten-Tests erforderlich.
 - Es fehlt ein vollständiger End-to-End-Test mit mehreren echten Benutzerkonten.
 - Datenschutz, Nutzungsbedingungen und Impressum müssen rechtlich geprüft und ergänzt werden.
 
@@ -60,3 +60,10 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 - Inserate speichern höchstens vier Video-URLs; die URLs werden serverseitig auf den eigenen Benutzerpfad und den Vercel-Blob-Host geprüft.
 - Die gemeinsame Demo bleibt absichtlich ohne Video-Upload, solange persönliche Anmeldung deaktiviert ist.
 - Die Dauerprüfung erfolgt in der Browseroberfläche und wird vom Upload-Endpunkt zusätzlich auf höchstens 60 Sekunden je Clip begrenzt. Eine serverseitige Transkodierung/forensische Medienprüfung ist nicht implementiert.
+
+
+## Aktueller Entwicklungsstand Video
+
+- Migration `0013_listing_video_urls.sql` wurde auf dem verbundenen Supabase-Projekt eingespielt.
+- Der Upload-Endpunkt `/api/upload` wurde ergänzt und ist bis zur Konfiguration von `DATABASE_URL`, echter Authentifizierung und `BLOB_READ_WRITE_TOKEN` fail-closed.
+- Der neue Router-Endpunkt und die Upload-Validierung müssen nach dem letzten Code-Update noch vollständig durch CI und einen neuen Vercel-Staging-Build laufen. Wegen des erreichten Vercel-Tageslimits ist dieser neue Staging-Build derzeit blockiert.
