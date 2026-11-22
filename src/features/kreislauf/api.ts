@@ -508,11 +508,14 @@ export const createListing = createServerFn({ method: "POST" })
         : [];
     if (rawImages.length > 4) throw new Error("Maximal 4 Fotos pro Inserat");
     const imageDataUrls = rawImages.map((image) => {
-      if (typeof image !== "string" || !image.startsWith("data:image/jpeg;base64,") || image.length > 280_000) {
+      if (typeof image !== "string" || !/^data:image\\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(image) || image.length > 280_000) {
         throw new Error("Ein Foto ist zu groß oder im falschen Format");
       }
       return image;
     });
+    if (imageDataUrls.reduce((total, image) => total + image.length, 0) > 1_000_000) {
+      throw new Error("Alle Fotos zusammen dürfen maximal 1 MB groß sein. Bitte wähle kleinere Bilder.");
+    }
     const lat = typeof source.lat === "number" ? source.lat : null;
     const lng = typeof source.lng === "number" ? source.lng : null;
     const itemUuid = typeof source.itemUuid === "string" && /^item-[a-z0-9-]{8,80}$/.test(source.itemUuid) ? source.itemUuid : null;
@@ -549,11 +552,19 @@ export const createListing = createServerFn({ method: "POST" })
     }
     const images = data.imageDataUrls;
     const assetKind = data.category === "sharing" ? "tool" : null;
+    // One SQL statement makes the listing and its ownership-history event atomic:
+    // either both rows commit, or neither row is persisted.
     await sql.query(
-      `insert into listings (
-         id, user_id, region_id, title, description, category, offer_type, price_karma, status,
-         images, lat, lng, place_label, asset_kind, item_uuid, what3words_address, hands_count
-       ) values ($1,$2,$3,$4,$5,$6,$7,$8,'active',$9::jsonb,$10,$11,$12,$13,$14,$15,$16)`,
+      `with created_listing as (
+         insert into listings (
+           id, user_id, region_id, title, description, category, offer_type, price_karma, status,
+           images, lat, lng, place_label, asset_kind, item_uuid, what3words_address, hands_count
+         ) values ($1,$2,$3,$4,$5,$6,$7,$8,'active',$9::jsonb,$10,$11,$12,$13,$14,$15,$16)
+         returning id
+       )
+       insert into item_history (item_uuid, listing_id, owner_id, place_label, event_kind)
+       select $14, id, $2, $12, 'listed' from created_listing
+       returning listing_id`,
       [
         id,
         context.userId,
@@ -573,7 +584,6 @@ export const createListing = createServerFn({ method: "POST" })
         handsCount,
       ],
     );
-    await sql.query(`insert into item_history (item_uuid, listing_id, owner_id, place_label, event_kind) values ($1,$2,$3,$4,'listed')`, [itemUuid, id, context.userId, data.placeLabel]);
     return { id, itemUuid };
   });
 
