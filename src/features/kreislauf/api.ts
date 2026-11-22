@@ -519,22 +519,15 @@ export const createListing = createServerFn({ method: "POST" })
       throw new Error("Alle Fotos zusammen dürfen maximal 1 MB groß sein. Bitte wähle kleinere Bilder.");
     }
     const rawVideoUrls = Array.isArray(source.videoUrls) ? source.videoUrls : [];
-    if (rawVideoUrls.length > 4) throw new Error("Maximal 4 Videos pro Inserat");
+    // Upload is deliberately disabled until the server inspects the real media
+    // container. Never trust client-supplied durations or accept a guessed public
+    // Blob URL: otherwise a caller could bypass the disabled upload endpoint.
+    if (rawVideoUrls.length > 0) {
+      throw new Error("Video-Uploads sind noch gesperrt. Bitte vorerst Fotos verwenden.");
+    }
     const videoPreset = source.videoPreset === "pair" || source.videoPreset === "quad" ? source.videoPreset : "single";
-    const videoDurations = validateListingVideoSet(
-      videoPreset,
-      rawVideoUrls,
-      Array.isArray(source.videoDurations) ? source.videoDurations : [],
-    );
-    const videoUrls = rawVideoUrls.map((value) => {
-      if (typeof value !== "string" || value.length > 2048) throw new Error("Ungültiges Video");
-      let parsed: URL;
-      try { parsed = new URL(value); } catch { throw new Error("Ungültiger Video-Link"); }
-      if (parsed.protocol !== "https:" || !parsed.hostname.endsWith(".public.blob.vercel-storage.com") || !parsed.pathname.includes("/listings/")) {
-        throw new Error("Videos müssen über den sicheren KREISLAUF-Upload gespeichert werden.");
-      }
-      return value;
-    });
+    const videoDurations: number[] = [];
+    const videoUrls: string[] = [];
     const lat = typeof source.lat === "number" ? source.lat : null;
     const lng = typeof source.lng === "number" ? source.lng : null;
     const itemUuid = typeof source.itemUuid === "string" && /^item-[a-z0-9-]{8,80}$/.test(source.itemUuid) ? source.itemUuid : null;
