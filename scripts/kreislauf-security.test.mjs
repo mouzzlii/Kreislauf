@@ -154,3 +154,12 @@ test("Better Auth generic OAuth uses the patched 1.7 social sign-in API", () => 
   assert.match(authPopup, /GROK_PROVIDERS\.find/);
   assert.match(authPopup, /Unknown provider/);
 });
+
+
+test("listing creation validates image payloads and atomically writes ownership history", () => {
+  const create = serverFunction("createListing");
+  assert.match(create, /data:image\\\\\\/jpeg;base64/);
+  assert.match(create, /imageDataUrls\.reduce\(\(total, image\) => total \+ image\.length, 0\) > 1_000_000/);
+  assert.match(create, /with created_listing as \([\\s\\S]*?insert into listings[\\s\\S]*?\)\\s*insert into item_history/);
+  assert.doesNotMatch(create, /await sql\.query\([\\s\\S]*?insert into listings[\\s\\S]*?\);\\s*await sql\.query\([\\s\\S]*?insert into item_history/);
+});
