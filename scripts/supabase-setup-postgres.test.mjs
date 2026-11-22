@@ -32,15 +32,26 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
       select
         has_table_privilege('anon', 'public.listings', 'select') as anon_can_read_listings,
         has_table_privilege('authenticated', 'public.profiles', 'update') as member_can_update_profiles,
+        has_table_privilege('anon', 'public.listing_messages', 'select') as anon_can_read_messages,
         has_function_privilege('anon', 'public.apply_demurrage()', 'execute') as anon_can_run_demurrage,
+        has_function_privilege('anon', 'public.kreislauf_system_message(text,text,text,text)', 'execute') as anon_can_send_system_messages,
+        has_function_privilege('authenticated', 'public.kreislauf_booking_status_message()', 'execute') as member_can_call_booking_trigger,
         has_function_privilege('authenticated', 'public.kreislauf_cast_escrow_vote(text,text,text,text)', 'execute') as member_can_cast_arbitrary_vote,
         has_function_privilege('service_role', 'public.kreislauf_cast_escrow_vote(text,text,text,text)', 'execute') as server_can_cast_vote
     `);
     assert.equal(access.rows[0].anon_can_read_listings, false);
     assert.equal(access.rows[0].member_can_update_profiles, false);
+    assert.equal(access.rows[0].anon_can_read_messages, false);
     assert.equal(access.rows[0].anon_can_run_demurrage, false);
+    assert.equal(access.rows[0].anon_can_send_system_messages, false);
+    assert.equal(access.rows[0].member_can_call_booking_trigger, false);
     assert.equal(access.rows[0].member_can_cast_arbitrary_vote, false);
     assert.equal(access.rows[0].server_can_cast_vote, true);
+
+    const trigger = await db.query(
+      "select exists (select 1 from pg_trigger where tgname = 'bookings_status_message_updated') as installed",
+    );
+    assert.equal(trigger.rows[0].installed, true, "booking state notifications must be installed");
 
     const applied = await db.query("select name from _migrations order by name");
     assert.equal(applied.rows.length, 6);
