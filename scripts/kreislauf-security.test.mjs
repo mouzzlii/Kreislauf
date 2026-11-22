@@ -7,6 +7,7 @@ const listingMedia = await readFile(new URL("../src/features/kreislauf/media.ts"
 const escrowSql = await readFile(new URL("../migrations/0005_escrow_atomicity.sql", import.meta.url), "utf8");
 const coreSql = await readFile(new URL("../migrations/0003_kreislauf_v2.sql", import.meta.url), "utf8");
 const ledgerSql = await readFile(new URL("../migrations/0002_kreislauf.sql", import.meta.url), "utf8");
+const activityLedgerSql = await readFile(new URL("../migrations/0017_allow_activity_ledger_entries.sql", import.meta.url), "utf8");
 const moderatorSql = await readFile(new URL("../migrations/0004_messages_escrow.sql", import.meta.url), "utf8");
 const cancellationSql = await readFile(new URL("../migrations/0006_escrow_cancellation.sql", import.meta.url), "utf8");
 const legacySql = await readFile(new URL("../migrations/0009_lock_down_legacy_tables.sql", import.meta.url), "utf8");
@@ -359,4 +360,10 @@ test("profile creation and regional welcome Karma mint are atomic", () => {
   assert.match(ensure, /insert into ledger_entries[\s\S]*?select region_id, null, user_id, \$3, 'mint'/);
   assert.doesNotMatch(ensure, /if \(created\.length > 0\)/);
   assert.match(ensure, /await sql\.query\(\s*`with created_profile as[\s\S]*?insert into ledger_entries/);
+});
+
+test("activity rewards are an allowed immutable Karma ledger entry kind", () => {
+  assert.match(activityLedgerSql, /'mint', 'transfer', 'demurrage', 'activity'/);
+  assert.match(setupSql, /entry_kind text not null check \(entry_kind in \('mint', 'transfer', 'demurrage', 'activity'\)\)/);
+  assert.match(api, /then 'activity'/);
 });
