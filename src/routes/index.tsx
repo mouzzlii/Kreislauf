@@ -106,7 +106,7 @@ function Home() {
           onClick={() => setNear((value) => !value)}
           className={`h-11 shrink-0 rounded-full px-4 text-sm ${near ? "bg-forest text-paper" : "border border-line bg-elev text-fg"}`}
         >
-          In der Nähe · 5 km
+          {profile?.lat != null && profile.lng != null ? "In deiner Nähe · 5 km" : "Umkreis · 5 km"}
         </button>
         <button
           type="button"
