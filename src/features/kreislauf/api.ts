@@ -663,6 +663,31 @@ function fail(error: string): ActionResult {
   return { ok: false, error };
 }
 
+export const setListingAvailability = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    const id = idOf(input, "id");
+    const action = input && typeof input === "object" && "action" in input
+      ? (input as { action: unknown }).action
+      : null;
+    if (action !== "pause" && action !== "resume") throw new Error("Ungültige Aktion");
+    return { id, action };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    const sql = await getSql();
+    const fromStatus = data.action === "pause" ? "active" : "maintenance";
+    const toStatus = data.action === "pause" ? "maintenance" : "active";
+    const changed = await sql.query<{ id: string }>(
+      `update listings
+       set status = $3
+       where id = $1 and user_id = $2 and status = $4
+       returning id`,
+      [data.id, context.userId, toStatus, fromStatus],
+    );
+    if (!changed.length) return fail("Das Inserat ist nicht mehr verfügbar oder gehört nicht zu deinem Konto.");
+    return { ok: true };
+  });
+
 export const tradeListing = createServerFn({ method: "POST" })
   .validator((input: unknown) => ({ id: idOf(input, "id") }))
   .middleware([authMiddleware])
