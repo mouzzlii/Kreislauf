@@ -21,6 +21,7 @@ const migrations = [
   "0013_listing_video_urls.sql",
   "0014_foreign_key_indexes.sql",
   "0015_listing_paused_status.sql",
+  "0016_reconcile_demo_karma_ledger.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
@@ -58,6 +59,29 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
       "select count(*)::int as count from pg_indexes where schemaname = 'public' and indexname like '%_fk_idx'",
     );
     assert.equal(fkIndexes.rows[0].count, 14, "all current-schema foreign-key indexes must be present");
+
+    const mismatchedDemoBalances = await db.query(
+      "select p.user_id, p.karma_balance,
+         coalesce(sum(case
+           when e.receiver_id = p.user_id then e.amount_karma
+           when e.sender_id = p.user_id then -e.amount_karma
+           else 0
+         end), 0)::int as ledger_balance
+       from profiles p
+       left join ledger_entries e on e.receiver_id = p.user_id or e.sender_id = p.user_id
+       where p.user_id like 'seed-%'
+       group by p.user_id, p.karma_balance
+       having p.karma_balance <> coalesce(sum(case
+         when e.receiver_id = p.user_id then e.amount_karma
+         when e.sender_id = p.user_id then -e.amount_karma
+         else 0
+       end), 0)"
+    );
+    assert.equal(
+      mismatchedDemoBalances.rows.length,
+      0,
+      "every seeded demo balance must reconcile exactly with its append-only ledger",
+    );
 
     const demurrage = await db.query("select affected_user, cut_amount from apply_demurrage()");
     const jonasCut = demurrage.rows.find((row) => row.affected_user === "seed-jonas");
