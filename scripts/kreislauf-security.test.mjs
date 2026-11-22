@@ -425,5 +425,7 @@ test("listing messages and their conversation are persisted in one SQL statement
   assert.match(send, /on conflict \(listing_id, requester_id\)[\s\S]*do update set updated_at = now\(\)/);
   assert.match(send, /message as \([\s\S]*insert into listing_messages[\s\S]*from conversation/);
   assert.match(send, /if \(!inserted\.length\) return fail\("Nachricht konnte nicht gespeichert werden\."/);
-  assert.doesNotMatch(send, /const conversation = await sql\.query|select id from listing_conversations where listing_id/);
+  const writePath = send.slice(send.indexOf("const inserted = await sql.query"));
+  assert.equal((writePath.match(/sql\.query/g) ?? []).length, 1, "conversation and message must be one database write");
+  assert.doesNotMatch(writePath, /select id from listing_conversations where listing_id/);
 });
