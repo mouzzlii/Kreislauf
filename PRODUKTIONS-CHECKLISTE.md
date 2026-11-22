@@ -17,7 +17,8 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - [x] Video-Referenzen werden serverseitig abgewiesen, solange kein Upload mit echter serverseitiger Medienprüfung existiert.
 - [x] Wiederverwendung bestehender Inseratfotos ist auf HTTPS-Vercel-Blob-Adressen im persönlichen Nutzerpfad beschränkt; automatisierte Tests decken fremde Nutzer, falsche Hosts und manipulierte URLs ab.
 - [x] Inserate lassen sich durch den Eigentümer serverseitig pausieren und wieder freigeben; fremde Inserate und nicht passende Statuswechsel werden abgewiesen. Pausierte Inserate werden aus dem öffentlichen Markt ausgeblendet.
-- [x] Pausiert ist ein eigener Datenbankstatus und wird nicht mehr mit `maintenance` (Wartung) vermischt. Neue Migration `0015_listing_paused_status.sql`; das Clean-Install-SQL enthält denselben Status. Die Migration wird erst auf der jeweils verbundenen Datenbank angewendet, wenn die App dort regulär migriert.
+- [x] Pausiert ist ein eigener Datenbankstatus und wird nicht mehr mit `maintenance` (Wartung) vermischt.
+- [x] Ein unkontrollierter Regionswechsel ist gesperrt: Karma-Bestände und Ledger-Einträge bleiben ihrer Region zugeordnet, bis ein geprüfter regionaler Übertragungsprozess existiert. Regressionstest im CI-Lauf `45068568745` auf Commit `a83a02da915d4499106e0153652a6b574fb3963c` erfolgreich. Neue Migration `0015_listing_paused_status.sql`; das Clean-Install-SQL enthält denselben Status. Die Migration wird erst auf der jeweils verbundenen Datenbank angewendet, wenn die App dort regulär migriert.
 - [x] Marktfilter, eigener Pausenstatus und Benachrichtigungs-Routing wurden im aktuellen Branch-HEAD durch CI geprüft (Commit `7df02510992eaa40b22691baeb91c240be2740b9`, Lauf 45052969457: Build, TypeScript, Tests, Lint und Dependency-Audit erfolgreich).
 - [x] Benachrichtigungen enthalten die konkrete Gesprächskennung und öffnen bei mehreren Anfragen zum selben Inserat die passende Unterhaltung; automatisierter Test im CI-Lauf 45055800005 erfolgreich.
 - [x] Nachrichten-Zugriffe prüfen Teilnehmer, Inserat und ausgewählte Unterhaltung; zusätzliche Regressionstests für manipulierte Gesprächskennungen und Lesebestätigungen wurden auf Commit `675ce01` erfolgreich ausgeführt.
@@ -55,6 +56,11 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - Commit: `956cf525270d828ebf4514aba3cdca30ed585b5b`.
 - GitHub Actions Lauf `45066586697`: erfolgreich; Produktions-Build, TypeScript, automatisierte Tests, Lint und Dependency-Audit abgeschlossen.
 - Der Prüflauf bestätigt den Quellcode auf dem Entwicklungszweig, nicht die externe Live-Datenbank, echte Authentifizierung oder einen aktuellen Vercel-Deploy.
+
+## Letzter bestätigter Prüfstand
+
+- Commit `a83a02da915d4499106e0153652a6b574fb3963c`, GitHub Actions `45068568745`: Produktions-Build, TypeScript, automatisierte Tests, Lint und Dependency-Audit erfolgreich.
+- Die Prüfung bestätigt den Quellcode des Entwicklungszweigs, nicht die externe Live-Datenbank, echte Authentifizierung oder einen aktuellen Vercel-Deploy.
 
 ## Aktueller Freigabestatus
 
