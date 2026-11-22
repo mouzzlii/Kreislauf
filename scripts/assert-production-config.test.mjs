@@ -23,6 +23,8 @@ const validProduction = {
   GROK_AUTH_CLIENT_SECRET: "y".repeat(48),
   BLOB_READ_WRITE_TOKEN: "vercel_blob_rw_placeholder",
   ID_AUSTRIA_MOCK_MODE: "false",
+  KREISLAUF_MEDIA_STORAGE_READY: "true",
+  ID_AUSTRIA_PROVIDER_READY: "true",
 };
 
 describe("production release guard", () => {
@@ -55,7 +57,7 @@ describe("production release guard", () => {
       BLOB_READ_WRITE_TOKEN: "",
     });
     assert.equal(result.status, 1);
-    for (const variable of ["DATABASE_URL", "VITE_AUTH_ENABLED=true", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "GROK_AUTH_ISSUER", "GROK_AUTH_CLIENT_ID", "GROK_AUTH_CLIENT_SECRET", "BLOB_READ_WRITE_TOKEN"]) {
+    for (const variable of ["DATABASE_URL", "VITE_AUTH_ENABLED=true", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "GROK_AUTH_ISSUER", "GROK_AUTH_CLIENT_ID", "GROK_AUTH_CLIENT_SECRET", "BLOB_READ_WRITE_TOKEN", "KREISLAUF_MEDIA_STORAGE_READY", "ID_AUSTRIA_PROVIDER_READY"]) {
       assert.match(result.stderr, new RegExp(variable.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     }
   });
@@ -89,6 +91,17 @@ describe("production release guard", () => {
     const result = run(validProduction);
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /eigene OAuth-Anmeldung/);
+  });
+
+  it("blocks production until real media storage and ID Austria integrations are verified", () => {
+    const result = run({
+      ...validProduction,
+      KREISLAUF_MEDIA_STORAGE_READY: "false",
+      ID_AUSTRIA_PROVIDER_READY: "false",
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /KREISLAUF_MEDIA_STORAGE_READY/);
+    assert.match(result.stderr, /ID_AUSTRIA_PROVIDER_READY/);
   });
 
   it("blocks production when the ID Austria mock is enabled", () => {
