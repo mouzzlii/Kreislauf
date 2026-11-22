@@ -208,17 +208,31 @@ function compressImage(file: File): Promise<string> {
     reader.onload = () => {
       const img = new Image();
       img.onload = () => {
-        const scale = Math.min(1, 960 / Math.max(img.width, img.height));
         const canvas = document.createElement("canvas");
-        canvas.width = Math.max(1, Math.round(img.width * scale));
-        canvas.height = Math.max(1, Math.round(img.height * scale));
         const ctx = canvas.getContext("2d");
         if (!ctx) {
           reject(new Error("canvas"));
           return;
         }
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.72));
+
+        let scale = Math.min(1, 960 / Math.max(img.width, img.height));
+        let dataUrl = "";
+        for (let attempt = 0; attempt < 7; attempt += 1) {
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const quality = Math.max(0.42, 0.72 - attempt * 0.06);
+          dataUrl = canvas.toDataURL("image/jpeg", quality);
+          if (dataUrl.length <= 240_000) {
+            resolve(dataUrl);
+            return;
+          }
+          scale *= 0.82;
+        }
+
+        if (dataUrl.length <= 280_000) resolve(dataUrl);
+        else reject(new Error("size"));
       };
       img.onerror = () => reject(new Error("image"));
       img.src = String(reader.result);
