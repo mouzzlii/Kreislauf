@@ -61,6 +61,29 @@ function Home() {
         </aside>
       ) : null}
 
+      <section className="mt-5 rounded-3xl border border-line bg-elev p-4 sm:p-5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-forest">Der regionale Kreislauf</p>
+        <h2 className="mt-1 font-display text-2xl text-fg">Ohne Geld. Mit echtem Miteinander.</h2>
+        <p className="mt-2 max-w-2xl text-sm text-muted">
+          Mitglieder bieten Dinge und Hilfe an, suchen selbst etwas oder teilen gemeinsam genutzte Geräte.
+          Das regionale Karma ist ein nicht auszahlbares Gemeinschafts- und Aktivitätsguthaben – kein Euro-Guthaben und keine Geldbörse.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl bg-elev-2 p-3">
+            <p className="text-sm font-semibold text-fg">1 · Anbieten oder suchen</p>
+            <p className="mt-1 text-xs text-muted">Inserate mit Fotos, Ort und einer klaren Beschreibung.</p>
+          </div>
+          <div className="rounded-2xl bg-elev-2 p-3">
+            <p className="text-sm font-semibold text-fg">2 · Direkt abstimmen</p>
+            <p className="mt-1 text-xs text-muted">Fragen und Absprachen bleiben im Chat des jeweiligen Inserats.</p>
+          </div>
+          <div className="rounded-2xl bg-elev-2 p-3">
+            <p className="text-sm font-semibold text-fg">3 · Regional weitergeben</p>
+            <p className="mt-1 text-xs text-muted">Tausch und Sharing halten Dinge und Fähigkeiten in der Region.</p>
+          </div>
+        </div>
+      </section>
+
       <dl className="mt-6 grid grid-cols-3 gap-px overflow-hidden rounded-3xl border border-line bg-line sm:max-w-xl">
         <Stat label="Karma im Umlauf" value={formatKarma(board.stats.inCirculation)} />
         <Stat label="Karma bewegt · 30 Tage" value={formatKarma(board.stats.moved)} />
