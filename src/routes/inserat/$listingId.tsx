@@ -45,6 +45,7 @@ function ListingPage() {
   const [providerListings, setProviderListings] = useState<Listing[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [tradeConfirmOpen, setTradeConfirmOpen] = useState(false);
   const [meetingPointUrl, setMeetingPointUrl] = useState<string | null>(null);
   const [qrTarget, setQrTarget] = useState(`/inserat/${listingId}`);
   const [startsAt, setStartsAt] = useState("");
@@ -155,9 +156,30 @@ function ListingPage() {
               {isPending ? (
                 <div className="h-11 w-40 animate-pulse rounded-lg bg-elev-2" />
               ) : user && profile?.isVerified ? (
-                <Button disabled={busy} onClick={() => void run(() => tradeListing({ data: { id: listing.id } }))}>
-                  {listing.category === "service" ? "Hilfe begleichen" : "Tauschen"}
-                </Button>
+                tradeConfirmOpen ? (
+                  <div className="rounded-2xl border border-copper/30 bg-copper/5 p-4" role="group" aria-label="Tausch bestätigen">
+                    <p className="text-sm text-fg">
+                      {listing.priceKarma >= 100
+                        ? "Es wird eine Community-Treuhand eröffnet. Karma wird erst nach mindestens vier Stimmen und einer Zweidrittelmehrheit übertragen."
+                        : listing.offerType === "gift"
+                          ? "Die Weitergabe ist kostenlos. Nach Bestätigung wird die Übergabe im Kreislauf vermerkt."
+                          : `Mit deiner Bestätigung werden ${formatKarma(listing.priceKarma)} sofort von deinem Karma-Guthaben abgezogen und dem Anbieter gutgeschrieben.`}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button disabled={busy} onClick={() => {
+                        setTradeConfirmOpen(false);
+                        void run(() => tradeListing({ data: { id: listing.id } }));
+                      }}>
+                        {listing.priceKarma >= 100 ? "Treuhand anfragen" : "Verbindlich bestätigen"}
+                      </Button>
+                      <Button variant="ghost" disabled={busy} onClick={() => setTradeConfirmOpen(false)}>Abbrechen</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button disabled={busy} onClick={() => setTradeConfirmOpen(true)}>
+                    {listing.priceKarma >= 100 ? "Treuhand anfragen" : listing.category === "service" ? "Hilfe begleichen" : "Tauschen"}
+                  </Button>
+                )
               ) : user ? (
                 <Link to="/konto" className="inline-flex h-11 items-center rounded-lg bg-forest px-4 text-sm font-medium text-paper">Zuerst ID Austria bestätigen</Link>
               ) : (
@@ -165,7 +187,13 @@ function ListingPage() {
                   Anmelden zum Tauschen
                 </Link>
               )}
-              <p className="mt-2 text-sm text-subtle">Karma geht sofort an {listing.ownerName}.</p>
+              <p className="mt-2 text-sm text-subtle">
+                {listing.priceKarma >= 100
+                  ? "Hochwertiger Tausch mit Community-Treuhand; die Punkte werden erst nach dem Mehrheitsbeschluss übertragen."
+                  : listing.offerType === "gift"
+                    ? "Kostenlose Weitergabe mit Aktivitätsvermerk."
+                    : "Karma wird nach deiner Bestätigung sofort übertragen."}
+              </p>
             </div>
           ) : null}
 
