@@ -44,7 +44,14 @@ export function ListingConversation({
     const refresh = () => {
       if (document.visibilityState !== "visible") return;
       getListingMessages({ data: { id: listingId, requesterId } })
-        .then((items) => { if (!cancelled) setMessages(items); })
+        .then((items) => {
+          if (cancelled) return;
+          setMessages((current) => {
+            const currentLast = current[current.length - 1]?.id;
+            const nextLast = items[items.length - 1]?.id;
+            return current.length === items.length && currentLast === nextLast ? current : items;
+          });
+        })
         .catch(() => { if (!cancelled) setError("Nachrichten konnten nicht geladen werden."); });
     };
     refresh();
