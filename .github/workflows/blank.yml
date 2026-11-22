@@ -26,20 +26,23 @@ jobs:
         id: install
         run: npm install --no-audit --no-fund --fetch-retries=1 --fetch-timeout=30000
       - name: Sichere transitive Updates auflösen
+        continue-on-error: true
         run: npm audit fix --package-lock-only --ignore-scripts --no-fund --fetch-retries=1 --fetch-timeout=30000
       - name: Abhängigkeiten auf bekannte Sicherheitslücken prüfen
         id: audit
         run: npm audit --audit-level=high
+      - name: Router generieren und Produktions-Build prüfen
+        id: build
+        if: ${{ always() && steps.install.outcome == 'success' }}
+        run: npm run build:dev
       - name: TypeScript prüfen
-        if: ${{ always() && steps.install.outcome == 'success' && steps.build.outcome == 'success' }}
         id: typecheck
+        if: ${{ always() && steps.install.outcome == 'success' && steps.build.outcome == 'success' }}
         run: npm run typecheck
       - name: Automatisierte Tests
-        if: ${{ always() && steps.install.outcome == 'success' && steps.typecheck.outcome == 'success' }}
         id: tests
+        if: ${{ always() && steps.install.outcome == 'success' && steps.typecheck.outcome == 'success' }}
         run: npm test
       - name: Code-Qualität prüfen
         if: ${{ always() && steps.install.outcome == 'success' && steps.typecheck.outcome == 'success' }}
         run: npm run lint
-      - name: Produktions-Build erstellen
-        
