@@ -11,11 +11,8 @@ create index if not exists item_history_listing_id_fk_idx on public.item_history
 create index if not exists item_history_owner_id_fk_idx on public.item_history(owner_id);
 create index if not exists ledger_entries_booking_id_fk_idx on public.ledger_entries(booking_id);
 create index if not exists ledger_entries_listing_id_fk_idx on public.ledger_entries(listing_id);
--- Legacy prototype tables are intentionally excluded from fresh installs.
+-- Retired prototype tables (marketplace_items, rentals, transactions and legacy_bookings)
+-- are not part of the current schema and are intentionally excluded from clean installs.
 create index if not exists listings_user_id_fk_idx on public.listings(user_id);
-create index if not exists marketplace_items_seller_id_fk_idx on public.marketplace_items(seller_id);
-create index if not exists rentals_user_id_fk_idx on public.rentals(user_id);
 create index if not exists reviews_reviewer_id_fk_idx on public.reviews(reviewer_id);
 create index if not exists reviews_subject_id_fk_idx on public.reviews(subject_id);
-create index if not exists transactions_receiver_id_fk_idx on public.transactions(receiver_id);
-create index if not exists transactions_sender_id_fk_idx on public.transactions(sender_id);
