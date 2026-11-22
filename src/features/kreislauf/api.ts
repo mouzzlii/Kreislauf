@@ -418,6 +418,9 @@ export const updateProfile = createServerFn({ method: "POST" })
     const lat = typeof source.lat === "number" ? source.lat : undefined;
     const lng = typeof source.lng === "number" ? source.lng : undefined;
     if ((lat == null) !== (lng == null)) throw new Error("Standort unvollständig");
+    if (lat != null && (!Number.isFinite(lat) || lng == null || !Number.isFinite(lng))) {
+      throw new Error("Standort ist ungültig");
+    }
     if (lat != null && (lat < 46 || lat > 50 || lng == null || lng < 8 || lng > 18)) {
       throw new Error("Standort liegt außerhalb");
     }
@@ -489,7 +492,8 @@ export const createListing = createServerFn({ method: "POST" })
     }
     const offerType = source.offerType;
     if (offerType !== "sell" && offerType !== "search" && offerType !== "gift") throw new Error("Bitte Inseratstyp wählen");
-    const priceKarma = offerType === "gift" ? 0 : typeof source.priceKarma === "number" ? Math.round(source.priceKarma) : -1;
+    const rawPrice = typeof source.priceKarma === "number" && Number.isFinite(source.priceKarma) ? source.priceKarma : -1;
+    const priceKarma = offerType === "gift" ? 0 : Math.round(rawPrice);
     if (priceKarma < (offerType === "gift" ? 0 : 1) || priceKarma > 500) throw new Error("Karma zwischen 1 und 500");
     const what3wordsAddress = typeof source.what3wordsAddress === "string" ? source.what3wordsAddress.trim().replace(/^\/+/, "").slice(0, 100) : "";
     if (what3wordsAddress && !/^[a-zäöüß]+\.[a-zäöüß]+\.[a-zäöüß]+$/i.test(what3wordsAddress)) throw new Error("what3words-Adresse bitte im Format wort.wort.wort eingeben");
