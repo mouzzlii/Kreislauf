@@ -14,6 +14,7 @@ test("Supabase production setup includes all current application migrations", ()
     "0006_escrow_cancellation.sql",
     "0007_harden_function_search_path.sql",
     "0009_lock_down_legacy_tables.sql",
+    "0010_lock_down_default_privileges.sql",
   ]) {
     assert.ok(sql.includes(name), `missing migration ${name}`);
   }
@@ -55,7 +56,12 @@ test("legacy prototype tables are locked down by the upgrade migration", async (
   assert.match(legacy, /drop policy/i);
   assert.match(legacy, /enable row level security/i);
   assert.match(legacy, /revoke all on table/i);
-});\n\ntest("Supabase migration bookkeeping is protected by RLS", () => {
+});\n\ntest("future public-schema objects are not granted to browser roles by default", () => {
+  assert.match(sql, /alter default privileges for role postgres in schema public[\s\S]*?revoke all on tables from anon, authenticated, service_role/i);
+  assert.match(sql, /revoke execute on functions from public, anon, authenticated, service_role/i);
+});
+
+test("Supabase migration bookkeeping is protected by RLS", () => {
   assert.match(sql, /alter table public\._migrations enable row level security/);
   assert.match(sql, /public\._migrations[\s\S]*?from anon, authenticated/);
 });
