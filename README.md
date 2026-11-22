@@ -8,6 +8,8 @@ Die aktuelle Vorschau ist eine gemeinsame Testversion, kein produktiver Mehrbenu
 
 **[Deutsche Anleitung zum Ausprobieren](DEMO-ANLEITUNG.md)**
 
+Für die spätere Produktiv-Anbindung an das vorhandene Supabase-Projekt: **[Supabase vorbereiten](SUPABASE-ANLEITUNG.md)** · [SQL-Schema ohne Demo-Datensätze](SUPABASE-SETUP.sql).
+
 ## Technischer Stand
 
 Die Anwendung verwendet TanStack Start, React und Tailwind CSS. Datenbankmigrationen und automatisierte Tests laufen in einer isolierten PostgreSQL-kompatiblen Testdatenbank. Die Vorschau verwendet derzeit eine nicht dauerhafte In-Memory-Datenbank.
