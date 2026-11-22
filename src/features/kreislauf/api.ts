@@ -809,6 +809,12 @@ export const transitionBooking = createServerFn({ method: "POST" })
            update bookings set status = 'cancelled'
            where id = (select id from b)
            returning listing_id
+         ),
+         escrow_cancel as (
+           update escrow_cases set status = 'cancelled', resolved_at = now()
+           where booking_id = $1 and status = 'pending'
+             and exists (select 1 from b)
+           returning id
          )
          update listings set status = 'active'
          where id = (select listing_id from upd)
@@ -828,6 +834,12 @@ export const transitionBooking = createServerFn({ method: "POST" })
            update bookings set status = 'returned'
            where id = (select id from b)
            returning listing_id
+         ),
+         escrow_cancel as (
+           update escrow_cases set status = 'cancelled', resolved_at = now()
+           where booking_id = $1 and status = 'pending'
+             and exists (select 1 from b)
+           returning id
          )
          update listings set status = 'active'
          where id = (select listing_id from upd)
