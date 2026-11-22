@@ -1156,98 +1156,25 @@ export const voteEscrow = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .handler(async ({ data, context }): Promise<EscrowVoteResult | ActionResult> => {
     const sql = await getSql();
-    const eligible = await sql.query<{ id: string; status: string }>(
-      `select e.id, e.status from escrow_cases e
-       join escrow_moderators a on a.escrow_id = e.id and a.moderator_id = $2
-       join profiles p on p.user_id = a.moderator_id
-       where e.listing_id = $1 and e.status = 'pending'
-         and p.is_verified = true and p.moderator_rank > 0
-         and p.last_active_at >= now() - interval '30 days'`,
-      [data.id, context.userId],
-    );
-    if (!eligible.length) return fail("Du bist für diese offene Treuhand nicht als aktive Moderation eingeteilt.");
-    const escrowId = eligible[0].id;
     try {
-      await sql.query(
-        "insert into escrow_votes(escrow_id, moderator_id, vote, note) values ($1,$2,$3,$4)",
-        [escrowId, context.userId, data.vote, data.note],
+      const rows = await sql.query<Row>(
+        "select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)",
+        [data.id, context.userId, data.vote, data.note],
       );
+      const row = rows[0];
+      if (!row) return fail("Die Abstimmung hat kein Ergebnis zurückgegeben.");
+      return {
+        status: asString(row.status, "pending") as "pending" | "released" | "disputed",
+        votes: asNumber(row.votes),
+        approvals: asNumber(row.approvals),
+        rejections: asNumber(row.rejections),
+        required: asNumber(row.required),
+      };
     } catch (error) {
       const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
       if (code === "23505") return fail("Du hast bereits abgestimmt. Eine Stimme kann nicht nachträglich geändert werden.");
       throw error;
     }
-    const tally = await sql.query<{ votes: number; approvals: number; rejections: number; assigned: number }>(
-      `select count(v.id)::int as votes,
-        count(*) filter (where v.vote = 'approve')::int as approvals,
-        count(*) filter (where v.vote = 'reject')::int as rejections,
-        (select count(*)::int from escrow_moderators a where a.escrow_id = $1) as assigned
-       from escrow_votes v where v.escrow_id = $1`,
-      [escrowId],
-    );
-    const row = tally[0];
-    const votes = asNumber(row?.votes), approvals = asNumber(row?.approvals), rejections = asNumber(row?.rejections);
-    const required = Math.max(4, Math.ceil(asNumber(row?.assigned) * 2 / 3));
-    if (votes >= 4 && approvals >= Math.ceil(votes * 2 / 3)) {
-      const caseRows = await sql.query<{ reason: string }>(
-        "select reason from escrow_cases where id = $1 and status = 'pending'", [escrowId],
-      );
-      if (caseRows[0]?.reason === "Hochwertiges Tauschgeschäft") {
-        const settled = await sql.query(
-          `with c as materialized (
-             select ec.id as escrow_id, ec.listing_id, ec.requester_id, l.user_id as seller,
-               l.region_id, l.price_karma, l.title, l.item_uuid, l.place_label
-             from escrow_cases ec join listings l on l.id = ec.listing_id
-             where ec.id = $1 and ec.status = 'pending' and l.status = 'booked'
-               and (select count(*) from escrow_votes v where v.escrow_id = ec.id) >= 4
-               and (select count(*) from escrow_votes v where v.escrow_id = ec.id and v.vote = 'approve')
-                   >= ceil((select count(*) from escrow_votes v where v.escrow_id = ec.id) * 2.0 / 3.0)
-             for update of ec, l
-           ),
-           moved as (
-             update profiles p set karma_balance = p.karma_balance +
-               case when p.user_id = c.requester_id then -c.price_karma + 1 else c.price_karma end,
-               last_activity_at = now()
-             from c where (p.user_id = c.requester_id or p.user_id = c.seller)
-               and exists (select 1 from profiles buyer where buyer.user_id = c.requester_id and buyer.karma_balance >= c.price_karma)
-             returning p.user_id
-           ),
-           closed as (
-             update listings l set status = 'completed', hands_count = hands_count + 1
-             from c where l.id = c.listing_id and (select count(*) from moved) = 2 returning l.id
-           ),
-           transfer_log as (
-             insert into ledger_entries(region_id,sender_id,receiver_id,listing_id,amount_karma,entry_kind,message)
-             select c.region_id,c.requester_id,c.seller,c.listing_id,c.price_karma,'transfer','Treuhand-Tausch nach Mehrheitsbeschluss: ' || c.title
-             from c where exists (select 1 from closed) returning id
-           ),
-           bonus_log as (
-             insert into ledger_entries(region_id,receiver_id,listing_id,amount_karma,entry_kind,message)
-             select c.region_id,c.requester_id,c.listing_id,1,'activity','Aktivitätsbonus nach Treuhand: ' || c.title
-             from c where exists (select 1 from closed) returning id
-           ),
-           history_log as (
-             insert into item_history(item_uuid,listing_id,owner_id,place_label,event_kind)
-             select c.item_uuid,c.listing_id,c.requester_id,c.place_label,'transferred'
-             from c where exists (select 1 from closed) returning id
-           )
-           update escrow_cases set status = 'released', resolved_at = now()
-           where id = $1 and status = 'pending' and exists (select 1 from closed)
-           returning id`,
-          [escrowId],
-        );
-        if (!settled.length) return fail("Mehrheit erreicht, aber die sichere Karma-Abwicklung ist fehlgeschlagen. Bitte Admin-Prüfung.");
-      } else {
-        await sql.query("update escrow_cases set status = 'released', resolved_at = now() where id = $1 and status = 'pending'", [escrowId]);
-      }
-    } else if (votes >= 4 && rejections >= Math.ceil(votes * 2 / 3)) {
-      await sql.query("update escrow_cases set status = 'disputed', resolved_at = now() where id = $1 and status = 'pending'", [escrowId]);
-    }
-    const state = await sql.query<{ status: string }>("select status from escrow_cases where id = $1", [escrowId]);
-    return {
-      status: asString(state[0]?.status, "pending") as "pending" | "released" | "disputed",
-      votes, approvals, rejections, required,
-    };
   });
 
 
