@@ -16,6 +16,8 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - [x] Produktions-Build wird blockiert, wenn der ID-Austria-Demomodus aktiv ist.
 - [x] Video-Referenzen werden serverseitig abgewiesen, solange kein Upload mit echter serverseitiger Medienprüfung existiert.
 - [x] Wiederverwendung bestehender Inseratfotos ist auf HTTPS-Vercel-Blob-Adressen im persönlichen Nutzerpfad beschränkt; automatisierte Tests decken fremde Nutzer, falsche Hosts und manipulierte URLs ab.
+- [x] Inserate lassen sich durch den Eigentümer serverseitig pausieren und wieder freigeben; fremde Inserate und nicht passende Statuswechsel werden abgewiesen. Pausierte Inserate werden aus dem öffentlichen Markt ausgeblendet.
+- [ ] Nachträgliche Änderung am Marktfilter und der zugehörige neue Test müssen noch durch einen CI-Lauf auf dem aktuellen Branch-HEAD bestätigt werden.
 - [x] Datenbankmigrationen sind im Supabase-Projekt registriert.
 - [x] RLS ist auf den geprüften öffentlichen Tabellen aktiviert.
 - [x] Direkte Tabellenrechte für die Rollen `anon` und `authenticated` wurden in `public` geprüft; die Abfrage ergab keine direkten Tabellenprivilegien.
