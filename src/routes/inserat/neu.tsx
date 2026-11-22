@@ -119,6 +119,8 @@ function NewListing() {
                 placeLabel: place,
                 imageDataUrls: images,
                 videoUrls,
+                videoPreset,
+                videoDurations: videos.map((video) => video.duration),
                 lat: profile?.lat ?? null,
                 lng: profile?.lng ?? null,
               },
