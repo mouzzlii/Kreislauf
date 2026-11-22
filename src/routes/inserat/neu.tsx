@@ -187,6 +187,7 @@ function NewListing() {
           <Field label="Videos (maximal 60 Sekunden Gesamtzeit)">
             <select
               className={fieldClass}
+              disabled={videoLoading}
               value={videoPreset}
               onChange={(event) => {
                 const preset = event.target.value as VideoPreset;
