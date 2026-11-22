@@ -418,3 +418,12 @@ test("sharing return and listing reactivation require both booking parties", () 
   assert.match(listingDetail, /booking\.renterReturned[\s\S]*booking\.ownerReturned/);
   assert.match(listingDetail, /Die Rückgabe wird erst nach beiden Bestätigungen abgeschlossen/);
 });
+
+test("listing messages and their conversation are persisted in one SQL statement", () => {
+  const send = serverFunction("sendListingMessage");
+  assert.match(send, /with conversation as \([\s\S]*insert into listing_conversations/);
+  assert.match(send, /on conflict \(listing_id, requester_id\)[\s\S]*do update set updated_at = now\(\)/);
+  assert.match(send, /message as \([\s\S]*insert into listing_messages[\s\S]*from conversation/);
+  assert.match(send, /if \(!inserted\.length\) return fail\("Nachricht konnte nicht gespeichert werden\."/);
+  assert.doesNotMatch(send, /const conversation = await sql\.query|select id from listing_conversations where listing_id/);
+});
