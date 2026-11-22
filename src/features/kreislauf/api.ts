@@ -1252,7 +1252,7 @@ export const sendListingMessage = createServerFn({ method: "POST" })
   });
 
 export type EscrowVoteResult = {
-  status: "pending" | "released" | "disputed";
+  status: "pending" | "released" | "disputed" | "cancelled";
   votes: number;
   approvals: number;
   rejections: number;
@@ -1280,7 +1280,7 @@ export const voteEscrow = createServerFn({ method: "POST" })
       const row = rows[0];
       if (!row) return fail("Die Abstimmung hat kein Ergebnis zurückgegeben.");
       return {
-        status: asString(row.status, "pending") as "pending" | "released" | "disputed",
+        status: asString(row.status, "pending") as "pending" | "released" | "disputed" | "cancelled",
         votes: asNumber(row.votes),
         approvals: asNumber(row.approvals),
         rejections: asNumber(row.rejections),
@@ -1295,7 +1295,7 @@ export const voteEscrow = createServerFn({ method: "POST" })
 
 
 export type EscrowSummary = {
-  status: "pending" | "released" | "disputed" | null;
+  status: "pending" | "released" | "disputed" | "cancelled" | null;
   votes: number;
   approvals: number;
   rejections: number;
