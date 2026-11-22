@@ -1472,7 +1472,7 @@ export const getEscrowSummary = createServerFn({ method: "GET" })
     ]);
     const row = counts[0] ?? {};
     return {
-      status: asString(cases[0].status, "pending") as "pending" | "released" | "disputed",
+      status: asString(cases[0].status, "pending") as "pending" | "released" | "disputed" | "cancelled",
       votes: asNumber(row.votes), approvals: asNumber(row.approvals),
       rejections: asNumber(row.rejections), assigned: asNumber(row.assigned),
       canVote: assignment.length > 0 && cases[0].status === "pending",
