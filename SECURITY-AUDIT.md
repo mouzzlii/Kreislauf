@@ -51,12 +51,13 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 
 - `0011_limit_listing_message_rate.sql`: erster Nachrichtenlimit-Schutz.
 - `0012_atomic_listing_message_rate_limits.sql`: atomare, gegen parallele Anfragen gehärtete Zähler; auf dem verbundenen Supabase-Projekt eingespielt.
+- `0013_listing_video_urls.sql`: persistente Video-URLs pro Inserat; auf dem verbundenen Supabase-Projekt eingespielt.
 
 
 ## Medien-Uploads (neuer Stand)
 
 - Inseratvideos werden über einen authentifizierten Vercel-Blob-Client-Upload direkt vom Browser übertragen; der App-Server nimmt keine großen Videodateien entgegen.
-- Der Upload-Endpunkt lehnt Uploads ohne aktivierte echte Anmeldung ab, prüft Same-Site-Anfragen, bindet den Pfad an die verifizierte Benutzer-ID und erlaubt nur MP4, WebM und QuickTime bis 50 MB pro Datei.
+- Der Upload-Endpunkt lehnt Uploads ohne aktivierte echte Anmeldung, Datenbankverbindung, Blob-Token und verifiziertes Mitgliedsprofil ab, prüft Same-Site-Anfragen, bindet den Pfad an die verifizierte Benutzer-ID und erlaubt nur MP4, WebM und QuickTime bis 50 MB pro Datei.
 - Inserate speichern höchstens vier Video-URLs; die URLs werden serverseitig auf den eigenen Benutzerpfad und den Vercel-Blob-Host geprüft.
 - Die gemeinsame Demo bleibt absichtlich ohne Video-Upload, solange persönliche Anmeldung deaktiviert ist.
 - Die Dauerprüfung erfolgt in der Browseroberfläche und wird vom Upload-Endpunkt zusätzlich auf höchstens 60 Sekunden je Clip begrenzt. Eine serverseitige Transkodierung/forensische Medienprüfung ist nicht implementiert.
@@ -66,4 +67,13 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 
 - Migration `0013_listing_video_urls.sql` wurde auf dem verbundenen Supabase-Projekt eingespielt.
 - Der Upload-Endpunkt `/api/upload` wurde ergänzt und ist bis zur Konfiguration von `DATABASE_URL`, echter Authentifizierung und `BLOB_READ_WRITE_TOKEN` fail-closed.
-- Der neue Router-Endpunkt und die Upload-Validierung müssen nach dem letzten Code-Update noch vollständig durch CI und einen neuen Vercel-Staging-Build laufen. Wegen des erreichten Vercel-Tageslimits ist dieser neue Staging-Build derzeit blockiert.
+- Der neue Router-Endpunkt und die Upload-Validierung wurden erfolgreich durch CI geprüft. Der Preview-Build auf Vercel ist mit Status READY veröffentlicht: `https://grok-workspace-hjj8vrhu6-kreislauf.vercel.app`. Er ist ein Vorschau-Deployment, keine Produktionsfreigabe. Ein automatisierter Browser-Smoke-Test gegen die öffentliche URL war in dieser Prüfung nicht möglich.
+
+
+## Verifikation am 22.11.2026
+
+- GitHub Actions für Commit `a7502d931b3a0eaf288017c6be8eec353ad2c2ae`: Abhängigkeitsprüfung, Router-/Build-Prüfung, TypeScript, Tests und Lint erfolgreich.
+- `npm audit --audit-level=high` erfolgreich nach Aktualisierung der betroffenen transitiven Abhängigkeiten.
+- Vercel Preview-Deployment `dpl_FezUFzj6SXvaEmjWzn9UKR1Pedok`: Status `READY`, Branch `demo/local-auth-off`.
+- Supabase: 0 öffentliche Tabellen ohne RLS und 0 Tabellen mit direkten Browser-Lese-/Schreibrechten für `anon` oder `authenticated`.
+- Supabase Security Advisor: 23 INFO-Hinweise zu absichtlich server-only Tabellen mit RLS ohne Browser-Policies; keine neuen Browser-Tabellenrechte wurden dafür vergeben.
