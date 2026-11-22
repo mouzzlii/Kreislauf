@@ -48,7 +48,7 @@ function NewListing() {
     getItemTemplate({ data: { itemUuid: reuse } }).then((template) => {
       if (cancel) return;
       setTitle(template.title); setDescription(template.description); setCategory(template.category);
-      setPrice(String(template.priceKarma)); setPlace(template.placeLabel); setImages(template.imageDataUrl ? [template.imageDataUrl] : []);
+      setPrice(String(template.priceKarma)); setPlace(template.placeLabel); setImages(template.imageUrl ? [template.imageUrl] : []);
     }).catch((error: unknown) => { if (!cancel) setError(error instanceof Error ? error.message : "Artikel konnte nicht übernommen werden"); })
       .finally(() => { if (!cancel) setReuseLoading(false); });
     return () => { cancel = true; };
