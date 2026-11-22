@@ -253,7 +253,10 @@ export const getListing = createServerFn({ method: "GET" })
   .validator((input: unknown) => ({ id: idOf(input, "id") }))
   .handler(async ({ data }): Promise<ListingDetail | null> => {
     const sql = await getSql();
-    const listingRows = await sql.query<Row>(`${LISTING_SQL} where l.id = $1`, [data.id]);
+    const listingRows = await sql.query<Row>(
+      `${LISTING_SQL} where l.id = $1 and l.status not in ('maintenance', 'paused')`,
+      [data.id],
+    );
     const listing = listingRows[0] ? mapListing(listingRows[0]) : null;
     if (!listing) return null;
     const [historyRows, escrowRows, reviewRows] = await Promise.all([
@@ -393,6 +396,19 @@ export const getMine = createServerFn({ method: "GET" })
     return { profile, ledger: ledgerRows.map(mapLedger) };
   });
 
+export const getMyListings = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }): Promise<Listing[]> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      `${LISTING_SQL}
+       where l.user_id = $1 and l.status in ('active', 'paused', 'completed', 'booked')
+       order by l.created_at desc
+       limit 50`,
+      [context.userId],
+    );
+    return rows.map(mapListing);
+  });
 export const setRegion = createServerFn({ method: "POST" })
   .validator((input: unknown) => ({ regionId: regionIdOf(input) }))
   .middleware([authMiddleware])
