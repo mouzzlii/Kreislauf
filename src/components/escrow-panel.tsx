@@ -37,6 +37,7 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
     </> : summary.status === "released" ?
       <p className="mt-1 text-sm text-forest">Die Treuhand wurde nach Mehrheitsbeschluss freigegeben.</p> :
       <p className="mt-1 text-sm text-copper">Die Treuhand wurde abgelehnt und ist zur weiteren Klärung markiert.</p>}
+    {summary.status === "cancelled" ? <p className="mt-1 text-sm text-muted">Der Vorgang wurde beendet. Die offene Treuhand-Abstimmung ist geschlossen.</p> : null}
     {error ? <p className="mt-2 text-sm text-copper">{error}</p> : null}
   </div>;
 }
