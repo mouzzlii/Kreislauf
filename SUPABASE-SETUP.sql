@@ -531,7 +531,7 @@ begin
   from escrow_votes v where v.escrow_id = v_case.id;
 
   select count(*)::int into v_assigned from escrow_moderators a where a.escrow_id = v_case.id;
-  v_required := greatest(4, ceil(v_assigned * 2.0 / 3.0)::int);
+  v_required := 4;
 
   if v_votes >= 4 and v_approvals >= ceil(v_votes * 2.0 / 3.0) then
     if v_case.reason = 'Hochwertiges Tauschgeschäft' then
