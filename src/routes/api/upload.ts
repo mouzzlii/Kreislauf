@@ -8,7 +8,7 @@ export const Route = createFileRoute("/api/upload")({
       POST: async ({ request }) => {
         try {
           const { authConfigured, requireUserId } = await import("@/lib/auth/verify.server");
-          const { assertSameSiteRequest, CrossSiteRequestError } = await import("@/lib/auth/isolation.server");
+          const { assertSameSiteRequest } = await import("@/lib/auth/isolation.server");
 
           if (!authConfigured || !process.env.DATABASE_URL?.trim()) {
             return Response.json(
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/api/upload")({
         } catch (error) {
           const message = error instanceof Error ? error.message : "Upload nicht möglich";
           const status = message === "Unauthorized" ? 401
-            : error instanceof CrossSiteRequestError ? 403 : 400;
+            : error instanceof Error && error.name === "CrossSiteRequestError" ? 403 : 400;
           return Response.json(
             { error: status === 401 ? "Bitte melde dich erneut an."
               : status === 403 ? "Upload-Anfrage wurde aus Sicherheitsgründen blockiert."
