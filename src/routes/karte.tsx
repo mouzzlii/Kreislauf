@@ -37,6 +37,9 @@ function MapPage() {
       <p className="mt-2 max-w-xl text-muted">
         Flotte, Güter und Hilfe in {board.region.name}. G steht für Gut, H für Hilfe, F für Flotte.
       </p>
+      <p className="mt-2 max-w-xl text-xs text-subtle">
+        Kartenpunkte sind aus Datenschutzgründen bewusst ungenau. Den genauen Treffpunkt sehen nur bestätigte Tauschparteien.
+      </p>
       <div className="mt-5">
         <RegionMap region={board.region} listings={pins} />
       </div>
