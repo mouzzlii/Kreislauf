@@ -283,7 +283,7 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     );
     assert.equal(finalVote.rows[0].votes, 4);
     assert.equal(finalVote.rows[0].approvals, 3);
-    assert.equal(finalVote.rows[0].status, "released", "three of four votes should release the high-value escrow");
+    assert.equal(finalVote.rows[0].status, "pending", "moderator quorum must not settle high-value escrow before both parties confirm handover");
 
     const settled = await db.query(
       `select
@@ -293,11 +293,11 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
          (select karma_balance from profiles where user_id = 'seed-leonie') as seller_balance,
          (select count(*)::int from ledger_entries where listing_id = 'test-high-value' and entry_kind = 'transfer') as transfer_count`,
     );
-    assert.equal(settled.rows[0].listing_status, "completed");
-    assert.equal(settled.rows[0].escrow_status, "released");
-    assert.equal(settled.rows[0].buyer_balance, before["test-renter"] - 99);
-    assert.equal(settled.rows[0].seller_balance, before["seed-leonie"] + 100);
-    assert.equal(settled.rows[0].transfer_count, 1, "settlement should write exactly one immutable transfer");
+    assert.equal(settled.rows[0].listing_status, "booked", "high-value listing must remain reserved");
+    assert.equal(settled.rows[0].escrow_status, "pending", "high-value escrow remains pending until bilateral handover");
+    assert.equal(settled.rows[0].buyer_balance, before["test-renter"], "buyer points must not move before receipt confirmation");
+    assert.equal(settled.rows[0].seller_balance, before["seed-leonie"], "seller points must not move before receipt confirmation");
+    assert.equal(settled.rows[0].transfer_count, 0, "no ledger transfer may be written before receipt confirmation");
 
     await db.query(
       "insert into escrow_cases(id, listing_id, requester_id, moderator_id, reason) values ('test-high-value-tie', 'test-high-value', 'test-renter', 'test-moderator', 'Hochwertiges Tauschgeschäft')",
