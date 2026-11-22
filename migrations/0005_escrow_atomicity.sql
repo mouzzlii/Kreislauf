@@ -45,55 +45,10 @@ begin
 
   if v_votes >= 4 and v_approvals >= ceil(v_votes * 2.0 / 3.0) then
     if v_case.reason = 'Hochwertiges Tauschgeschäft' then
-      select l.id, l.user_id as seller_id, l.region_id, l.price_karma, l.title, l.item_uuid, l.place_label
-      into v_listing from listings l
-      where l.id = v_case.listing_id and l.status = 'booked' for update;
-
-      if not found or v_case.requester_id is null or v_case.requester_id = v_listing.seller_id then
-        update escrow_cases as ec set status = 'disputed', resolved_at = now()
-        where ec.id = v_case.id and ec.status = 'pending';
-      else
-        perform p.user_id from profiles p
-        where p.user_id in (v_case.requester_id, v_listing.seller_id)
-        order by p.user_id for update;
-
-        select count(*)::int into v_profile_count from profiles p
-        where p.user_id in (v_case.requester_id, v_listing.seller_id);
-        select p.karma_balance into v_buyer_balance from profiles p
-        where p.user_id = v_case.requester_id;
-
-        if v_profile_count <> 2 or v_buyer_balance < v_listing.price_karma then
-          update escrow_cases as ec set status = 'disputed', resolved_at = now()
-          where ec.id = v_case.id and ec.status = 'pending';
-        else
-          update profiles p
-          set karma_balance = p.karma_balance +
-                case when p.user_id = v_case.requester_id then -v_listing.price_karma + 1 else v_listing.price_karma end,
-              last_activity_at = now()
-          where p.user_id in (v_case.requester_id, v_listing.seller_id);
-          get diagnostics v_updated = row_count;
-          if v_updated <> 2 then raise exception 'Konten konnten nicht vollständig aktualisiert werden'; end if;
-
-          update listings l set status = 'completed', hands_count = l.hands_count + 1
-          where l.id = v_listing.id and l.status = 'booked';
-          get diagnostics v_updated = row_count;
-          if v_updated <> 1 then raise exception 'Inserat konnte nicht sicher abgeschlossen werden'; end if;
-
-          insert into ledger_entries(region_id, sender_id, receiver_id, listing_id, amount_karma, entry_kind, message)
-          values (v_listing.region_id, v_case.requester_id, v_listing.seller_id, v_listing.id,
-            v_listing.price_karma, 'transfer', 'Treuhand-Tausch nach Mehrheitsbeschluss: ' || v_listing.title);
-
-          insert into ledger_entries(region_id, receiver_id, listing_id, amount_karma, entry_kind, message)
-          values (v_listing.region_id, v_case.requester_id, v_listing.id, 1,
-            'activity', 'Aktivitätsbonus nach Treuhand: ' || v_listing.title);
-
-          insert into item_history(item_uuid, listing_id, owner_id, place_label, event_kind)
-          values (v_listing.item_uuid, v_listing.id, v_case.requester_id, v_listing.place_label, 'transferred');
-
-          update escrow_cases as ec set status = 'released', resolved_at = now()
-          where ec.id = v_case.id and ec.status = 'pending';
-        end if;
-      end if;
+      -- Fail closed: moderator approval is not proof that goods changed hands.
+      -- Keep the listing reserved and the case pending until bilateral receipt
+      -- confirmation and a separately audited dispute process are implemented.
+      null;
     else
       update escrow_cases as ec set status = 'released', resolved_at = now()
       where ec.id = v_case.id and ec.status = 'pending';
