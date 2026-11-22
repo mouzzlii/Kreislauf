@@ -9,12 +9,13 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 
 - [x] Produktions-Build läuft in CI erfolgreich.
 - [x] TypeScript-Prüfung läuft erfolgreich.
-- [x] Automatisierte Tests laufen erfolgreich.
+- [x] Automatisierte Tests laufen erfolgreich (zuletzt bestätigt auf Commit `fb2bbd2b2208456374d76badb2cab0ccf830c727`; CI-Lauf 45051029698).
 - [x] Lint läuft erfolgreich.
 - [x] Abhängigkeiten werden auf bekannte Sicherheitslücken geprüft.
 - [x] Produktions-Build wird blockiert, wenn PostgreSQL-, Better-Auth-, eigener OAuth-Broker- oder Medien-Storage-Konfiguration fehlt.
 - [x] Produktions-Build wird blockiert, wenn der ID-Austria-Demomodus aktiv ist.
 - [x] Video-Referenzen werden serverseitig abgewiesen, solange kein Upload mit echter serverseitiger Medienprüfung existiert.
+- [x] Wiederverwendung bestehender Inseratfotos ist auf HTTPS-Vercel-Blob-Adressen im persönlichen Nutzerpfad beschränkt; automatisierte Tests decken fremde Nutzer, falsche Hosts und manipulierte URLs ab.
 - [x] Datenbankmigrationen sind im Supabase-Projekt registriert.
 - [x] RLS ist auf den geprüften öffentlichen Tabellen aktiviert.
 - [x] Direkte Tabellenrechte für die Rollen `anon` und `authenticated` wurden in `public` geprüft; die Abfrage ergab keine direkten Tabellenprivilegien.
