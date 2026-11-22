@@ -898,22 +898,41 @@ export const addReview = createServerFn({ method: "POST" })
 
 export type DemurrageCut = { userId: string; username: string; cut: number };
 
-export const runDemurrage = createServerFn({ method: "POST" }).handler(async (): Promise<DemurrageCut[]> => {
-  const sql = await getSql();
-  const rows = await sql.query<Row>(
-    `with applied as (
-       select affected_user, cut_amount from apply_demurrage()
-     )
-     select a.affected_user as "userId", a.cut_amount::int as cut, p.username
-     from applied a
-     join profiles p on p.user_id = a.affected_user`,
-  );
-  return rows.map((row) => ({
-    userId: asString(row.userId),
-    username: asString(row.username),
-    cut: asNumber(row.cut),
-  }));
-});
+export const runDemurrage = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }): Promise<DemurrageCut[]> => {
+    const sql = await getSql();
+    // This operation changes balances across every region. Fail closed unless
+    // the caller is explicitly configured as admin for every enabled region.
+    // Seed/demo regions have no admin_user_id, so nobody can trigger a global
+    // demurrage run until ownership is configured deliberately.
+    const authorization = await sql.query<{ enabledRegions: number; administeredRegions: number }>(
+      `select
+         count(*)::int as "enabledRegions",
+         count(*) filter (where admin_user_id = $1)::int as "administeredRegions"
+       from regions
+       where demurrage_enabled = true`,
+      [context.userId],
+    );
+    const enabledRegions = Number(authorization[0]?.enabledRegions ?? 0);
+    const administeredRegions = Number(authorization[0]?.administeredRegions ?? 0);
+    if (enabledRegions === 0 || administeredRegions !== enabledRegions) {
+      throw new Error("Umlaufprämie ist gesperrt: Es fehlt die ausdrückliche Admin-Berechtigung für alle betroffenen Regionen.");
+    }
+    const rows = await sql.query<Row>(
+      `with applied as (
+         select affected_user, cut_amount from apply_demurrage()
+       )
+       select a.affected_user as "userId", a.cut_amount::int as cut, p.username
+       from applied a
+       join profiles p on p.user_id = a.affected_user`,
+    );
+    return rows.map((row) => ({
+      userId: asString(row.userId),
+      username: asString(row.username),
+      cut: asNumber(row.cut),
+    }));
+  });
 
 
 /** ID Austria mock callback. Live OIDC must be completed server-side by the configured A-Trust client. */
