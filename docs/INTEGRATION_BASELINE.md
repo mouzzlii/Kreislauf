@@ -24,6 +24,15 @@ Die aktuelle Codebasis ist nicht als Supabase-Anwendung eingerichtet. Die Projek
 
 Daher wird Supabase nicht einfach zusätzlich eingebaut. Zuerst ist eine bewusste Architekturentscheidung nötig: vorhandene Datenbankarchitektur beibehalten oder gezielt auf das bereits vorhandene Supabase-Projekt migrieren. Zugangsdaten oder Secrets werden dafür nicht im Chat angefordert.
 
+## Erste Sicherheitsprüfung – konkrete Auffälligkeiten
+
+Die folgenden Punkte wurden beim Lesen des Quellcodes gefunden. Sie sind noch nicht durch einen Laufzeittest bestätigt und müssen vor einem Produktivbetrieb behoben bzw. verifiziert werden:
+
+1. **Demurrage-Endpunkt ohne sichtbare Authentifizierung:** `runDemurrage` ist eine POST-Serverfunktion, ruft die globale Datenbankfunktion `apply_demurrage()` auf und hat im geprüften Code keine `authMiddleware`. Damit ist im Quellcode keine Zugriffsschranke erkennbar. Eine beliebige aufrufende Person könnte möglicherweise die Umlaufsicherung für Konten auslösen. Nicht einfach nur Login ergänzen: Der Aufruf muss an einen kontrollierten Scheduler oder eine eng begrenzte serverseitige Admin-Berechtigung gebunden werden.
+2. **Öffentliche Inseratsdetail-Abfrage enthält Buchungsdaten:** `getListing` ist öffentlich aufrufbar und lädt neben öffentlichen Inseratsdaten auch die letzte Buchung samt Buchungs-ID, Namen der Beteiligten, Zeitraum und Status. Diese Daten sollten nur den beteiligten Personen und berechtigten Moderatoren angezeigt werden.
+3. **Tauschablauf verteilt Änderungen auf mehrere SQL-Aufrufe:** Bei `tradeListing` werden Kontostände, Inseratsstatus, Ledger, Artikelhistorie und Aktivitätsbonus über mehrere Abfragen geändert. Das muss als eine atomare Transaktion umgesetzt werden, damit ein Teilfehler keinen unvollständigen Tausch hinterlässt. Gleiches Transaktionsprinzip ist bei Inseratserstellung und Buchungsabschluss zu prüfen.
+4. **Demo-Verifikation ist keine echte Identitätsprüfung:** Die Funktion `verifyWithIdAustria` setzt bei aktiviertem Mock-Modus das Profil auf verifiziert. Das darf in einem öffentlichen Produktivbetrieb nicht als echte ID-Austria-Verifikation gelten.
+
 ## Noch nicht als fertig bestätigt
 
 - Eine echte ID-Austria-OIDC-Integration; der vorhandene Mock ist keine Identitätsprüfung.
@@ -39,19 +48,20 @@ Daher wird Supabase nicht einfach zusätzlich eingebaut. Zuerst ist eine bewusst
 1. Kontostände dürfen nicht direkt vom Browser geändert werden.
 2. Jede GWP-Buchung muss serverseitig und atomar erfolgen und im Ledger nachvollziehbar sein.
 3. Rollen und Moderationsrechte müssen serverseitig geprüft werden.
-4. Private Standort- und Identitätsdaten dürfen nicht in öffentlichen Inseratsantworten erscheinen.
+4. Private Standort-, Buchungs- und Identitätsdaten dürfen nicht in öffentlichen Inseratsantworten erscheinen.
 5. Neue Funktionen werden in kleinen, überprüfbaren Änderungen ergänzt.
 6. Unbestätigte Demo-Werte werden nicht als verbindliche Regeln übernommen.
 7. Bestehende Migrationen werden nicht nachträglich umgeschrieben; Schemaänderungen kommen als neue Migrationen.
 
 ## Vorgeschlagene nächste Arbeitsschritte
 
-1. Datenbankentscheidung dokumentieren (bestehende PostgreSQL-/Neon-Architektur oder Supabase-Migration).
-2. Vorhandene Auth-, Profil- und Rollenabläufe vollständig prüfen.
-3. GWP-Ledger, Buchungsfunktionen und Demurrage fachlich und sicherheitstechnisch prüfen.
-4. Marktplatz und Tauschvorgänge um Gesuche/Angebote, Anbieteransicht und verknüpfte Nachrichten erweitern.
-5. Treuhand, QR-Abläufe, Moderation und Admin-Oberfläche vervollständigen.
-6. Tests und Build ausführen; nicht bestandene Prüfungen ausdrücklich dokumentieren.
+1. Die beiden festgestellten Zugriffsschutz-/Datenschutzprobleme zuerst gezielt beheben.
+2. Den Tausch- und Buchungsablauf auf atomare Datenbanktransaktionen umstellen.
+3. Datenbankentscheidung dokumentieren (bestehende PostgreSQL-/Neon-Architektur oder Supabase-Migration).
+4. Vorhandene Auth-, Profil- und Rollenabläufe vollständig prüfen.
+5. Marktplatz und Tauschvorgänge um Gesuche/Angebote, Anbieteransicht und verknüpfte Nachrichten erweitern.
+6. Treuhand, QR-Abläufe, Moderation und Admin-Oberfläche vervollständigen.
+7. Tests und Build ausführen; nicht bestandene Prüfungen ausdrücklich dokumentieren.
 
 ## Prüfgrenze
 
