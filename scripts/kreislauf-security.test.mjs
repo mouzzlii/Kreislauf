@@ -21,6 +21,7 @@ const pausedMigration = await readFile(new URL("../migrations/0015_listing_pause
 const marketRoute = await readFile(new URL("../src/routes/index.tsx", import.meta.url), "utf8");
 const shell = await readFile(new URL("../src/components/shell.tsx", import.meta.url), "utf8");
 const listingDetail = await readFile(new URL("../src/routes/inserat/$listingId.tsx", import.meta.url), "utf8");
+const listingConversation = await readFile(new URL("../src/components/listing-conversation.tsx", import.meta.url), "utf8");
 
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
@@ -238,5 +239,7 @@ test("unread listing notifications open the exact conversation, including multip
   assert.match(shell, /search=\{\{ conversation: item\.requesterId \}\}/);
   assert.match(listingDetail, /validateSearch:[\s\S]*conversation: typeof search\.conversation === "string"/);
   assert.match(listingDetail, /Route\.useSearch\(\)/);
-  assert.match(listingDetail, /requestedConversationId \|\| items\[0\]\?\.requesterId/);
+  assert.match(listingDetail, /initialRequesterId=\{requestedConversationId\}/);
+  assert.match(listingConversation, /initialRequesterId\?: string/);
+  assert.match(listingConversation, /initialRequesterId \|\| current \|\| items\[0\]\?\.requesterId/);
 });
