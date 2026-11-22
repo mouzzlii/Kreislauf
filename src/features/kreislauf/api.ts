@@ -3,6 +3,7 @@ import { del, put } from "@vercel/blob";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { approximatePublicCoordinates } from "./geo-privacy";
+import { assertOwnedListingImageUrl } from "./media";
 import {
   WELCOME_KARMA,
   type Board,
@@ -599,10 +600,7 @@ export const createListing = createServerFn({ method: "POST" })
       throw new Error("Der Medien-Speicher ist noch nicht eingerichtet. Das Inserat wurde nicht gespeichert.");
     }
     for (const imageUrl of data.existingImageUrls) {
-      const parsed = new URL(imageUrl);
-      if (parsed.pathname.split("/").slice(1, 3).join("/") !== `listings/${encodeURIComponent(context.userId)}`) {
-        throw new Error("Ein übernommenes Foto gehört nicht zu deinem Konto.");
-      }
+      assertOwnedListingImageUrl(imageUrl, context.userId);
     }
     if (data.existingImageUrls.length > 0 && !process.env.BLOB_READ_WRITE_TOKEN?.trim()) {
       throw new Error("Gespeicherte Fotos können erst übernommen werden, wenn der Medien-Speicher eingerichtet ist.");
