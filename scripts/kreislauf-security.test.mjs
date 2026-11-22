@@ -263,8 +263,11 @@ test("listing video upload requires a real signed-in member and constrained Blob
 
 });
 
-test("ID Austria mock verification cannot be enabled in production", () => {
-  assert.match(api, /process\.env\.NODE_ENV === "production" \|\| !mockMode/);
+test("ID Austria mock verification is limited to local and Preview environments", () => {
+  assert.match(api, /canUseIdAustriaMock\(\{/);
+  assert.match(api, /vercelEnv: process\.env\.VERCEL_ENV/);
+  assert.match(idAustriaMode, /environment\.vercelEnv === "production"/);
+  assert.match(idAustriaMode, /environment\.nodeEnv === "production" && environment\.vercelEnv !== "preview"/);
   assert.match(api, /Eine Demo-Verifikation ist dort gesperrt/);
 });
 
