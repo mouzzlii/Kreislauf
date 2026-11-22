@@ -157,6 +157,11 @@ export default defineConfig(({ command, isPreview }) => ({
     strictPort: true,
   },
   resolve: { tsconfigPaths: true },
+  // PGlite locates its WASM/data payloads relative to its package module.
+  // Keep the package intact instead of bundling it into Nitro's _libs folder,
+  // where those sibling runtime assets were missing on Vercel.
+  optimizeDeps: { exclude: ["@electric-sql/pglite"] },
+  ssr: { external: ["@electric-sql/pglite"] },
   plugins: [
     pgliteBootstrapPlugin(),
     // Before tanstackStart so /auth/popup never falls through to the SPA.
