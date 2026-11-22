@@ -246,3 +246,13 @@ test("unread listing notifications open the exact conversation, including multip
   assert.match(listingConversation, /initialRequesterId\?: string/);
   assert.match(listingConversation, /initialRequesterId \|\| current \|\| items\[0\]\?\.requesterId/);
 });
+
+
+test("disputed escrow remains visible on the listing detail instead of disappearing", () => {
+  assert.match(api, /from escrow_cases where listing_id = \\$1 and status in \\('pending', 'disputed'\\)/);
+  assert.match(api, /escrowVisible: escrowRows.length > 0/);
+  assert.match(detail, /detail\\.escrowVisible/);
+  assert.match(types, /escrowVisible: boolean/);
+  assert.match(escrowPanel, /summary\\.status === "disputed"/);
+  assert.match(escrowPanel, /Das Inserat bleibt gesperrt/);
+});
