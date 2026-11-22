@@ -314,7 +314,12 @@ function ListingPage() {
         </div>
       </div>
 
-      <ListingConversation listingId={listing.id} ownerId={listing.userId} currentUserId={user?.id ?? null} />
+      <ListingConversation
+        listingId={listing.id}
+        ownerId={listing.userId}
+        currentUserId={user?.id ?? null}
+        initialRequesterId={requestedConversationId}
+/>
 
       {providerListings.length > 0 ? (
         <section className="mt-8">
