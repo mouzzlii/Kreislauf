@@ -5,7 +5,8 @@ import { readFile } from "node:fs/promises";
 const api = await readFile(new URL("../src/features/kreislauf/api.ts", import.meta.url), "utf8");
 const escrowSql = await readFile(new URL("../migrations/0005_escrow_atomicity.sql", import.meta.url), "utf8");
 const moderatorSql = await readFile(new URL("../migrations/0004_messages_escrow.sql", import.meta.url), "utf8");
-const cancellationSql = await readFile(new URL("../migrations/0006_escrow_cancellation.sql", import.meta.url), "utf8");\nconst legacySql = await readFile(new URL("../migrations/0009_lock_down_legacy_tables.sql", import.meta.url), "utf8");
+const cancellationSql = await readFile(new URL("../migrations/0006_escrow_cancellation.sql", import.meta.url), "utf8");
+const legacySql = await readFile(new URL("../migrations/0009_lock_down_legacy_tables.sql", import.meta.url), "utf8");
 const setupSql = await readFile(new URL("../SUPABASE-SETUP.sql", import.meta.url), "utf8");
 const messagingSql = await readFile(new URL("../migrations/0004_messages_escrow.sql", import.meta.url), "utf8");
 const escrowPanel = await readFile(new URL("../src/components/escrow-panel.tsx", import.meta.url), "utf8");
@@ -97,4 +98,13 @@ test("Supabase setup bundle mirrors the booking status notification migration", 
     assert.match(source, /Rückgabe bestätigt: Der Vorgang wurde abgeschlossen/);
   }
 });
-\n\ntest("retired prototype tables have no permissive browser policies", () => {\n  assert.match(legacySql, /drop policy/i);\n  assert.match(legacySql, /enable row level security/i);\n  assert.match(legacySql, /revoke all on table/i);\n  assert.match(legacySql, /users/);\n  assert.match(legacySql, /transactions/);\n  assert.match(legacySql, /marketplace_items/);\n});\n
+
+
+test("retired prototype tables have no permissive browser policies", () => {
+  assert.match(legacySql, /drop policy/i);
+  assert.match(legacySql, /enable row level security/i);
+  assert.match(legacySql, /revoke all on table/i);
+  assert.match(legacySql, /users/);
+  assert.match(legacySql, /transactions/);
+  assert.match(legacySql, /marketplace_items/);
+});
