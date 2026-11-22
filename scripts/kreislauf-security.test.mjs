@@ -17,6 +17,7 @@ const authPopup = await readFile(new URL("../src/lib/auth/popup.server.ts", impo
 const videoUploadRoute = await readFile(new URL("../src/routes/api/upload.ts", import.meta.url), "utf8");
 const videoUploadValidation = await readFile(new URL("../src/features/kreislauf/video-upload.ts", import.meta.url), "utf8");
 const videoMigration = await readFile(new URL("../migrations/0013_listing_video_urls.sql", import.meta.url), "utf8");
+const pausedMigration = await readFile(new URL("../migrations/0015_listing_paused_status.sql", import.meta.url), "utf8");
 const marketRoute = await readFile(new URL("../src/routes/index.tsx", import.meta.url), "utf8");
 
 function serverFunction(name) {
@@ -219,9 +220,9 @@ test("paused listings stay out of the public market feed", () => {
 
 
 test("maintenance and user-paused listings remain distinct database states", () => {
-  const migration = `alter table public.listings drop constraint if exists listings_status_check;
-alter table public.listings add constraint listings_status_check
-  check (status in ('active', 'booked', 'completed', 'maintenance', 'paused'));`;
-  assert.match(migration, /'maintenance', 'paused'/);
+  assert.match(pausedMigration, /drop constraint if exists listings_status_check/);
+  assert.match(pausedMigration, /'maintenance', 'paused'/);
+  assert.match(setupSql, /'maintenance', 'paused'/);
   assert.match(api, /data\.action === "pause" \? "active" : "paused"/);
+  assert.match(api, /data\.action === "pause" \? "paused" : "active"/);
 });
