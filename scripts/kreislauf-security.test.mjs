@@ -206,11 +206,22 @@ test("listing owners can pause and resume only their own active or paused listin
   assert.match(availability, /\.middleware\(\[authMiddleware\]\)/);
   assert.match(availability, /action !== "pause" && action !== "resume"/);
   assert.match(availability, /where id = \$1 and user_id = \$2 and status = \$4/);
+  assert.match(availability, /data\.action === "pause" \? "active" : "paused"/);
+  assert.match(availability, /data\.action === "pause" \? "paused" : "active"/);
   assert.match(availability, /returning id/);
   assert.match(availability, /Das Inserat ist nicht mehr verfügbar oder gehört nicht zu deinem Konto/);
 });
 
 
 test("paused listings stay out of the public market feed", () => {
-  assert.match(marketRoute, /listing\.status === "maintenance"\) return false/);
+  assert.match(marketRoute, /listing\.status === "maintenance" \|\| listing\.status === "paused"\) return false/);
+});
+
+
+test("maintenance and user-paused listings remain distinct database states", () => {
+  const migration = `alter table public.listings drop constraint if exists listings_status_check;
+alter table public.listings add constraint listings_status_check
+  check (status in ('active', 'booked', 'completed', 'maintenance', 'paused'));`;
+  assert.match(migration, /'maintenance', 'paused'/);
+  assert.match(api, /data\.action === "pause" \? "active" : "paused"/);
 });
