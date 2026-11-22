@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
+import { approximatePublicCoordinates } from "./geo-privacy";
 import {
   WELCOME_KARMA,
   type Board,
@@ -523,23 +524,14 @@ export const createListing = createServerFn({ method: "POST" })
     const regions = await loadRegions();
     const region = regions.find((item) => item.id === data.regionId);
     if (!region) throw new Error("Unbekannte Region");
-    let lat = region.centerLat;
-    let lng = region.centerLng;
-    if (
-      data.lat != null &&
-      data.lng != null &&
-      Math.abs(data.lat - region.centerLat) < 0.4 &&
-      Math.abs(data.lng - region.centerLng) < 0.6
-    ) {
-      lat = data.lat;
-      lng = data.lng;
-    } else {
-      let hash = 0;
-      for (const char of data.title) hash = (hash * 33 + char.charCodeAt(0)) >>> 0;
-      lat += (((hash % 100) - 50) / 50) * 0.02;
-      lng += ((((hash >> 8) % 100) - 50) / 50) * 0.03;
-    }
     const id = `lst-${crypto.randomUUID()}`;
+    const publicPoint = approximatePublicCoordinates(
+      { lat: region.centerLat, lng: region.centerLng },
+      data.lat != null && data.lng != null ? { lat: data.lat, lng: data.lng } : null,
+      id,
+    );
+    const lat = publicPoint.lat;
+    const lng = publicPoint.lng;
     let handsCount = 0;
     const itemUuid = data.itemUuid ?? `item-${crypto.randomUUID()}`;
     if (data.itemUuid) {
