@@ -1040,7 +1040,7 @@ export const getMeetingPoint = createServerFn({ method: "GET" })
        where l.id = $1 and (
          exists (select 1 from bookings b where b.listing_id = l.id
            and b.status in ('reserved','handed_over') and (b.renter_id = $2 or b.owner_id = $2))
-         or exists (select 1 from escrow_cases e where e.listing_id = l.id and e.status in ('pending','released')
+         or exists (select 1 from escrow_cases e where e.listing_id = l.id and e.status = 'released'
            and (e.requester_id = $2 or l.user_id = $2))
        )`, [data.id, context.userId]);
     const address = rows[0]?.what3words_address;
