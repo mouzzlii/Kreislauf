@@ -90,3 +90,5 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - Karma-Aktivitätsbuchungen verwenden den Ledger-Typ `activity`. Migration `0017_allow_activity_ledger_entries.sql` erlaubt diesen Typ ausdrücklich; das Supabase-Setup-Skript ist synchronisiert. Die PGlite-Migrationstests prüfen die Annahme eines Aktivitätsbonus. Das belegt die Schema-Kompatibilität im Test, nicht die Ausführung gegen eine echte Supabase-Produktionsdatenbank.
 
 - Sharing-Übergaben benötigen jetzt getrennte Bestätigungen von abholender und anbietender Partei. Erst wenn beide bestätigt haben und das Guthaben reicht, werden Buchungsstatus, Karma-Ledger und Artikelhistorie gemeinsam abgeschlossen. Einzelbestätigung lässt die Reservierung offen; danach ist Stornieren gesperrt. Migration `0018_booking_bilateral_handover.sql` ergänzt die Felder und sichert historische abgeschlossene Buchungen ab.
+
+- Sharing-Reservierungen akzeptieren keine Startzeit in der Vergangenheit; der Zeitbereich bleibt auf 1 Stunde bis 14 Tage begrenzt.
