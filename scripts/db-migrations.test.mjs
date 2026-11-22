@@ -283,11 +283,18 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     );
     assert.equal(cancelled.rows[0].status, "cancelled", "pending escrow may be closed when a booking ends");
 
-    const handoverSqlMatch = apiSource.match(
-      /const rows = await sql\\.query<\\{\\s*renterConfirmed: boolean;[\\s\\S]*?\\}>\\(\\s*`([\\s\\S]*?)`,\\s*\\[data\\.id, context\\.userId\\],\\s*\\);/,
+    const handoverQueryStart = apiSource.indexOf(
+      "const rows = await sql.query<{",
+      apiSource.indexOf('if (data.action === "return")'),
     );
-    assert.ok(handoverSqlMatch, "the exact server handover SQL must be available for integration testing");
-    const handoverSql = handoverSqlMatch[1];
+    const handoverTemplateStart = apiSource.indexOf("`", handoverQueryStart);
+    const handoverTemplateEnd = apiSource.indexOf(
+      "`,\n      [data.id, context.userId]",
+      handoverTemplateStart,
+    );
+    assert.ok(handoverQueryStart >= 0 && handoverTemplateStart >= 0 && handoverTemplateEnd > handoverTemplateStart,
+      "the exact server handover SQL must be available for integration testing");
+    const handoverSql = apiSource.slice(handoverTemplateStart + 1, handoverTemplateEnd);
     await db.query(
       `insert into listings(
          id, user_id, region_id, title, description, category, price_karma, status,
