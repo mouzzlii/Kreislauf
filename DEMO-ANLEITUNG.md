@@ -18,6 +18,7 @@
 
 ## Derzeit noch eingeschränkt
 
+- Die aktuelle Tauschabwicklung unterstützt Karma-basierte Vorgänge. Direkter Sachtausch und kombinierte Angebote (Sache plus Karma) sind noch nicht fertig implementiert und dürfen nicht als verfügbare Funktion verstanden werden.
 - Die Demo verwendet ein gemeinsames Konto. Deshalb lassen sich echte Gespräche zwischen zwei getrennten Personen hier nicht vollständig durchspielen.
 - Für Treuhand-Abstimmungen müssen mindestens vier aktive, verifizierte Moderationspersonen vorhanden sein. In der Demo sind keine echten Moderatoren eingerichtet; diese Abläufe sind daher noch nicht als reale Community-Entscheidung testbar.
 - Die Treuhand- und Buchungsabläufe benötigen noch vollständige Tests mit mehreren echten Konten und einer persistenten Datenbank.
