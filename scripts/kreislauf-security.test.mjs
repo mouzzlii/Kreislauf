@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const api = await readFile(new URL("../src/features/kreislauf/api.ts", import.meta.url), "utf8");
+const listingMedia = await readFile(new URL("../src/features/kreislauf/media.ts", import.meta.url), "utf8");
 const escrowSql = await readFile(new URL("../migrations/0005_escrow_atomicity.sql", import.meta.url), "utf8");
 const moderatorSql = await readFile(new URL("../migrations/0004_messages_escrow.sql", import.meta.url), "utf8");
 const cancellationSql = await readFile(new URL("../migrations/0006_escrow_cancellation.sql", import.meta.url), "utf8");
@@ -190,7 +191,9 @@ test("listing creation rejects video references until server-side media inspecti
   assert.match(create, /rawVideoUrls\.length > 0/);
   assert.match(create, /Video-Uploads sind noch gesperrt/);
   assert.doesNotMatch(create, /validateListingVideoSet/);
-  assert.doesNotMatch(create, /public\.blob\.vercel-storage\.com/);
+  assert.match(create, /assertOwnedListingImageUrl\(imageUrl, context\.userId\)/);
+  assert.match(listingMedia, /\.public\.blob\.vercel-storage\.com/);
+  assert.match(listingMedia, /\/listings\/\$\{encodeURIComponent\(userId\)\}\//);
   assert.match(create, /video_urls/);
   assert.match(videoMigration, /add column if not exists video_urls jsonb/);
   assert.match(videoMigration, /jsonb_array_length\(video_urls\) <= 4/);
