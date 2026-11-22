@@ -1,25 +1,26 @@
 export type Coordinates = { lat: number; lng: number };
 
+/**
+ * Public map points are generated only from the region center.
+ *
+ * Do not offset a member's precise coordinates: because listing IDs are public,
+ * a deterministic offset from a private point could be reversed by anyone who
+ * reads this source. The candidate is deliberately ignored. This trades exact
+ * proximity for a meaningful privacy boundary until a non-reversible
+ * server-secret geohash strategy is introduced.
+ */
 export function approximatePublicCoordinates(
   regionCenter: Coordinates,
-  candidate: Coordinates | null,
+  _candidate: Coordinates | null,
   seed: string,
 ): Coordinates {
-  const validCandidate =
-    candidate !== null &&
-    Number.isFinite(candidate.lat) &&
-    Number.isFinite(candidate.lng) &&
-    candidate.lat >= -90 &&
-    candidate.lat <= 90 &&
-    candidate.lng >= -180 &&
-    candidate.lng <= 180 &&
-    Math.abs(candidate.lat - regionCenter.lat) < 0.4 &&
-    Math.abs(candidate.lng - regionCenter.lng) < 0.6;
-
-  const base = validCandidate ? candidate : regionCenter;
+  const safeCenter = {
+    lat: Number.isFinite(regionCenter.lat) && regionCenter.lat >= -90 && regionCenter.lat <= 90 ? regionCenter.lat : 48.2,
+    lng: Number.isFinite(regionCenter.lng) && regionCenter.lng >= -180 && regionCenter.lng <= 180 ? regionCenter.lng : 15.1,
+  };
   return {
-    lat: base.lat + offset(seed, "north-south"),
-    lng: base.lng + offset(seed, "east-west"),
+    lat: safeCenter.lat + offset(seed, "north-south"),
+    lng: safeCenter.lng + offset(seed, "east-west"),
   };
 }
 
