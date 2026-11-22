@@ -61,7 +61,7 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     assert.equal(fkIndexes.rows[0].count, 14, "all current-schema foreign-key indexes must be present");
 
     const mismatchedDemoBalances = await db.query(
-      "select p.user_id, p.karma_balance,
+      `select p.user_id, p.karma_balance,
          coalesce(sum(case
            when e.receiver_id = p.user_id then e.amount_karma
            when e.sender_id = p.user_id then -e.amount_karma
@@ -75,7 +75,7 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
          when e.receiver_id = p.user_id then e.amount_karma
          when e.sender_id = p.user_id then -e.amount_karma
          else 0
-       end), 0)"
+       end), 0)`
     );
     assert.equal(
       mismatchedDemoBalances.rows.length,
