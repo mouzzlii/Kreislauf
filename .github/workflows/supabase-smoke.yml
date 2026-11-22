@@ -2,6 +2,13 @@ name: KREISLAUF – Supabase PostgreSQL Smoke-Test
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - demo/local-auth-off
+    paths:
+      - .github/workflows/supabase-smoke.yml
+      - scripts/supabase-db-smoke.mjs
+      - migrations/**
 
 permissions:
   contents: read
