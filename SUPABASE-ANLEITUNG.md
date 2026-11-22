@@ -17,14 +17,16 @@ Diese Anleitung ist für das vorhandene Supabase-Projekt gedacht. Die SQL-Datei 
 3. Hinterlege die Verbindungszeichenfolge in Vercel als geheime Umgebungsvariable **DATABASE_URL** für Production, Preview und Development.
 4. Lege zusätzlich **BETTER_AUTH_URL** auf die dauerhaft verwendete öffentliche KREISLAUF-Domain und **BETTER_AUTH_SECRET** als zufälliges, starkes Geheimnis an.
 5. Gib Datenbankpasswort und Geheimnisse niemals im Chat, in GitHub-Dateien oder in einer `VITE_*`-Variable weiter.
+6. Noch **keinen neuen Deploy starten**, bevor auch der Auth-Schalter aus Abschnitt 3 gesetzt ist. Die App verweigert absichtlich den Zugriff, wenn eine echte Datenbank aktiv ist, aber die Anmeldung ausgeschaltet bleibt.
 
 ## 3. Persönliche Konten sicher aktivieren
 
 Die derzeitige Vorschau verwendet absichtlich einen gemeinsamen Demo-Zugang. **Erst wenn SQL erfolgreich ausgeführt wurde, DATABASE_URL erreichbar ist und BETTER_AUTH_URL sowie BETTER_AUTH_SECRET gesetzt sind, darf die Anmeldung aktiviert werden.**
 
-1. In Vercel `VITE_AUTH_ENABLED=true` für Production, Preview und Development setzen.
-2. Danach einen neuen Build/Deploy abwarten und zuerst Konto anlegen, abmelden und wieder anmelden testen.
-3. Die Anmeldemaske enthält E-Mail/Passwort. Google/X-Anmeldung benötigt zusätzlich eine eigene, für die KREISLAUF-Domain freigeschaltete Broker-Anwendung. Dafür sind `GROK_AUTH_ISSUER`, `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` erforderlich. Diese Werte müssen vom Betreiber des Auth-Brokers bereitgestellt werden; die Vorschau-Zugangsdaten sind keine Produktions-Zugangsdaten.
+1. In Vercel **zusammen mit den Datenbank- und Better-Auth-Werten** `VITE_AUTH_ENABLED=true` für Production, Preview und Development setzen.
+2. Erst wenn alle Variablen gespeichert sind, einen neuen Build/Deploy starten. Nicht zwischenzeitlich mit `DATABASE_URL` und ausgeschalteter Anmeldung deployen.
+3. Danach zuerst Konto anlegen, abmelden und wieder anmelden testen. E-Mail/Passwort ist in der Anmeldemaske vorgesehen.
+4. Google/X-Anmeldung benötigt zusätzlich eine eigene, für die KREISLAUF-Domain freigeschaltete Broker-Anwendung. Dafür sind `GROK_AUTH_ISSUER`, `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` erforderlich. Diese Werte müssen vom Betreiber des Auth-Brokers bereitgestellt werden; die Vorschau-Zugangsdaten sind keine Produktions-Zugangsdaten.
 
 Die SQL-Datei markiert die Migrationen `0001_auth.sql` bis `0005_escrow_atomicity.sql` als angewendet. Dadurch werden sie beim ersten Build mit DATABASE_URL nicht nochmals ausgeführt.
 
