@@ -5,16 +5,33 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
 
-const connectionString = process.env.SUPABASE_DATABASE_URL?.trim();
+const rawConnectionString = process.env.SUPABASE_DATABASE_URL ?? "";
+const connectionString = rawConnectionString.trim();
 if (!connectionString) {
   throw new Error("SUPABASE_DATABASE_URL fehlt. Lege die Verbindungs-URL als GitHub Actions Secret an.");
 }
 const parsedConnection = new URL(connectionString);
+const encodedPassword = parsedConnection.password;
+let decodedPassword = "";
+try {
+  decodedPassword = decodeURIComponent(encodedPassword);
+} catch {
+  throw new Error("Das Passwort in SUPABASE_DATABASE_URL enthält eine ungültige URL-Kodierung.");
+}
 console.log("[supabase-smoke] Verbindungsziel (ohne Passwort):", {
   host: parsedConnection.hostname,
   port: parsedConnection.port || "(Standard)",
   database: parsedConnection.pathname.slice(1),
   user: decodeURIComponent(parsedConnection.username),
+});
+console.log("[supabase-smoke] Sichere Formatprüfung (keine Passwortausgabe):", {
+  scheme: parsedConnection.protocol,
+  secretHatAussenLeerzeichen: rawConnectionString !== rawConnectionString.trim(),
+  secretBeginntMitAnfuehrungszeichen: /^[\\"']/.test(rawConnectionString),
+  secretEnthaeltPrefixVariable: /^SUPABASE_DATABASE_URL\s*=/.test(rawConnectionString),
+  passwortLaenge: decodedPassword.length,
+  passwortHatLeerzeichenAmAnfangOderEnde: decodedPassword !== decodedPassword.trim(),
+  passwortEnthaeltNichtAlphanumerischeZeichen: /[^a-zA-Z0-9]/.test(decodedPassword),
 });
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
