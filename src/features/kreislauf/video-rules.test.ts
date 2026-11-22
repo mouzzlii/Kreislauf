@@ -35,7 +35,7 @@ test("rejects empty, zero, negative, and non-finite durations", () => {
 import { validateListingVideoSet, validateVideoUpload } from "./video-upload.ts";
 
 test("server accepts only user-scoped UUID video paths and valid upload durations", () => {
-  const userId = "member-123";
+  const userId = "550e8400-e29b-41d4-a716-446655440000";
   const path = `listings/${encodeURIComponent(userId)}/123e4567-e89b-42d3-a456-426614174000.mp4`;
   assert.deepEqual(validateVideoUpload(path, userId, JSON.stringify({ duration: 60 })), { duration: 60 });
   assert.throws(() => validateVideoUpload(path, "other-user", JSON.stringify({ duration: 60 })));
