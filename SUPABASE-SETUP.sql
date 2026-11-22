@@ -627,10 +627,20 @@ revoke all on table
   public."user", public."session", public."account", public."verification"
 from anon, authenticated;
 
-revoke all on sequence
-  public.ledger_entries_id_seq, public.item_history_id_seq,
-  public.listing_messages_id_seq, public.escrow_votes_id_seq
-from anon, authenticated;
+do $sequence_permissions$
+declare
+  sequence_name text;
+begin
+  for sequence_name in
+    select quote_ident(n.nspname) || '.' || quote_ident(c.relname)
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public' and c.relkind = 'S'
+  loop
+    execute format('revoke all on sequence %s from anon, authenticated', sequence_name);
+  end loop;
+end;
+$sequence_permissions$;
 
 -- These helper functions must never be callable through the public Supabase API.
 revoke all on function public.apply_demurrage() from public;
