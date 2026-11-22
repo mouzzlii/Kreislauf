@@ -300,14 +300,23 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     assert.equal(settled.rows[0].transfer_count, 0, "no ledger transfer may be written before receipt confirmation");
 
     await db.query(
-      "insert into escrow_cases(id, listing_id, requester_id, moderator_id, reason) values ('test-high-value-tie', 'test-high-value', 'test-renter', 'test-moderator', 'Hochwertiges Tauschgeschäft')",
+      `insert into listings(
+         id, user_id, region_id, title, description, category, price_karma, status,
+         images, lat, lng, place_label, offer_type, item_uuid
+       ) values (
+         'test-high-value-tie-listing', 'seed-leonie', 'yspertal-b36', 'Weiterer Testartikel', 'Treuhand-Gleichstand testen',
+         'goods', 100, 'booked', '[]'::jsonb, 48.3, 15.06, 'Testort', 'sell', 'item-test-high-value-tie'
+       )`,
     );
-    await db.query("select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)", ["test-high-value", "test-moderator", "approve", "Gleichstand 1"]);
-    await db.query("select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)", ["test-high-value", "test-moderator-2", "approve", "Gleichstand 2"]);
-    await db.query("select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)", ["test-high-value", "test-moderator-3", "reject", "Gleichstand 3"]);
+    await db.query(
+      "insert into escrow_cases(id, listing_id, requester_id, moderator_id, reason) values ('test-high-value-tie', 'test-high-value-tie-listing', 'test-renter', 'test-moderator', 'Hochwertiges Tauschgeschäft')",
+    );
+    await db.query("select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)", ["test-high-value-tie-listing", "test-moderator", "approve", "Gleichstand 1"]);
+    await db.query("select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)", ["test-high-value-tie-listing", "test-moderator-2", "approve", "Gleichstand 2"]);
+    await db.query("select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)", ["test-high-value-tie-listing", "test-moderator-3", "reject", "Gleichstand 3"]);
     const tied = await db.query(
       "select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)",
-      ["test-high-value", "test-moderator-4", "reject", "Gleichstand 4"],
+      ["test-high-value-tie-listing", "test-moderator-4", "reject", "Gleichstand 4"],
     );
     assert.equal(tied.rows[0].votes, 4);
     assert.equal(tied.rows[0].approvals, 2);
