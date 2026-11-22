@@ -4,7 +4,7 @@ import { ListingCard } from "@/components/listing-card";
 import { RegionMap } from "@/components/region-map";
 import { Shell } from "@/components/shell";
 import { getBoard } from "@/features/kreislauf/api";
-import { useKreislauf } from "@/features/kreislauf/context";
+import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import { DEFAULT_REGION, type Board } from "@/features/kreislauf/types";
 
 export const Route = createFileRoute("/karte")({
