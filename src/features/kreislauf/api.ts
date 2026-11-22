@@ -691,12 +691,19 @@ export const reserveListing = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .handler(async ({ data, context }): Promise<ActionResult> => {
     const sql = await getSql();
-    const verification = await sql.query<{ is_verified: boolean }>(`select is_verified from profiles where user_id = $1`, [context.userId]);
-    if (!verification[0]?.is_verified) return fail("Bitte verifiziere zuerst dein Konto mit ID Austria.");
-    const id = `bkg-${crypto.randomUUID()}`;
+    const verification = await sql.query<{ is_verified: boolean }>(
+      "select is_verified from profiles where user_id = $1",
+      [context.userId],
+    );
+    if (!verification[0]?.is_verified) {
+      return fail("Bitte verifiziere zuerst dein Konto mit ID Austria.");
+    }
+
+    const bookingId = `bkg-${crypto.randomUUID()}`;
+    const escrowId = `esc-${crypto.randomUUID()}`;
     const rows = await sql.query<{ id: string }>(
       `with target as (
-         select l.id, l.user_id, l.price_karma
+         select l.id, l.user_id, l.price_karma, l.region_id
          from listings l
          join profiles renter on renter.user_id = $2 and renter.region_id = l.region_id
          where l.id = $1
@@ -713,24 +720,39 @@ export const reserveListing = createServerFn({ method: "POST" })
          select $3, t.id, $2, t.user_id, $4::timestamptz, $5::timestamptz, 'reserved',
            greatest(1, ceil(extract(epoch from ($5::timestamptz - $4::timestamptz)) / 86400.0)::int) * t.price_karma
          from target t
+         returning id, listing_id
+       ),
+       reserved as (
+         update listings l
+         set status = 'booked'
+         from ins i
+         where l.id = i.listing_id and l.status = 'active'
+         returning l.id, l.region_id, i.id as booking_id
+       ),
+       escrow as (
+         insert into escrow_cases (id, listing_id, booking_id, moderator_id, reason)
+         select $6, r.id, r.booking_id, moderator.user_id, 'Treuhand für Sharing-Reservierung'
+         from reserved r
+         left join lateral (
+           select p.user_id
+           from profiles p
+           where p.region_id = r.region_id
+             and p.is_verified = true
+             and p.moderator_rank > 0
+             and p.last_active_at >= now() - interval '30 days'
+             and p.user_id <> $2
+           order by random()
+           limit 1
+         ) moderator on true
          returning id
        )
-       update listings
-       set status = 'booked'
-       where id = (select id from target)
-         and exists (select 1 from ins)
-       returning id`,
-      [data.id, context.userId, id, data.startsAt, data.endsAt],
+       select id from escrow`,
+      [data.id, context.userId, bookingId, data.startsAt, data.endsAt, escrowId],
     );
+
     if (!rows.length || !rows[0]?.id) {
-      return fail("Reservierung nicht möglich. Die Flotte ist belegt oder du bist in der falschen Region.");
+      return fail("Reservierung nicht möglich. Das Inserat ist inzwischen belegt oder du bist in der falschen Region.");
     }
-    const moderators = await sql.query<{ user_id: string }>(
-      `select user_id from profiles where region_id = (select region_id from listings where id = $1)
-       and is_verified = true and moderator_rank > 0 and last_active_at >= now() - interval '30 days'
-       and user_id <> $2 order by random() limit 1`, [data.id, context.userId]);
-    await sql.query(`insert into escrow_cases (id, listing_id, booking_id, moderator_id, reason)
-      select $1,$2,$3,$4,'Treuhand für Sharing-Reservierung'`, [`esc-${crypto.randomUUID()}`, data.id, id, moderators[0]?.user_id ?? null]);
     return { ok: true };
   });
 
