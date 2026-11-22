@@ -1,7 +1,6 @@
 import {
   createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -9,26 +8,11 @@ import {
 } from "react";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { ensureProfile, setRegion as setRegionFn } from "./api";
-import { DEFAULT_REGION, type Profile } from "./types";
+import { DEFAULT_REGION } from "./types";
+import { KreislaufContext, type Theme } from "./context-core";
 
 const REGION_KEY = "kreislauf-region";
 const THEME_KEY = "kreislauf-theme";
-
-type Theme = "dark" | "light";
-
-type KreislaufContextValue = {
-  regionId: string;
-  setRegion: (id: string) => void;
-  profile: Profile | null;
-  refreshProfile: () => Promise<void>;
-  hydrated: boolean;
-  version: number;
-  bump: () => void;
-  theme: Theme;
-  toggleTheme: () => void;
-};
-
-const KreislaufContext = createContext<KreislaufContextValue | null>(null);
 
 function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("light", theme === "light");
@@ -126,10 +110,4 @@ export function KreislaufProvider({ children }: { children: ReactNode }) {
   );
 
   return <KreislaufContext.Provider value={value}>{children}</KreislaufContext.Provider>;
-}
-
-export function useKreislauf(): KreislaufContextValue {
-  const value = useContext(KreislaufContext);
-  if (!value) throw new Error("KreislaufProvider fehlt");
-  return value;
 }
