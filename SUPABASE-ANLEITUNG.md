@@ -19,6 +19,17 @@ Diese Anleitung ist für das vorhandene Supabase-Projekt gedacht. Die SQL-Datei 
 5. Gib Datenbankpasswort und Geheimnisse niemals im Chat, in GitHub-Dateien oder in einer `VITE_*`-Variable weiter.
 6. Noch **keinen neuen Deploy starten**, bevor auch der Auth-Schalter aus Abschnitt 3 gesetzt ist. Die App verweigert absichtlich den Zugriff, wenn eine echte Datenbank aktiv ist, aber die Anmeldung ausgeschaltet bleibt.
 
+
+### Aktueller Vercel-Status (zuletzt geprüft: 22.11.2026)
+
+- `DATABASE_URL`: noch nicht vorhanden.
+- `VITE_AUTH_ENABLED`: steht absichtlich auf `false`.
+- `BLOB_READ_WRITE_TOKEN`: Variable ist angelegt, enthält aber derzeit keinen verwendbaren Token.
+- `BETTER_AUTH_URL` und `BETTER_AUTH_SECRET`: vorhanden; geheime Werte bleiben in Vercel und werden nicht ausgelesen oder im Chat angezeigt.
+- `ID_AUSTRIA_MOCK_MODE=true`: nur für den Demo-Preview-Zweig vorgesehen.
+
+Der Produktions-Build prüft inzwischen zusätzlich, ob `DATABASE_URL` eine gültige PostgreSQL-URL ist und ob ein Medien-Storage-Token vorhanden ist. Damit wird ein versehentlicher Start ohne dauerhafte Datenbank oder Medienablage blockiert. Die Demo-Preview bleibt davon unberührt.
+
 ## 3. Persönliche Konten sicher aktivieren
 
 Die derzeitige Vorschau verwendet absichtlich einen gemeinsamen Demo-Zugang. **BETTER_AUTH_URL und BETTER_AUTH_SECRET sind bereits gesetzt. Es fehlt noch DATABASE_URL.** Erst wenn die Datenbankverbindung gespeichert und erreichbar ist, darf die Anmeldung aktiviert werden.
