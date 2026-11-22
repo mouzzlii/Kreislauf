@@ -5,7 +5,9 @@
   "type": "module",
   "overrides": {
     "nf3": "0.3.17",
-    "@vercel/oidc": "^4.0.9"
+    "@vercel/oidc": "^4.0.9",
+    "seroval": "^1.6.11",
+    "zod": "^4.6.6"
   },
   "scripts": {
     "dev": "node scripts/with-app-env.mjs vite dev --host 0.0.0.0 --port 8080",
