@@ -25,6 +25,7 @@ const shell = await readFile(new URL("../src/components/shell.tsx", import.meta.
 const listingDetail = await readFile(new URL("../src/routes/inserat/$listingId.tsx", import.meta.url), "utf8");
 const listingTypes = await readFile(new URL("../src/features/kreislauf/types.ts", import.meta.url), "utf8");
 const listingConversation = await readFile(new URL("../src/components/listing-conversation.tsx", import.meta.url), "utf8");
+const accountRoute = await readFile(new URL("../src/routes/konto.tsx", import.meta.url), "utf8");
 
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
@@ -273,6 +274,15 @@ test("high-value escrow copy does not promise automatic settlement after moderat
   assert.doesNotMatch(listingDetail, /Karma wird erst nach mindestens vier Stimmen und einer Zweidrittelmehrheit übertragen/);
 });
 
+test("paused listing details are hidden publicly while owners can manage their own listings", () => {
+  assert.match(serverFunction("getListing"), /l\.status not in \(\x27maintenance\x27, \x27paused\x27\)/);
+  assert.match(serverFunction("getMyListings"), /\.middleware\(\[authMiddleware\]\)/);
+  assert.match(serverFunction("getMyListings"), /where l\.user_id = \$1/);
+  assert.match(serverFunction("getMyListings"), /l\.status in \(\x27active\x27, \x27paused\x27, \x27completed\x27, \x27booked\x27\)/);
+  assert.match(accountRoute, /Meine Inserate/);
+  assert.match(accountRoute, /changeListingStatus\(listing\.id\)/);
+  assert.match(accountRoute, /setListingAvailability\(\{ data: \{ id, action: "resume" \} \}\)/);
+});
 test("paused listings stay out of both market and map views", () => {
   assert.match(marketRoute, /listing\.status === "maintenance" \|\| listing\.status === "paused"\) return false/);
   assert.match(mapRoute, /!\["completed", "maintenance", "paused"\]\.includes\(listing\.status\)/);
