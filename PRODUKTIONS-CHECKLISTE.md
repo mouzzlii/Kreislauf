@@ -23,6 +23,7 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - [x] Nachrichten-Zugriffe prüfen Teilnehmer, Inserat und ausgewählte Unterhaltung; zusätzliche Regressionstests für manipulierte Gesprächskennungen und Lesebestätigungen wurden auf Commit `675ce01` erfolgreich ausgeführt.
 - [x] Hochwert-Treuhand fail-closed gehärtet: Auch nach einer Moderationsmehrheit bleiben Inserat und Punkte gesperrt; die Mehrheitsentscheidung allein löst keine Übergabe und keine Punkteübertragung aus. Die Oberfläche weist ausdrücklich auf die noch fehlende beidseitige Übergabebestätigung hin. Regressionstests einschließlich 2:2-Gleichstand sind im CI-Lauf 45061415223 und 45061409949 für Commit `4962e729aa542285c6927c3982e9a8cd429a9ffa` erfolgreich.
 - [x] Sharing-Treuhand: Übergabe ist serverseitig erst nach Freigabe möglich; strittige Treuhandfälle können nicht durch Stornieren der Buchung umgangen werden. Regressionstests im CI-Lauf 45055074165 auf Commit `fcc915a0c5e0d50031bd98ee2b4fa80157fbadf8` erfolgreich.
+- [x] Sharing-Treuhand zusätzlich gegen Umgehung über die Rückgabe abgesichert: Bei `disputed` bleibt die Buchung und das Inserat unverändert; der Rückgabeversuch wird mit einer klaren Fehlermeldung abgewiesen. Regressionstest prüft Storno und Rückgabe gemeinsam; CI-Lauf `45066586697` auf Commit `956cf525270d828ebf4514aba3cdca30ed585b5b` erfolgreich.
 - [x] Datenbankmigrationen sind im Supabase-Projekt registriert.
 - [x] RLS ist auf den geprüften öffentlichen Tabellen aktiviert.
 - [x] Direkte Tabellenrechte für die Rollen `anon` und `authenticated` wurden in `public` geprüft; die Abfrage ergab keine direkten Tabellenprivilegien.
@@ -48,6 +49,12 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - [ ] Backup-/Restore-Verfahren, Monitoring, Fehleralarme, Datenschutz-/Impressums-/AGB-Texte und Supportprozess festlegen.
 - [ ] Android-Geräte- und Browserprüfung mit realen Testkonten durchführen.
 - [ ] Abschließende unabhängige Sicherheitsprüfung und Freigabe dokumentieren.
+
+## Letzter bestätigter Prüfstand
+
+- Commit: `956cf525270d828ebf4514aba3cdca30ed585b5b`.
+- GitHub Actions Lauf `45066586697`: erfolgreich; Produktions-Build, TypeScript, automatisierte Tests, Lint und Dependency-Audit abgeschlossen.
+- Der Prüflauf bestätigt den Quellcode auf dem Entwicklungszweig, nicht die externe Live-Datenbank, echte Authentifizierung oder einen aktuellen Vercel-Deploy.
 
 ## Aktueller Freigabestatus
 
