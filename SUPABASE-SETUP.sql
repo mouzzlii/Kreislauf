@@ -647,7 +647,9 @@ revoke all on function public.apply_demurrage() from public;
 revoke all on function public.kreislauf_system_message(text, text, text, text) from public;
 
 alter table public.listings add column if not exists video_urls jsonb not null default '[]'::jsonb;
-do $ begin if not exists (select 1 from pg_constraint where conname='listings_video_urls_array_check') then alter table public.listings add constraint listings_video_urls_array_check check (jsonb_typeof(video_urls)='array' and jsonb_array_length(video_urls)<=4); end if; end $;
+alter table public.listings drop constraint if exists listings_video_urls_array_check;
+alter table public.listings add constraint listings_video_urls_array_check
+  check (case when jsonb_typeof(video_urls)='array' then jsonb_array_length(video_urls)<=4 else false end);
 
 alter table public._migrations enable row level security;
 alter table public.regions enable row level security;
