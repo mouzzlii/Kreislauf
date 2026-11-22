@@ -20,6 +20,9 @@ function AccountPage() {
   const { profile, refreshProfile, regionId, hydrated, version } = useKreislauf();
   const [board, setBoard] = useState<Board>(initial);
   const [mine, setMine] = useState<LedgerEntry[] | null>(null);
+  const [myListings, setMyListings] = useState<Listing[] | null>(null);
+  const [listingBusy, setListingBusy] = useState<string | null>(null);
+  const [listingMessage, setListingMessage] = useState<string | null>(null);
   const [name, setName] = useState("");
 
   useEffect(() => {
@@ -55,6 +58,27 @@ function AccountPage() {
       cancel = true;
     };
   }, [user, profile?.karmaBalance]);
+
+  useEffect(() => {
+    if (!user) { setMyListings(null); return; }
+    let cancel = false;
+    getMyListings().then((items) => { if (!cancel) setMyListings(items); }).catch(() => { if (!cancel) setMyListings([]); });
+    return () => { cancel = true; };
+  }, [user, version]);
+
+  async function changeListingStatus(id: string) {
+    setListingBusy(id);
+    setListingMessage(null);
+    try {
+      const result = await setListingAvailability({ data: { id, action: "resume" } });
+      if (!result.ok) { setListingMessage(result.error ?? "Inserat konnte nicht freigegeben werden."); return; }
+      setMyListings(await getMyListings());
+      bump();
+      setListingMessage("Inserat ist wieder im Markt sichtbar.");
+    } catch (error) {
+      setListingMessage(error instanceof Error ? error.message : "Inserat konnte nicht freigegeben werden.");
+    } finally { setListingBusy(null); }
+  }
 
   const ledger = user && mine ? mine : board.ledger;
 
