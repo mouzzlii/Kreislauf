@@ -29,6 +29,9 @@ const listingDetail = await readFile(new URL("../src/routes/inserat/$listingId.t
 const listingTypes = await readFile(new URL("../src/features/kreislauf/types.ts", import.meta.url), "utf8");
 const listingConversation = await readFile(new URL("../src/components/listing-conversation.tsx", import.meta.url), "utf8");
 const accountRoute = await readFile(new URL("../src/routes/konto.tsx", import.meta.url), "utf8");
+const authVerify = await readFile(new URL("../src/lib/auth/verify.server.ts", import.meta.url), "utf8");
+const authMiddlewareSource = await readFile(new URL("../src/lib/auth/middleware.ts", import.meta.url), "utf8");
+const databaseSource = await readFile(new URL("../src/lib/db.ts", import.meta.url), "utf8");
 
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
@@ -45,6 +48,18 @@ test("private KREISLAUF actions require verified server-side identity middleware
   ]) {
     assert.match(serverFunction(name), /\.middleware\(\[authMiddleware\]\)/, `${name} must require authMiddleware`);
   }
+});
+
+test("server identity and database selection fail closed instead of trusting client IDs", () => {
+  assert.match(authVerify, /auth\.api\.getSession\(\{ headers \}\)/);
+  assert.match(authVerify, /return \{ id: session\.user\.id/);
+  assert.match(authVerify, /if \(databaseConfigured\) \{[\s\S]*?refusing to fall back to the shared dev user/);
+  assert.match(authMiddlewareSource, /assertSameSiteRequest\(\)/);
+  assert.match(authMiddlewareSource, /requireUserId\(context\.bearerToken\)/);
+  assert.match(authMiddlewareSource, /return next\(\{ context: \{ userId \} \}\)/);
+  assert.match(databaseSource, /return dbSource === "neon" \? createNeonSql\(\) : createPgliteSql\(\)/);
+  assert.match(databaseSource, /sqlPromise = null;[\s\S]*?throw err/);
+  assert.doesNotMatch(databaseSource, /catch\s*\([^)]*\)\s*\{[\s\S]{0,300}createPgliteSql\(\)/);
 });
 
 test("high-value trades are reserved in community escrow before any settlement", () => {
