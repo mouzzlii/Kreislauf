@@ -9,6 +9,13 @@ const connectionString = process.env.SUPABASE_DATABASE_URL?.trim();
 if (!connectionString) {
   throw new Error("SUPABASE_DATABASE_URL fehlt. Lege die Verbindungs-URL als GitHub Actions Secret an.");
 }
+const parsedConnection = new URL(connectionString);
+console.log("[supabase-smoke] Verbindungsziel (ohne Passwort):", {
+  host: parsedConnection.hostname,
+  port: parsedConnection.port || "(Standard)",
+  database: parsedConnection.pathname.replace(/^\\//, ""),
+  user: decodeURIComponent(parsedConnection.username),
+});
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const migrations = [
