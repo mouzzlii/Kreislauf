@@ -121,3 +121,8 @@ Der ursprüngliche `entry_kind`-Check erlaubte `activity` nicht, obwohl Tausch- 
 ## Sharing-Übergabe: beidseitige Bestätigung
 
 Die bisherige Übergabefunktion ließ eine einzelne Buchungspartei die Übergabe und Karma-Übertragung auslösen, obwohl die Oberfläche eine Bestätigung beider Seiten ankündigte. Die Funktion speichert nun je eine Bestätigung für Abholende und Anbietende und setzt die Buchung erst nach beiden Bestätigungen auf `handed_over`. Beide Profile werden vor der Abwicklung gesperrt; Karma, Ledger und Artikelhistorie werden in derselben SQL-Anweisung aktualisiert. Nach der ersten Bestätigung ist eine Stornierung gesperrt. Migration `0018_booking_bilateral_handover.sql` backfüllt bereits abgeschlossene Buchungen und erzwingt die Bestätigungen für abgeschlossene Status.
+
+
+## Sharing-Rückgabe: beidseitige Bestätigung
+
+Vorher konnte eine einzelne Buchungspartei eine Sharing-Rückgabe abschließen und das Inserat wieder freigeben. Die Rückgabefunktion speichert nun getrennte Bestätigungen von abholender und anbietender Partei. Erst die zweite Bestätigung setzt den Buchungsstatus auf `returned` und aktiviert das Inserat wieder. Die Datenbank erzwingt beide Zeitstempel; die PGlite-Integration führt den echten Rückgabe-SQL-Ablauf mit beiden Konten aus. Migration `0019_booking_bilateral_return.sql` backfüllt bestehende abgeschlossene Rückgaben.
