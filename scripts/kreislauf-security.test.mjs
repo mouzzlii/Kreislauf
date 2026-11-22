@@ -186,6 +186,9 @@ test("listing messages are restricted to the owner and the selected requester", 
   assert.match(messages, /update listing_messages set read_at = now\(\)[\s\S]*?listing_id = \$1 and requester_id = \$2 and owner_id = \$3[\s\S]*?requester_id = \$4 or owner_id = \$4/);
   assert.match(send, /context\.userId === ownerId/);
   assert.match(send, /Du kannst erst antworten, wenn das andere Mitglied eine Unterhaltung begonnen hat/);
+  // Conversation upsert and message insertion share one atomic SQL statement.
+  assert.match(send, /with conversation as \([\s\S]*?on conflict \(listing_id, requester_id\)[\s\S]*?returning id[\s\S]*?message as \([\s\S]*?insert into listing_messages[\s\S]*?select conversation\.id, \$5, \$6, 'user'[\s\S]*?select id from message/);
+  assert.match(send, /if \(!inserted\.length\) return fail\("Nachricht konnte nicht gespeichert werden\."/);
   // A requester cannot select another member's conversation by forging requesterId.
   assert.match(send, /context\.userId === ownerId \? data\.requesterId : context\.userId/);
   // Owners may only reply to an already-created conversation for this listing.
