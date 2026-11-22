@@ -51,6 +51,15 @@ if ((process.env.GROK_AUTH_CLIENT_SECRET ?? "").trim().length < 32) {
 if (!(process.env.BLOB_READ_WRITE_TOKEN ?? "").trim()) {
   missing.push("BLOB_READ_WRITE_TOKEN (sicherer Medien-Storage)");
 }
+// A token alone does not mean the application actually stores and serves media
+// securely. These explicit release attestations may only be enabled after the
+// corresponding implementation and end-to-end tests exist.
+if (process.env.KREISLAUF_MEDIA_STORAGE_READY !== "true") {
+  missing.push("KREISLAUF_MEDIA_STORAGE_READY=true (erst nach getesteter Storage-Integration)");
+}
+if (process.env.ID_AUSTRIA_PROVIDER_READY !== "true") {
+  missing.push("ID_AUSTRIA_PROVIDER_READY=true (erst nach echter ID-Austria-Anbindung und Prüfung)");
+}
 if (process.env.ID_AUSTRIA_MOCK_MODE === "true") {
   missing.push("ID_AUSTRIA_MOCK_MODE darf in Produktion nicht aktiviert sein");
 }
