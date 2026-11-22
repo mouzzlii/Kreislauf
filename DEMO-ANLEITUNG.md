@@ -11,7 +11,7 @@
 1. **Markt ansehen:** Auf der Startseite zwischen „Alle Inserate“, „Biete“, „Suche“ und den Kategorien wechseln. „In der Nähe“ grenzt die Liste auf einen Umkreis ein.
 2. **Inserat öffnen:** Ein Inserat antippen. Auf der Detailseite sind weitere Inserate desselben Anbieters erreichbar.
 3. **Fotos ansehen:** Bei Inseraten mit mehreren Fotos die kleinen Vorschaubilder unter dem Hauptbild antippen.
-4. **Inserat erstellen:** Über „Inserieren“ ein Testangebot anlegen. Bis zu vier komprimierte Fotos sind möglich. Videos lassen sich lokal in den drei vorgesehenen Formaten auswählen und in der Vorschau abspielen (1 × 60 s, 2 × 30 s oder 4 × 20 s; insgesamt höchstens 60 s). Der sichere Upload und die dauerhafte Speicherung sind noch nicht freigeschaltet; ein Inserat mit ausgewählten Videos kann deshalb noch nicht gespeichert werden.
+4. **Inserat erstellen:** Über „Inserieren“ ein Testangebot anlegen. Bis zu vier komprimierte Fotos sind möglich. Video-Uploads und bereits die Videoauswahl sind derzeit bewusst deaktiviert. Die vorgesehenen Grenzen bleiben 1 × 60 s, 2 × 30 s oder 4 × 20 s (insgesamt höchstens 60 s); sie werden erst nach einer unabhängigen Serverprüfung der tatsächlichen Videodauer freigeschaltet.
 5. **Demo-Verifikation:** Im Konto kann die ausdrücklich simulierte Test-Verifikation ausgelöst werden. Das ist **keine echte ID-Austria-Prüfung**.
 6. **Nachrichten:** Auf einer Inserat-Detailseite im Bereich „Nachrichten zum Inserat“ schreiben. Die Unterhaltung bleibt mit dem Inserat verknüpft. Die Glocke im Kopfbereich zeigt ungelesene Nachrichten und aktualisiert sich ungefähr alle 30 Sekunden.
 7. **QR-Code:** Auf einer Inserat-Detailseite den Scanner öffnen. Wenn die Kamera nicht verfügbar ist, kann eine Inserat-Adresse oder Kennung manuell eingegeben werden.
@@ -23,7 +23,7 @@
 - Für Treuhand-Abstimmungen müssen mindestens vier aktive, verifizierte Moderationspersonen vorhanden sein. In der Demo sind keine echten Moderatoren eingerichtet; diese Abläufe sind daher noch nicht als reale Community-Entscheidung testbar.
 - Die Treuhand- und Buchungsabläufe benötigen noch vollständige Tests mit mehreren echten Konten und einer persistenten Datenbank.
 - Fotos werden vorerst als Daten-URLs in der Datenbank gespeichert. Für den Produktivbetrieb muss ein eigener, sicherer Medien-Storage eingerichtet werden.
-- Video-Vorschauen bleiben ausschließlich lokal auf dem Gerät. Vercel Blob ist zwar als Speicher vorbereitet, aber der authentifizierte Upload-Endpunkt fehlt noch.
+- Video-Uploads sind aktuell in allen Umgebungen gesperrt. Der Endpunkt antwortet absichtlich mit HTTP 503, bis eine vertrauenswürdige serverseitige Prüfung der Videodatei umgesetzt und getestet ist.
 - ID Austria, private Benutzerkonten und dauerhafte Speicherung sind noch nicht produktiv angebunden.
 
 ## Sicherheitsgrenze
