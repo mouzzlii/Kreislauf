@@ -730,8 +730,8 @@ export const reserveListing = createServerFn({ method: "POST" })
          returning l.id, l.region_id, i.id as booking_id
        ),
        escrow as (
-         insert into escrow_cases (id, listing_id, booking_id, moderator_id, reason)
-         select $6, r.id, r.booking_id, moderator.user_id, 'Treuhand für Sharing-Reservierung'
+         insert into escrow_cases (id, listing_id, booking_id, requester_id, moderator_id, reason)
+         select $6, r.id, r.booking_id, $2, moderator.user_id, 'Treuhand für Sharing-Reservierung'
          from reserved r
          left join lateral (
            select p.user_id
