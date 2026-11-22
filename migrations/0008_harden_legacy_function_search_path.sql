@@ -1,3 +1,10 @@
--- Pin the remaining legacy transaction helper as well. It is retained for
--- compatibility with the original empty schema but is not used by the new app.
-alter function public.process_gwp_transaction() set search_path = pg_catalog, public, pg_temp;
+-- Pin the retained legacy helper when it exists in an upgraded project.
+-- Fresh KREISLAUF installs do not create this legacy function.
+do $$
+begin
+  if to_regprocedure('public.process_gwp_transaction()') is not null then
+    alter function public.process_gwp_transaction()
+      set search_path = pg_catalog, public, pg_temp;
+  end if;
+end
+$$;
