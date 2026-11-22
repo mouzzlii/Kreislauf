@@ -7,7 +7,7 @@ const api = await readFile(new URL("../src/features/kreislauf/api.ts", import.me
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
   assert.notEqual(start, -1, `server function ${name} exists`);
-  const next = api.indexOf("\\nexport const ", start + 20);
+  const next = api.indexOf("\nexport const ", start + 20);
   return api.slice(start, next === -1 ? api.length : next);
 }
 
@@ -23,7 +23,7 @@ test("private KREISLAUF actions require verified server-side identity middleware
 
 test("private meeting point is not exposed by public listing queries", () => {
   const queryStart = api.indexOf("const LISTING_SQL =");
-  const queryEnd = api.indexOf("\\n`;", queryStart);
+  const queryEnd = api.indexOf("\n`;", queryStart);
   assert.notEqual(queryStart, -1);
   assert.notEqual(queryEnd, -1);
   const listingQuery = api.slice(queryStart, queryEnd);
