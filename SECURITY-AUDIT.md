@@ -67,7 +67,7 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 
 - Migration `0013_listing_video_urls.sql` wurde auf dem verbundenen Supabase-Projekt eingespielt.
 - Der Upload-Endpunkt `/api/upload` wurde ergänzt und ist bis zur Konfiguration von `DATABASE_URL`, echter Authentifizierung und `BLOB_READ_WRITE_TOKEN` fail-closed.
-- Der neue Router-Endpunkt und die Upload-Validierung wurden erfolgreich durch CI geprüft. Der Preview-Build auf Vercel ist mit Status READY veröffentlicht: `https://grok-workspace-hjj8vrhu6-kreislauf.vercel.app`. Er ist ein Vorschau-Deployment, keine Produktionsfreigabe. Ein automatisierter Browser-Smoke-Test gegen die öffentliche URL war in dieser Prüfung nicht möglich.
+- Der neue Router-Endpunkt und die Upload-Validierung wurden erfolgreich durch CI geprüft. Der Vercel-Preview-Build auf Commit `a7502d9` wurde zwar als READY markiert, der erste echte Seitenaufruf schlug jedoch beim PGLite-Start fehl (`role "anon" does not exist`). Dieser Preview-Link ist deshalb nicht als funktionierende Demo freizugeben. Der Fehler wurde im Branch mit Commit `d91b83b` durch eine PGlite-Rolleninitialisierung behoben und die CI ist erneut grün. Ein korrigierter Vercel-Preview-Build konnte wegen des Vercel-Limits von mehr als 100 Deployments pro Tag (Sperre für 24 Stunden) noch nicht erstellt werden.
 
 
 ## Verifikation am 22.11.2026
@@ -77,3 +77,12 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 - Vercel Preview-Deployment `dpl_FezUFzj6SXvaEmjWzn9UKR1Pedok`: Status `READY`, Branch `demo/local-auth-off`.
 - Supabase: 0 öffentliche Tabellen ohne RLS und 0 Tabellen mit direkten Browser-Lese-/Schreibrechten für `anon` oder `authenticated`.
 - Supabase Security Advisor: 23 INFO-Hinweise zu absichtlich server-only Tabellen mit RLS ohne Browser-Policies; keine neuen Browser-Tabellenrechte wurden dafür vergeben.
+
+
+## Nachträglicher Laufzeitfund und Korrektur
+
+- Der erste öffentliche Aufruf des Vercel-Preview-Builds offenbarte einen Fehler, den die vorherigen CI-Tests nicht abdeckten: PGlite hatte die Supabase-Rollen `anon`, `authenticated` und `service_role` nicht angelegt.
+- `src/lib/db-roles.ts` provisioniert diese Rollen nun idempotent vor dem Einspielen der Migrationen.
+- `src/lib/db-roles.test.ts` testet die Rolleninitialisierung einschließlich der realen Migration `0010_lock_down_default_privileges.sql`.
+- Commit `d91b83bcba144e14eb03dbdad71aadcd6e429e26`: Sicherheitsprüfung, Build, TypeScript, Tests und Lint erfolgreich.
+- Der korrigierte Code ist noch nicht auf Vercel bereitgestellt. Vercel meldet `api-deployments-free-per-day` und `retryAfter: 86400`; ein CLI-Fallback ist in der verfügbaren Umgebung nicht eingerichtet.
