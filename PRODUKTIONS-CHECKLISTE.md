@@ -9,7 +9,7 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 
 - [x] Produktions-Build läuft in CI erfolgreich.
 - [x] TypeScript-Prüfung läuft erfolgreich.
-- [x] Automatisierte Tests laufen erfolgreich (zuletzt vollständig bestätigt auf Commit `675ce01b767916dda6a7715df898942db0bda6f0`; CI-Lauf 45055800005: Build, TypeScript, Tests, Lint und Dependency-Audit erfolgreich).
+- [x] Automatisierte Tests laufen erfolgreich (zuletzt vollständig bestätigt auf Commit `bdc7ee87ba5799b02fa4534030089d956038ec0f`; CI-Lauf 45056284379: Build, TypeScript, Tests, Lint und Dependency-Audit erfolgreich).
 - [x] Lint läuft erfolgreich.
 - [x] Abhängigkeiten werden auf bekannte Sicherheitslücken geprüft.
 - [x] Produktions-Build wird blockiert, wenn PostgreSQL-, Better-Auth-, eigener OAuth-Broker- oder Medien-Storage-Konfiguration fehlt.
@@ -21,6 +21,7 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - [x] Marktfilter, eigener Pausenstatus und Benachrichtigungs-Routing wurden im aktuellen Branch-HEAD durch CI geprüft (Commit `7df02510992eaa40b22691baeb91c240be2740b9`, Lauf 45052969457: Build, TypeScript, Tests, Lint und Dependency-Audit erfolgreich).
 - [x] Benachrichtigungen enthalten die konkrete Gesprächskennung und öffnen bei mehreren Anfragen zum selben Inserat die passende Unterhaltung; automatisierter Test im CI-Lauf 45055800005 erfolgreich.
 - [x] Nachrichten-Zugriffe prüfen Teilnehmer, Inserat und ausgewählte Unterhaltung; zusätzliche Regressionstests für manipulierte Gesprächskennungen und Lesebestätigungen wurden auf Commit `675ce01` erfolgreich ausgeführt.
+- [x] Zusätzliche Regressionstests für die Hochwert-Treuhand prüfen, dass die Anfrage zunächst nur reserviert wird und vor der vorgesehenen Freigabe keine Punkteübertragung stattfindet (CI-Lauf 45056240418 erfolgreich).
 - [x] Sharing-Treuhand: Übergabe ist serverseitig erst nach Freigabe möglich; strittige Treuhandfälle können nicht durch Stornieren der Buchung umgangen werden. Regressionstests im CI-Lauf 45055074165 auf Commit `fcc915a0c5e0d50031bd98ee2b4fa80157fbadf8` erfolgreich.
 - [x] Datenbankmigrationen sind im Supabase-Projekt registriert.
 - [x] RLS ist auf den geprüften öffentlichen Tabellen aktiviert.
@@ -41,6 +42,7 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - [ ] Echte ID-Austria-Anbindung samt Anbieterfreigabe, Rückruf-/Signaturprüfung und Datenschutzprüfung integrieren. Ein Mock ist keine Identitätsprüfung.
 - [ ] Treuhand fachlich neu absichern: Bei hochwertigen Angeboten löst die Freigabemehrheit derzeit unmittelbar Punktebuchung und Inseratabschluss aus. Vor Produktivbetrieb ist eine getrennte Übergabe-/Empfangsbestätigung oder ein gleichwertiger Nachweis erforderlich. Reale, berechtigte Moderatorenkonten und manipulationssichere Abstimmungs-/Auditspur testen; keine Demo-Stimmen für reale Tauschvorgänge verwenden. Für abgelehnte Fälle fehlt noch ein berechtigter, protokollierter Klärungs-/Abschlussprozess; bis dahin bleibt das Inserat bewusst gesperrt.
 - [ ] Direkten Tausch ohne Punkte und kombinierte Angebote (Ware/Dienstleistung plus Karma) als vollständigen Anfrage-, Annahme-, Ablehnungs- und Abschlussprozess implementieren; derzeit unterstützt der Abschluss nur Karma-/Geschenk- und Sharing-Flows.
+- [ ] Hochwert-Treuhand um ausdrückliche Übergabe-/Empfangsbestätigung beider Parteien und einen autorisierten, protokollierten Streitfallentscheid ergänzen; derzeit löst die Moderationsmehrheit die Abwicklung aus, ohne dass eine unabhängige gegenseitige Empfangsbestätigung vorliegt. Bis dahin keine echte Produktivfreigabe für diese Vorgänge.
 - [ ] Mehrbenutzer-Ende-zu-Ende-Tests für Inserate, Nachrichten, Benachrichtigungen, Tauschanfragen, Buchungen, Punktebuchungen, Treuhand und Konfliktfälle durchführen.
 - [ ] Rate-Limits, CSRF-/Origin-Schutz, Session-Cookies, Eingabevalidierung, Protokollierung ohne Geheimnisse und Missbrauchsschutz prüfen.
 - [ ] Backup-/Restore-Verfahren, Monitoring, Fehleralarme, Datenschutz-/Impressums-/AGB-Texte und Supportprozess festlegen.
