@@ -233,6 +233,7 @@ function NewListing() {
                 setError(null);
                 void Promise.all(files.map(probeVideo))
                   .then((drafts) => {
+                    drafts.forEach((video) => videoUrls.current.add(video.url));
                     const candidate = [...videos, ...drafts];
                     const result = checkVideoDurations(videoPreset, candidate.map((video) => video.duration));
                     if (!result.ok) {
@@ -329,7 +330,6 @@ function probeVideo(file: File): Promise<{ file: File; url: string; duration: nu
         reject(new Error("duration"));
         return;
       }
-      videoUrlsRegister(url);
       resolve({ file, url, duration });
     };
     video.onerror = () => {
@@ -338,10 +338,6 @@ function probeVideo(file: File): Promise<{ file: File; url: string; duration: nu
     };
     video.src = url;
   });
-}
-
-function videoUrlsRegister(_url: string): void {
-  // The component owns object-URL cleanup through its ref.
 }
 
 function compressImage(file: File): Promise<string> {
