@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ListingVisual } from "@/components/listing-card";
 import { ListingConversation } from "@/components/listing-conversation";
 import { EscrowPanel } from "@/components/escrow-panel";
+import { QrScanner } from "@/components/qr-scanner";
 import { Shell } from "@/components/shell";
 import { Button, fieldClass } from "@/components/ui";
 import {
@@ -251,13 +252,15 @@ function ListingPage() {
 
       <ListingConversation listingId={listing.id} ownerId={listing.userId} currentUserId={user?.id ?? null} />
 
+      <QrScanner onOpenListing={(id) => void navigate({ to: "/inserat/$listingId", params: { listingId: id } })} />
+
       <section className="mt-8 grid gap-4 md:grid-cols-2">
         <div className="rounded-3xl border border-line bg-elev p-4">
           <h2 className="font-display text-xl">Produkt-QR-Code</h2>
           <p className="mt-1 text-xs text-subtle">Artikelkennung: {listing.itemUuid}</p>
           <img className="mt-3 h-40 w-40 rounded-xl bg-white p-2" alt="QR-Code zum Produkt" src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(qrTarget)}`} />
           <Button className="mt-3" variant="ghost" onClick={() => window.print()}>QR-Code / Seite drucken</Button>
-          <p className="mt-2 text-xs text-subtle">Der Code führt zur Produktseite. Eine automatische Wiederveröffentlichung per Scan ist in dieser Version noch nicht aktiviert.</p>
+          <p className="mt-2 text-xs text-subtle">Der Code führt zur Produktseite. Der Scanner oben öffnet erkannte KREISLAUF-Inserate direkt.</p>
         </div>
         <div className="rounded-3xl border border-line bg-elev p-4">
           <h2 className="font-display text-xl">Kurz-Historie</h2>
