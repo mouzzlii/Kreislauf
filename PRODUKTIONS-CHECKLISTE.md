@@ -1,0 +1,49 @@
+# KREISLAUF – Produktionsfreigabe-Checkliste
+
+Stand: 22.11.2026  
+Arbeitszweig: `demo/local-auth-off`
+
+Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Produktivbetrieb. Ein erfolgreicher Build allein ist keine Produktionsfreigabe.
+
+## Bereits automatisiert geprüft
+
+- [x] Produktions-Build läuft in CI erfolgreich.
+- [x] TypeScript-Prüfung läuft erfolgreich.
+- [x] Automatisierte Tests laufen erfolgreich.
+- [x] Lint läuft erfolgreich.
+- [x] Abhängigkeiten werden auf bekannte Sicherheitslücken geprüft.
+- [x] Produktions-Build wird blockiert, wenn Datenbank- oder Auth-Konfiguration fehlt.
+- [x] Produktions-Build wird blockiert, wenn der ID-Austria-Demomodus aktiv ist.
+- [x] Datenbankmigrationen sind im Supabase-Projekt registriert.
+- [x] RLS ist auf den geprüften öffentlichen Tabellen aktiviert.
+- [x] Direkte Tabellenrechte für die Rollen `anon` und `authenticated` wurden in `public` geprüft; die Abfrage ergab keine direkten Tabellenprivilegien.
+
+## Vor echtem Mehrbenutzerbetrieb zwingend offen
+
+- [ ] Supabase-Verbindung über `DATABASE_URL` (Session Pooler) in Vercel konfigurieren und Verbindung aus der deployten Anwendung testen.
+- [ ] Persistente Datenbank statt In-Memory-Demo aktivieren und Neustart-/Datenpersistenztests durchführen.
+- [ ] Better Auth mit echter Datenbank aktivieren; Registrierung, Anmeldung, Abmeldung, Passwort-Reset, Session-Ablauf und parallele Sitzungen Ende-zu-Ende testen.
+- [ ] Autorisierung auf jeder serverseitigen Lese- und Schreibroute prüfen: Nutzer dürfen ausschließlich eigene bzw. freigegebene Datensätze sehen und ändern.
+- [ ] Sicherheitsreview der RLS-/DB-Rechte und aller serverseitigen Datenzugriffe durchführen. Die Supabase-Meldungen `rls_enabled_no_policy` sind derzeit INFO-Hinweise; die fehlenden Policies dürfen nicht pauschal ergänzt werden, solange die Anwendung ausschließlich über den privaten Server-DB-Zugang arbeitet. Architektur und tatsächliche Zugriffspfade müssen vor Freigabe erneut geprüft werden.
+- [ ] Sicheren Supabase Storage für Inseratbilder und Videos einrichten; Daten-URLs in Datenbankdatensätzen durch Storage-Objektpfade ersetzen.
+- [ ] Upload-Limits, Dateitypen, Größenlimits, Zugriffsschutz, Malware-Prüfung und Lösch-/Aufbewahrungsregeln testen.
+- [ ] Video-Upload und Wiedergabe vollständig implementieren und Ende-zu-Ende testen. Vorgesehene Regeln: entweder 1 Video bis 60 Sekunden, 2 Videos bis je 30 Sekunden oder 4 Videos bis je 20 Sekunden; insgesamt höchstens 60 Sekunden.
+- [ ] Echte ID-Austria-Anbindung samt Anbieterfreigabe, Rückruf-/Signaturprüfung und Datenschutzprüfung integrieren. Ein Mock ist keine Identitätsprüfung.
+- [ ] Treuhand mit realen, berechtigten Moderatorenkonten und manipulationssicherer Abstimmungs-/Auditspur testen; keine Demo-Stimmen für reale Tauschvorgänge verwenden.
+- [ ] Mehrbenutzer-Ende-zu-Ende-Tests für Inserate, Nachrichten, Benachrichtigungen, Tauschanfragen, Buchungen, Punktebuchungen, Treuhand und Konfliktfälle durchführen.
+- [ ] Rate-Limits, CSRF-/Origin-Schutz, Session-Cookies, Eingabevalidierung, Protokollierung ohne Geheimnisse und Missbrauchsschutz prüfen.
+- [ ] Backup-/Restore-Verfahren, Monitoring, Fehleralarme, Datenschutz-/Impressums-/AGB-Texte und Supportprozess festlegen.
+- [ ] Android-Geräte- und Browserprüfung mit realen Testkonten durchführen.
+- [ ] Abschließende unabhängige Sicherheitsprüfung und Freigabe dokumentieren.
+
+## Aktueller Freigabestatus
+
+**Nicht produktionsbereit.** Die Testdemo kann separat geprüft werden. Der aktuelle Preview-Stand ist älter als der neueste Commit mit der Produktionssperre. Eine neue Vercel-Preview-Bereitstellung war wegen des erreichten Deployment-Tageslimits vorübergehend nicht möglich. Die Demo darf nicht als produktionsreife Plattform oder als echte Mehrbenutzerlösung beworben werden.
+
+## Schutzregeln
+
+- Keine Secrets, Passwörter oder Datenbankkennwörter in Git oder Chat eintragen.
+- Demo- und Produktionsumgebung getrennt halten.
+- Authentifizierung nicht aktivieren, bevor Datenbankverbindung und Autorisierung getestet sind.
+- Keine Migration oder RLS-Policy pauschal auf Produktionsdaten anwenden, ohne Auswirkungen und Rollback zu prüfen.
+- Keine Freigabe allein aufgrund eines grünen CI-Builds.
