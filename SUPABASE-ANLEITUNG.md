@@ -56,3 +56,9 @@ Migration 0011 begrenzt normale Inserat-Nachrichten pro Benutzer auf 12 innerhal
 
 
 Die Limits werden durch atomare Datenbankzähler pro Konto durchgesetzt: maximal 12 Nachrichten pro Minute und 80 pro Stunde. Die Zählertabelle ist ebenfalls mit RLS gesperrt und für Browserrollen nicht zugänglich.
+
+### Inseratvideos
+
+Die Plattform unterstützt beim Erstellen eines Inserats diese Varianten: 1 Video bis 60 Sekunden, 2 Videos bis je 30 Sekunden oder 4 Videos bis je 20 Sekunden; die Gesamtzeit bleibt auf 60 Sekunden begrenzt. Die Videos werden direkt vom Gerät in Vercel Blob hochgeladen, nicht über den App-Server. Pro Datei gilt zusätzlich eine Größenbegrenzung von 50 MB. Die Datenbank speichert nur die Video-URLs beim Inserat.
+
+Der Upload-Endpunkt verlangt eine echte angemeldete Person, prüft den Same-Site-Aufruf und vergibt nur kurzlebige Upload-Berechtigungen für den eigenen Benutzerpfad und die erlaubten Videoformate. In der gemeinsamen Demo mit deaktivierter Anmeldung bleiben Video-Uploads absichtlich gesperrt. Für den öffentlichen Betrieb müssen daher zuerst persönliche Anmeldung, `DATABASE_URL` und `BETTER_AUTH_SECRET` in Vercel korrekt eingerichtet und geprüft sein. Der vorhandene Vercel-Blob-Speicher benötigt außerdem ein gültiges `BLOB_READ_WRITE_TOKEN`; den geheimen Wert niemals im Chat teilen.
