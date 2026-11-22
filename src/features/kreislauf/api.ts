@@ -207,7 +207,7 @@ export const getBoard = createServerFn({ method: "GET" })
     if (!region) throw new Error("Keine Region angelegt");
     const sql = await getSql();
     const [listingRows, statRows, ledgerRows] = await Promise.all([
-      sql.query<Row>(`${LISTING_SQL} where l.region_id = $1 order by l.created_at desc`, [region.id]),
+      sql.query<Row>(`${LISTING_SQL} where l.region_id = $1 and l.status not in ('maintenance', 'paused') order by l.created_at desc`, [region.id]),
       sql.query<Row>(
         `select
            coalesce(sum(karma_balance), 0)::int as "inCirculation",
