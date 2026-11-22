@@ -15,6 +15,7 @@ test("Supabase production setup includes all current application migrations", ()
     "0007_harden_function_search_path.sql",
     "0009_lock_down_legacy_tables.sql",
     "0010_lock_down_default_privileges.sql",
+    "0011_limit_listing_message_rate.sql",
   ]) {
     assert.ok(sql.includes(name), `missing migration ${name}`);
   }
@@ -66,4 +67,13 @@ test("future public-schema objects are not granted to browser roles by default",
 test("Supabase migration bookkeeping is protected by RLS", () => {
   assert.match(sql, /alter table public\._migrations enable row level security/);
   assert.match(sql, /public\._migrations[\s\S]*?from anon, authenticated/);
+});
+
+test("listing chat has database-enforced per-account anti-spam limits", async () => {
+  const migration = await readFile(new URL("../migrations/0011_limit_listing_message_rate.sql", import.meta.url), "utf8");
+  assert.match(migration, /pg_advisory_xact_lock/);
+  assert.match(migration, /v_minute_count >= 12/);
+  assert.match(migration, /v_hour_count >= 80/);
+  assert.match(migration, /before insert on public\.listing_messages/i);
+  assert.match(migration, /message_kind <> 'user'/);
 });
