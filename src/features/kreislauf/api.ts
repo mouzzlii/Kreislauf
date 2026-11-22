@@ -96,6 +96,7 @@ function mapListing(row: Row): Listing {
     priceKarma: asNumber(row.priceKarma),
     status: asString(row.status, "active") as ListingStatus,
     images: asImages(row.images),
+    videoUrls: asImages(row.videoUrls),
     lat: asNumber(row.lat),
     lng: asNumber(row.lng),
     placeLabel: asString(row.placeLabel),
@@ -133,7 +134,7 @@ const REGION_SQL = `
 const LISTING_SQL = `
   select l.id, l.user_id as "userId", l.region_id as "regionId", l.title, l.description,
     l.category, l.offer_type as "offerType", l.item_uuid as "itemUuid", l.hands_count as "handsCount",
-    l.price_karma as "priceKarma", l.status, l.images, round(l.lat::numeric, 2)::float8 as lat, round(l.lng::numeric, 2)::float8 as lng,
+    l.price_karma as "priceKarma", l.status, l.images, l.video_urls as "videoUrls", round(l.lat::numeric, 2)::float8 as lat, round(l.lng::numeric, 2)::float8 as lng,
     l.place_label as "placeLabel", l.asset_kind as "assetKind",
     to_char(l.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt",
     p.username as "ownerName",
@@ -516,10 +517,21 @@ export const createListing = createServerFn({ method: "POST" })
     if (imageDataUrls.reduce((total, image) => total + image.length, 0) > 1_000_000) {
       throw new Error("Alle Fotos zusammen dürfen maximal 1 MB groß sein. Bitte wähle kleinere Bilder.");
     }
+    const rawVideoUrls = Array.isArray(source.videoUrls) ? source.videoUrls : [];
+    if (rawVideoUrls.length > 4) throw new Error("Maximal 4 Videos pro Inserat");
+    const videoUrls = rawVideoUrls.map((value) => {
+      if (typeof value !== "string" || value.length > 2048) throw new Error("Ungültiges Video");
+      let parsed: URL;
+      try { parsed = new URL(value); } catch { throw new Error("Ungültiger Video-Link"); }
+      if (parsed.protocol !== "https:" || !parsed.hostname.endsWith(".public.blob.vercel-storage.com") || !parsed.pathname.includes("/listings/")) {
+        throw new Error("Videos müssen über den sicheren KREISLAUF-Upload gespeichert werden.");
+      }
+      return value;
+    });
     const lat = typeof source.lat === "number" ? source.lat : null;
     const lng = typeof source.lng === "number" ? source.lng : null;
     const itemUuid = typeof source.itemUuid === "string" && /^item-[a-z0-9-]{8,80}$/.test(source.itemUuid) ? source.itemUuid : null;
-    return { regionId, title, description, category, offerType, priceKarma, placeLabel, imageDataUrls, lat, lng, what3wordsAddress, itemUuid };
+    return { regionId, title, description, category, offerType, priceKarma, placeLabel, imageDataUrls, videoUrls, lat, lng, what3wordsAddress, itemUuid };
   })
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
@@ -551,6 +563,10 @@ export const createListing = createServerFn({ method: "POST" })
       handsCount = asNumber(owned[0].hands_count);
     }
     const images = data.imageDataUrls;
+    for (const videoUrl of data.videoUrls) {
+      const pathname = new URL(videoUrl).pathname;
+      if (!pathname.includes(`/listings/${encodeURIComponent(context.userId)}/`)) throw new Error("Dieses Video gehört nicht zu deinem Konto.");
+    }
     const assetKind = data.category === "sharing" ? "tool" : null;
     // One SQL statement makes the listing and its ownership-history event atomic:
     // either both rows commit, or neither row is persisted.
@@ -558,8 +574,8 @@ export const createListing = createServerFn({ method: "POST" })
       `with created_listing as (
          insert into listings (
            id, user_id, region_id, title, description, category, offer_type, price_karma, status,
-           images, lat, lng, place_label, asset_kind, item_uuid, what3words_address, hands_count
-         ) values ($1,$2,$3,$4,$5,$6,$7,$8,'active',$9::jsonb,$10,$11,$12,$13,$14,$15,$16)
+           images, video_urls, lat, lng, place_label, asset_kind, item_uuid, what3words_address, hands_count
+         ) values ($1,$2,$3,$4,$5,$6,$7,$8,'active',$9::jsonb,$10::jsonb,$11,$12,$13,$14,$15,$16,$17)
          returning id
        )
        insert into item_history (item_uuid, listing_id, owner_id, place_label, event_kind)
@@ -575,6 +591,7 @@ export const createListing = createServerFn({ method: "POST" })
         data.offerType,
         data.priceKarma,
         JSON.stringify(images),
+        JSON.stringify(data.videoUrls),
         lat,
         lng,
         data.placeLabel,
