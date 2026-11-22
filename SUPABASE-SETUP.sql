@@ -125,7 +125,7 @@ create table if not exists listings (
   description text not null,
   category text not null check (category in ('goods', 'service', 'sharing')),
   price_karma integer not null check (price_karma >= 0 and price_karma <= 5000),
-  status text not null check (status in ('active', 'booked', 'completed', 'maintenance')),
+  status text not null check (status in ('active', 'booked', 'completed', 'maintenance', 'paused')),
   images jsonb not null default '[]'::jsonb,
   lat double precision not null,
   lng double precision not null,
@@ -872,7 +872,8 @@ insert into _migrations(name) values
   ('0010_lock_down_default_privileges.sql'),
   ('0011_limit_listing_message_rate.sql'),
   ('0012_atomic_listing_message_rate_limits.sql'),
-  ('0013_listing_video_urls.sql')
+  ('0013_listing_video_urls.sql'),
+  ('0015_listing_paused_status.sql')
 on conflict (name) do nothing;
 
 commit;
