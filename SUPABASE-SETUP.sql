@@ -646,6 +646,9 @@ $sequence_permissions$;
 revoke all on function public.apply_demurrage() from public;
 revoke all on function public.kreislauf_system_message(text, text, text, text) from public;
 
+alter table public.listings add column if not exists video_urls jsonb not null default '[]'::jsonb;
+do $ begin if not exists (select 1 from pg_constraint where conname='listings_video_urls_array_check') then alter table public.listings add constraint listings_video_urls_array_check check (jsonb_typeof(video_urls)='array' and jsonb_array_length(video_urls)<=4); end if; end $;
+
 alter table public._migrations enable row level security;
 alter table public.regions enable row level security;
 alter table public.profiles enable row level security;
@@ -866,7 +869,8 @@ insert into _migrations(name) values
   ('0009_lock_down_legacy_tables.sql'),
   ('0010_lock_down_default_privileges.sql'),
   ('0011_limit_listing_message_rate.sql'),
-  ('0012_atomic_listing_message_rate_limits.sql')
+  ('0012_atomic_listing_message_rate_limits.sql'),
+  ('0013_listing_video_urls.sql')
 on conflict (name) do nothing;
 
 commit;
