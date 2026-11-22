@@ -28,7 +28,15 @@ Die derzeitige Vorschau verwendet absichtlich einen gemeinsamen Demo-Zugang. **E
 3. Danach zuerst Konto anlegen, abmelden und wieder anmelden testen. E-Mail/Passwort ist in der Anmeldemaske vorgesehen.
 4. Google/X-Anmeldung benötigt zusätzlich eine eigene, für die KREISLAUF-Domain freigeschaltete Broker-Anwendung. Dafür sind `GROK_AUTH_ISSUER`, `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` erforderlich. Diese Werte müssen vom Betreiber des Auth-Brokers bereitgestellt werden; die Vorschau-Zugangsdaten sind keine Produktions-Zugangsdaten.
 
-Die SQL-Datei markiert die Migrationen `0001_auth.sql` bis `0006_escrow_cancellation.sql` als angewendet. Dadurch werden sie beim ersten Build mit DATABASE_URL nicht nochmals ausgeführt.
+Die SQL-Datei markiert die Migrationen `0001_auth.sql` bis `0007_harden_function_search_path.sql` als angewendet und setzt für Datenbankfunktionen einen festen `search_path`. Dadurch werden sie beim ersten Build mit DATABASE_URL nicht nochmals ausgeführt.
+
+
+## 4. Sicherheitsprüfung vor dem öffentlichen Start
+
+- Die App greift serverseitig mit einer privaten PostgreSQL-Verbindung auf die Datenbank zu. Diese Verbindung darf niemals im Browser landen.
+- Supabase meldet bei älteren, nicht mehr verwendeten Tabellen `legacy_bookings` und `rentals` deaktivierte RLS. Vorhandene Daten und Abhängigkeiten müssen vor einer Änderung geprüft werden; diese Tabellen nicht öffentlich freigeben.
+- Die neuen KREISLAUF-Tabellen haben RLS aktiviert. Die App nutzt für den Datenzugriff serverseitige, sitzungsgeprüfte Funktionen; direkte Browserzugriffe über die Supabase-API sind nicht als App-Zugriffsweg vorgesehen.
+- Vor Freigabe müssen Registrierung, Anmeldung, Abmeldung, Mehrbenutzer-Isolation, Nachrichten, Tausch, Punktebuchungen und Treuhand mit getrennten Testkonten erfolgreich getestet werden.
 
 ## Noch nicht enthalten
 
