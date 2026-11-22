@@ -843,6 +843,7 @@ export const reserveListing = createServerFn({ method: "POST" })
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
       throw new Error("Zeitfenster fehlt");
     }
+    if (start.getTime() < Date.now()) throw new Error("Eine Reservierung muss in der Zukunft beginnen");
     const hours = (end.getTime() - start.getTime()) / 36e5;
     if (hours < 1 || hours > 24 * 14) throw new Error("Buchung zwischen 1 Stunde und 14 Tagen");
     return { id, startsAt: start.toISOString(), endsAt: end.toISOString() };
