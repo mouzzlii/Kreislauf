@@ -325,7 +325,9 @@ export const getListingBooking = createServerFn({ method: "GET" })
          to_char(b.ends_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "endsAt",
          b.status, b.amount_karma as "amountKarma",
          (b.renter_handover_at is not null) as "renterConfirmed",
-         (b.owner_handover_at is not null) as "ownerConfirmed"
+         (b.owner_handover_at is not null) as "ownerConfirmed",
+         (b.renter_return_at is not null) as "renterReturned",
+         (b.owner_return_at is not null) as "ownerReturned"
        from bookings b
        join profiles renter on renter.user_id = b.renter_id
        join profiles owner on owner.user_id = b.owner_id
@@ -350,6 +352,8 @@ export const getListingBooking = createServerFn({ method: "GET" })
       amountKarma: asNumber(row.amountKarma),
       renterConfirmed: row.renterConfirmed === true,
       ownerConfirmed: row.ownerConfirmed === true,
+      renterReturned: row.renterReturned === true,
+      ownerReturned: row.ownerReturned === true,
     };
   });
 
@@ -978,35 +982,58 @@ export const transitionBooking = createServerFn({ method: "POST" })
       return rows.length ? { ok: true } : fail("Storno nur solange noch nichts übergeben wurde.");
     }
     if (data.action === "return") {
-      const rows = await sql.query(
+      const rows = await sql.query<{
+        renterReturned: boolean;
+        ownerReturned: boolean;
+        completed: boolean;
+      }>(
         `with escrow_guard as materialized (
            select id, status from escrow_cases
            where booking_id = $1
            for update
          ),
-         b as (
-           select id, listing_id from bookings
+         b as materialized (
+           select * from bookings
            where id = $1 and status = 'handed_over' and (renter_id = $2 or owner_id = $2)
              and not exists (select 1 from escrow_guard where status = 'disputed')
            for update
          ),
-         upd as (
-           update bookings set status = 'returned'
-           where id = (select id from b)
-           returning listing_id
+         confirmed as (
+           update bookings as booking
+           set renter_return_at = case
+                 when booking.renter_id = $2 then coalesce(booking.renter_return_at, now())
+                 else booking.renter_return_at
+               end,
+               owner_return_at = case
+                 when booking.owner_id = $2 then coalesce(booking.owner_return_at, now())
+                 else booking.owner_return_at
+               end,
+               status = case
+                 when coalesce(booking.renter_return_at, case when booking.renter_id = $2 then now() end) is not null
+                  and coalesce(booking.owner_return_at, case when booking.owner_id = $2 then now() end) is not null
+                 then 'returned'
+                 else booking.status
+               end
+           from b
+           where booking.id = b.id
+           returning booking.*
          ),
-         escrow_cancel as (
-           update escrow_cases set status = 'cancelled', resolved_at = now()
-           where booking_id = $1 and status = 'pending'
-             and exists (select 1 from b)
+         reactivated as (
+           update listings set status = 'active'
+           where id = (select listing_id from confirmed where status = 'returned')
            returning id
          )
-         update listings set status = 'active'
-         where id = (select listing_id from upd)
-         returning id`,
+         select
+           confirmed.renter_return_at is not null as "renterReturned",
+           confirmed.owner_return_at is not null as "ownerReturned",
+           confirmed.status = 'returned' and exists (select 1 from reactivated) as completed
+         from confirmed`,
         [data.id, context.userId],
       );
-      return rows.length ? { ok: true } : fail("Rückgabe nicht möglich. Eine strittige Treuhand muss zuerst geklärt werden.");
+      const confirmation = rows[0];
+      if (!confirmation) return fail("Rückgabe nicht möglich. Prüfe Buchung, Berechtigung und ob ein Streitfall offen ist.");
+      return { ok: true };
+    }
     }
     const rows = await sql.query<{
       renterConfirmed: boolean;
