@@ -361,21 +361,22 @@ export const ensureProfile = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .handler(async ({ data, context }): Promise<Profile> => {
     const sql = await getSql();
-    const created = await sql.query<{ userId: string }>(
-      `insert into profiles (user_id, username, region_id, karma_balance)
-       select $1, $2, id, $3 from regions where id = $4
-       on conflict (user_id) do nothing
-       returning user_id as "userId"`,
+    // Profile creation and its initial regional Karma mint must commit together.
+    // If either insert fails, the single SQL statement rolls both back; retries
+    // cannot leave a profile without its matching ledger entry.
+    await sql.query(
+      `with created_profile as (
+         insert into profiles (user_id, username, region_id, karma_balance, last_active_at)
+         select $1, $2, id, $3, now() from regions where id = $4
+         on conflict (user_id) do nothing
+         returning user_id, region_id
+       )
+       insert into ledger_entries (region_id, sender_id, receiver_id, amount_karma, entry_kind, message)
+       select region_id, null, user_id, $3, 'mint', 'Startguthaben der Region'
+       from created_profile`,
       [context.userId, data.username, WELCOME_KARMA, data.regionId],
     );
     await sql.query(`update profiles set last_active_at = now() where user_id = $1`, [context.userId]);
-    if (created.length > 0) {
-      await sql.query(
-        `insert into ledger_entries (region_id, sender_id, receiver_id, amount_karma, entry_kind, message)
-         values ($1, null, $2, $3, 'mint', 'Startguthaben der Region')`,
-        [data.regionId, context.userId, WELCOME_KARMA],
-      );
-    }
     const profile = await loadProfile(context.userId);
     if (!profile) throw new Error("Profil konnte nicht angelegt werden");
     return profile;
