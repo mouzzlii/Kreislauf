@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Map, Moon, Plus, Store, Sun, Wallet } from "lucide-react";
-import type { ReactNode } from "react";
+import { Bell, Map, Moon, Plus, Store, Sun, Wallet } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 import { SignedIn, SignedOut } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import { formatKarma } from "@/features/kreislauf/format";
+import { getUnreadListingNotifications, type ListingNotification } from "@/features/kreislauf/api";
 import type { Region } from "@/features/kreislauf/types";
 
 const NAV = [
@@ -24,6 +25,29 @@ export function Shell({
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { user, isPending } = useCurrentUserState();
   const { regionId, setRegion, profile, theme, toggleTheme } = useKreislauf();
+  const [notifications, setNotifications] = useState<ListingNotification[]>([]);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const unreadCount = notifications.reduce((total, item) => total + item.unreadCount, 0);
+
+  useEffect(() => {
+    if (!user) {
+      setNotifications([]);
+      setNotificationsOpen(false);
+      return;
+    }
+    let cancelled = false;
+    const refresh = () => {
+      getUnreadListingNotifications()
+        .then((items) => { if (!cancelled) setNotifications(items); })
+        .catch(() => { if (!cancelled) setNotifications([]); });
+    };
+    refresh();
+    const interval = window.setInterval(refresh, 30_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [user?.id, pathname]);
 
   return (
     <div className="min-h-dvh bg-bg text-fg">
@@ -51,6 +75,55 @@ export function Shell({
             })}
           </nav>
           <div className="ml-auto flex items-center gap-2 md:ml-0">
+            {user ? (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setNotificationsOpen((open) => !open)}
+                  aria-label={unreadCount > 0 ? `${unreadCount} ungelesene Nachrichten` : "Benachrichtigungen"}
+                  aria-expanded={notificationsOpen}
+                  className="relative grid h-11 w-11 place-items-center rounded-lg text-muted hover:bg-elev"
+                >
+                  <Bell className="h-4 w-4" aria-hidden="true" />
+                  {unreadCount > 0 ? (
+                    <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-copper px-1 text-[10px] font-semibold text-white">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  ) : null}
+                </button>
+                {notificationsOpen ? (
+                  <div className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-line bg-elev shadow-xl">
+                    <div className="border-b border-line px-4 py-3">
+                      <p className="font-medium text-fg">Benachrichtigungen</p>
+                      <p className="mt-0.5 text-xs text-subtle">Neue Nachrichten zu deinen Inseraten</p>
+                    </div>
+                    {notifications.length === 0 ? (
+                      <p className="px-4 py-6 text-center text-sm text-muted">Keine neuen Nachrichten.</p>
+                    ) : (
+                      <ul className="max-h-80 divide-y divide-line overflow-y-auto">
+                        {notifications.map((item) => (
+                          <li key={item.listingId}>
+                            <Link
+                              to="/inserat/$listingId"
+                              params={{ listingId: item.listingId }}
+                              onClick={() => setNotificationsOpen(false)}
+                              className="block px-4 py-3 hover:bg-elev-2"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <p className="min-w-0 text-sm font-medium text-fg">{item.otherName} · {item.listingTitle}</p>
+                                <span className="shrink-0 rounded-full bg-forest/10 px-2 py-0.5 text-[11px] text-forest">{item.unreadCount} neu</span>
+                              </div>
+                              <p className="mt-1 line-clamp-2 text-xs text-muted">{item.lastMessage}</p>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <p className="border-t border-line px-4 py-2 text-[11px] text-subtle">Die Unterhaltung bleibt direkt mit dem Inserat verknüpft.</p>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
             {isPending ? (
               <span className="h-9 w-16 animate-pulse rounded-lg bg-elev-2" />
             ) : profile && user ? (
