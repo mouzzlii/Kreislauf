@@ -11,6 +11,8 @@ const setupSql = await readFile(new URL("../SUPABASE-SETUP.sql", import.meta.url
 const messagingSql = await readFile(new URL("../migrations/0004_messages_escrow.sql", import.meta.url), "utf8");
 const escrowPanel = await readFile(new URL("../src/components/escrow-panel.tsx", import.meta.url), "utf8");
 const vercelConfig = await readFile(new URL("../vercel.json", import.meta.url), "utf8");
+const authClient = await readFile(new URL("../src/lib/auth/client.ts", import.meta.url), "utf8");
+const authPopup = await readFile(new URL("../src/lib/auth/popup.server.ts", import.meta.url), "utf8");
 
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
@@ -141,4 +143,12 @@ test("every mutating or private server function enforces verified identity", () 
       assert.match(source, /\.middleware\(\[authMiddleware\]\)/, match[1] + " must require verified identity");
     }
   });
+});
+
+
+test("Better Auth generic OAuth uses the patched 1.7 social sign-in API", () => {
+  assert.doesNotMatch(authClient, /genericOAuthClient|signIn\\.oauth2/);
+  assert.match(authClient, /authClient\\.signIn\\.social\\(\\{\\s*provider: providerId/);
+  assert.doesNotMatch(authPopup, /signInWithOAuth2/);
+  assert.match(authPopup, /auth\\.api\\.signInSocial/);
 });
