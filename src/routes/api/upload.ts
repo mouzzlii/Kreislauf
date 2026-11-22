@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { handleUpload } from "@vercel/blob/client";
+import { validateVideoUpload } from "@/features/kreislauf/video-upload";
 
 export const Route = createFileRoute("/api/upload")({
   server: {
@@ -7,42 +8,59 @@ export const Route = createFileRoute("/api/upload")({
       POST: async ({ request }) => {
         try {
           const { authConfigured, requireUserId } = await import("@/lib/auth/verify.server");
-          const { assertSameSiteRequest } = await import("@/lib/auth/isolation.server");
-          assertSameSiteRequest();
-          if (!authConfigured) {
+          const { assertSameSiteRequest, CrossSiteRequestError } = await import("@/lib/auth/isolation.server");
+
+          if (!authConfigured || !process.env.DATABASE_URL?.trim()) {
             return Response.json(
-              { error: "Video-Uploads benötigen persönliche, aktivierte Konten." },
-              { status: 503 },
+              { error: "Video-Uploads benötigen persönliche Konten und eine dauerhafte Datenbank." },
+              { status: 503, headers: { "Cache-Control": "no-store" } },
             );
           }
+          if (!process.env.BLOB_READ_WRITE_TOKEN?.trim()) {
+            return Response.json(
+              { error: "Der sichere Medienspeicher ist noch nicht konfiguriert." },
+              { status: 503, headers: { "Cache-Control": "no-store" } },
+            );
+          }
+
+          assertSameSiteRequest();
           const userId = await requireUserId();
           const body = await request.json();
           const response = await handleUpload({
             body,
             request,
             onBeforeGenerateToken: async (pathname, clientPayload) => {
-              const prefix = `listings/${encodeURIComponent(userId)}/`;
-              const filename = pathname.startsWith(prefix) ? pathname.slice(prefix.length) : "";
-              if (!/^[0-9a-f-]{36}\.(mp4|webm|mov)$/i.test(filename)) throw new Error("Ungültiger Upload-Pfad");
-              let payload: { duration?: unknown };
-              try { payload = JSON.parse(clientPayload ?? "{}"); } catch { throw new Error("Ungültige Videodaten"); }
-              if (typeof payload.duration !== "number" || !Number.isFinite(payload.duration) || payload.duration <= 0 || payload.duration > 60) {
-                throw new Error("Videos dürfen maximal 60 Sekunden lang sein.");
-              }
+              const metadata = validateVideoUpload(pathname, userId, clientPayload);
               return {
                 allowedContentTypes: ["video/mp4", "video/webm", "video/quicktime"],
                 maximumSizeInBytes: 50 * 1024 * 1024,
                 addRandomSuffix: false,
                 allowOverwrite: false,
-                tokenPayload: JSON.stringify({ userId }),
+                tokenPayload: JSON.stringify({ userId, duration: metadata.duration }),
               };
             },
+            onUploadCompleted: async ({ blob, tokenPayload }) => {
+              let payload: unknown;
+              try { payload = JSON.parse(tokenPayload ?? ""); } catch { throw new Error("Ungültige Upload-Freigabe"); }
+              if (!payload || typeof payload !== "object" ||
+                  !("userId" in payload) ||
+                  (payload as { userId: unknown }).userId !== userId ||
+                  !blob.pathname.startsWith(`listings/${encodeURIComponent(userId)}/`)) {
+                throw new Error("Video gehört nicht zum angemeldeten Konto");
+              }
+            },
           });
-          return Response.json(response);
+          return Response.json(response, { headers: { "Cache-Control": "no-store" } });
         } catch (error) {
           const message = error instanceof Error ? error.message : "Upload nicht möglich";
-          const status = message === "Unauthorized" ? 401 : 400;
-          return Response.json({ error: message }, { status });
+          const status = message === "Unauthorized" ? 401
+            : error instanceof Error && error.name === "CrossSiteRequestError" ? 403 : 400;
+          return Response.json(
+            { error: status === 401 ? "Bitte melde dich erneut an."
+              : status === 403 ? "Upload-Anfrage wurde aus Sicherheitsgründen blockiert."
+                : message },
+            { status, headers: { "Cache-Control": "no-store" } },
+          );
         }
       },
     },
