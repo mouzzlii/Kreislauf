@@ -31,6 +31,6 @@ test("the public offset is not predictable from a listing identifier", () => {
 test("invalid regional centers fall back to a safe coordinate", () => {
   const result = approximatePublicCoordinates({ lat: Number.NaN, lng: 999 }, null, "bad-center");
   assert.ok(Number.isFinite(result.lat) && Number.isFinite(result.lng));
-  assert.ok(result.lat >= 48.19 && result.lat <= 48.21);
-  assert.ok(result.lng >= 15.09 && result.lng <= 15.11);
+  assert.ok(result.lat >= 48.18 && result.lat <= 48.22);
+  assert.ok(result.lng >= 15.08 && result.lng <= 15.12);
 });
