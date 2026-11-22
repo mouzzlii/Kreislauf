@@ -616,6 +616,33 @@ begin
 end;
 $permissions$;
 
+-- Security hardening: browser-facing Supabase roles must not read or mutate app data.
+-- KREISLAUF accesses PostgreSQL only from the server with the private connection string.
+revoke all on all tables in schema public from anon, authenticated;
+revoke all on all sequences in schema public from anon, authenticated;
+revoke all on all functions in schema public from public;
+alter default privileges in schema public revoke all on tables from anon, authenticated;
+alter default privileges in schema public revoke all on sequences from anon, authenticated;
+alter default privileges in schema public revoke execute on functions from public;
+
+alter table public._migrations enable row level security;
+alter table public.regions enable row level security;
+alter table public.profiles enable row level security;
+alter table public.listings enable row level security;
+alter table public.bookings enable row level security;
+alter table public.reviews enable row level security;
+alter table public.ledger_entries enable row level security;
+alter table public.item_history enable row level security;
+alter table public.escrow_cases enable row level security;
+alter table public.listing_conversations enable row level security;
+alter table public.listing_messages enable row level security;
+alter table public.escrow_moderators enable row level security;
+alter table public.escrow_votes enable row level security;
+alter table public."user" enable row level security;
+alter table public."session" enable row level security;
+alter table public."account" enable row level security;
+alter table public."verification" enable row level security;
+
 -- Mark the bundled migrations as applied so the app does not rerun them at deploy.
 insert into _migrations(name) values
   ('0001_auth.sql'),
