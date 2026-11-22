@@ -50,8 +50,8 @@ begin
       where l.id = v_case.listing_id and l.status = 'booked' for update;
 
       if not found or v_case.requester_id is null or v_case.requester_id = v_listing.seller_id then
-        update escrow_cases set status = 'disputed', resolved_at = now()
-        where id = v_case.id and status = 'pending';
+        update escrow_cases as ec set status = 'disputed', resolved_at = now()
+        where ec.id = v_case.id and ec.status = 'pending';
       else
         perform p.user_id from profiles p
         where p.user_id in (v_case.requester_id, v_listing.seller_id)
@@ -63,8 +63,8 @@ begin
         where p.user_id = v_case.requester_id;
 
         if v_profile_count <> 2 or v_buyer_balance < v_listing.price_karma then
-          update escrow_cases set status = 'disputed', resolved_at = now()
-          where id = v_case.id and status = 'pending';
+          update escrow_cases as ec set status = 'disputed', resolved_at = now()
+          where ec.id = v_case.id and ec.status = 'pending';
         else
           update profiles p
           set karma_balance = p.karma_balance +
@@ -90,17 +90,17 @@ begin
           insert into item_history(item_uuid, listing_id, owner_id, place_label, event_kind)
           values (v_listing.item_uuid, v_listing.id, v_case.requester_id, v_listing.place_label, 'transferred');
 
-          update escrow_cases set status = 'released', resolved_at = now()
-          where id = v_case.id and status = 'pending';
+          update escrow_cases as ec set status = 'released', resolved_at = now()
+          where ec.id = v_case.id and ec.status = 'pending';
         end if;
       end if;
     else
-      update escrow_cases set status = 'released', resolved_at = now()
-      where id = v_case.id and status = 'pending';
+      update escrow_cases as ec set status = 'released', resolved_at = now()
+      where ec.id = v_case.id and ec.status = 'pending';
     end if;
   elsif v_votes >= 4 and v_rejections >= ceil(v_votes * 2.0 / 3.0) then
-    update escrow_cases set status = 'disputed', resolved_at = now()
-    where id = v_case.id and status = 'pending';
+    update escrow_cases as ec set status = 'disputed', resolved_at = now()
+    where ec.id = v_case.id and ec.status = 'pending';
   end if;
 
   select e.* into v_case from escrow_cases e where e.id = v_case.id;
