@@ -1,0 +1,26 @@
+name: KREISLAUF – Supabase PostgreSQL Smoke-Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  supabase-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v5
+        with:
+          ref: demo/local-auth-off
+      - name: Node.js einrichten
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Abhängigkeiten installieren
+        run: npm ci --no-audit --no-fund
+      - name: Supabase PostgreSQL testen (nur temporäre Transaktion)
+        env:
+          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+        run: node scripts/supabase-db-smoke.mjs
