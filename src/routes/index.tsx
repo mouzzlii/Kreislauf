@@ -67,7 +67,7 @@ function Home() {
       </div>
 
       <div className="mt-8 flex flex-wrap gap-2" aria-label="Inseratstyp">
-        {[{ id: "all", label: "Alle Inserate" }, { id: "sell", label: "Biete" }, { id: "search", label: "Suche" }, { id: "gift", label: "Verschenke" }].map((item) => (
+        {[{ id: "all", label: "Alle Inserate" }, { id: "sell", label: "Angebote" }, { id: "search", label: "Gesuche" }, { id: "gift", label: "Verschenke" }].map((item) => (
           <button key={item.id} type="button" aria-pressed={offerFilter === item.id}
             onClick={() => setOfferFilter(item.id as typeof offerFilter)}
             className={`h-10 rounded-full px-4 text-sm ${offerFilter === item.id ? "bg-forest text-paper" : "border border-line bg-elev text-fg"}`}>
@@ -94,7 +94,7 @@ function Home() {
           onClick={() => setNear((value) => !value)}
           className={`h-11 shrink-0 rounded-full px-4 text-sm ${near ? "bg-forest text-paper" : "border border-line bg-elev text-fg"}`}
         >
-          Bis 5 km
+          In der Nähe · 5 km
         </button>
         <button
           type="button"
