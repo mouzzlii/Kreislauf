@@ -320,6 +320,9 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     const beforeHandover = await db.query(
       "select user_id, karma_balance from profiles where user_id in ('test-renter', 'seed-leonie') order by user_id",
     );
+    const beforeHandoverBalances = Object.fromEntries(
+      beforeHandover.rows.map((row) => [row.user_id, row.karma_balance]),
+    );
     const firstConfirmation = await db.query(handoverSql, ["test-bilateral-booking", "test-renter"]);
     assert.equal(firstConfirmation.rows[0].renterConfirmed, true);
     assert.equal(firstConfirmation.rows[0].ownerConfirmed, false);
@@ -346,8 +349,8 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
          (select count(*)::int from ledger_entries where booking_id = 'test-bilateral-booking' and entry_kind = 'activity') as activity_count`,
     );
     assert.equal(afterBothConfirmations.rows[0].status, "handed_over");
-    assert.equal(afterBothConfirmations.rows[0].renter_balance, beforeHandover.rows[0].karma_balance - 11);
-    assert.equal(afterBothConfirmations.rows[0].owner_balance, beforeHandover.rows[1].karma_balance + 12);
+    assert.equal(afterBothConfirmations.rows[0].renter_balance, beforeHandoverBalances["test-renter"] - 11);
+    assert.equal(afterBothConfirmations.rows[0].owner_balance, beforeHandoverBalances["seed-leonie"] + 12);
     assert.equal(afterBothConfirmations.rows[0].transfer_count, 1);
     assert.equal(afterBothConfirmations.rows[0].activity_count, 1);
 
