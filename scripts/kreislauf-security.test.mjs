@@ -386,3 +386,8 @@ test("sharing handover and Karma settlement require both booking parties", () =>
   assert.match(listingDetail, /booking\.renterConfirmed[\s\S]*booking\.ownerConfirmed/);
   assert.match(listingDetail, /Karma wird erst nach beiden Bestätigungen übertragen/);
 });
+
+test("sharing reservations cannot be created for a past start time", () => {
+  const reserve = serverFunction("reserveListing");
+  assert.match(reserve, /start\.getTime\(\) < Date\.now\(\)/);
+});
