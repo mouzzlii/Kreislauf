@@ -59,7 +59,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     assert.equal(trigger.rows[0].installed, true, "booking state notifications must be installed");
 
     const applied = await db.query("select name from _migrations order by name");
-    assert.equal(applied.rows.length, 13);
+    assert.equal(applied.rows.length, 14);
   } finally {
     await db.close();
   }
