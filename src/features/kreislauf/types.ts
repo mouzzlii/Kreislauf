@@ -61,6 +61,8 @@ export type Booking = {
   endsAt: string;
   status: BookingStatus;
   amountKarma: number;
+  renterConfirmed: boolean;
+  ownerConfirmed: boolean;
 };
 
 export type LedgerEntry = {
