@@ -276,6 +276,7 @@ test("high-value escrow copy does not promise automatic settlement after moderat
 test("paused listings stay out of both market and map views", () => {
   assert.match(marketRoute, /listing\.status === "maintenance" \|\| listing\.status === "paused"\) return false/);
   assert.match(mapRoute, /!\["completed", "maintenance", "paused"\]\.includes\(listing\.status\)/);
+  assert.match(serverFunction("getBoard"), /l\.status not in \(\x27maintenance\x27, \x27paused\x27\)/);
 });
 
 test("maintenance and user-paused listings remain distinct database states", () => {
