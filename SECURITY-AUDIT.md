@@ -51,3 +51,12 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 
 - `0011_limit_listing_message_rate.sql`: erster Nachrichtenlimit-Schutz.
 - `0012_atomic_listing_message_rate_limits.sql`: atomare, gegen parallele Anfragen gehärtete Zähler; auf dem verbundenen Supabase-Projekt eingespielt.
+
+
+## Medien-Uploads (neuer Stand)
+
+- Inseratvideos werden über einen authentifizierten Vercel-Blob-Client-Upload direkt vom Browser übertragen; der App-Server nimmt keine großen Videodateien entgegen.
+- Der Upload-Endpunkt lehnt Uploads ohne aktivierte echte Anmeldung ab, prüft Same-Site-Anfragen, bindet den Pfad an die verifizierte Benutzer-ID und erlaubt nur MP4, WebM und QuickTime bis 50 MB pro Datei.
+- Inserate speichern höchstens vier Video-URLs; die URLs werden serverseitig auf den eigenen Benutzerpfad und den Vercel-Blob-Host geprüft.
+- Die gemeinsame Demo bleibt absichtlich ohne Video-Upload, solange persönliche Anmeldung deaktiviert ist.
+- Die Dauerprüfung erfolgt in der Browseroberfläche und wird vom Upload-Endpunkt zusätzlich auf höchstens 60 Sekunden je Clip begrenzt. Eine serverseitige Transkodierung/forensische Medienprüfung ist nicht implementiert.
