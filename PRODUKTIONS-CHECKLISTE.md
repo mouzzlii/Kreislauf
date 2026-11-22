@@ -73,3 +73,6 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - Authentifizierung nicht aktivieren, bevor Datenbankverbindung und Autorisierung getestet sind.
 - Keine Migration oder RLS-Policy pauschal auf Produktionsdaten anwenden, ohne Auswirkungen und Rollback zu prüfen.
 - Keine Freigabe allein aufgrund eines grünen CI-Builds.
+
+
+- Profilanlage und regionales Startguthaben werden gemeinsam in einer einzelnen SQL-Anweisung angelegt. Scheitert die Ledger-Buchung, wird auch die Profilanlage zurückgerollt; Wiederholungsaufrufe erzeugen keine zweite Startgutschrift. Regressionstest und CI: Commit `03096699ae94548bc6df00f919de0f6926b5c26a`, Lauf `45069498567` erfolgreich. Dies belegt die Code-Prüfung, nicht die Ausführung gegen die Live-Datenbank.
