@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 const api = await readFile(new URL("../src/features/kreislauf/api.ts", import.meta.url), "utf8");
 const listingMedia = await readFile(new URL("../src/features/kreislauf/media.ts", import.meta.url), "utf8");
 const escrowSql = await readFile(new URL("../migrations/0005_escrow_atomicity.sql", import.meta.url), "utf8");
+const coreSql = await readFile(new URL("../migrations/0003_kreislauf_v2.sql", import.meta.url), "utf8");
 const moderatorSql = await readFile(new URL("../migrations/0004_messages_escrow.sql", import.meta.url), "utf8");
 const cancellationSql = await readFile(new URL("../migrations/0006_escrow_cancellation.sql", import.meta.url), "utf8");
 const legacySql = await readFile(new URL("../migrations/0009_lock_down_legacy_tables.sql", import.meta.url), "utf8");
@@ -49,9 +50,9 @@ test("high-value trades are reserved in community escrow before any settlement",
   assert.match(highValue, /insert into escrow_cases/);
   assert.match(highValue, /update listings set status = 'booked'/);
   assert.doesNotMatch(highValue, /update profiles|insert into ledger_entries/);
-  assert.match(escrowSql, /update profiles[\s\S]*?karma_balance = p\.karma_balance[\s\S]*?where p\.user_id = v_case\.requester_id/);
+  assert.match(escrowSql, /update profiles p[\s\S]*?set karma_balance = p\.karma_balance[\s\S]*?where p\.user_id in \(v_case\.requester_id, v_listing\.seller_id\)/);
   assert.match(escrowSql, /update listings[\s\S]*?set status = 'completed'/);
-  assert.match(moderatorSql, /create unique index if not exists escrow_one_pending_per_listing_idx[\s\S]*?where status = 'pending'/);
+  assert.match(coreSql, /create unique index if not exists escrow_one_pending_per_listing_idx[\s\S]*?where status = 'pending'/);
 });
 
 test("direct trades serialize listing and account locks before settlement", () => {
