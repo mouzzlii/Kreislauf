@@ -63,12 +63,13 @@ function ListingPage() {
   }, [listingId, version]);
 
   useEffect(() => {
+    if (!detail?.listing) { setProviderListings([]); return; }
     let cancel = false;
-    getProviderListings({ data: { id: initial.listing.id, excludeId: listingId } })
+    getProviderListings({ data: { id: listingId, excludeId: listingId } })
       .then((items) => { if (!cancel) setProviderListings(items); })
       .catch(() => { if (!cancel) setProviderListings([]); });
     return () => { cancel = true; };
-  }, [initial.listing.userId, listingId]);
+  }, [detail?.listing.userId, listingId]);
 
   useEffect(() => {
     if (!user) {
