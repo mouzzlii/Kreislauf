@@ -151,4 +151,6 @@ test("Better Auth generic OAuth uses the patched 1.7 social sign-in API", () => 
   assert.match(authClient, /authClient\.signIn\.social\(\{\s*provider: providerId/);
   assert.doesNotMatch(authPopup, /signInWithOAuth2/);
   assert.match(authPopup, /auth\.api\.signInSocial/);
+  assert.match(authPopup, /GROK_PROVIDERS\.find/);
+  assert.match(authPopup, /Unknown provider/);
 });
