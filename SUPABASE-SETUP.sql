@@ -145,8 +145,14 @@ create table if not exists bookings (
   ends_at timestamptz not null,
   status text not null check (status in ('reserved', 'handed_over', 'returned', 'cancelled')),
   amount_karma integer not null check (amount_karma >= 0),
+  renter_handover_at timestamptz,
+  owner_handover_at timestamptz,
   created_at timestamptz not null default now(),
-  check (ends_at > starts_at)
+  check (ends_at > starts_at),
+  check (
+    status not in ('handed_over', 'returned')
+    or (renter_handover_at is not null and owner_handover_at is not null)
+  )
 );
 
 create index if not exists bookings_listing_idx on bookings (listing_id, status);
