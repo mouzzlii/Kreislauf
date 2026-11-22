@@ -7,14 +7,16 @@ export function ListingConversation({
   listingId,
   ownerId,
   currentUserId,
+  initialRequesterId,
 }: {
   listingId: string;
   ownerId: string;
   currentUserId: string | null;
+  initialRequesterId?: string;
 }) {
   const isOwner = currentUserId === ownerId;
   const [threads, setThreads] = useState<ListingThread[]>([]);
-  const [activeRequester, setActiveRequester] = useState("");
+  const [activeRequester, setActiveRequester] = useState(initialRequesterId ?? "");
   const [messages, setMessages] = useState<ListingMessage[]>([]);
   const [body, setBody] = useState("");
   const [busy, setBusy] = useState(false);
@@ -28,13 +30,13 @@ export function ListingConversation({
       getListingThreads({ data: { id: listingId } }).then((items) => {
         if (cancelled) return;
         setThreads(items);
-        setActiveRequester((current) => current || items[0]?.requesterId || "");
+        setActiveRequester((current) => initialRequesterId || current || items[0]?.requesterId || "");
       }).catch(() => { if (!cancelled) setError("Unterhaltungen konnten nicht geladen werden."); });
     };
     refresh();
     const interval = window.setInterval(refresh, 15_000);
     return () => { cancelled = true; window.clearInterval(interval); };
-  }, [currentUserId, isOwner, listingId]);
+  }, [currentUserId, initialRequesterId, isOwner, listingId]);
 
   const requesterId = isOwner ? activeRequester : currentUserId ?? "";
 
