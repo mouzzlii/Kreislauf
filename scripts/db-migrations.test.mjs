@@ -48,7 +48,7 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     const fkIndexes = await db.query(
       "select count(*)::int as count from pg_indexes where schemaname = 'public' and indexname like '%_fk_idx'",
     );
-    assert.equal(fkIndexes.rows[0].count, 19, "all 19 foreign-key performance indexes must be present");
+    assert.equal(fkIndexes.rows[0].count, 18, "all current-schema foreign-key indexes must be present; the legacy-only index is conditional");
 
     const demurrage = await db.query("select affected_user, cut_amount from apply_demurrage()");
     const jonasCut = demurrage.rows.find((row) => row.affected_user === "seed-jonas");
