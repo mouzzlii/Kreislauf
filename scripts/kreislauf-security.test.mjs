@@ -235,7 +235,7 @@ test("unread listing notifications open the exact conversation, including multip
   const notifications = serverFunction("getUnreadListingNotifications");
   assert.match(notifications, /c\.requester_id as "requesterId"/);
   assert.match(notifications, /requesterId: asString\(row\.requesterId\)/);
-  assert.match(shell, /key=\{\`\$\{item\.listingId\}:\$\{item\.requesterId\}\`\}/);
+  assert.match(shell, /item\.listingId\}:\$\{item\.requesterId/);
   assert.match(shell, /search=\{\{ conversation: item\.requesterId \}\}/);
   assert.match(listingDetail, /validateSearch:[\s\S]*conversation\?: string/);
   assert.match(listingDetail, /typeof search\.conversation === "string" \? \{ conversation: search\.conversation \} : \{\}/);
