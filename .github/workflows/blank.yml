@@ -7,12 +7,17 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Node.js einrichten
         uses: actions/setup-node@v5
         with:
