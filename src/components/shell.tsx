@@ -103,10 +103,9 @@ export function Shell({
                     ) : (
                       <ul className="max-h-80 divide-y divide-line overflow-y-auto">
                         {notifications.map((item) => (
-                          <li key={item.listingId}>
+                          <li key={`${item.listingId}:${item.requesterId}`}>
                             <Link
-                              to="/inserat/$listingId"
-                              params={{ listingId: item.listingId }}
+                              to={`/inserat/${encodeURIComponent(item.listingId)}?conversation=${encodeURIComponent(item.requesterId)}`}
                               onClick={() => setNotificationsOpen(false)}
                               className="block px-4 py-3 hover:bg-elev-2"
                             >
