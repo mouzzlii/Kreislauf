@@ -23,7 +23,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     for (const table of [
       "regions", "profiles", "listings", "bookings", "reviews",
       "ledger_entries", "item_history", "escrow_cases",
-      "listing_conversations", "listing_messages", "escrow_moderators",
+      "listing_conversations", "listing_messages", "listing_message_rate_limits", "escrow_moderators",
       "escrow_votes", "user", "session", "account", "verification",
     ]) {
       assert.equal(tables.get(table), true, `RLS is not enabled for ${table}`);
@@ -59,7 +59,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     assert.equal(trigger.rows[0].installed, true, "booking state notifications must be installed");
 
     const applied = await db.query("select name from _migrations order by name");
-    assert.equal(applied.rows.length, 9);
+    assert.equal(applied.rows.length, 11);
   } finally {
     await db.close();
   }
