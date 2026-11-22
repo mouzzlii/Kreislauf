@@ -9,6 +9,7 @@ import {
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { ensureProfile, setRegion as setRegionFn } from "./api";
 import { DEFAULT_REGION } from "./types";
+import type { Profile } from "./types";
 import { KreislaufContext, type Theme } from "./context-core";
 
 const REGION_KEY = "kreislauf-region";
