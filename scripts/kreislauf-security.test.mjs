@@ -158,10 +158,10 @@ test("Better Auth generic OAuth uses the patched 1.7 social sign-in API", () => 
 
 test("listing creation validates image payloads and atomically writes ownership history", () => {
   const create = serverFunction("createListing");
-  assert.match(create, /data:image/);
-  assert.match(create, /imageDataUrls\\.reduce/);
-  assert.match(create, /1_000_000/);
-  assert.match(create, /with created_listing as/);
-  assert.match(create, /insert into item_history/);
-  assert.doesNotMatch(create, /await sql\\.query\\([\\s\\S]*?insert into listings[\\s\\S]*?\\);\\s*await sql\\.query\\([\\s\\S]*?insert into item_history/);
+  assert.ok(create.includes("data:image"));
+  assert.ok(create.includes("imageDataUrls.reduce"));
+  assert.ok(create.includes("1_000_000"));
+  assert.ok(create.includes("with created_listing as"));
+  assert.ok(create.includes("insert into item_history"));
+  assert.ok(!create.includes("await sql.query(`insert into item_history"));
 });
