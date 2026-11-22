@@ -367,3 +367,20 @@ test("activity rewards are an allowed immutable Karma ledger entry kind", () => 
   assert.match(setupSql, /entry_kind text not null check \(entry_kind in \('mint', 'transfer', 'demurrage', 'activity'\)\)/);
   assert.match(api, /then 'activity'/);
 });
+
+test("sharing handover and Karma settlement require both booking parties", () => {
+  const transition = serverFunction("transitionBooking");
+  const cancelStart = transition.indexOf('if (data.action === "cancel")');
+  const returnStart = transition.indexOf('if (data.action === "return")');
+  const handoverStart = transition.indexOf("const rows = await sql.query<{", returnStart);
+  const confirmationStart = transition.indexOf("const confirmation = rows[0];", handoverStart);
+  const cancel = transition.slice(cancelStart, returnStart);
+  const handover = transition.slice(handoverStart, confirmationStart);
+  assert.match(cancel, /renter_handover_at is null and owner_handover_at is null/);
+  assert.match(handover, /locked_profiles as materialized/);
+  assert.match(handover, /renter_handover_at = case[\s\S]*owner_handover_at = case/);
+  assert.match(handover, /when coalesce\(booking\.renter_handover_at[\s\S]*is not null[\s\S]*and coalesce\(booking\.owner_handover_at[\s\S]*is not null/);
+  assert.match(handover, /where confirmed\.status = 'handed_over'[\s\S]*select count\(\*\) from moved/);
+  assert.match(listingDetail, /booking\.renterConfirmed[\s\S]*booking\.ownerConfirmed/);
+  assert.match(listingDetail, /Karma wird erst nach beiden Bestätigungen übertragen/);
+});
