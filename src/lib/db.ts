@@ -1,4 +1,5 @@
 import { pendingMigrations } from "../../scripts/migration-plan.mjs";
+import { ensurePgliteRoles } from "./db-roles.ts";
 
 /** Which database backend is active. */
 export type DbSource = "neon" | "pglite";
@@ -119,6 +120,7 @@ async function createPgliteSql(): Promise<Sql> {
       },
     });
     await pg.waitReady;
+    await ensurePgliteRoles(pg);
     await pg.exec(
       "create table if not exists _migrations (name text primary key, applied_at timestamptz not null default now())",
     );
