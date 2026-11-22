@@ -185,6 +185,11 @@ test("listing video upload requires a real signed-in member and constrained Blob
 
 });
 
+test("ID Austria mock verification cannot be enabled in production", () => {
+  assert.match(api, /process\.env\.NODE_ENV === "production" \|\| !mockMode/);
+  assert.match(api, /Eine Demo-Verifikation ist dort gesperrt/);
+});
+
 test("listing video references are limited, owned by the caller and persisted", () => {
   const create = serverFunction("createListing");
   assert.match(create, /rawVideoUrls\.length > 4/);
