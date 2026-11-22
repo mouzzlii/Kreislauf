@@ -152,19 +152,24 @@ function NewListing() {
               accept="image/*"
               multiple
               onChange={(event) => {
-                const files = Array.from(event.target.files ?? []);
-                if (files.length > 4) {
-                  setError("Bitte höchstens 4 Fotos auswählen.");
-                  event.target.value = "";
+                const input = event.currentTarget;
+                const files = Array.from(input.files ?? []);
+                input.value = "";
+                if (files.length === 0) return;
+                const remaining = 4 - images.length;
+                if (remaining <= 0 || files.length > remaining) {
+                  setError(remaining <= 0
+                    ? "Du hast bereits 4 Fotos hinzugefügt. Entferne zuerst ein Foto, um ein anderes auszuwählen."
+                    : `Du kannst noch ${remaining} Foto${remaining === 1 ? "" : "s"} hinzufügen.`);
                   return;
                 }
                 setError(null);
                 void Promise.all(files.map(compressImage))
-                  .then(setImages)
-                  .catch(() => setError("Mindestens ein Foto ließ sich nicht lesen"));
+                  .then((compressed) => setImages((current) => [...current, ...compressed].slice(0, 4)))
+                  .catch(() => setError("Mindestens ein Foto ließ sich nicht lesen. Bitte versuche es erneut."));
               }}
             />
-            <span className="mt-1 block text-xs text-subtle">Die Fotos werden für die Vorschau verkleinert. Videos können derzeit noch nicht hochgeladen werden.</span>
+            <span className="mt-1 block text-xs text-subtle">{images.length} von 4 Fotos ausgewählt. Du kannst weitere Fotos hinzufügen oder einzelne entfernen. Die Fotos werden für die Vorschau verkleinert. Videos können derzeit noch nicht hochgeladen werden.</span>
           </Field>
           {images.length ? (
             <div className="grid grid-cols-2 gap-3">
