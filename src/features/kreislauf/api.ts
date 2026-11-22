@@ -789,15 +789,14 @@ export const transitionBooking = createServerFn({ method: "POST" })
       return rows.length ? { ok: true } : fail("Rückgabe erst nach der Übergabe.");
     }
     const rows = await sql.query(
-      `with b as (
+      `with b as materialized (
          select * from bookings
          where id = $1 and status = 'reserved' and (renter_id = $2 or owner_id = $2)
          for update
        ),
-       payer as (
+       payer as materialized (
          select p.user_id
-         from profiles p
-         join b on b.renter_id = p.user_id
+         from profiles p join b on b.renter_id = p.user_id
          where p.karma_balance >= b.amount_karma
          for update of p
        ),
@@ -818,29 +817,45 @@ export const transitionBooking = createServerFn({ method: "POST" })
          where id = (select id from b)
            and (select count(*) from moved) = 2
          returning id, listing_id, amount_karma, renter_id, owner_id
+       ),
+       transfer_log as (
+         insert into ledger_entries (
+           region_id, sender_id, receiver_id, listing_id, booking_id, amount_karma, entry_kind, message
+         )
+         select l.region_id,
+           case when upd.amount_karma = 0 then null else upd.renter_id end,
+           case when upd.amount_karma = 0 then upd.renter_id else upd.owner_id end,
+           upd.listing_id, upd.id, greatest(upd.amount_karma, 1),
+           case when upd.amount_karma = 0 then 'activity' else 'transfer' end,
+           case when upd.amount_karma = 0 then 'Aktivitäts-Karma für kostenlose Übernahme: ' || l.title else 'Flotte: ' || l.title end
+         from upd join listings l on l.id = upd.listing_id
+         returning id
+       ),
+       bonus_log as (
+         insert into ledger_entries (region_id, receiver_id, listing_id, booking_id, amount_karma, entry_kind, message)
+         select l.region_id, upd.renter_id, l.id, upd.id, 1, 'activity',
+           'Aktivitätsbonus für erfolgreiche Übergabe: ' || l.title
+         from upd join listings l on l.id = upd.listing_id
+         where upd.amount_karma > 0
+         returning id
+       ),
+       count_log as (
+         update listings l set hands_count = l.hands_count + 1
+         from upd where l.id = upd.listing_id
+         returning l.id
+       ),
+       history_log as (
+         insert into item_history (item_uuid,listing_id,owner_id,place_label,event_kind)
+         select l.item_uuid,l.id,upd.owner_id,l.place_label,
+           case when l.category = 'sharing' then 'loaned' when upd.amount_karma = 0 then 'gifted' else 'transferred' end
+         from upd join listings l on l.id = upd.listing_id
+         where exists (select 1 from count_log)
+         returning id
        )
-       insert into ledger_entries (
-         region_id, sender_id, receiver_id, listing_id, booking_id, amount_karma, entry_kind, message
-       )
-       select l.region_id,
-         case when upd.amount_karma = 0 then null else upd.renter_id end,
-         case when upd.amount_karma = 0 then upd.renter_id else upd.owner_id end,
-         upd.listing_id, upd.id, greatest(upd.amount_karma, 1),
-         case when upd.amount_karma = 0 then 'activity' else 'transfer' end,
-         case when upd.amount_karma = 0 then 'Aktivitäts-Karma für kostenlose Übernahme: ' || l.title else 'Flotte: ' || l.title end
-       from upd
-       join listings l on l.id = upd.listing_id
-       returning ledger_entries.id`,
+       select id from transfer_log`,
       [data.id, context.userId],
     );
     if (!rows.length) return fail("Übergabe nicht möglich. Reservierung, Berechtigung oder Karma passen nicht.");
-    await sql.query(`insert into ledger_entries (region_id, receiver_id, listing_id, booking_id, amount_karma, entry_kind, message)
-      select l.region_id,b.renter_id,l.id,b.id,1,'activity','Aktivitätsbonus für erfolgreiche Übergabe: ' || l.title
-      from bookings b join listings l on l.id = b.listing_id where b.id = $1 and b.amount_karma > 0`, [data.id]);
-    await sql.query(`update listings set hands_count = hands_count + 1 where id = (select listing_id from bookings where id = $1)`, [data.id]);
-    await sql.query(`insert into item_history (item_uuid,listing_id,owner_id,place_label,event_kind)
-      select l.item_uuid,l.id,b.owner_id,l.place_label,case when l.category = 'sharing' then 'loaned' when b.amount_karma = 0 then 'gifted' else 'transferred' end
-      from bookings b join listings l on l.id = b.listing_id where b.id = $1`, [data.id]);
     return { ok: true };
   });
 
