@@ -57,7 +57,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/inserat/$listingId': typeof InseratListingIdRoute
   '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/
+  '/api/auth/}
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/karte': typeof KarteRoute
@@ -86,8 +86,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/inserat/$listingId'
     | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
+    | '/api/auth/  fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/karte'
@@ -104,7 +103,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/inserat/$listingId'
     | '/inserat/neu'
-    | '/api/auth/
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
@@ -161,7 +161,7 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InseratNeuRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/auth/
+    '/api/auth/  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -2013,6 +2013,24 @@ declare module '@tanstack/react-start' {
 }
 
     | '/api/upload'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -3926,7 +3944,7 @@ declare module '@tanstack/react-start' {
   }
 }
 : {
-      id: '/api/auth/
+      id: '/api/auth/  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -5777,6 +5795,24 @@ declare module '@tanstack/react-start' {
 }
 
     | '/api/upload'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -7690,3771 +7726,7 @@ declare module '@tanstack/react-start' {
   }
 }
 
-      path: '/api/auth/
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-,
-  path: '/api/auth/
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-,
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiUploadRoute = ApiUploadRouteImport.update({
-  id: '/api/upload',
-  path: '/api/upload',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-: typeof ApiAuthSplatRoute
-  '/api/upload': typeof ApiUploadRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-,
-  path: '/api/auth/
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-,
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiUploadRoute = ApiUploadRouteImport.update({
-  id: '/api/upload',
-  path: '/api/upload',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-    | '/api/upload'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-,
-  path: '/api/auth/
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-,
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiUploadRoute = ApiUploadRouteImport.update({
-  id: '/api/upload',
-  path: '/api/upload',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-: typeof ApiAuthSplatRoute
-  '/api/upload': typeof ApiUploadRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-,
-  path: '/api/auth/
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-,
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiUploadRoute = ApiUploadRouteImport.update({
-  id: '/api/upload',
-  path: '/api/upload',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-import { Route as ApiUploadRouteImport } from './routes/api/upload'
-
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KarteRoute = KarteRouteImport.update({
-  id: '/karte',
-  path: '/karte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KontoRoute = KontoRouteImport.update({
-  id: '/konto',
-  path: '/konto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratListingIdRoute = InseratListingIdRouteImport.update({
-  id: '/inserat/$listingId',
-  path: '/inserat/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InseratNeuRoute = InseratNeuRouteImport.update({
-  id: '/inserat/neu',
-  path: '/inserat/neu',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/karte': typeof KarteRoute
-  '/konto': typeof KontoRoute
-  '/login': typeof LoginRoute
-  '/inserat/$listingId': typeof InseratListingIdRoute
-  '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  id:
-    | '__root__'
-    | '/'
-    | '/karte'
-    | '/konto'
-    | '/login'
-    | '/inserat/$listingId'
-    | '/inserat/neu'
-    | '/api/auth/$'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  KarteRoute: typeof KarteRoute
-  KontoRoute: typeof KontoRoute
-  LoginRoute: typeof LoginRoute
-  InseratListingIdRoute: typeof InseratListingIdRoute
-  InseratNeuRoute: typeof InseratNeuRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/karte': {
-      id: '/karte'
-      path: '/karte'
-      fullPath: '/karte'
-      preLoaderRoute: typeof KarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/konto': {
-      id: '/konto'
-      path: '/konto'
-      fullPath: '/konto'
-      preLoaderRoute: typeof KontoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/$listingId': {
-      id: '/inserat/$listingId'
-      path: '/inserat/$listingId'
-      fullPath: '/inserat/$listingId'
-      preLoaderRoute: typeof InseratListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inserat/neu': {
-      id: '/inserat/neu'
-      path: '/inserat/neu'
-      fullPath: '/inserat/neu'
-      preLoaderRoute: typeof InseratNeuRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  KarteRoute: KarteRoute,
-  KontoRoute: KontoRoute,
-  LoginRoute: LoginRoute,
-  InseratListingIdRoute: InseratListingIdRoute,
-  InseratNeuRoute: InseratNeuRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
-
-      fullPath: '/api/auth/
+      path: '/api/auth/  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -13305,6 +9577,3806 @@ declare module '@tanstack/react-start' {
 }
 
     | '/api/upload'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+,
+  path: '/api/auth/
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+,
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUploadRoute = ApiUploadRouteImport.update({
+  id: '/api/upload',
+  path: '/api/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+: typeof ApiAuthSplatRoute
+  '/api/upload': typeof ApiUploadRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+,
+  path: '/api/auth/
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+,
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUploadRoute = ApiUploadRouteImport.update({
+  id: '/api/upload',
+  path: '/api/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+      fullPath: '/api/auth/  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+,
+  path: '/api/auth/
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+,
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUploadRoute = ApiUploadRouteImport.update({
+  id: '/api/upload',
+  path: '/api/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+: typeof ApiAuthSplatRoute
+  '/api/upload': typeof ApiUploadRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+,
+  path: '/api/auth/
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+,
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUploadRoute = ApiUploadRouteImport.update({
+  id: '/api/upload',
+  path: '/api/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
+
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontoRoute = KontoRouteImport.update({
+  id: '/konto',
+  path: '/konto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratListingIdRoute = InseratListingIdRouteImport.update({
+  id: '/inserat/$listingId',
+  path: '/inserat/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InseratNeuRoute = InseratNeuRouteImport.update({
+  id: '/inserat/neu',
+  path: '/inserat/neu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/karte': typeof KarteRoute
+  '/konto': typeof KontoRoute
+  '/login': typeof LoginRoute
+  '/inserat/$listingId': typeof InseratListingIdRoute
+  '/inserat/neu': typeof InseratNeuRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+    | '/api/upload'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -17079,6 +17151,24 @@ declare module '@tanstack/react-start' {
 }
 
     | '/api/upload'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
