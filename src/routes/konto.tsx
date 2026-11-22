@@ -2,10 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Shell } from "@/components/shell";
 import { Button, Field, fieldClass } from "@/components/ui";
-import { getBoard, getMine, updateProfile, verifyWithIdAustria } from "@/features/kreislauf/api";
+import { getBoard, getMine, getMyListings, setListingAvailability, updateProfile, verifyWithIdAustria } from "@/features/kreislauf/api";
 import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import { formatKarma, formatTrust, formatWhen } from "@/features/kreislauf/format";
-import { DEFAULT_REGION, type Board, type LedgerEntry, type Profile } from "@/features/kreislauf/types";
+import { DEFAULT_REGION, type Board, type LedgerEntry, type Listing, type Profile } from "@/features/kreislauf/types";
 import { UserButton } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/konto")({
 function AccountPage() {
   const initial = Route.useLoaderData();
   const { user, isPending } = useCurrentUserState();
-  const { profile, refreshProfile, regionId, hydrated, version } = useKreislauf();
+  const { profile, refreshProfile, regionId, hydrated, version, bump } = useKreislauf();
   const [board, setBoard] = useState<Board>(initial);
   const [mine, setMine] = useState<LedgerEntry[] | null>(null);
   const [myListings, setMyListings] = useState<Listing[] | null>(null);
