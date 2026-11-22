@@ -100,3 +100,11 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 
 
 - `ensureProfile` legt Profil und regionale Startgutschrift jetzt in einer einzelnen SQL-Anweisung an. Dadurch können Profil und initiale Karma-Ledger-Buchung nicht durch einen Fehler zwischen zwei getrennten Statements auseinanderlaufen. Der Regressionstest läuft im CI erfolgreich; eine Live-Datenbankmigration bzw. ein produktiver DB-Test ist damit nicht belegt.
+
+## Demo-Karma-Ledger-Abgleich – Migration 0016
+
+- Bei der Quellcodeprüfung waren die sechs vorbereiteten `seed-*`-Profile nicht mit dem Netto-Saldo ihrer unveränderlichen Ledger-Einträge deckungsgleich.
+- Migration `0016_reconcile_demo_karma_ledger.sql` gleicht die Differenz durch explizite `mint`- bzw. `demurrage`-Buchungen aus. Die Profilguthaben werden nicht stillschweigend überschrieben; der Verlauf bleibt nachvollziehbar.
+- Die Migration ist gegen manuelle Wiederholung abgesichert und wurde auch in `SUPABASE-SETUP.sql` samt `_migrations`-Eintrag aufgenommen.
+- Der lokale PostgreSQL-/PGlite-Migrationstest prüft jetzt die Übereinstimmung aller Demo-Konten, die sechs erwarteten Korrekturbuchungen und die Idempotenz. GitHub Actions Lauf `45072941076`: erfolgreich.
+- Das ist ein automatisierter Test auf einer temporären Testdatenbank. Die Migration wurde dadurch nicht auf dem verbundenen Supabase-Projekt ausgeführt und ist kein Live-Datenbanknachweis.
