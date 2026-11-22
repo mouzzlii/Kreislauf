@@ -135,7 +135,12 @@ function ListingPage() {
         Markt
       </Link>
       <div className="mt-3 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-        <ListingGallery listing={listing} />
+        <div className="space-y-4">
+          <ListingGallery listing={listing} />
+          {listing.videoUrls.map((url) => (
+            <video key={url} src={url} controls playsInline preload="metadata" className="max-h-[480px] w-full rounded-3xl bg-black" aria-label="Inseratvideo" />
+          ))}
+        </div>
         <div>
           <p className="text-sm text-copper">
             {listing.offerType === "sell" ? "Biete / Verkaufe" : listing.offerType === "search" ? "Suche nach" : "Verschenke"} · {CATEGORY_LABEL[listing.category]} · {STATUS_LABEL[listing.status]}
