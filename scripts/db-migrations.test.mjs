@@ -25,6 +25,7 @@ const migrations = [
   "0016_reconcile_demo_karma_ledger.sql",
   "0017_allow_activity_ledger_entries.sql",
   "0018_booking_bilateral_handover.sql",
+  "0019_booking_bilateral_return.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
@@ -54,6 +55,11 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     );
     assert.match(handoverConstraint.rows[0].definition, /renter_handover_at IS NOT NULL/);
     assert.match(handoverConstraint.rows[0].definition, /owner_handover_at IS NOT NULL/);
+    const returnConstraint = await db.query(
+      "select pg_get_constraintdef(oid) as definition from pg_constraint where conrelid = 'public.bookings'::regclass and conname = 'bookings_bilateral_return_check'",
+    );
+    assert.match(returnConstraint.rows[0].definition, /renter_return_at IS NOT NULL/);
+    assert.match(returnConstraint.rows[0].definition, /owner_return_at IS NOT NULL/);
 
     const listingStatusConstraint = await db.query(
       "select pg_get_constraintdef(oid) as definition from pg_constraint where conrelid = 'public.listings'::regclass and conname = 'listings_status_check'",
@@ -353,6 +359,42 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     assert.equal(afterBothConfirmations.rows[0].owner_balance, beforeHandoverBalances["seed-leonie"] + 12);
     assert.equal(afterBothConfirmations.rows[0].transfer_count, 1);
     assert.equal(afterBothConfirmations.rows[0].activity_count, 1);
+
+    const returnQueryStart = apiSource.indexOf(
+      "const rows = await sql.query<{",
+      apiSource.indexOf('if (data.action === "return")'),
+    );
+    const returnTemplateStart = apiSource.indexOf("`", returnQueryStart);
+    const returnTemplateEnd = apiSource.indexOf(
+      "`,\n        [data.id, context.userId]",
+      returnTemplateStart,
+    );
+    assert.ok(returnQueryStart >= 0 && returnTemplateStart >= 0 && returnTemplateEnd > returnTemplateStart,
+      "the exact server return SQL must be available for integration testing");
+    const returnSql = apiSource.slice(returnTemplateStart + 1, returnTemplateEnd);
+    const firstReturn = await db.query(returnSql, ["test-bilateral-booking", "test-renter"]);
+    assert.equal(firstReturn.rows[0].renterReturned, true);
+    assert.equal(firstReturn.rows[0].ownerReturned, false);
+    assert.equal(firstReturn.rows[0].completed, false, "one party cannot close a sharing return");
+    const stillHandedOver = await db.query(
+      `select b.status, l.status as listing_status
+       from bookings b join listings l on l.id = b.listing_id
+       where b.id = 'test-bilateral-booking'`,
+    );
+    assert.equal(stillHandedOver.rows[0].status, "handed_over");
+    assert.equal(stillHandedOver.rows[0].listing_status, "booked", "the item stays unavailable until both return confirmations");
+
+    const secondReturn = await db.query(returnSql, ["test-bilateral-booking", "seed-leonie"]);
+    assert.equal(secondReturn.rows[0].renterReturned, true);
+    assert.equal(secondReturn.rows[0].ownerReturned, true);
+    assert.equal(secondReturn.rows[0].completed, true);
+    const returnedState = await db.query(
+      `select b.status, l.status as listing_status
+       from bookings b join listings l on l.id = b.listing_id
+       where b.id = 'test-bilateral-booking'`,
+    );
+    assert.equal(returnedState.rows[0].status, "returned");
+    assert.equal(returnedState.rows[0].listing_status, "active", "the listing reopens only after both parties confirm return");
 
     await assert.rejects(
       db.query(
