@@ -6,6 +6,7 @@ const api = await readFile(new URL("../src/features/kreislauf/api.ts", import.me
 const listingMedia = await readFile(new URL("../src/features/kreislauf/media.ts", import.meta.url), "utf8");
 const escrowSql = await readFile(new URL("../migrations/0005_escrow_atomicity.sql", import.meta.url), "utf8");
 const coreSql = await readFile(new URL("../migrations/0003_kreislauf_v2.sql", import.meta.url), "utf8");
+const ledgerSql = await readFile(new URL("../migrations/0002_kreislauf.sql", import.meta.url), "utf8");
 const moderatorSql = await readFile(new URL("../migrations/0004_messages_escrow.sql", import.meta.url), "utf8");
 const cancellationSql = await readFile(new URL("../migrations/0006_escrow_cancellation.sql", import.meta.url), "utf8");
 const legacySql = await readFile(new URL("../migrations/0009_lock_down_legacy_tables.sql", import.meta.url), "utf8");
@@ -82,7 +83,7 @@ test("Karma balance mutations are paired with immutable ledger entries", () => {
   assert.match(transition, /transfer_log as \([\s\S]*?insert into ledger_entries/);
   assert.match(transition, /bonus_log as \([\s\S]*?insert into ledger_entries/);
 
-  assert.match(coreSql, /update profiles[\s\S]*?set karma_balance = karma_balance - rec\.cut[\s\S]*?insert into ledger_entries/);
+  assert.match(ledgerSql, /update profiles[\s\S]*?set karma_balance = karma_balance - rec\.cut[\s\S]*?insert into ledger_entries/);
   assert.match(api, /with created_profile as \([\s\S]*?insert into ledger_entries/);
 });
 
