@@ -1,6 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { upload } from "@vercel/blob/client";
 import { Shell } from "@/components/shell";
 import { Button, Field, fieldClass } from "@/components/ui";
 import { createListing, getItemTemplate } from "@/features/kreislauf/api";
@@ -86,26 +85,11 @@ function NewListing() {
             setVideoUploadProgress(0);
             void (async () => {
               try {
-                if (videos.length > 0 && !authEnabled) {
-                  throw new Error("Video-Uploads benötigen persönliche Konten. In der gemeinsamen Demo bleiben sie zum Schutz der Testdaten gesperrt.");
+                if (videos.length > 0) {
+                  throw new Error("Video-Uploads sind noch nicht freigegeben. Bitte vorerst Fotos verwenden.");
                 }
-                const videoUrls: string[] = [];
-                for (const [index, video] of videos.entries()) {
-                  const extension = video.file.type === "video/webm" ? "webm" : video.file.type === "video/quicktime" ? "mov" : "mp4";
-                  const blob = await upload(
-                    "listings/" + encodeURIComponent(user!.id) + "/" + crypto.randomUUID() + "." + extension,
-                    video.file,
-                    {
-                      access: "public",
-                      handleUploadUrl: "/api/upload",
-                      clientPayload: JSON.stringify({ duration: video.duration }),
-                      onUploadProgress: ({ percentage }) => {
-                        setVideoUploadProgress(Math.round(((index + percentage / 100) / videos.length) * 100));
-                      },
-                    },
-                  );
-                  videoUrls.push(blob.url);
-                }
+                const imageDataUrls = images.filter((image) => image.startsWith("data:image/jpeg;base64,"));
+                const existingImageUrls = images.filter((image) => !image.startsWith("data:image/jpeg;base64,"));
                 const created = await createListing({
               data: {
                 regionId: profile?.regionId ?? regionId,
@@ -117,8 +101,9 @@ function NewListing() {
                 itemUuid: reuse ?? null,
                 priceKarma: Number(price),
                 placeLabel: place,
-                imageDataUrls: images,
-                videoUrls,
+                imageDataUrls,
+                existingImageUrls,
+                videoUrls: [],
                 videoPreset,
                 videoDurations: videos.map((video) => video.duration),
                 lat: profile?.lat ?? null,
