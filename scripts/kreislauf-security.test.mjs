@@ -6,6 +6,7 @@ const api = await readFile(new URL("../src/features/kreislauf/api.ts", import.me
 const escrowSql = await readFile(new URL("../migrations/0005_escrow_atomicity.sql", import.meta.url), "utf8");
 const moderatorSql = await readFile(new URL("../migrations/0004_messages_escrow.sql", import.meta.url), "utf8");
 const cancellationSql = await readFile(new URL("../migrations/0006_escrow_cancellation.sql", import.meta.url), "utf8");
+const setupSql = await readFile(new URL("../SUPABASE-SETUP.sql", import.meta.url), "utf8");
 const messagingSql = await readFile(new URL("../migrations/0004_messages_escrow.sql", import.meta.url), "utf8");
 const escrowPanel = await readFile(new URL("../src/components/escrow-panel.tsx", import.meta.url), "utf8");
 
@@ -79,4 +80,13 @@ test("listing messages are restricted to the owner and the selected requester", 
   assert.match(messages, /c\.requester_id = \$4 or c\.owner_id = \$4/);
   assert.match(send, /context\.userId === ownerId/);
   assert.match(send, /Du kannst erst antworten, wenn das andere Mitglied eine Unterhaltung begonnen hat/);
+});
+
+test("Supabase setup bundle mirrors the booking status notification migration", () => {
+  for (const source of [cancellationSql, setupSql]) {
+    assert.match(source, /create trigger bookings_status_message_updated/);
+    assert.match(source, /after update of status on public\.bookings/);
+    assert.match(source, /Reservierung storniert: Die Buchung wurde beendet/);
+    assert.match(source, /Rückgabe bestätigt: Der Vorgang wurde abgeschlossen/);
+  }
 });
