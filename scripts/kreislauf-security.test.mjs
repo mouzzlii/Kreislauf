@@ -127,6 +127,13 @@ test("community escrow assigns up to seven moderators and decides after four vot
   assert.doesNotMatch(escrowSql, /v_required := greatest/);
 });
 
+test("moderators who already voted are not offered another vote", () => {
+  const summary = serverFunction("getEscrowSummary");
+  assert.match(summary, /select 1 from escrow_votes where escrow_id = \$1 and moderator_id = \$2/);
+  assert.match(summary, /canVote: assignment\.length > 0 && ownVote\.length === 0 && cases\[0\]\.status === "pending"/);
+  assert.match(escrowPanel, /summary\.canVote && !summary\.hasVoted/);
+});
+
 test("escrow votes are serialized and limited to assigned, active, verified moderators", () => {
   assert.match(escrowSql, /where e\.listing_id = p_listing_id and e\.status = 'pending'[\s\S]*?limit 1 for update/);
   assert.match(escrowSql, /a\.moderator_id = p_moderator_id[\s\S]*?p\.is_verified = true and p\.moderator_rank > 0[\s\S]*?p\.last_active_at >= now\(\) - interval '30 days'/);
