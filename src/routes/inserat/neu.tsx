@@ -192,12 +192,11 @@ function NewListing() {
                 const preset = event.target.value as VideoPreset;
                 setVideoPreset(preset);
                 setVideos((current) => {
-                  const limit = VIDEO_PRESETS[preset].maxFiles;
-                  for (const removed of current.slice(limit)) {
-                    URL.revokeObjectURL(removed.url);
-                    videoUrls.current.delete(removed.url);
-                  }
-                  return current.slice(0, limit);
+                  current.forEach((video) => {
+                    URL.revokeObjectURL(video.url);
+                    videoUrls.current.delete(video.url);
+                  });
+                  return [];
                 });
                 setError(null);
               }}
@@ -231,9 +230,18 @@ function NewListing() {
                 }
                 setVideoLoading(true);
                 setError(null);
-                void Promise.all(files.map(probeVideo))
-                  .then((drafts) => {
+                void Promise.allSettled(files.map(probeVideo))
+                  .then((results) => {
+                    const drafts = results.flatMap((result) => result.status === "fulfilled" ? [result.value] : []);
                     drafts.forEach((video) => videoUrls.current.add(video.url));
+                    if (results.some((result) => result.status === "rejected")) {
+                      drafts.forEach((video) => {
+                        URL.revokeObjectURL(video.url);
+                        videoUrls.current.delete(video.url);
+                      });
+                      setError("Mindestens ein Video konnte nicht gelesen werden. Bitte MP4, WebM oder QuickTime verwenden.");
+                      return;
+                    }
                     const candidate = [...videos, ...drafts];
                     const result = checkVideoDurations(videoPreset, candidate.map((video) => video.duration));
                     if (!result.ok) {
