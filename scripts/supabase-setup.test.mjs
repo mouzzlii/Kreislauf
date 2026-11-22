@@ -16,6 +16,7 @@ test("Supabase production setup includes all current application migrations", ()
     "0009_lock_down_legacy_tables.sql",
     "0010_lock_down_default_privileges.sql",
     "0011_limit_listing_message_rate.sql",
+    "0012_atomic_listing_message_rate_limits.sql",
   ]) {
     assert.ok(sql.includes(name), `missing migration ${name}`);
   }
@@ -76,4 +77,14 @@ test("listing chat has database-enforced per-account anti-spam limits", async ()
   assert.match(migration, /v_hour_count >= 80/);
   assert.match(migration, /before insert on public\.listing_messages/i);
   assert.match(migration, /message_kind <> 'user'/);
+});
+
+test("chat throttling uses atomic per-user counters and private rate-limit storage", async () => {
+  const migration = await readFile(new URL("../migrations/0012_atomic_listing_message_rate_limits.sql", import.meta.url), "utf8");
+  assert.match(migration, /on conflict \(sender_id\) do update/i);
+  assert.match(migration, /minute_count between 0 and 12/i);
+  assert.match(migration, /hour_count between 0 and 80/i);
+  assert.match(migration, /enable row level security/i);
+  assert.match(migration, /revoke all on table/i);
+  assert.match(migration, /returning sender_id into v_sender/i);
 });
