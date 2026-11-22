@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ListingVisual } from "@/components/listing-card";
 import { ListingConversation } from "@/components/listing-conversation";
@@ -31,6 +31,9 @@ import type { Booking, Listing, ListingDetail } from "@/features/kreislauf/types
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/inserat/$listingId")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    conversation: typeof search.conversation === "string" ? search.conversation : undefined,
+  }),
   loader: ({ params }) => getListing({ data: { id: params.listingId } }),
   component: ListingPage,
 });
@@ -39,8 +42,7 @@ function ListingPage() {
   const initial = Route.useLoaderData();
   const { listingId } = Route.useParams();
   const navigate = useNavigate();
-  const locationSearch = useRouterState({ select: (state) => state.location.search as Record<string, unknown> });
-  const requestedConversationId = typeof locationSearch.conversation === "string" ? locationSearch.conversation : "";
+  const { conversation: requestedConversationId } = Route.useSearch();
   const { version, bump, refreshProfile, profile } = useKreislauf();
   const { user, isPending } = useCurrentUserState();
   const [detail, setDetail] = useState<ListingDetail | null>(initial);
