@@ -136,6 +136,14 @@ test("listing requests and trade events create system messages in the linked con
   assert.match(messagingSql, /message_kind\)\s*values \(v_conversation_id, null, left\(p_body, 2000\), 'system'\)/);
 });
 
+test("region changes cannot move a member's karma balance across regional ledgers", () => {
+  const changeRegion = serverFunction("setRegion");
+  assert.match(changeRegion, /select region_id from profiles where user_id = \$1 for update/);
+  assert.match(changeRegion, /current\[0\]\.region_id !== data\.regionId/);
+  assert.match(changeRegion, /Regionswechsel ist derzeit gesperrt/);
+  assert.doesNotMatch(changeRegion, /update profiles set region_id/);
+});
+
 test("global demurrage stays blocked unless the caller administers every enabled region", () => {
   const demurrage = serverFunction("runDemurrage");
   assert.match(demurrage, /count\(\*\) filter \(where admin_user_id = \$1\)/);
