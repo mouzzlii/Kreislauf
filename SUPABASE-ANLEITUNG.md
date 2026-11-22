@@ -28,7 +28,7 @@ Diese Anleitung ist für das vorhandene Supabase-Projekt gedacht. Die SQL-Datei 
 - `BETTER_AUTH_URL` und `BETTER_AUTH_SECRET`: vorhanden; geheime Werte bleiben in Vercel und werden nicht ausgelesen oder im Chat angezeigt.
 - `ID_AUSTRIA_MOCK_MODE=true`: nur für den Demo-Preview-Zweig vorgesehen.
 
-Der Produktions-Build prüft inzwischen zusätzlich, ob `DATABASE_URL` eine gültige PostgreSQL-URL ist und ob ein Medien-Storage-Token vorhanden ist. Damit wird ein versehentlicher Start ohne dauerhafte Datenbank oder Medienablage blockiert. Die Demo-Preview bleibt davon unberührt.
+Der Produktions-Build prüft zusätzlich, ob `DATABASE_URL` eine gültige PostgreSQL-URL ist, echte Anmeldung aktiv ist, ein mindestens 32 Zeichen langes `BETTER_AUTH_SECRET`, eine HTTPS-Adresse für `BETTER_AUTH_URL`, ein eigener HTTPS-Auth-Broker samt `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` sowie ein Medien-Storage-Token vorhanden sind. Die fest im Quellcode enthaltenen OAuth-Vorschau-Zugangsdaten sind ausschließlich für Sandbox-Hosts bestimmt und werden nicht als Produktionszugang akzeptiert. Damit wird ein versehentlicher Start mit Vorschau-Identität oder ohne dauerhafte Datenbank/Medienablage blockiert. Die Demo-Preview bleibt davon unberührt.
 
 ## 3. Persönliche Konten sicher aktivieren
 
