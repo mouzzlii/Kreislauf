@@ -108,3 +108,6 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 - Die Migration ist gegen manuelle Wiederholung abgesichert und wurde auch in `SUPABASE-SETUP.sql` samt `_migrations`-Eintrag aufgenommen.
 - Der lokale PostgreSQL-/PGlite-Migrationstest prüft jetzt die Übereinstimmung aller Demo-Konten, die sechs erwarteten Korrekturbuchungen und die Idempotenz. GitHub Actions Lauf `45072941076`: erfolgreich.
 - Das ist ein automatisierter Test auf einer temporären Testdatenbank. Die Migration wurde dadurch nicht auf dem verbundenen Supabase-Projekt ausgeführt und ist kein Live-Datenbanknachweis.
+- Die Kontodarstellung kennzeichnet diese Korrekturbuchungen ausdrücklich als Demo-Datenabgleich und nicht fälschlich als normale Startgutschrift bzw. laufende Umlaufsicherung.
+- Vollständiger GitHub-Actions-Lauf für Commit `79a44f6439b70364bc1b83e69b489a6d3a453d50`: `45073176756` erfolgreich (Dependency-Audit ohne gemeldete Schwachstellen, Produktions-Build, TypeScript, automatisierte Tests und Lint).
+- Auch dieser Lauf prüft den Quellcode und temporäre Testdatenbanken. Er belegt weder die Ausführung von Migration 0016 auf Supabase noch einen Live-Mehrbenutzerbetrieb.
