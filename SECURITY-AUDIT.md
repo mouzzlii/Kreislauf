@@ -111,3 +111,8 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 - Die Kontodarstellung kennzeichnet diese Korrekturbuchungen ausdrücklich als Demo-Datenabgleich und nicht fälschlich als normale Startgutschrift bzw. laufende Umlaufsicherung.
 - Vollständiger GitHub-Actions-Lauf für Commit `79a44f6439b70364bc1b83e69b489a6d3a453d50`: `45073176756` erfolgreich (Dependency-Audit ohne gemeldete Schwachstellen, Produktions-Build, TypeScript, automatisierte Tests und Lint).
 - Auch dieser Lauf prüft den Quellcode und temporäre Testdatenbanken. Er belegt weder die Ausführung von Migration 0016 auf Supabase noch einen Live-Mehrbenutzerbetrieb.
+
+
+## Karma-Ledger: Aktivitätsbuchungen
+
+Der ursprüngliche `entry_kind`-Check erlaubte `activity` nicht, obwohl Tausch- und Übergabe-Code Aktivitätsboni als diesen Typ protokolliert. Migration `0017_allow_activity_ledger_entries.sql` ergänzt den erlaubten Typ; `SUPABASE-SETUP.sql` enthält dieselbe Regel. Ein PGlite-Regressionstest prüft, dass ein Aktivitäts-Ledgereintrag angenommen wird. Ein Live-Supabase-Lauf wurde dadurch nicht nachgewiesen.
