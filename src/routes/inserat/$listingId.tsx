@@ -31,8 +31,8 @@ import type { Booking, Listing, ListingDetail } from "@/features/kreislauf/types
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/inserat/$listingId")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    conversation: typeof search.conversation === "string" ? search.conversation : undefined,
+  validateSearch: (search: Record<string, unknown>): { conversation?: string } => ({
+    ...(typeof search.conversation === "string" ? { conversation: search.conversation } : {}),
   }),
   loader: ({ params }) => getListing({ data: { id: params.listingId } }),
   component: ListingPage,
