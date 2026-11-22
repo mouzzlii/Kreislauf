@@ -6,6 +6,7 @@ import test from "node:test";
 import { PGlite } from "@electric-sql/pglite";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const apiSource = await readFile(join(root, "src/features/kreislauf/api.ts"), "utf8");
 const migrations = [
   "0002_kreislauf.sql",
   "0003_kreislauf_v2.sql",
@@ -281,6 +282,68 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
       [escrowId],
     );
     assert.equal(cancelled.rows[0].status, "cancelled", "pending escrow may be closed when a booking ends");
+
+    const handoverSqlMatch = apiSource.match(
+      /const rows = await sql\\.query<\\{\\s*renterConfirmed: boolean;[\\s\\S]*?\\}>\\(\\s*`([\\s\\S]*?)`,\\s*\\[data\\.id, context\\.userId\\],\\s*\\);/,
+    );
+    assert.ok(handoverSqlMatch, "the exact server handover SQL must be available for integration testing");
+    const handoverSql = handoverSqlMatch[1];
+    await db.query(
+      `insert into listings(
+         id, user_id, region_id, title, description, category, price_karma, status,
+         images, lat, lng, place_label, offer_type, item_uuid
+       ) values (
+         'test-bilateral-listing', 'seed-leonie', 'yspertal-b36', 'Bilateral-Test', 'Beide Seiten bestätigen',
+         'sharing', 12, 'booked', '[]'::jsonb, 48.3, 15.06, 'Testort', 'sell', 'item-test-bilateral'
+       )`,
+    );
+    await db.query(
+      `insert into bookings(
+         id, listing_id, renter_id, owner_id, starts_at, ends_at, status, amount_karma
+       ) values (
+         'test-bilateral-booking', 'test-bilateral-listing', 'test-renter', 'seed-leonie',
+         now(), now() + interval '1 day', 'reserved', 12
+       )`,
+    );
+    await db.query(
+      `insert into escrow_cases(id, listing_id, booking_id, requester_id, reason)
+       values ('test-bilateral-escrow', 'test-bilateral-listing', 'test-bilateral-booking', 'test-renter', 'Treuhand für Sharing-Reservierung')`,
+    );
+    await db.query("update escrow_cases set status = 'released', resolved_at = now() where id = 'test-bilateral-escrow'");
+    const beforeHandover = await db.query(
+      "select user_id, karma_balance from profiles where user_id in ('test-renter', 'seed-leonie') order by user_id",
+    );
+    const firstConfirmation = await db.query(handoverSql, ["test-bilateral-booking", "test-renter"]);
+    assert.equal(firstConfirmation.rows[0].renterConfirmed, true);
+    assert.equal(firstConfirmation.rows[0].ownerConfirmed, false);
+    assert.equal(firstConfirmation.rows[0].settled, false, "one party cannot trigger Karma settlement");
+    const stillReserved = await db.query(
+      "select status from bookings where id = 'test-bilateral-booking'",
+    );
+    assert.equal(stillReserved.rows[0].status, "reserved");
+    const afterFirstConfirmation = await db.query(
+      "select user_id, karma_balance from profiles where user_id in ('test-renter', 'seed-leonie') order by user_id",
+    );
+    assert.deepEqual(afterFirstConfirmation.rows, beforeHandover.rows, "balances must remain unchanged after only one confirmation");
+
+    const secondConfirmation = await db.query(handoverSql, ["test-bilateral-booking", "seed-leonie"]);
+    assert.equal(secondConfirmation.rows[0].renterConfirmed, true);
+    assert.equal(secondConfirmation.rows[0].ownerConfirmed, true);
+    assert.equal(secondConfirmation.rows[0].settled, true, "settlement happens after both parties confirm");
+    const afterBothConfirmations = await db.query(
+      `select
+         (select status from bookings where id = 'test-bilateral-booking') as status,
+         (select karma_balance from profiles where user_id = 'test-renter') as renter_balance,
+         (select karma_balance from profiles where user_id = 'seed-leonie') as owner_balance,
+         (select count(*)::int from ledger_entries where booking_id = 'test-bilateral-booking' and entry_kind = 'transfer') as transfer_count,
+         (select count(*)::int from ledger_entries where booking_id = 'test-bilateral-booking' and entry_kind = 'activity') as activity_count`,
+    );
+    assert.equal(afterBothConfirmations.rows[0].status, "handed_over");
+    assert.equal(afterBothConfirmations.rows[0].renter_balance, beforeHandover.rows[0].karma_balance - 10);
+    assert.equal(afterBothConfirmations.rows[0].owner_balance, beforeHandover.rows[1].karma_balance + 12);
+    assert.equal(afterBothConfirmations.rows[0].transfer_count, 1);
+    assert.equal(afterBothConfirmations.rows[0].activity_count, 1);
+
     await assert.rejects(
       db.query(
         "select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)",
