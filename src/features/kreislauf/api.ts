@@ -496,20 +496,22 @@ export const createListing = createServerFn({ method: "POST" })
       typeof source.placeLabel === "string" && source.placeLabel.trim()
         ? source.placeLabel.trim().slice(0, 60)
         : "In der Region";
-    let imageDataUrl: string | null = null;
-    if (typeof source.imageDataUrl === "string" && source.imageDataUrl.length > 0) {
-      if (
-        !source.imageDataUrl.startsWith("data:image/jpeg;base64,") ||
-        source.imageDataUrl.length > 280_000
-      ) {
-        throw new Error("Foto zu groß oder im falschen Format");
+    const rawImages = Array.isArray(source.imageDataUrls)
+      ? source.imageDataUrls
+      : typeof source.imageDataUrl === "string" && source.imageDataUrl.length > 0
+        ? [source.imageDataUrl]
+        : [];
+    if (rawImages.length > 4) throw new Error("Maximal 4 Fotos pro Inserat");
+    const imageDataUrls = rawImages.map((image) => {
+      if (typeof image !== "string" || !image.startsWith("data:image/jpeg;base64,") || image.length > 280_000) {
+        throw new Error("Ein Foto ist zu groß oder im falschen Format");
       }
-      imageDataUrl = source.imageDataUrl;
-    }
+      return image;
+    });
     const lat = typeof source.lat === "number" ? source.lat : null;
     const lng = typeof source.lng === "number" ? source.lng : null;
     const itemUuid = typeof source.itemUuid === "string" && /^item-[a-z0-9-]{8,80}$/.test(source.itemUuid) ? source.itemUuid : null;
-    return { regionId, title, description, category, offerType, priceKarma, placeLabel, imageDataUrl, lat, lng, what3wordsAddress, itemUuid };
+    return { regionId, title, description, category, offerType, priceKarma, placeLabel, imageDataUrls, lat, lng, what3wordsAddress, itemUuid };
   })
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
@@ -549,7 +551,7 @@ export const createListing = createServerFn({ method: "POST" })
       if (!owned.length) throw new Error("Du bist laut Artikelhistorie nicht die aktuelle Station dieses Artikels.");
       handsCount = asNumber(owned[0].hands_count);
     }
-    const images = data.imageDataUrl ? [data.imageDataUrl] : [];
+    const images = data.imageDataUrls;
     const assetKind = data.category === "sharing" ? "tool" : null;
     await sql.query(
       `insert into listings (
