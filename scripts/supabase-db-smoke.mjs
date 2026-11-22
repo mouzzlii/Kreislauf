@@ -34,7 +34,9 @@ try {
   await client.query("begin");
   transactionStarted = true;
   await client.query(`create schema "${schema}"`);
-  await client.query(`set local search_path to "${schema}", public`);
+  // Keep public out of search_path: an unqualified DROP INDEX in a migration
+  // must never resolve to and remove an existing production index.
+  await client.query(`set local search_path to "${schema}"`);
 
   for (const name of migrations) {
     const sql = await readFile(join(root, "migrations", name), "utf8");
