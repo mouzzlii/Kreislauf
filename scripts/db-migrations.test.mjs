@@ -289,10 +289,9 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     );
     assert.equal(cancelled.rows[0].status, "cancelled", "pending escrow may be closed when a booking ends");
 
-    const handoverQueryStart = apiSource.indexOf(
-      "const rows = await sql.query<{\\n      renterConfirmed: boolean;",
-      apiSource.indexOf('if (data.action === "return")'),
-    );
+    const returnBranchStart = apiSource.indexOf('if (data.action === "return")');
+    const handoverMarker = apiSource.indexOf("renterConfirmed: boolean;", returnBranchStart);
+    const handoverQueryStart = apiSource.lastIndexOf("const rows = await sql.query<{", handoverMarker);
     const handoverTemplateStart = apiSource.indexOf("`", handoverQueryStart);
     const handoverTemplateEnd = apiSource.indexOf(
       "`,\n      [data.id, context.userId]",
