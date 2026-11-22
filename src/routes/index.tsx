@@ -84,6 +84,21 @@ function Home() {
         </div>
       </section>
 
+      <section className="mt-5 rounded-3xl border border-forest/20 bg-forest/5 p-4 sm:p-5" aria-labelledby="coordinator-title">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-forest">Regionaler Koordinationsbereich</p>
+          <span className="rounded-full border border-line bg-elev px-3 py-1 text-xs text-muted">Vorschau</span>
+        </div>
+        <h2 id="coordinator-title" className="mt-2 font-display text-2xl text-fg">3 Punkte · 1 Ort</h2>
+        <p className="mt-2 max-w-2xl text-sm text-muted">
+          Die regionale Anlaufstelle verbindet Gesuche und Angebote im Yspertal:
+          Menschen, die etwas brauchen, Menschen, die etwas anbieten, und einen passenden Ort für den Austausch.
+        </p>
+        <p className="mt-3 text-xs text-subtle">
+          Die persönliche Vermittlung durch einen Koordinator ist noch nicht aktiviert. Bis dahin können Mitglieder direkt über die Inserate Kontakt aufnehmen.
+        </p>
+      </section>
+
       <dl className="mt-6 grid grid-cols-3 gap-px overflow-hidden rounded-3xl border border-line bg-line sm:max-w-xl">
         <Stat label="Karma im Umlauf" value={formatKarma(board.stats.inCirculation)} />
         <Stat label="Karma bewegt · 30 Tage" value={formatKarma(board.stats.moved)} />
