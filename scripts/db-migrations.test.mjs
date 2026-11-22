@@ -23,6 +23,7 @@ const migrations = [
   "0015_listing_paused_status.sql",
   "0016_reconcile_demo_karma_ledger.sql",
   "0017_allow_activity_ledger_entries.sql",
+  "0018_booking_bilateral_handover.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
@@ -47,6 +48,11 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     assert.ok(schema.rows[0].conversations);
     assert.ok(schema.rows[0].escrow_moderators);
     assert.ok(schema.rows[0].vote_function);
+    const handoverConstraint = await db.query(
+      "select pg_get_constraintdef(oid) as definition from pg_constraint where conrelid = 'public.bookings'::regclass and conname = 'bookings_bilateral_handover_check'",
+    );
+    assert.match(handoverConstraint.rows[0].definition, /renter_handover_at IS NOT NULL/);
+    assert.match(handoverConstraint.rows[0].definition, /owner_handover_at IS NOT NULL/);
 
     const listingStatusConstraint = await db.query(
       "select pg_get_constraintdef(oid) as definition from pg_constraint where conrelid = 'public.listings'::regclass and conname = 'listings_status_check'",
@@ -220,6 +226,16 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     assert.ok(result.assigned_moderator_count >= 4, "at least four eligible moderators should be assigned for quorum");
     assert.ok(result.assigned_moderator_count <= 7, "no escrow case may assign more than seven moderators");
     assert.ok(result.system_message_count >= 1, "booking should create an in-app system message");
+
+    await db.query("update bookings set renter_handover_at = now() where id = $1", [bookingId]);
+    const oneSidedHandover = await db.query(
+      "select status, renter_handover_at, owner_handover_at from bookings where id = $1",
+      [bookingId],
+    );
+    assert.equal(oneSidedHandover.rows[0].status, "reserved", "one party alone must not complete a handover");
+    assert.ok(oneSidedHandover.rows[0].renter_handover_at);
+    assert.equal(oneSidedHandover.rows[0].owner_handover_at, null);
+    await db.query("update bookings set renter_handover_at = null where id = $1", [bookingId]);
 
     const notifications = await db.query(
       `select c.listing_id as "listingId", l.title as "listingTitle",
