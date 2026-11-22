@@ -2,7 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { approximatePublicCoordinates } from "./geo-privacy";
-import { validateListingVideoSet } from "./video-upload";
 import {
   WELCOME_KARMA,
   type Board,
