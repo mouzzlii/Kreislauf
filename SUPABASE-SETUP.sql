@@ -722,8 +722,15 @@ alter function public.kreislauf_forbid_ledger_change() set search_path = pg_cata
 alter function public.kreislauf_system_message(text, text, text, text) set search_path = pg_catalog, public, pg_temp;
 alter function public.kreislauf_transfer_message() set search_path = pg_catalog, public, pg_temp;
 
--- 0008_harden_legacy_function_search_path.sql: pin the retained legacy helper.
-alter function public.process_gwp_transaction() set search_path = pg_catalog, public, pg_temp;
+-- 0008_harden_legacy_function_search_path.sql: pin the retained legacy helper when present.
+do $
+begin
+  if to_regprocedure('public.process_gwp_transaction()') is not null then
+    alter function public.process_gwp_transaction()
+      set search_path = pg_catalog, public, pg_temp;
+  end if;
+end
+$;
 
 -- Mark the bundled migrations as applied so the app does not rerun them at deploy.
 insert into _migrations(name) values
