@@ -8,7 +8,7 @@ export function validateVideoUpload(
 ): { duration: number } {
   const prefix = `listings/${encodeURIComponent(userId)}/`;
   const filename = pathname.startsWith(prefix) ? pathname.slice(prefix.length) : "";
-  if (!filename || filename.includes("/") || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(mp4|webm|mov)$/i.test(filename)) {
+  if (!filename || filename.includes("/") || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(mp4|webm|mov)$/i.test(filename)) {
     throw new Error("Ungültiger Video-Speicherpfad");
   }
 
