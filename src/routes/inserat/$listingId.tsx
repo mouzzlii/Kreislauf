@@ -271,12 +271,25 @@ function ListingPage() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   {booking.status === "reserved" ? (
                     <>
-                      <Button disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "handover" } }))}>
-                        Übergeben
-                      </Button>
-                      <Button variant="ghost" disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "cancel" } }))}>
-                        Stornieren
-                      </Button>
+                      <p className="w-full text-sm text-subtle">
+                        Übergabebestätigung: {booking.renterConfirmed ? "Abholende Person bestätigt" : "Abholende Person offen"} · {booking.ownerConfirmed ? "Anbietende Person bestätigt" : "Anbietende Person offen"}.
+                        Karma wird erst nach beiden Bestätigungen übertragen.
+                      </p>
+                      {!(user?.id === booking.renterId ? booking.renterConfirmed : booking.ownerConfirmed) ||
+                      (booking.renterConfirmed && booking.ownerConfirmed) ? (
+                        <Button disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "handover" } }))}>
+                          {booking.renterConfirmed && booking.ownerConfirmed ? "Übergabe erneut prüfen" :
+                            (user?.id === booking.renterId ? booking.renterConfirmed : booking.ownerConfirmed)
+                              ? "Bestätigung gespeichert" : "Übergabe bestätigen"}
+                        </Button>
+                      ) : (
+                        <Button disabled>Bestätigung gespeichert</Button>
+                      )}
+                      {!booking.renterConfirmed && !booking.ownerConfirmed ? (
+                        <Button variant="ghost" disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "cancel" } }))}>
+                          Stornieren
+                        </Button>
+                      ) : null}
                     </>
                   ) : null}
                   {booking.status === "handed_over" ? (
