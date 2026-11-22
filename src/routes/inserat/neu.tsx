@@ -207,7 +207,7 @@ function NewListing() {
                   .catch(() => setError("Mindestens ein Foto ließ sich nicht lesen. Bitte versuche es erneut."));
               }}
             />
-            <span className="mt-1 block text-xs text-subtle">{images.length} von 4 Fotos ausgewählt. Du kannst weitere Fotos hinzufügen oder einzelne entfernen. Die Fotos werden für die Vorschau verkleinert. Videos können derzeit noch nicht hochgeladen werden.</span>
+            <span className="mt-1 block text-xs text-subtle">{images.length} von 4 Fotos ausgewählt. Du kannst weitere Fotos hinzufügen oder einzelne entfernen. Die Fotos werden für die Vorschau verkleinert. Video-Uploads sind im gemeinsamen Demo-Modus deaktiviert; sie setzen persönliche Konten und einen eingerichteten Medienspeicher voraus.</span>
           </Field>
           <Field label="Videos (maximal 60 Sekunden Gesamtzeit)">
             <select
