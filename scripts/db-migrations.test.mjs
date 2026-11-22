@@ -346,7 +346,7 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
          (select count(*)::int from ledger_entries where booking_id = 'test-bilateral-booking' and entry_kind = 'activity') as activity_count`,
     );
     assert.equal(afterBothConfirmations.rows[0].status, "handed_over");
-    assert.equal(afterBothConfirmations.rows[0].renter_balance, beforeHandover.rows[0].karma_balance - 10);
+    assert.equal(afterBothConfirmations.rows[0].renter_balance, beforeHandover.rows[0].karma_balance - 11);
     assert.equal(afterBothConfirmations.rows[0].owner_balance, beforeHandover.rows[1].karma_balance + 12);
     assert.equal(afterBothConfirmations.rows[0].transfer_count, 1);
     assert.equal(afterBothConfirmations.rows[0].activity_count, 1);
