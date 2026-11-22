@@ -37,7 +37,7 @@ function Home() {
   const listings = board.listings.filter((listing) => {
     if (filter !== "all" && listing.category !== filter) return false;
     if (offerFilter !== "all" && listing.offerType !== offerFilter) return false;
-    if (listing.status === "maintenance") return false;
+    if (listing.status === "maintenance" || listing.status === "paused") return false;
     if (!showDone && listing.status === "completed") return false;
     if (near && haversineKm(origin.lat, origin.lng, listing.lat, listing.lng) > 5) return false;
     return true;
