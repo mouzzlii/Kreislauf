@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Shell } from "@/components/shell";
 import { Button, Field, fieldClass } from "@/components/ui";
 import { createListing, getItemTemplate } from "@/features/kreislauf/api";
 import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import type { Category } from "@/features/kreislauf/types";
+import { checkVideoDurations, VIDEO_PRESETS, type VideoPreset } from "@/features/kreislauf/video-rules";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/inserat/neu")({
@@ -25,6 +26,14 @@ function NewListing() {
   const [price, setPrice] = useState("10");
   const [place, setPlace] = useState("");
   const [images, setImages] = useState<string[]>([]);
+  const [videoPreset, setVideoPreset] = useState<VideoPreset>("single");
+  const [videos, setVideos] = useState<Array<{ file: File; url: string; duration: number }>>([]);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const videoUrls = useRef(new Set<string>());
+  useEffect(() => () => {
+    for (const url of videoUrls.current) URL.revokeObjectURL(url);
+    videoUrls.current.clear();
+  }, []);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [reuseLoading, setReuseLoading] = useState(false);
@@ -69,6 +78,10 @@ function NewListing() {
           className="mt-6 max-w-lg space-y-4"
           onSubmit={(event) => {
             event.preventDefault();
+            if (videos.length > 0) {
+              setError("Die Videovorschau funktioniert bereits. Der sichere Video-Upload wird erst nach Einrichtung persönlicher Konten freigeschaltet. Bitte entferne die Videos, bevor du dieses Inserat speicherst.");
+              return;
+            }
             setBusy(true);
             setError(null);
             void createListing({
@@ -171,6 +184,108 @@ function NewListing() {
             />
             <span className="mt-1 block text-xs text-subtle">{images.length} von 4 Fotos ausgewählt. Du kannst weitere Fotos hinzufügen oder einzelne entfernen. Die Fotos werden für die Vorschau verkleinert. Videos können derzeit noch nicht hochgeladen werden.</span>
           </Field>
+          <Field label="Videos (maximal 60 Sekunden Gesamtzeit)">
+            <select
+              className={fieldClass}
+              value={videoPreset}
+              onChange={(event) => {
+                const preset = event.target.value as VideoPreset;
+                setVideoPreset(preset);
+                setVideos((current) => {
+                  const limit = VIDEO_PRESETS[preset].maxFiles;
+                  for (const removed of current.slice(limit)) {
+                    URL.revokeObjectURL(removed.url);
+                    videoUrls.current.delete(removed.url);
+                  }
+                  return current.slice(0, limit);
+                });
+                setError(null);
+              }}
+            >
+              {Object.entries(VIDEO_PRESETS).map(([value, preset]) => (
+                <option key={value} value={value}>{preset.label}</option>
+              ))}
+            </select>
+            <input
+              className="mt-2 block w-full text-sm text-muted file:mr-3 file:h-11 file:rounded-lg file:border-0 file:bg-elev-2 file:px-4 file:text-fg"
+              type="file"
+              accept="video/mp4,video/webm,video/quicktime"
+              multiple={VIDEO_PRESETS[videoPreset].maxFiles > 1}
+              onChange={(event) => {
+                const input = event.currentTarget;
+                const files = Array.from(input.files ?? []);
+                input.value = "";
+                if (files.length === 0) return;
+                const limit = VIDEO_PRESETS[videoPreset];
+                if (videos.length + files.length > limit.maxFiles) {
+                  setError(`Dieses Format erlaubt maximal ${limit.maxFiles} Video(s).`);
+                  return;
+                }
+                if (files.some((file) => !["video/mp4", "video/webm", "video/quicktime"].includes(file.type))) {
+                  setError("Bitte MP4-, WebM- oder QuickTime-Videos auswählen.");
+                  return;
+                }
+                if (files.some((file) => file.size > 50 * 1024 * 1024)) {
+                  setError("Jedes Video darf höchstens 50 MB groß sein.");
+                  return;
+                }
+                setVideoLoading(true);
+                setError(null);
+                void Promise.all(files.map(probeVideo))
+                  .then((drafts) => {
+                    const candidate = [...videos, ...drafts];
+                    const result = checkVideoDurations(videoPreset, candidate.map((video) => video.duration));
+                    if (!result.ok) {
+                      drafts.forEach((video) => {
+                        URL.revokeObjectURL(video.url);
+                        videoUrls.current.delete(video.url);
+                      });
+                      const message = result.reason === "clip-too-long"
+                        ? `Ein Video ist länger als ${limit.maxEachSeconds} Sekunden.`
+                        : result.reason === "total-too-long"
+                          ? "Alle Videos zusammen dürfen höchstens 60 Sekunden dauern."
+                          : "Die ausgewählten Videos passen nicht zu diesem Format.";
+                      setError(message);
+                      return;
+                    }
+                    setVideos(candidate);
+                  })
+                  .catch(() => setError("Mindestens ein Video konnte nicht gelesen werden. Bitte MP4, WebM oder QuickTime verwenden."))
+                  .finally(() => setVideoLoading(false));
+              }}
+            />
+            <span className="mt-1 block text-xs text-subtle">
+              {videos.length} von {VIDEO_PRESETS[videoPreset].maxFiles} Videos ausgewählt · höchstens {VIDEO_PRESETS[videoPreset].maxEachSeconds} Sekunden je Clip. Die Dauer wird am Gerät geprüft.
+            </span>
+            {videoLoading ? <span className="mt-2 block text-xs text-muted">Videodauer wird geprüft…</span> : null}
+            <p className="mt-2 rounded-xl border border-copper/30 bg-copper/5 p-3 text-xs text-muted">
+              Videovorschau ist lokal möglich. Ein sicherer Upload und die dauerhafte Speicherung sind noch nicht freigeschaltet; Videos werden deshalb noch nicht mit einem Inserat veröffentlicht.
+            </p>
+          </Field>
+          {videos.length ? (
+            <div className="space-y-3">
+              {videos.map((video, index) => (
+                <div key={video.url} className="overflow-hidden rounded-xl border border-line bg-elev">
+                  <video src={video.url} controls playsInline preload="metadata" className="max-h-64 w-full bg-black" />
+                  <div className="flex items-center justify-between gap-2 px-3 py-2">
+                    <span className="min-w-0 truncate text-xs text-muted">{video.file.name} · {Math.ceil(video.duration)} Sek.</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        URL.revokeObjectURL(video.url);
+                        videoUrls.current.delete(video.url);
+                        setVideos((current) => current.filter((_, videoIndex) => videoIndex !== index));
+                      }}
+                      className="shrink-0 text-xs font-medium text-copper underline-offset-4 hover:underline"
+                    >
+                      Entfernen
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <p className="text-xs text-subtle">Gesamtdauer: {videos.reduce((sum, video) => sum + video.duration, 0).toFixed(1)} von 60 Sekunden</p>
+            </div>
+          ) : null}
           {images.length ? (
             <div className="grid grid-cols-2 gap-3">
               {images.map((src, index) => (
@@ -192,13 +307,41 @@ function NewListing() {
             </div>
           ) : null}
           {error ? <p className="text-sm text-copper">{error}</p> : null}
-          <Button type="submit" disabled={busy}>
+          <Button type="submit" disabled={busy || videoLoading}>
             {busy ? "Speichert…" : "Inserat stellen"}
           </Button>
         </form>
       )}
     </Shell>
   );
+}
+
+function probeVideo(file: File): Promise<{ file: File; url: string; duration: number }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      const duration = video.duration;
+      video.src = "";
+      if (!Number.isFinite(duration) || duration <= 0) {
+        URL.revokeObjectURL(url);
+        reject(new Error("duration"));
+        return;
+      }
+      videoUrlsRegister(url);
+      resolve({ file, url, duration });
+    };
+    video.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("video"));
+    };
+    video.src = url;
+  });
+}
+
+function videoUrlsRegister(_url: string): void {
+  // The component owns object-URL cleanup through its ref.
 }
 
 function compressImage(file: File): Promise<string> {
