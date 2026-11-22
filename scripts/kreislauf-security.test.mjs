@@ -20,6 +20,7 @@ const videoUploadValidation = await readFile(new URL("../src/features/kreislauf/
 const videoMigration = await readFile(new URL("../migrations/0013_listing_video_urls.sql", import.meta.url), "utf8");
 const pausedMigration = await readFile(new URL("../migrations/0015_listing_paused_status.sql", import.meta.url), "utf8");
 const marketRoute = await readFile(new URL("../src/routes/index.tsx", import.meta.url), "utf8");
+const mapRoute = await readFile(new URL("../src/routes/karte.tsx", import.meta.url), "utf8");
 const shell = await readFile(new URL("../src/components/shell.tsx", import.meta.url), "utf8");
 const listingDetail = await readFile(new URL("../src/routes/inserat/$listingId.tsx", import.meta.url), "utf8");
 const listingTypes = await readFile(new URL("../src/features/kreislauf/types.ts", import.meta.url), "utf8");
@@ -264,6 +265,11 @@ test("paused listings stay out of the public market feed", () => {
   assert.match(marketRoute, /listing\.status === "maintenance" \|\| listing\.status === "paused"\) return false/);
 });
 
+
+test("paused listings stay out of both market and map views", () => {
+  assert.match(marketRoute, /listing\.status === "maintenance" \|\| listing\.status === "paused"\) return false/);
+  assert.match(mapRoute, /!\["completed", "maintenance", "paused"\]\.includes\(listing\.status\)/);
+});
 
 test("maintenance and user-paused listings remain distinct database states", () => {
   assert.match(pausedMigration, /drop constraint if exists listings_status_check/);
