@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ListingCard } from "@/components/listing-card";
 import { Shell } from "@/components/shell";
-import { Button } from "@/components/ui";
 import { getBoard } from "@/features/kreislauf/api";
 import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import { CATEGORY_LABEL, formatKarma, haversineKm } from "@/features/kreislauf/format";
