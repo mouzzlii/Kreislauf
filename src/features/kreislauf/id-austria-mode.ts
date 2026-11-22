@@ -12,8 +12,6 @@ export type IdAustriaMockEnvironment = {
 export function canUseIdAustriaMock(environment: IdAustriaMockEnvironment): boolean {
   if (!environment.mockMode) return false;
   if (environment.vercelEnv === "production") return false;
-  if (environment.nodeEnv === "production" && environment.vercelEnv !== "preview") {
-    return false;
-  }
-  return true;
+  if (environment.vercelEnv === "preview") return true;
+  return environment.nodeEnv === "development" || environment.nodeEnv === "test";
 }
