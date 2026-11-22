@@ -76,3 +76,13 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 
 
 - Profilanlage und regionales Startguthaben werden gemeinsam in einer einzelnen SQL-Anweisung angelegt. Scheitert die Ledger-Buchung, wird auch die Profilanlage zurückgerollt; Wiederholungsaufrufe erzeugen keine zweite Startgutschrift. Regressionstest und CI: Commit `03096699ae94548bc6df00f919de0f6926b5c26a`, Lauf `45069498567` erfolgreich. Dies belegt die Code-Prüfung, nicht die Ausführung gegen die Live-Datenbank.
+
+## Letzter Code-Prüfstand – 22.11.2026
+
+- Entwicklungszweig: `demo/local-auth-off`; Commit `79a44f6439b70364bc1b83e69b489a6d3a453d50`.
+- GitHub Actions `45073176756`: erfolgreich – Abhängigkeitsprüfung, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- Migration `0016_reconcile_demo_karma_ledger.sql`: temporärer PostgreSQL-/PGlite-Test erfolgreich; alle vorbereiteten Demo-Guthaben stimmen mit dem Ledger überein, erneutes Ausführen erzeugt keine doppelten Korrekturbuchungen.
+- `SUPABASE-SETUP.sql` enthält die neue Migration. Sie wurde in diesem Arbeitsschritt nicht auf dem verbundenen Supabase-Projekt ausgeführt.
+- Vercel-Preview für den aktuellen Commit weiterhin blockiert: Deployment-Tageslimit erreicht (HTTP 402 / 24-Stunden-Sperre). Kein Upgrade und keine Änderung der Abrechnung vorgenommen.
+- PR #1 bleibt offen und nicht zusammengeführt. Keine Veröffentlichung oder Produktivfreigabe.
+- Weiterhin offen: echte Mehrbenutzer-Authentifizierung, produktiv angebundene dauerhafte Datenbank, beidseitige hochwertige Treuhand-Abwicklung, echte ID-Austria-Prüfung, Video-Upload und Android-Ende-zu-Ende-Praxistests.
