@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import { approximatePublicCoordinates } from "./geo-privacy";
+import { validateListingVideoSet } from "./video-upload";
 import {
   WELCOME_KARMA,
   type Board,
@@ -519,6 +520,12 @@ export const createListing = createServerFn({ method: "POST" })
     }
     const rawVideoUrls = Array.isArray(source.videoUrls) ? source.videoUrls : [];
     if (rawVideoUrls.length > 4) throw new Error("Maximal 4 Videos pro Inserat");
+    const videoPreset = source.videoPreset === "pair" || source.videoPreset === "quad" ? source.videoPreset : "single";
+    const videoDurations = validateListingVideoSet(
+      videoPreset,
+      rawVideoUrls,
+      Array.isArray(source.videoDurations) ? source.videoDurations : [],
+    );
     const videoUrls = rawVideoUrls.map((value) => {
       if (typeof value !== "string" || value.length > 2048) throw new Error("Ungültiges Video");
       let parsed: URL;
@@ -531,7 +538,7 @@ export const createListing = createServerFn({ method: "POST" })
     const lat = typeof source.lat === "number" ? source.lat : null;
     const lng = typeof source.lng === "number" ? source.lng : null;
     const itemUuid = typeof source.itemUuid === "string" && /^item-[a-z0-9-]{8,80}$/.test(source.itemUuid) ? source.itemUuid : null;
-    return { regionId, title, description, category, offerType, priceKarma, placeLabel, imageDataUrls, videoUrls, lat, lng, what3wordsAddress, itemUuid };
+    return { regionId, title, description, category, offerType, priceKarma, placeLabel, imageDataUrls, videoUrls, videoPreset, videoDurations, lat, lng, what3wordsAddress, itemUuid };
   })
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
