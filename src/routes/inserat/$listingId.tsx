@@ -13,6 +13,7 @@ import {
   getProviderListings,
   getMeetingPoint,
   reserveListing,
+  setListingAvailability,
   tradeListing,
   transitionBooking,
 } from "@/features/kreislauf/api";
@@ -232,8 +233,22 @@ function ListingPage() {
             </form>
           ) : null}
 
-          {mine && listing.status === "active" ? (
-            <p className="mt-5 text-sm text-muted">Das ist dein Inserat.</p>
+          {mine ? (
+            <div className="mt-5 rounded-2xl border border-line bg-elev p-4">
+              <p className="text-sm text-muted">Das ist dein Inserat. Du kannst es vorübergehend aus dem Markt nehmen und später wieder freischalten.</p>
+              {listing.status === "active" || listing.status === "maintenance" ? (
+                <Button
+                  className="mt-3"
+                  variant={listing.status === "active" ? "ghost" : "primary"}
+                  disabled={busy}
+                  onClick={() => void run(() => setListingAvailability({ data: { id: listing.id, action: listing.status === "active" ? "pause" : "resume" } }))}
+                >
+                  {listing.status === "active" ? "Inserat pausieren" : "Inserat wieder freigeben"}
+                </Button>
+              ) : (
+                <p className="mt-2 text-xs text-subtle">Dieses Inserat kann wegen seines aktuellen Tauschstatus nicht pausiert werden.</p>
+              )}
+            </div>
           ) : null}
           {listing.status === "completed" && user ? <Button className="mt-4" variant="ghost" onClick={() => navigate({ to: "/inserat/neu", search: { reuse: listing.itemUuid } })}>Erneut im Kreislauf einstellen</Button> : null}
 
