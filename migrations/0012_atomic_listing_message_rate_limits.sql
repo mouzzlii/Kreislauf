@@ -9,7 +9,22 @@ create table if not exists public.listing_message_rate_limits (
   updated_at timestamptz not null default now()
 );
 alter table public.listing_message_rate_limits enable row level security;
-revoke all on table public.listing_message_rate_limits from public, anon, authenticated, service_role;
+revoke all on table public.listing_message_rate_limits from public;
+
+do $roles$
+declare
+  role_name text;
+begin
+  foreach role_name in array array['anon', 'authenticated', 'service_role'] loop
+    if exists (select 1 from pg_roles where rolname = role_name) then
+      execute format(
+        'revoke all on table public.listing_message_rate_limits from %I',
+        role_name
+      );
+    end if;
+  end loop;
+end;
+$roles$;
 
 create or replace function public.kreislauf_limit_listing_messages()
 returns trigger
