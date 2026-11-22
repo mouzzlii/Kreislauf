@@ -40,7 +40,7 @@ function NewListing() {
     }).catch((error: unknown) => { if (!cancel) setError(error instanceof Error ? error.message : "Artikel konnte nicht übernommen werden"); })
       .finally(() => { if (!cancel) setReuseLoading(false); });
     return () => { cancel = true; };
-  }, [reuse, user?.id]);
+  }, [reuse, user]);
 
   return (
     <Shell>
