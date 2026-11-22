@@ -722,15 +722,9 @@ alter function public.kreislauf_forbid_ledger_change() set search_path = pg_cata
 alter function public.kreislauf_system_message(text, text, text, text) set search_path = pg_catalog, public, pg_temp;
 alter function public.kreislauf_transfer_message() set search_path = pg_catalog, public, pg_temp;
 
--- 0008_harden_legacy_function_search_path.sql: pin the retained legacy helper when present.
-do $
-begin
-  if to_regprocedure('public.process_gwp_transaction()') is not null then
-    alter function public.process_gwp_transaction()
-      set search_path = pg_catalog, public, pg_temp;
-  end if;
-end
-$;
+
+-- Optional legacy migration 0008 is intentionally excluded from this clean-install script.
+-- It is applied separately only on upgraded projects where the legacy function exists.
 
 -- Mark the bundled migrations as applied so the app does not rerun them at deploy.
 insert into _migrations(name) values
@@ -740,8 +734,7 @@ insert into _migrations(name) values
   ('0004_messages_escrow.sql'),
   ('0005_escrow_atomicity.sql'),
   ('0006_escrow_cancellation.sql'),
-  ('0007_harden_function_search_path.sql'),
-  ('0008_harden_legacy_function_search_path.sql')
+  ('0007_harden_function_search_path.sql')
 on conflict (name) do nothing;
 
 commit;
