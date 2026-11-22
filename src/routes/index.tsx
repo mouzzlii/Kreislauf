@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ListingCard } from "@/components/listing-card";
 import { Shell } from "@/components/shell";
@@ -48,6 +48,20 @@ function Home() {
         <p className="text-sm text-copper">{board.region.name}</p>
         <h1 className="mt-2 font-display text-4xl leading-tight text-fg">Tauschen, helfen, teilen.</h1>
         <p className="mt-3 text-muted">{board.region.description}</p>
+      </section>
+
+      <section className="mt-6 flex flex-col items-center rounded-3xl border border-forest/20 bg-forest/5 px-5 py-7 text-center sm:py-8">
+        <p className="text-sm text-muted">Mach mit im regionalen Kreislauf</p>
+        {authEnabled ? (
+          <Link to="/login" className="mt-3 inline-flex min-h-14 w-full max-w-sm items-center justify-center rounded-2xl bg-forest px-6 py-3 text-base font-semibold text-paper shadow-sm transition hover:brightness-110">
+            Anmelden / Registrieren
+          </Link>
+        ) : (
+          <a href="#markt" className="mt-3 inline-flex min-h-14 w-full max-w-sm items-center justify-center rounded-2xl bg-forest px-6 py-3 text-base font-semibold text-paper shadow-sm transition hover:brightness-110">
+            Gemeinsame Demo öffnen
+          </a>
+        )}
+        {!authEnabled ? <p className="mt-2 text-xs text-subtle">Persönliche Registrierung folgt vor dem öffentlichen Start.</p> : null}
       </section>
 
       {!authEnabled ? (
@@ -116,7 +130,7 @@ function Home() {
         </p>
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-2" aria-label="Inseratstyp">
+      <div id="markt" className="mt-8 flex flex-wrap gap-2 scroll-mt-28" aria-label="Inseratstyp">
         {[{ id: "all", label: "Alle Inserate" }, { id: "sell", label: "Angebote" }, { id: "search", label: "Gesuche" }, { id: "gift", label: "Verschenke" }].map((item) => (
           <button key={item.id} type="button" aria-pressed={offerFilter === item.id}
             onClick={() => setOfferFilter(item.id as typeof offerFilter)}
