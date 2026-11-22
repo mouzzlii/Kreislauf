@@ -94,3 +94,5 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - Sharing-Reservierungen akzeptieren keine Startzeit in der Vergangenheit; der Zeitbereich bleibt auf 1 Stunde bis 14 Tage begrenzt.
 
 - Auch die Rückgabe einer Sharing-Buchung braucht jetzt beide Bestätigungen. Das Inserat wird erst danach wieder öffentlich buchbar; Migration `0019_booking_bilateral_return.sql` ergänzt die Bestätigungsfelder und sichert historische Rückgaben ab.
+
+- Inserat-Unterhaltung und erste/weitere Nachricht werden atomar in einem SQL-Statement gespeichert; Regressionstest vorhanden.
