@@ -97,3 +97,6 @@ Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es 
 - Die Migration im Repository erstellt bei einer Neuinstallation 14 Indizes für die tatsächlich verwendeten Schema-Tabellen. Veraltete Prototyp-Tabellen wie `marketplace_items`, `rentals`, `legacy_bookings` und `transactions` sind nicht Bestandteil des sauberen Neuaufbaus.
 - Die 19 Indizes werden vom Advisor derzeit teilweise als unbenutzt gemeldet, weil noch kein echter Nutzerbetrieb mit realer Datenlast stattfindet. Sie werden deshalb nicht vorschnell entfernt.
 - Nach der Migration erneut geprüft: 0 öffentliche Tabellen ohne RLS, 0 direkte Tabellenrechte für `anon` oder `authenticated`, 19 Fremdschlüssel-Indizes.
+
+
+- `ensureProfile` legt Profil und regionale Startgutschrift jetzt in einer einzelnen SQL-Anweisung an. Dadurch können Profil und initiale Karma-Ledger-Buchung nicht durch einen Fehler zwischen zwei getrennten Statements auseinanderlaufen. Der Regressionstest läuft im CI erfolgreich; eine Live-Datenbankmigration bzw. ein produktiver DB-Test ist damit nicht belegt.
