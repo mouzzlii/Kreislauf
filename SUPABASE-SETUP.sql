@@ -616,14 +616,25 @@ begin
 end;
 $permissions$;
 
--- Security hardening: browser-facing Supabase roles must not read or mutate app data.
--- KREISLAUF accesses PostgreSQL only from the server with the private connection string.
-revoke all on all tables in schema public from anon, authenticated;
-revoke all on all sequences in schema public from anon, authenticated;
-revoke all on all functions in schema public from public;
-alter default privileges in schema public revoke all on tables from anon, authenticated;
-alter default privileges in schema public revoke all on sequences from anon, authenticated;
-alter default privileges in schema public revoke execute on functions from public;
+-- Security hardening: only the KREISLAUF tables are locked down here.
+-- Browser-facing Supabase roles cannot access app rows; the server-side
+-- PostgreSQL connection remains the only application data path.
+revoke all on table
+  public._migrations, public.regions, public.profiles, public.listings,
+  public.bookings, public.reviews, public.ledger_entries, public.item_history,
+  public.escrow_cases, public.listing_conversations, public.listing_messages,
+  public.escrow_moderators, public.escrow_votes,
+  public."user", public."session", public."account", public."verification"
+from anon, authenticated;
+
+revoke all on sequence
+  public.ledger_entries_id_seq, public.item_history_id_seq,
+  public.listing_messages_id_seq, public.escrow_votes_id_seq
+from anon, authenticated;
+
+-- These helper functions must never be callable through the public Supabase API.
+revoke all on function public.apply_demurrage() from public;
+revoke all on function public.kreislauf_system_message(text, text, text, text) from public;
 
 alter table public._migrations enable row level security;
 alter table public.regions enable row level security;
