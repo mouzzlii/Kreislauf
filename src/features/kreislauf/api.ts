@@ -290,6 +290,21 @@ export const getListing = createServerFn({ method: "GET" })
     return { listing, booking, reviews, history, escrowPending: escrowRows.length > 0 };
   });
 
+export const getProviderListings = createServerFn({ method: "GET" })
+  .validator((input: unknown) => ({ id: idOf(input, "id"), excludeId: idOf(input, "excludeId") }))
+  .handler(async ({ data }): Promise<Listing[]> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      `${LISTING_SQL}
+       where l.user_id = (select user_id from listings where id = $1)
+         and l.id <> $2 and l.status = 'active'
+       order by l.created_at desc
+       limit 8`,
+      [data.id, data.excludeId],
+    );
+    return rows.map(mapListing);
+  });
+
 export const getListingBooking = createServerFn({ method: "GET" })
   .validator((input: unknown) => ({ id: idOf(input, "id") }))
   .middleware([authMiddleware])
