@@ -165,9 +165,10 @@ function AccountBody({
               );
             }}
           >
-            Standort teilen
+            Standort für Umkreissuche setzen
           </Button>
         </div>
+        <p className="text-xs text-subtle">Dein genauer Standort bleibt in deinem privaten Profil. Öffentliche Kartenpunkte werden absichtlich verschoben und gerundet.</p>
         {note ? <p className="text-sm text-muted">{note}</p> : null}
       </form>
     </div>
