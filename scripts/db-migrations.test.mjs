@@ -11,6 +11,7 @@ const migrations = [
   "0003_kreislauf_v2.sql",
   "0004_messages_escrow.sql",
   "0005_escrow_atomicity.sql",
+  "0006_escrow_cancellation.sql",
 ];
 
 test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
@@ -161,6 +162,24 @@ test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
     assert.equal(notifications.rows.length, 1, "listing owner should see one unread conversation");
     assert.ok(notifications.rows[0].unreadCount >= 1, "booking should create an unread notification");
     assert.equal(notifications.rows[0].listingId, "test-sharing");
+
+    await db.query(
+      "update escrow_cases set status = 'cancelled', resolved_at = now() where id = $1 and status = 'pending'",
+      [escrowId],
+    );
+    const cancelled = await db.query(
+      "select status from escrow_cases where id = $1",
+      [escrowId],
+    );
+    assert.equal(cancelled.rows[0].status, "cancelled", "pending escrow may be closed when a booking ends");
+    await assert.rejects(
+      db.query(
+        "select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)",
+        ["test-sharing", "test-moderator", "approve", "Abstimmung nach Stornierung"],
+      ),
+      /Keine offene Treuhand/,
+      "a cancelled escrow must not accept further votes",
+    );
 
     const secondAttempt = await db.query(
       `with target as (
