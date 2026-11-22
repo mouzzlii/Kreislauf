@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { Shell } from "@/components/shell";
 import { Button, Field, fieldClass } from "@/components/ui";
 import { createListing, getItemTemplate } from "@/features/kreislauf/api";
@@ -7,6 +8,7 @@ import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import type { Category } from "@/features/kreislauf/types";
 import { checkVideoDurations, VIDEO_PRESETS, type VideoPreset } from "@/features/kreislauf/video-rules";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { authEnabled } from "@/lib/auth/client";
 
 export const Route = createFileRoute("/inserat/neu")({
   validateSearch: (search: Record<string, unknown>) => ({ reuse: typeof search.reuse === "string" ? search.reuse : undefined }),
@@ -29,6 +31,7 @@ function NewListing() {
   const [videoPreset, setVideoPreset] = useState<VideoPreset>("single");
   const [videos, setVideos] = useState<Array<{ file: File; url: string; duration: number }>>([]);
   const [videoLoading, setVideoLoading] = useState(false);
+  const [videoUploadProgress, setVideoUploadProgress] = useState(0);
   const videoUrls = useRef(new Set<string>());
   useEffect(() => () => {
     for (const url of videoUrls.current) URL.revokeObjectURL(url);
@@ -78,13 +81,32 @@ function NewListing() {
           className="mt-6 max-w-lg space-y-4"
           onSubmit={(event) => {
             event.preventDefault();
-            if (videos.length > 0) {
-              setError("Die Videovorschau funktioniert bereits. Der sichere Video-Upload wird erst nach Einrichtung persönlicher Konten freigeschaltet. Bitte entferne die Videos, bevor du dieses Inserat speicherst.");
-              return;
-            }
             setBusy(true);
             setError(null);
-            void createListing({
+            setVideoUploadProgress(0);
+            void (async () => {
+              try {
+                if (videos.length > 0 && !authEnabled) {
+                  throw new Error("Video-Uploads benötigen persönliche Konten. In der gemeinsamen Demo bleiben sie zum Schutz der Testdaten gesperrt.");
+                }
+                const videoUrls: string[] = [];
+                for (const [index, video] of videos.entries()) {
+                  const extension = video.file.type === "video/webm" ? "webm" : video.file.type === "video/quicktime" ? "mov" : "mp4";
+                  const blob = await upload(
+                    "listings/" + encodeURIComponent(user!.id) + "/" + crypto.randomUUID() + "." + extension,
+                    video.file,
+                    {
+                      access: "public",
+                      handleUploadUrl: "/api/upload",
+                      clientPayload: JSON.stringify({ duration: video.duration }),
+                      onUploadProgress: ({ percentage }) => {
+                        setVideoUploadProgress(Math.round(((index + percentage / 100) / videos.length) * 100));
+                      },
+                    },
+                  );
+                  videoUrls.push(blob.url);
+                }
+                const created = await createListing({
               data: {
                 regionId: profile?.regionId ?? regionId,
                 title,
@@ -96,18 +118,18 @@ function NewListing() {
                 priceKarma: Number(price),
                 placeLabel: place,
                 imageDataUrls: images,
+                videoUrls,
                 lat: profile?.lat ?? null,
                 lng: profile?.lng ?? null,
               },
-            })
-              .then((created) => {
+                });
                 bump();
-                void navigate({ to: "/inserat/$listingId", params: { listingId: created.id } });
-              })
-              .catch((err: unknown) => {
+                await navigate({ to: "/inserat/$listingId", params: { listingId: created.id } });
+              } catch (err) {
                 setError(err instanceof Error ? err.message : "Inserat nicht gespeichert");
                 setBusy(false);
-              });
+              }
+            })();
           }}
         >
           <Field label="Titel">
@@ -270,9 +292,12 @@ function NewListing() {
               {videos.length} von {VIDEO_PRESETS[videoPreset].maxFiles} Videos ausgewählt · höchstens {VIDEO_PRESETS[videoPreset].maxEachSeconds} Sekunden je Clip. Die Dauer wird am Gerät geprüft.
             </span>
             {videoLoading ? <span className="mt-2 block text-xs text-muted">Videodauer wird geprüft…</span> : null}
-            <p className="mt-2 rounded-xl border border-copper/30 bg-copper/5 p-3 text-xs text-muted">
-              Videovorschau ist lokal möglich. Ein sicherer Upload und die dauerhafte Speicherung sind noch nicht freigeschaltet; Videos werden deshalb noch nicht mit einem Inserat veröffentlicht.
-            </p>
+            {!authEnabled ? (
+              <p className="mt-2 rounded-xl border border-copper/30 bg-copper/5 p-3 text-xs text-muted">
+                In der gemeinsamen Demo sind Video-Uploads zum Schutz der Testdaten gesperrt. Mit persönlichen Konten werden Videos dauerhaft dem jeweiligen Mitglied zugeordnet.
+              </p>
+            ) : null}
+            {busy && videos.length > 0 ? <p className="mt-2 text-xs text-muted">Video-Upload: {videoUploadProgress} %</p> : null}
           </Field>
           {videos.length ? (
             <div className="space-y-3">
@@ -320,7 +345,7 @@ function NewListing() {
           ) : null}
           {error ? <p className="text-sm text-copper">{error}</p> : null}
           <Button type="submit" disabled={busy || videoLoading}>
-            {busy ? "Speichert…" : "Inserat stellen"}
+            {busy ? (videos.length ? "Videos hochladen und speichern…" : "Speichert…") : "Inserat stellen"}
           </Button>
         </form>
       )}
