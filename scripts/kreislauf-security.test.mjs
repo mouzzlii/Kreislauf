@@ -171,17 +171,12 @@ test("listing creation validates image payloads and atomically writes ownership 
 
 
 test("listing video upload requires a real signed-in member and constrained Blob tokens", () => {
-  assert.match(videoUploadRoute, /!authConfigured \|\| !process\.env\.DATABASE_URL/);
-  assert.match(videoUploadRoute, /!process\.env\.BLOB_READ_WRITE_TOKEN/);
-  assert.match(videoUploadRoute, /await requireUserId\(\)/);
-  assert.match(videoUploadRoute, /select is_verified from profiles where user_id = \$1/);
-  assert.match(videoUploadRoute, /if \(!profile\[0\]\?\.is_verified\)/);
-  assert.match(videoUploadRoute, /validateVideoUpload\(pathname, userId, clientPayload\)/);
+  assert.match(videoUploadRoute, /Video-Uploads sind vorübergehend gesperrt/);
+  assert.match(videoUploadRoute, /status: 503/);
+  assert.match(videoUploadRoute, /serverseitig/);
   assert.match(videoUploadValidation, /pathname\.startsWith\(prefix\)/);
   assert.match(videoUploadValidation, /duration > 60/);
   assert.match(videoUploadValidation, /listings\/\$\{encodeURIComponent\(userId\)\}/);
-  assert.match(videoUploadRoute, /allowedContentTypes: \["video\/mp4", "video\/webm", "video\/quicktime"\]/);
-  assert.match(videoUploadRoute, /maximumSizeInBytes: 50 \* 1024 \* 1024/);
 
 });
 
