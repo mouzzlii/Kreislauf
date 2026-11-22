@@ -130,6 +130,12 @@ test("listing messages are restricted to the owner and the selected requester", 
   assert.match(messages, /update listing_messages set read_at = now\(\)[\s\S]*?listing_id = \$1 and requester_id = \$2 and owner_id = \$3[\s\S]*?requester_id = \$4 or owner_id = \$4/);
   assert.match(send, /context\.userId === ownerId/);
   assert.match(send, /Du kannst erst antworten, wenn das andere Mitglied eine Unterhaltung begonnen hat/);
+  // A requester cannot select another member's conversation by forging requesterId.
+  assert.match(send, /context\.userId === ownerId \? data\.requesterId : context\.userId/);
+  // Owners may only reply to an already-created conversation for this listing.
+  assert.match(send, /select id from listing_conversations where listing_id = \$1 and requester_id = \$2 and owner_id = \$3/);
+  // Read receipts are scoped to the same listing, requester, owner, and participant.
+  assert.match(messages, /update listing_messages set read_at = now\(\)[\s\S]*?listing_id = \$1 and requester_id = \$2 and owner_id = \$3[\s\S]*?requester_id = \$4 or owner_id = \$4/);
 });
 
 test("Supabase setup bundle mirrors the booking status notification migration", () => {
