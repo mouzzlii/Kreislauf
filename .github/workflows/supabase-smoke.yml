@@ -7,6 +7,8 @@ on:
       - demo/local-auth-off
     paths:
       - .github/workflows/supabase-smoke.yml
+      - package.json
+      - package-lock.json
       - scripts/db-migrations.test.mjs
       - migrations/**
 
@@ -27,7 +29,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Abhängigkeiten installieren
-        run: npm ci --no-audit --no-fund
+      - name: Abhängigkeiten installieren und Lockfile abgleichen
+        run: npm install --no-audit --no-fund --fetch-retries=1 --fetch-timeout=30000
       - name: PostgreSQL-Migrationen in temporärer Testdatenbank prüfen
         run: node --test scripts/db-migrations.test.mjs
