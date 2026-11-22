@@ -12,9 +12,15 @@ test("Supabase production setup includes all current application migrations", ()
     "0004_messages_escrow.sql",
     "0005_escrow_atomicity.sql",
     "0006_escrow_cancellation.sql",
+    "0007_harden_function_search_path.sql",
   ]) {
     assert.ok(sql.includes(name), `missing migration ${name}`);
   }
+});
+
+test("clean setup excludes the optional legacy-only migration block", () => {
+  assert.doesNotMatch(sql, /process_gwp_transaction|do\s+\$\$/i);
+  assert.ok(sql.includes("Optional legacy migration 0008 is intentionally excluded"));
 });
 
 test("Supabase production setup does not create demo members or demo listings", () => {
