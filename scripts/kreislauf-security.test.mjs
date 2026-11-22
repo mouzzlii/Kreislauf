@@ -112,6 +112,17 @@ test("community escrow assigns up to seven moderators and decides after four vot
   assert.doesNotMatch(escrowSql, /v_required := greatest/);
 });
 
+test("escrow votes are serialized and limited to assigned, active, verified moderators", () => {
+  assert.match(escrowSql, /where e\.listing_id = p_listing_id and e\.status = 'pending'[\s\S]*?limit 1 for update/);
+  assert.match(escrowSql, /a\.moderator_id = p_moderator_id[\s\S]*?p\.is_verified = true and p\.moderator_rank > 0[\s\S]*?p\.last_active_at >= now\(\) - interval '30 days'/);
+  assert.match(moderatorSql, /primary key \(escrow_id, moderator_id\)/);
+  assert.match(escrowSql, /insert into escrow_votes\(escrow_id, moderator_id, vote, note\)/);
+  assert.match(escrowSql, /revoke all on function kreislauf_cast_escrow_vote\(text, text, text, text\) from public/);
+  assert.match(escrowSql, /grant execute on function kreislauf_cast_escrow_vote\(text, text, text, text\) to service_role/);
+  assert.match(moderatorSql, /p\.user_id <> coalesce\(NEW\.requester_id, ''\)/);
+  assert.match(moderatorSql, /p\.user_id <> coalesce\(v_owner, ''\)/);
+});
+
 test("cancelling or returning a booking closes its unresolved escrow", () => {
   const transition = serverFunction("transitionBooking");
   assert.match(transition, /update escrow_cases set status = 'cancelled', resolved_at = now\(\)/);
