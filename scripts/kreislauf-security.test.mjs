@@ -70,6 +70,22 @@ test("direct trades serialize listing and account locks before settlement", () =
   assert.match(trade, /select count\(\*\) from moved/);
 });
 
+test("Karma balance mutations are paired with immutable ledger entries", () => {
+  const trade = serverFunction("tradeListing");
+  assert.match(trade, /moved as materialized|moved as \(/);
+  assert.match(trade, /update profiles p[\s\S]*?karma_balance = p\.karma_balance[\s\S]*?returning p\.user_id/);
+  assert.match(trade, /transfer_log as \([\s\S]*?insert into ledger_entries/);
+  assert.match(trade, /bonus_log as \([\s\S]*?insert into ledger_entries/);
+
+  const transition = serverFunction("transitionBooking");
+  assert.match(transition, /update profiles p[\s\S]*?karma_balance = p\.karma_balance[\s\S]*?returning p\.user_id/);
+  assert.match(transition, /transfer_log as \([\s\S]*?insert into ledger_entries/);
+  assert.match(transition, /bonus_log as \([\s\S]*?insert into ledger_entries/);
+
+  assert.match(coreSql, /update profiles[\s\S]*?set karma_balance = karma_balance - rec\.cut[\s\S]*?insert into ledger_entries/);
+  assert.match(api, /with created_profile as \([\s\S]*?insert into ledger_entries/);
+});
+
 test("private meeting point is not exposed by public listing queries", () => {
   const queryStart = api.indexOf("const LISTING_SQL =");
   const queryEnd = api.indexOf("\n`;", queryStart);
