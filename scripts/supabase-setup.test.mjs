@@ -37,7 +37,7 @@ test("Supabase production setup locks KREISLAUF tables behind server-side access
   for (const table of [
     "regions", "profiles", "listings", "bookings", "reviews",
     "ledger_entries", "item_history", "escrow_cases",
-    "listing_conversations", "listing_messages", "escrow_moderators",
+    "listing_conversations", "listing_messages", "listing_message_rate_limits", "escrow_moderators",
     "escrow_votes", '"user"', '"session"', '"account"', '"verification"',
   ]) {
     assert.ok(sql.includes(`alter table public.${table} enable row level security`), `RLS missing for ${table}`);
