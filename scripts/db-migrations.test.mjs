@@ -139,6 +139,7 @@ test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
     assert.equal(result.renter_moderator_count, 0, "requester must never be assigned as moderator");
     assert.equal(result.owner_moderator_count, 0, "listing owner must never be assigned as moderator");
     assert.ok(result.assigned_moderator_count >= 4, "at least four eligible moderators should be assigned for quorum");
+    assert.ok(result.assigned_moderator_count <= 7, "no escrow case may assign more than seven moderators");
     assert.ok(result.system_message_count >= 1, "booking should create an in-app system message");
 
     const notifications = await db.query(
@@ -251,6 +252,21 @@ test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
     assert.equal(settled.rows[0].buyer_balance, before["test-renter"] - 99);
     assert.equal(settled.rows[0].seller_balance, before["seed-leonie"] + 100);
     assert.equal(settled.rows[0].transfer_count, 1, "settlement should write exactly one immutable transfer");
+
+    await db.query(
+      "insert into escrow_cases(id, listing_id, requester_id, moderator_id, reason) values ('test-high-value-tie', 'test-high-value', 'test-renter', 'test-moderator', 'Hochwertiges Tauschgeschäft')",
+    );
+    await db.query("select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)", ["test-high-value", "test-moderator", "approve", "Gleichstand 1"]);
+    await db.query("select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)", ["test-high-value", "test-moderator-2", "approve", "Gleichstand 2"]);
+    await db.query("select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)", ["test-high-value", "test-moderator-3", "reject", "Gleichstand 3"]);
+    const tied = await db.query(
+      "select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)",
+      ["test-high-value", "test-moderator-4", "reject", "Gleichstand 4"],
+    );
+    assert.equal(tied.rows[0].votes, 4);
+    assert.equal(tied.rows[0].approvals, 2);
+    assert.equal(tied.rows[0].rejections, 2);
+    assert.equal(tied.rows[0].status, "pending", "a 2:2 tie must not release or reject escrow");
 
   } finally {
     await db.close();
