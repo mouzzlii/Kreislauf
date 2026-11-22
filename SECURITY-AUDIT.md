@@ -29,6 +29,7 @@ Prüfumfang: Repository-Zweig `demo/local-auth-off`, verbundene Supabase-Datenba
 - 0 öffentliche Tabellen ohne RLS.
 - 0 öffentliche Tabellen mit direkten Tabellen-Lese-/Schreibrechten für `anon` oder `authenticated`.
 - Der Chat-Rate-Limit-Trigger ist aktiv; seine Zählertabelle hat RLS und keine Lese-/Schreibrechte für Browserrollen.
+- Ein Regionswechsel kann nicht mehr unkontrolliert `profiles.region_id` ändern. Der Server sperrt die Profilzeile und lehnt einen Wechsel ab, solange kein regionaler Karma-/Ledger-Übertragungsprozess vorgesehen ist. Regressionstest im CI-Lauf `45068568745` erfolgreich.
 - Keine direkten Ausführungsrechte für öffentliche Datenbankfunktionen durch diese Browser-Rollen.
 - Supabase meldet noch INFO-Hinweise zu RLS-Tabellen ohne Policies. Das ist hier beabsichtigt, weil die App ausschließlich über serverseitige Datenbankverbindungen zugreift und Browser-Rollen keine Tabellenrechte erhalten.
 
