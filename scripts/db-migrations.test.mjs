@@ -140,6 +140,28 @@ test("PostgreSQL migrations and sharing reservation/escrow flow", async () => {
     assert.ok(result.assigned_moderator_count >= 4, "at least four eligible moderators should be assigned for quorum");
     assert.ok(result.system_message_count >= 1, "booking should create an in-app system message");
 
+    const notifications = await db.query(
+      `select c.listing_id as "listingId", l.title as "listingTitle",
+        coalesce(p.username, 'Mitglied') as "otherName",
+        count(m.id)::int as "unreadCount",
+        coalesce((select lm.body from listing_messages lm
+          where lm.conversation_id = c.id order by lm.id desc limit 1), '') as "lastMessage",
+        to_char(max(m.created_at) at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "updatedAt"
+       from listing_conversations c
+       join listings l on l.id = c.listing_id
+       join profiles p on p.user_id = case when c.owner_id = $1 then c.requester_id else c.owner_id end
+       join listing_messages m on m.conversation_id = c.id
+         and m.read_at is null and m.sender_id is distinct from $1
+       where c.owner_id = $1 or c.requester_id = $1
+       group by c.id, l.title, p.username
+       order by max(m.created_at) desc
+       limit 8`,
+      ["seed-leonie"],
+    );
+    assert.equal(notifications.rows.length, 1, "listing owner should see one unread conversation");
+    assert.ok(notifications.rows[0].unreadCount >= 1, "booking should create an unread notification");
+    assert.equal(notifications.rows[0].listingId, "test-sharing");
+
     const secondAttempt = await db.query(
       `with target as (
          select l.id, l.user_id, l.price_karma, l.region_id
