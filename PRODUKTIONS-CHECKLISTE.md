@@ -92,3 +92,5 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - Sharing-Übergaben benötigen jetzt getrennte Bestätigungen von abholender und anbietender Partei. Erst wenn beide bestätigt haben und das Guthaben reicht, werden Buchungsstatus, Karma-Ledger und Artikelhistorie gemeinsam abgeschlossen. Einzelbestätigung lässt die Reservierung offen; danach ist Stornieren gesperrt. Migration `0018_booking_bilateral_handover.sql` ergänzt die Felder und sichert historische abgeschlossene Buchungen ab.
 
 - Sharing-Reservierungen akzeptieren keine Startzeit in der Vergangenheit; der Zeitbereich bleibt auf 1 Stunde bis 14 Tage begrenzt.
+
+- Auch die Rückgabe einer Sharing-Buchung braucht jetzt beide Bestätigungen. Das Inserat wird erst danach wieder öffentlich buchbar; Migration `0019_booking_bilateral_return.sql` ergänzt die Bestätigungsfelder und sichert historische Rückgaben ab.
