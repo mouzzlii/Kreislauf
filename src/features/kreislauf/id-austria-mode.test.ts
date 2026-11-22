@@ -38,3 +38,9 @@ test("blocks the mock unless the explicit demo flag is enabled", () => {
     nodeEnv: "development",
   }), false);
 });
+
+test("fails closed when deployment environment metadata is missing", () => {
+  assert.equal(canUseIdAustriaMock({
+    mockMode: true,
+  }), false);
+});
