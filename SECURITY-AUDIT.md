@@ -21,7 +21,8 @@ Prüfumfang: Repository-Zweig `demo/local-auth-off`, verbundene Supabase-Datenba
 4. Direkte Tauschvorgänge sperren Inserat und beteiligte Konten vor der Buchung, um parallele Doppelabschlüsse zu verhindern.
 5. Vercel-Antworten erhalten HSTS, `X-Content-Type-Options: nosniff` und eine restriktive Referrer-Policy.
 6. Der Blob-Schlüssel ist in Vercel als Secret markiert.
-7. CI prüft Abhängigkeiten mit `npm audit`; Dependabot ist für wöchentliche Updates eingerichtet.
+7. Better Auth wurde auf 1.7.27 aktualisiert; die generische OAuth-Anmeldung nutzt die neue Social-API. Der Popup-Endpunkt akzeptiert nur die zwei explizit konfigurierten Provider.
+8. CI prüfte den aktualisierten Abhängigkeitsbaum mit `npm audit`: **0 bekannte Schwachstellen**. Dependabot ist für wöchentliche Updates eingerichtet.
 
 ## Verifizierte Datenbankbefunde
 
