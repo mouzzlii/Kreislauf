@@ -171,7 +171,7 @@ function ListingPage() {
                   <div className="rounded-2xl border border-copper/30 bg-copper/5 p-4" role="group" aria-label="Tausch bestätigen">
                     <p className="text-sm text-fg">
                       {listing.priceKarma >= 100
-                        ? "Es wird eine Community-Treuhand eröffnet. Karma wird erst nach mindestens vier Stimmen und einer Zweidrittelmehrheit übertragen."
+                        ? "Es wird eine Community-Treuhand eröffnet. Die Moderation allein überträgt noch kein Karma. Beide Tauschparteien müssen die Übergabe und den Empfang bestätigen; Streitfälle benötigen eine dokumentierte Klärung."
                         : listing.offerType === "gift"
                           ? "Die Weitergabe ist kostenlos. Nach Bestätigung wird die Übergabe im Kreislauf vermerkt."
                           : `Mit deiner Bestätigung werden ${formatKarma(listing.priceKarma)} sofort von deinem Karma-Guthaben abgezogen und dem Anbieter gutgeschrieben.`}
@@ -200,7 +200,7 @@ function ListingPage() {
               )}
               <p className="mt-2 text-sm text-subtle">
                 {listing.priceKarma >= 100
-                  ? "Hochwertiger Tausch mit Community-Treuhand; die Punkte werden erst nach dem Mehrheitsbeschluss übertragen."
+                  ? "Hochwertiger Tausch mit Community-Treuhand. Nach dem Mehrheitsbeschluss bleibt der Vorgang gesperrt, bis beide Seiten die Übergabe bestätigen und offene Streitfälle geklärt sind."
                   : listing.offerType === "gift"
                     ? "Kostenlose Weitergabe mit Aktivitätsvermerk."
                     : "Karma wird nach deiner Bestätigung sofort übertragen."}
