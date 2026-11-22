@@ -14,7 +14,6 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
   }, [listingId]);
   if (!summary) return error ? <p className="mt-3 text-sm text-copper">{error}</p> : null;
   if (!summary.status) return null;
-  const required = 4;
   async function cast(vote: "approve" | "reject") {
     setBusy(true); setError("");
     try {
