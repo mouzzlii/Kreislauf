@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Shell } from "@/components/shell";
 import { Button, Field, fieldClass } from "@/components/ui";
 import { getBoard, getMine, updateProfile, verifyWithIdAustria } from "@/features/kreislauf/api";
-import { useKreislauf } from "@/features/kreislauf/context";
+import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import { formatKarma, formatTrust, formatWhen } from "@/features/kreislauf/format";
 import { DEFAULT_REGION, type Board, type LedgerEntry, type Profile } from "@/features/kreislauf/types";
 import { UserButton } from "@/lib/auth/gates";
