@@ -185,11 +185,12 @@ test("ID Austria mock verification cannot be enabled in production", () => {
   assert.match(api, /Eine Demo-Verifikation ist dort gesperrt/);
 });
 
-test("listing video references are limited, owned by the caller and persisted", () => {
+test("listing creation rejects video references until server-side media inspection exists", () => {
   const create = serverFunction("createListing");
-  assert.match(create, /rawVideoUrls\.length > 4/);
-  assert.match(create, /public\.blob\.vercel-storage\.com/);
-  assert.match(create, /listings\/\$\{encodeURIComponent\(context\.userId\)\}/);
+  assert.match(create, /rawVideoUrls\.length > 0/);
+  assert.match(create, /Video-Uploads sind noch gesperrt/);
+  assert.doesNotMatch(create, /validateListingVideoSet/);
+  assert.doesNotMatch(create, /public\.blob\.vercel-storage\.com/);
   assert.match(create, /video_urls/);
   assert.match(videoMigration, /add column if not exists video_urls jsonb/);
   assert.match(videoMigration, /jsonb_array_length\(video_urls\) <= 4/);
