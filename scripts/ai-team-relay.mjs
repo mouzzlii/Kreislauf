@@ -222,7 +222,7 @@ async function reserveDailyDebate(triggerCommentId) {
       const createdAt = Date.parse(item.created_at || "");
       if (Number.isFinite(createdAt) && createdAt < dayStart) {
         reachedPreviousDay = true;
-        continue;
+        break;
       }
       const body = String(item.body || "");
       if (body.includes(`${reservationPrefix}${triggerCommentId} -->`)) {
@@ -231,6 +231,9 @@ async function reserveDailyDebate(triggerCommentId) {
       if (body.includes(reservationPrefix)) count += 1;
     }
     if (reachedPreviousDay || comments.length < 100) break;
+    if (page === 20) {
+      throw new Error("Daily budget ledger scan limit reached; refusing provider calls until the ledger can be checked.");
+    }
   }
 
   if (alreadyReserved) return { allowed: false, duplicate: true, count };
