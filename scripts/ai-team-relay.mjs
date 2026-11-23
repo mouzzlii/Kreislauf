@@ -7,11 +7,12 @@ const {
   OPENAI_API_KEY,
   GEMINI_API_KEY,
   XAI_API_KEY,
-  OPENAI_MODEL = "gpt-6.2-astra",
-  GEMINI_MODEL = "gemini-3.8-flash",
-  XAI_MODEL = "grok-4.7",
-  AI_TEAM_ALLOWED_USERS = "mouzzlii",
 } = process.env;
+
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-6.2-astra";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const XAI_MODEL = process.env.XAI_MODEL || "grok-4.7";
+const AI_TEAM_ALLOWED_USERS = process.env.AI_TEAM_ALLOWED_USERS || "mouzzlii";
 
 const MAX_INPUT_CHARS = 8000;
 const MAX_OUTPUT_TOKENS = 1000;
