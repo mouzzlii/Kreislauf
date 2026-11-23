@@ -36,6 +36,8 @@ jobs:
           cache: npm
       - name: Abhängigkeiten installieren und Lockfile abgleichen
         run: npm install --no-audit --no-fund --fetch-retries=1 --fetch-timeout=30000
+      - name: Syntax der optionalen Supabase-Prüfung validieren
+        run: node --check scripts/supabase-test-project-verify.mjs
       - name: PostgreSQL-Migrationen in temporärer Testdatenbank prüfen
         run: node --test scripts/db-migrations.test.mjs scripts/supabase-setup-postgres.test.mjs scripts/supabase-setup.test.mjs
 
