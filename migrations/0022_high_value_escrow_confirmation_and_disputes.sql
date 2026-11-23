@@ -81,9 +81,9 @@ begin
     (v_case.region_id, v_case.seller_id, v_case.listing_id, v_case.amount_karma,
      'escrow_release', 'Treuhand freigegeben nach beidseitiger Übergabebestätigung');
 
-  update public.listings
-    set status = 'completed', hands_count = hands_count + 1
-    where id = v_case.listing_id and status = 'booked'
+  update public.listings as l
+    set status = 'completed', hands_count = l.hands_count + 1
+    where l.id = v_case.listing_id and l.status = 'booked'
     returning id into v_listing_id;
   if v_listing_id is null then
     raise exception 'Inserat konnte nicht abgeschlossen werden.';
@@ -93,9 +93,9 @@ begin
   select item_uuid, id, v_case.buyer_id, place_label, 'transferred'
   from public.listings where id = v_case.listing_id;
 
-  update public.escrow_cases
+  update public.escrow_cases as ec
     set status = 'released', funds_status = 'released', resolved_at = now()
-    where id = v_case.id and status = 'pending' and funds_status = 'held';
+    where ec.id = v_case.id and ec.status = 'pending' and ec.funds_status = 'held';
 
   return query select 'released'::text, true, true, 'released'::text;
 end;
@@ -222,15 +222,15 @@ begin
       values
         (v_case.region_id,v_case.seller_id,v_case.listing_id,v_case.amount_karma,
          'escrow_release','Treuhand durch dokumentierte Moderationsentscheidung freigegeben');
-      update public.listings set status = 'completed', hands_count = hands_count + 1
-        where id = v_case.listing_id and status = 'booked'
+      update public.listings as l set status = 'completed', hands_count = l.hands_count + 1
+        where l.id = v_case.listing_id and l.status = 'booked'
         returning id into v_listing_id;
       if v_listing_id is null then raise exception 'Inserat konnte nicht abgeschlossen werden.'; end if;
       insert into public.item_history(item_uuid,listing_id,owner_id,place_label,event_kind)
       select item_uuid,id,v_case.buyer_id,place_label,'transferred'
       from public.listings where id = v_case.listing_id;
-      update public.escrow_cases set status = 'released', funds_status = 'released', resolved_at = now()
-        where id = v_case.id and status = 'disputed' and funds_status = 'held';
+      update public.escrow_cases as ec set status = 'released', funds_status = 'released', resolved_at = now()
+        where ec.id = v_case.id and ec.status = 'disputed' and ec.funds_status = 'held';
     else
       update public.profiles
         set karma_balance = karma_balance + v_case.amount_karma, last_activity_at = now()
@@ -240,12 +240,12 @@ begin
       values
         (v_case.region_id,v_case.buyer_id,v_case.listing_id,v_case.amount_karma,
          'escrow_refund','Treuhand nach dokumentierter Moderationsentscheidung erstattet');
-      update public.listings set status = 'active'
-        where id = v_case.listing_id and status = 'booked'
+      update public.listings as l set status = 'active'
+        where l.id = v_case.listing_id and l.status = 'booked'
         returning id into v_listing_id;
       if v_listing_id is null then raise exception 'Inserat konnte nicht wieder freigegeben werden.'; end if;
-      update public.escrow_cases set status = 'refunded', funds_status = 'refunded', resolved_at = now()
-        where id = v_case.id and status = 'disputed' and funds_status = 'held';
+      update public.escrow_cases as ec set status = 'refunded', funds_status = 'refunded', resolved_at = now()
+        where ec.id = v_case.id and ec.status = 'disputed' and ec.funds_status = 'held';
     end if;
   end if;
 
