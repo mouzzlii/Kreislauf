@@ -44,6 +44,21 @@ export function QrScanner({ onOpenListing }: { onOpenListing: (id: string) => vo
     streamRef.current?.getTracks().forEach((track) => track.stop());
   }, []);
 
+  useEffect(() => {
+    const pauseWhenHidden = () => {
+      if (document.visibilityState !== "hidden" || !streamRef.current) return;
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+      if (videoRef.current) videoRef.current.srcObject = null;
+      setScanning(false);
+      setMessage("Kamera aus Datenschutzgründen pausiert. Starte den Scan erneut, wenn die App sichtbar ist.");
+    };
+    document.addEventListener("visibilitychange", pauseWhenHidden);
+    return () => document.removeEventListener("visibilitychange", pauseWhenHidden);
+  }, []);
+
   async function startCamera() {
     setMessage("");
     const Detector = (window as Window & {
