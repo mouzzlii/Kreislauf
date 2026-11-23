@@ -256,7 +256,7 @@ async function main() {
       "Vor dem ersten Provider-Aufruf müssen die Kontoinhaber die verfügbaren Ausgabenlimits bzw. Kostenkontrollen bei OpenAI, Google und xAI selbst prüfen und setzen.",
       "Danach darf die GitHub-Actions-Variable AI_TEAM_BUDGET_CONFIRMED ausdrücklich auf true gesetzt werden. Diese Variable ist eine manuelle Bestätigung, keine automatische Prüfung der Anbieterbudgets.",
       "Solange die Variable fehlt oder nicht exakt true ist, werden keine KI-Provider aufgerufen.",
-    ].join("\\n\\n");
+    ].join("\n\n");
     await githubRequest(`issues/${issue.number}/comments`, {
       method: "POST",
       body: JSON.stringify({ body: message }),
