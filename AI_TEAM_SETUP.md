@@ -22,7 +22,7 @@ CHRONOS-Projektverknüpfung: https://github.com/mouzzlii/CHRONOS/issues/13
 
 ## Zielarchitektur und vorhandener Relay-Entwurf
 
-GitHub Actions reagiert nur auf einen ausdrücklich adressierten Kommentar. Der vorbereitete Relay verwendet die offiziellen API-Oberflächen: OpenAI Responses API, Gemini Interactions API und xAI Responses API. Die Gemini- und xAI-Anfragen sind zustandslos bzw. mit `store: false` angelegt; Modellnamen können über Actions-Variablen überschrieben werden. Offizielle Dokumentation: https://developers.openai.com/api/reference/resources/responses/methods/create · https://ai.google.dev/api/interactions-api · https://docs.x.ai/developers/rest-api-reference/inference/responses
+GitHub Actions reagiert nur auf einen ausdrücklich adressierten Kommentar. Der vorbereitete Relay verwendet die offiziellen API-Oberflächen: OpenAI Responses API, Gemini Interactions API und xAI Responses API. Die Gemini- und xAI-Anfragen sind zustandslos bzw. mit `store: false` angelegt; Modellkennungen werden ausschließlich über Actions-Variablen festgelegt; es gibt keine geratenen Standardmodelle. Offizielle Dokumentation: https://developers.openai.com/api/reference/resources/responses/methods/create · https://ai.google.dev/api/interactions-api · https://docs.x.ai/developers/rest-api-reference/inference/responses
 
 Beispiel:
 
@@ -72,16 +72,16 @@ Es sind bewusst keine Modellkennungen vorgegeben: Verfügbare IDs ändern sich j
 ## Verbindliche Repository-Zuordnung
 
 - `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf`
-- `PROJECT_REPO_TRAKUNA=mouzzlii/Fuck` – maßgebliches TRAKUNA-Repository; `multi-carrier-gateway-neu` bleibt ein separates Experiment und darf nicht als kanonische Quelle verwendet werden.
+- `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway` – maßgebliches TRAKUNA-Repository.
 - `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS`
 - `PROJECT_REPO_SCAN_PROFIT` bleibt leer, bis das aktuelle Projekt 2.0.60 in ein eigenes GitHub-Repository übernommen wurde. Das ältere Library-Paket 2.0.45 ist nicht der aktuelle Quellstand und wird nicht als Ersatz verwendet.
 
-Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
+Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Für TRAKUNA ist `mouzzlii/multi-carrier-gateway` voreingestellt; für SCAN-PROFIT bleibt die Zuordnung absichtlich leer, bis das aktuelle Repository bestätigt und konfiguriert ist. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
 
 ## Noch offene Voraussetzungen
 
 - [ ] SCAN-PROFIT: ein eigenes privates GitHub-Repository für den vorhandenen Projektstand 2.0.60 anlegen und den Quellstand übernehmen. In den verbundenen GitHub-Repositories wurde kein bestehendes SCAN-PROFIT-Repository gefunden.
-- [x] TRAKUNA: `mouzzlii/Fuck` als maßgebliches TRAKUNA-Repository aus dem aktuellen Repository-Abgleich festgelegt; das Gateway-Experiment bleibt getrennt.
+- [x] TRAKUNA: `mouzzlii/multi-carrier-gateway` als maßgebliches TRAKUNA-Repository festgelegt.
 - [ ] Kontoinhaber richtet die drei Provider-API-Schlüssel und `AI_TEAM_REPO_READ_TOKEN` als GitHub Actions Secrets ein.
 - [ ] Providerseitige Ausgabenlimits/Kostenkontrollen und maximale Gesprächsrunden festlegen; danach `AI_TEAM_BUDGET_CONFIRMED=true` als bewusste manuelle Aktivierungsfreigabe setzen. Die Variable prüft Anbieterbudgets nicht automatisch.
 - [ ] Erst danach den bereits vorbereiteten Workflow kontrolliert aktivieren und mit einem synthetischen Test-Issue Ende-zu-Ende prüfen.
