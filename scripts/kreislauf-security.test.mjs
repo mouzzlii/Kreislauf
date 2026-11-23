@@ -34,6 +34,7 @@ const accountRoute = await readFile(new URL("../src/routes/konto.tsx", import.me
 const authVerify = await readFile(new URL("../src/lib/auth/verify.server.ts", import.meta.url), "utf8");
 const authMiddlewareSource = await readFile(new URL("../src/lib/auth/middleware.ts", import.meta.url), "utf8");
 const databaseSource = await readFile(new URL("../src/lib/db.ts", import.meta.url), "utf8");
+const kreislaufContext = await readFile(new URL("../src/features/kreislauf/context.tsx", import.meta.url), "utf8");
 
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
@@ -44,13 +45,25 @@ function serverFunction(name) {
 
 test("private KREISLAUF actions require verified server-side identity middleware", () => {
   for (const name of [
-    "createListing", "tradeListing", "reserveListing", "transitionBooking",
+    "createListing", "tradeListing", "reserveListing", "transitionBooking", "touchActivity",
     "addReview", "getMeetingPoint", "getListingBooking", "getListingMessages",
     "sendListingMessage", "getListingThreads", "getEscrowSummary", "voteEscrow",
     "confirmHighValueEscrow", "openHighValueDispute", "voteEscrowResolution",
   ]) {
     assert.match(serverFunction(name), /\.middleware\(\[authMiddleware\]\)/, `${name} must require authMiddleware`);
   }
+});
+
+test("moderator activity is refreshed while the signed-in app is visible", () => {
+  const touch = serverFunction("touchActivity");
+  assert.match(touch, /\.middleware\(\[authMiddleware\]\)/);
+  assert.match(touch, /update profiles set last_active_at = now\(\) where user_id = \$1/);
+  assert.match(touch, /\[context\.userId\]/);
+  assert.doesNotMatch(touch, /data\.|source\./);
+  assert.match(kreislaufContext, /touchActivity\(\)/);
+  assert.match(kreislaufContext, /document\.visibilityState === "visible"/);
+  assert.match(kreislaufContext, /15 \* 60 \* 1000/);
+  assert.match(kreislaufContext, /removeEventListener\("visibilitychange", touch\)/);
 });
 
 test("server identity and database selection fail closed instead of trusting client IDs", () => {
