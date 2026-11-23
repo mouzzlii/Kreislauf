@@ -47,6 +47,10 @@ export function ListingConversation({
 
   useEffect(() => {
     if (!currentUserId || !requesterId) { setMessages([]); return; }
+    // Never leave the previous participant's messages visible while a new
+    // conversation is loading after the owner switches requester tabs.
+    setMessages([]);
+    setError("");
     let cancelled = false;
     const refresh = () => {
       if (document.visibilityState !== "visible") return;
