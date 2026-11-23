@@ -11,7 +11,7 @@ test("video presets match the requested three alternatives", () => {
 test("accepts the maximum duration for each preset", () => {
   assert.deepEqual(checkVideoDurations("single", [60]), { ok: true, totalSeconds: 60 });
   assert.deepEqual(checkVideoDurations("pair", [30, 30]), { ok: true, totalSeconds: 60 });
-  assert.deepEqual(checkVideoDurations("quad", [15, 15, 15, 15]), { ok: true, totalSeconds: 60 });
+  assert.deepEqual(checkVideoDurations("quad", [20, 20, 20, 20]), { ok: true, totalSeconds: 80 });
 });
 
 test("rejects too many clips and clips above their preset duration", () => {
@@ -20,9 +20,11 @@ test("rejects too many clips and clips above their preset duration", () => {
   assert.equal(checkVideoDurations("quad", [21]).ok, false);
 });
 
-test("rejects combined duration above 60 seconds", () => {
-  assert.equal(checkVideoDurations("pair", [30, 30.1]).ok, false);
-  assert.equal(checkVideoDurations("quad", [16, 16, 16, 16]).ok, false);
+test("enforces each preset duration without imposing an extra total-duration cap", () => {
+  assert.deepEqual(checkVideoDurations("pair", [30, 30]), { ok: true, totalSeconds: 60 });
+  assert.deepEqual(checkVideoDurations("quad", [20, 20, 20, 20]), { ok: true, totalSeconds: 80 });
+  assert.equal(checkVideoDurations("pair", [30, 30, 0.1]).ok, false);
+  assert.equal(checkVideoDurations("quad", [20, 20, 20, 20, 1]).ok, false);
 });
 
 test("rejects empty, zero, negative, and non-finite durations", () => {
@@ -47,7 +49,7 @@ test("server accepts only user-scoped UUID video paths and valid upload duration
 test("server validates listing video preset, clip count, and total duration", () => {
   assert.deepEqual(validateListingVideoSet("single", ["https://blob/a"], [60]), [60]);
   assert.deepEqual(validateListingVideoSet("pair", ["https://blob/a", "https://blob/b"], [30, 30]), [30, 30]);
-  assert.deepEqual(validateListingVideoSet("quad", ["a", "b", "c", "d"], [15, 15, 15, 15]), [15, 15, 15, 15]);
+  assert.deepEqual(validateListingVideoSet("quad", ["a", "b", "c", "d"], [20, 20, 20, 20]), [20, 20, 20, 20]);
   assert.throws(() => validateListingVideoSet("pair", ["a", "b"], [31, 30]));
   assert.throws(() => validateListingVideoSet("single", ["a"], [20, 20]));
 });
