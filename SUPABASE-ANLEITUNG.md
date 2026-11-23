@@ -2,6 +2,10 @@
 
 Diese Anleitung ist für das vorhandene Supabase-Projekt gedacht. Die SQL-Datei legt die Tabellen und Funktionen für KREISLAUF an, **ohne Demo-Mitglieder, Demo-Inserate oder künstliche Karma-Guthaben einzuspielen**.
 
+## Architekturhinweis
+
+KREISLAUF verwendet derzeit **Better Auth** für die Anmeldung und eine serverseitige PostgreSQL-Verbindung für die Anwendungsdaten. Dein vorhandenes Supabase-Projekt wird als verwaltete PostgreSQL-Datenbank verwendet; die App nutzt dafür die Supabase-Postgres-Verbindungszeichenfolge (`DATABASE_URL`), nicht den Supabase-JavaScript-Client und nicht Supabase Auth. Die Verbindung bleibt ausschließlich serverseitig. Die Demo ohne `DATABASE_URL` nutzt PGLite im Arbeitsspeicher und ist auf Vercel wegen mehrerer Serverinstanzen weder dauerhaft noch zuverlässig gemeinsam synchronisiert.
+
 ## 1. Datenbankschema anlegen
 
 1. Öffne dein bestehendes Supabase-Projekt.
