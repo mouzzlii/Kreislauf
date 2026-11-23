@@ -89,14 +89,25 @@ Migration 0014 ergänzt Indizes für Fremdschlüssel der verwendeten Tabellen. D
 
 ## 5. Supabase-Testlauf – nur mit separatem Testprojekt
 
-Der automatisierte Datenbank-Smoke-Test führt jetzt die Migrationen **0002 bis 0025** (die optionale Altbestandsmigration 0008 ausgenommen) sowie Reservierung, Moderationsquorum, Nachrichtenabläufe und die Bereinigung älterer, unzulässiger Treuhandstimmen aus. Migration 0025 archiviert solche Stimmen von Käufer oder Verkäufer mit Begründung und Zeitstempel und entfernt sie aus den aktiven Abstimmungen, damit sie keine Mehrheiten mehr beeinflussen.
+Der automatisierte Datenbank-Smoke-Test führt jetzt die Migrationen **0002 bis 0026** (die optionale Altbestandsmigration 0008 ausgenommen) sowie Reservierung, Moderationsquorum, Nachrichtenabläufe und die Bereinigung älterer, unzulässiger Treuhandstimmen aus. Migration 0025 archiviert solche Stimmen von Käufer oder Verkäufer mit Begründung und Zeitstempel und entfernt sie aus den aktiven Abstimmungen, damit sie keine Mehrheiten mehr beeinflussen.
 
 **Wichtig:** Dafür ist ein eigenes, isoliertes Supabase-Testprojekt erforderlich. Niemals die Produktionsdatenbank oder das bestehende Live-Projekt als Testziel verwenden. Der Test verwendet die öffentliche Standardschema-Struktur, weil mehrere Migrationen ausdrücklich `public.*` referenzieren. Er startet eine Transaktion und rollt am Ende alles zurück; trotzdem ist das separate Testprojekt die Sicherheitsgrenze.
 
 Für GitHub Actions muss die Verbindungs-URL des separaten Testprojekts als Secret `SUPABASE_TEST_DATABASE_URL` hinterlegt werden. Das Secret `SUPABASE_DATABASE_URL` wird vom Test nicht mehr verwendet. Die URL bleibt in GitHub Secrets und wird nicht in Chat, Quellcode oder Browser-Variablen kopiert.
 
-Der Test wurde im Quellcode vorbereitet, aber noch nicht gegen ein echtes Supabase-Testprojekt ausgeführt. Ohne dieses separate Projekt bleibt der Live-Datenbanktest offen.
+Das separate Testprojekt `kreislauf-test` wurde inzwischen erstellt. Das Clean-Install-Skript `SUPABASE-SETUP.sql` wurde dort ausgeführt und die Tabellen, RLS-Einstellungen, Rechte sowie zentrale Nachrichten- und Treuhandabläufe wurden direkt in PostgreSQL geprüft. Der vollständige Node-Smoke-Test über `pg` ist noch nicht durch GitHub Actions gelaufen; dafür muss `SUPABASE_TEST_DATABASE_URL` als GitHub Actions Secret gesetzt sein. Die ursprüngliche Supabase-Datenbank blieb unangetastet.
 
 ### Treuhand-Abstimmungen und Altstimmen
 
-Die Migrationen 0024 und 0025 schützen beide Treuhand-Abstimmungen: Käufer und Verkäufer dürfen weder über die erste Community-Freigabe noch über die spätere Streitfallentscheidung des eigenen Falls abstimmen. Bereits vor Einführung dieser Sperre abgegebene Stimmen werden in einem privaten Audit-Archiv gesichert und aus den aktiven Abstimmungstabellen entfernt. Dadurch bleiben die Originalangaben nachvollziehbar, ohne dass diese Stimmen weiterhin die Mehrheitsberechnung beeinflussen. Die Bereinigung ist in den automatisierten PostgreSQL-kompatiblen Tests abgedeckt; sie wurde noch nicht auf dem verbundenen Supabase-Projekt ausgeführt.
+Die Migrationen 0024 und 0025 schützen beide Treuhand-Abstimmungen: Käufer und Verkäufer dürfen weder über die erste Community-Freigabe noch über die spätere Streitfallentscheidung des eigenen Falls abstimmen. Bereits vor Einführung dieser Sperre abgegebene Stimmen werden in einem privaten Audit-Archiv gesichert und aus den aktiven Abstimmungstabellen entfernt. Dadurch bleiben die Originalangaben nachvollziehbar, ohne dass diese Stimmen weiterhin die Mehrheitsberechnung beeinflussen. Die Bereinigung ist in den automatisierten PostgreSQL-kompatiblen Tests abgedeckt. Im separaten Testprojekt wurden die aktiven Sperr-Trigger für Käufer- und Verkäuferstimmen zusätzlich direkt geprüft; beide unzulässigen Einfügungen wurden abgewiesen.
+
+
+## Verifizierter Testprojektstand – 23.11.2026
+
+- Das separate Projekt `kreislauf-test` wurde eingerichtet; die Produktionsdatenbank wurde nicht verändert.
+- `SUPABASE-SETUP.sql` wurde im Testprojekt ausgeführt. Die Kernstruktur, 20 öffentliche Tabellen, aktivierte RLS-Sperren und serverseitigen Datenbankfunktionen sind vorhanden.
+- Ein Test mit temporären Konten bestätigte: Beim Anlegen einer Inserat-Unterhaltung entsteht die Systemnachricht; die Testdaten wurden anschließend vollständig zurückgerollt.
+- Die Treuhand-Datenbanktrigger haben direkte Stimmen von Käufer und Verkäufer in beiden Abstimmungsarten abgewiesen. Auch dieser Test wurde zurückgerollt.
+- Migration `0026_complete_escrow_foreign_key_indexes.sql` ergänzt vier zuvor fehlende Fremdschlüssel-Indizes. Sie wurde im Testprojekt ausgeführt und die vier Indizes wurden anschließend direkt in PostgreSQL bestätigt. Supabase meldet keine unindizierten Fremdschlüssel mehr.
+- Der vollständige externe Node-Smoke-Test über GitHub Actions benötigt weiterhin das Secret `SUPABASE_TEST_DATABASE_URL`. Dieses Secret wurde nicht in den Quellcode oder Chat geschrieben.
+- Diese Prüfung ist ein Testprojekt-Nachweis, keine Produktionsfreigabe. Die ursprüngliche Supabase-Datenbank und die Vercel-Produktionsumgebung blieben unverändert.
