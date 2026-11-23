@@ -18,6 +18,12 @@ const PROJECT_REPOS = {
   CHRONOS: process.env.PROJECT_REPO_CHRONOS || "mouzzlii/CHRONOS",
 };
 
+// The canonical gateway repository holds coordination/architecture docs;
+// the active Android implementation is maintained in its dedicated source repo.
+const PROJECT_RELATED_REPOS = {
+  TRAKUNA: [process.env.PROJECT_REPO_TRAKUNA_ANDROID?.trim() || "mouzzlii/Fuck"],
+};
+
 // Require explicit, currently supported model IDs; never guess provider defaults.
 const OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || "";
 const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || "";
@@ -137,6 +143,7 @@ async function fetchProjectContext(project) {
   if (!repository) {
     return {
       repository: null,
+      repositories: [],
       note: "Das kanonische GitHub-Repository dieses Projekts ist noch nicht konfiguriert.",
       readme: "",
       paths: [],
@@ -146,46 +153,62 @@ async function fetchProjectContext(project) {
   if (!AI_TEAM_REPO_READ_TOKEN) {
     return {
       repository,
+      repositories: [],
       note: "AI_TEAM_REPO_READ_TOKEN fehlt; Quellkontext wurde nicht aus GitHub geladen.",
       readme: "",
       paths: [],
     };
   }
 
-  try {
-    const headers = {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${AI_TEAM_REPO_READ_TOKEN}`,
-      "X-GitHub-Api-Version": "2022-11-28",
-    };
-    const meta = await api(`https://api.github.com/repos/${repository}`, { headers });
-    const branch = meta.default_branch || "main";
-    const [readmeResult, treeResult] = await Promise.all([
-      api(`https://api.github.com/repos/${repository}/readme`, { headers }),
-      api(`https://api.github.com/repos/${repository}/git/trees/${encodeURIComponent(branch)}?recursive=1`, { headers }),
-    ]);
-    const readme = readmeResult.content
-      ? Buffer.from(readmeResult.content, "base64").toString("utf8").slice(0, 7000)
-      : "";
-    const paths = (treeResult.tree || [])
-      .filter((item) => item.type === "blob")
-      .map((item) => item.path)
-      .slice(0, 100);
-    return {
-      repository,
-      branch,
-      readme,
-      paths,
-      note: treeResult.truncated ? "GitHub hat die Dateiliste gekürzt." : "",
-    };
-  } catch (error) {
-    return {
-      repository,
-      note: `Projektkontext konnte nicht geladen werden: ${error instanceof Error ? error.message.slice(0, 250) : "unbekannter GitHub-Fehler"}`,
-      readme: "",
-      paths: [],
-    };
-  }
+  const repositories = [...new Set([repository, ...(PROJECT_RELATED_REPOS[project] || [])])];
+  const headers = {
+    Accept: "application/vnd.github+json",
+    Authorization: `Bearer ${AI_TEAM_REPO_READ_TOKEN}`,
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+
+  const contexts = await Promise.all(repositories.map(async (repo) => {
+    try {
+      const meta = await api(`https://api.github.com/repos/${repo}`, { headers });
+      const branch = meta.default_branch || "main";
+      const [readmeResult, treeResult] = await Promise.all([
+        api(`https://api.github.com/repos/${repo}/readme`, { headers }),
+        api(`https://api.github.com/repos/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`, { headers }),
+      ]);
+      const readme = readmeResult.content
+        ? Buffer.from(readmeResult.content, "base64").toString("utf8").slice(0, 7000)
+        : "";
+      const paths = (treeResult.tree || [])
+        .filter((item) => item.type === "blob")
+        .map((item) => item.path)
+        .slice(0, 100);
+      return {
+        repository: repo,
+        branch,
+        readme,
+        paths,
+        note: treeResult.truncated ? "GitHub hat die Dateiliste gekürzt." : "",
+      };
+    } catch (error) {
+      return {
+        repository: repo,
+        note: `Projektkontext konnte nicht geladen werden: ${error instanceof Error ? error.message.slice(0, 250) : "unbekannter GitHub-Fehler"}`,
+        readme: "",
+        paths: [],
+      };
+    }
+  }));
+
+  return {
+    repository,
+    repositories: contexts.map(({ repository: repo, branch, note }) => ({ repository: repo, branch, note })),
+    note: contexts.map((context) => context.note).filter(Boolean).join(" "),
+    readme: contexts
+      .map((context) => `### Repository: ${context.repository} (${context.branch || "nicht geladen"})\n${context.readme}`)
+      .join("\n\n")
+      .slice(0, MAX_CONTEXT_CHARS),
+    paths: contexts.flatMap((context) => context.paths.map((path) => `${context.repository}/${path}`)).slice(0, 200),
+  };
 }
 
 async function githubRequest(path, options = {}) {
