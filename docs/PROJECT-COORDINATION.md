@@ -28,7 +28,7 @@ Dieses Dokument koordiniert die vier Entwicklungsprojekte. Es ersetzt keine proj
 ## KI-Team-Zusammenarbeit
 
 - Die GitHub-Relay-Implementierung ist in KREISLAUF `main` integriert.
-- Der Relay lädt begrenzten, read-only Projektkontext. Für TRAKUNA werden Architektur- und Android-Quellrepository gemeinsam berücksichtigt.
+- Der Relay lädt begrenzten, read-only Projektkontext. `AI_TEAM_REPO_READ_TOKEN` ist Pflicht; fehlt es, bricht der Relay vor jedem Provider-Aufruf fail-closed ab. Für TRAKUNA werden Architektur- und Android-Quellrepository gemeinsam berücksichtigt.
 - Der Relay führt keine Codeänderungen, Merges oder Deployments aus.
 - Es wurden in dieser Arbeit keine Gemini-/Grok-Provider-Aufrufe durchgeführt. Die externe KI-zu-KI-Kommunikation ist technisch vorbereitet, aber nicht Ende-zu-Ende freigegeben.
 - Aktivierung erst nach Einrichtung der drei Provider-Secrets, gültiger Modellkennungen, eines read-only GitHub-Tokens, tatsächlicher Provider-Ausgabenlimits und ausdrücklicher Budgetbestätigung.
