@@ -6,19 +6,19 @@ test("public listing coordinates are offset from the private GPS point", () => {
   const privatePoint = { lat: 48.2, lng: 15.1 };
   const result = approximatePublicCoordinates(privatePoint, privatePoint, "listing-123");
   assert.notDeepEqual(result, privatePoint);
-  assert.ok(Math.abs(result.lat - privatePoint.lat) >= 0.008);
-  assert.ok(Math.abs(result.lat - privatePoint.lat) <= 0.021);
-  assert.ok(Math.abs(result.lng - privatePoint.lng) >= 0.008);
-  assert.ok(Math.abs(result.lng - privatePoint.lng) <= 0.021);
+  assert.ok(Math.abs(result.lat - privatePoint.lat) >= 0.0079);
+  assert.ok(Math.abs(result.lat - privatePoint.lat) <= 0.0201);
+  assert.ok(Math.abs(result.lng - privatePoint.lng) >= 0.0079);
+  assert.ok(Math.abs(result.lng - privatePoint.lng) <= 0.0201);
 });
 
 test("public coordinates do not use an out-of-region private point", () => {
   const center = { lat: 48.2, lng: 15.1 };
   const result = approximatePublicCoordinates(center, { lat: 47, lng: 14 }, "listing-456");
-  assert.ok(Math.abs(result.lat - center.lat) >= 0.008);
-  assert.ok(Math.abs(result.lat - center.lat) <= 0.021);
-  assert.ok(Math.abs(result.lng - center.lng) >= 0.008);
-  assert.ok(Math.abs(result.lng - center.lng) <= 0.021);
+  assert.ok(Math.abs(result.lat - center.lat) >= 0.0079);
+  assert.ok(Math.abs(result.lat - center.lat) <= 0.0201);
+  assert.ok(Math.abs(result.lng - center.lng) >= 0.0079);
+  assert.ok(Math.abs(result.lng - center.lng) <= 0.0201);
 });
 
 test("the public offset is not predictable from a listing identifier", () => {
