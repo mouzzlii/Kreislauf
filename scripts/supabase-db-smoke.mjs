@@ -56,6 +56,8 @@ const migrations = [
   "0021_high_value_escrow_funds.sql",
   "0022_high_value_escrow_confirmation_and_disputes.sql",
   "0023_freeze_high_value_escrow_ballots.sql",
+  "0024_independent_escrow_resolution.sql",
+  "0025_archive_legacy_conflicted_escrow_votes.sql",
 ];
 const client = new pg.Client({
   connectionString,
@@ -94,7 +96,9 @@ try {
       to_regclass('listing_messages') as messages,
       to_regclass('escrow_moderators') as escrow_moderators,
       to_regclass('escrow_votes') as escrow_votes,
-      to_regprocedure('kreislauf_cast_escrow_vote(text,text,text,text)') as vote_function
+      to_regclass('escrow_vote_conflict_archive') as escrow_vote_conflict_archive,
+      to_regprocedure('kreislauf_cast_escrow_vote(text,text,text,text)') as vote_function,
+      to_regprocedure('kreislauf_reject_party_escrow_resolution_vote()') as independent_vote_guard
   `);
   for (const [name, value] of Object.entries(required.rows[0])) {
     assert.ok(value, `Erwartetes Datenbankobjekt fehlt: ${name}`);
