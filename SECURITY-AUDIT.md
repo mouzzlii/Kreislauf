@@ -140,3 +140,18 @@ Migration `0020_escrow_moderator_quorum.sql` ergänzt einen zweiten Trigger auf 
 Der Clean-Install-Test deckt beide Seiten ab: drei Moderatoren führen zum Rollback; nach Hinzufügen eines vierten Moderators wird der Fall mit mindestens vier Zuweisungen angelegt. Dieselbe Regel ist in `SUPABASE-SETUP.sql` enthalten.
 
 Verifiziert auf Commit `2d064231d7458bf45b8093d7834d7e55e5124381`, GitHub Actions Lauf `45094441832`: Build, TypeScript, automatisierte Tests, Lint und Dependency-Audit erfolgreich. Dies ist ein Test in der CI-/PGlite-Umgebung, keine Ausführung der Migration auf der externen Supabase-Datenbank.
+
+
+## Ergänzung – 23.11.2026: Reservierung, Auszahlung und Streitfall bei hochwertiger Treuhand
+
+Migrationen `0021_high_value_escrow_funds.sql` und `0022_high_value_escrow_confirmation_and_disputes.sql` erweitern den bisherigen Fail-closed-Schutz:
+
+- Die Kaufpunkte werden bei der Eröffnung tatsächlich vom verfügbaren Käuferguthaben abgezogen. Die Bewegung wird als `escrow_hold` im Ledger gespeichert; die Reservierung und die Inseratssperre erfolgen atomar mit dem Treuhandfall.
+- Eine Moderationsmehrheit allein überträgt keine Punkte. Nach Freigabe müssen Käufer und Verkäufer jeweils Empfang/Übergabe bestätigen. Erst die zweite Bestätigung bucht den Betrag dem Verkäufer gut, schließt das Inserat und protokolliert die Historie.
+- Ein Streitfall kann von einer der beiden Parteien eröffnet werden. Zugewiesene, aktive und verifizierte Moderatoren entscheiden mit mindestens vier Stimmen und Zweidrittelmehrheit zwischen Auszahlung und Rückerstattung. Jede Stimme muss eine mindestens zehn Zeichen lange Begründung enthalten.
+- Auszahlung und Erstattung sind atomar mit Profilguthaben, Ledger, Inseratsstatus und Systemnachricht im zugehörigen Gespräch verknüpft.
+- Die Funktionen laufen als `SECURITY DEFINER` mit festem `search_path`; Ausführungsrechte für Browserrollen werden entzogen. Die Tabelle `escrow_resolution_votes` hat RLS aktiviert und keine direkten Browserrechte.
+- Wenn nach allen zugeteilten Stimmen keine Zweidrittelmehrheit zustande kommt, bleibt die Treuhand bewusst gesperrt. Es wird keine automatische Entscheidung erfunden; die Oberfläche weist auf die notwendige manuelle Klärung außerhalb der Plattform hin.
+- Der PGlite-Integrationstest prüft den vollständigen Ablauf einschließlich unberechtigter Akteure, einseitiger Bestätigung, Auszahlung, Streitfall-Rückerstattung und zugehöriger Systemmeldungen.
+
+GitHub Actions Lauf `45096685667` auf Commit `04a45c03201e13e7f964f77a2672813095a8f179` war erfolgreich: Build, TypeScript, Tests, Lint und Dependency-Audit. Das ist ein automatisierter Test des Repository-Codes und einer temporären PostgreSQL-kompatiblen Datenbank, kein Live-Test gegen Supabase oder Vercel.
