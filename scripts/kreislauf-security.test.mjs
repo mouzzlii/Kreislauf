@@ -190,9 +190,9 @@ test("sharing handover is blocked until its escrow has been released", () => {
 });
 
 test("cancelled escrow is represented separately in the API and user interface", () => {
-  assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled" \| null/);
-  assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled";/);
-  assert.match(api, /as "pending" \| "released" \| "disputed" \| "cancelled"/);
+  assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled" \| "refunded" \| null/);
+  assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled" \| "refunded" \| null;/);
+  assert.match(api, /as EscrowSummary\["status"\]/);
   assert.match(escrowPanel, /summary\.status === "cancelled"/);
   assert.doesNotMatch(escrowPanel, /summary\.status === "cancelled"[\s\S]*?Treuhand wurde abgelehnt/);
 });
@@ -401,7 +401,7 @@ test("unread listing notifications open the exact conversation, including multip
 
 
 test("disputed escrow remains visible on the listing detail instead of disappearing", () => {
-  assert.match(api, /from escrow_cases where listing_id = \$1 and status in \('pending', 'disputed'\)/);
+  assert.match(api, /from escrow_cases where listing_id = \$1 and status in \('pending', 'disputed', 'released', 'refunded'\)/);
   assert.match(api, /escrowVisible: escrowRows.length > 0/);
   assert.match(listingDetail, /detail\.escrowVisible/);
   assert.match(listingTypes, /escrowVisible: boolean/);
