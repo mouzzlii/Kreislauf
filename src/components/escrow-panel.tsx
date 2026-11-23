@@ -11,6 +11,7 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
   useEffect(() => {
     let cancelled = false;
     let loading = false;
+    let hasLoaded = false;
     const refresh = () => {
       if (cancelled || loading || document.visibilityState !== "visible") return;
       loading = true;
@@ -19,6 +20,7 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
           if (!cancelled) {
             setSummary(value);
             setError("");
+            hasLoaded = true;
           }
         })
         .catch(() => {
