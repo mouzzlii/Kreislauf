@@ -22,11 +22,11 @@ import { renderInstallPage } from "./grok-pwa-plugin.mjs";
 // Keep tests independent of the repository's real src/lib/og/site.json.
 // Tests that need a baked site pass it explicitly; disk-card tests still use cwd.
 function injectGrokPwaHead(html, ctx = {}) {
-  return injectGrokPwaHeadImpl(html, { site: {}, ...ctx });
+  return injectGrokPwaHeadImpl(html, { site: {}, cwd: mkdtempSync(join(tmpdir(), "grok-test-cwd-")), ...ctx });
 }
 
 function createHeadInjector(ctx = {}) {
-  return createHeadInjectorImpl({ site: {}, ...ctx });
+  return createHeadInjectorImpl({ site: {}, cwd: mkdtempSync(join(tmpdir(), "grok-stream-test-cwd-")), ...ctx });
 }
 
 const TEMPLATE_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
