@@ -180,3 +180,13 @@ Zusätzliche Prüfung: Dieselbe Datenbankregel schützt auch die anfängliche Co
 - Der Supabase-Neuinstallations-SQL-Block enthält dieselben Trigger. Der PostgreSQL-kompatible Setup-Test prüft deren Installation und eine negative Abstimmung durch den Käufer.
 - GitHub Actions Lauf `45150174522` auf Commit `6e63a5d4df5c7f9cc3e60d9de2f77c8742545a13`: Build, TypeScript, automatisierte Tests und Lint erfolgreich; Dependency-Audit erfolgreich.
 - Diese Prüfung läuft auf einer isolierten temporären PostgreSQL-kompatiblen Testdatenbank. Sie belegt weder die Ausführung der neuen Migration auf dem verbundenen Supabase-Projekt noch einen produktiven Mehrbenutzerbetrieb.
+
+## Ergänzung – 23.11.2026: Altstimmen aus Treuhand-Abstimmungen
+
+- Prüfung der Migration 0024 ergab: Die neuen Trigger verhinderten zwar neue Stimmen von Käufer/Verkäufer, entfernten aber keine vor der Migration abgegebenen Stimmen aus den Quoren.
+- Migration `0025_archive_legacy_conflicted_escrow_votes.sql` archiviert solche Altstimmen beider Abstimmungen mit Original-ID, Fall, Rolle (Käufer/Verkäufer), Entscheidung, Begründung, Zeitstempel und damaligem Fallstatus. Anschließend werden die Stimmen aus den aktiven Abstimmungstabellen entfernt, damit sie keine Mehrheitsberechnung mehr beeinflussen.
+- Das Archiv ist RLS-geschützt und für anon, authenticated und service_role gesperrt. Es bleibt über die private Server-Datenbankverbindung für Audit-Zwecke erhalten.
+- Die Treuhandübersicht blendet Abstimmungsaktionen für Käufer und Verkäufer auch dann aus, wenn sie zusätzliche Moderatorenrechte besitzen. Die Datenbank-Trigger bleiben die maßgebliche Sicherheitsgrenze.
+- PGlite-Regressionstest simuliert vor der Migration abgegebene Stimmen in beiden Abstimmungen, prüft deren Archivierung und stellt sicher, dass sie aus den aktiven Quoren verschwinden.
+- Supabase-Clean-Install-Skript und Setup-Test enthalten Migration 0025 und das private Archiv.
+- Diese Migration ist im Repository vorbereitet. Sie wurde nicht auf dem verbundenen Supabase-Projekt ausgeführt.
