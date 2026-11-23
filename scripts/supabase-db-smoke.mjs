@@ -200,6 +200,13 @@ try {
   }
   console.log("[supabase-smoke] Vier Stimmen und Zweidrittel-Entscheidung OK");
 
+  const secondReservation = await client.query(
+    `select count(*)::int as eligible from listings
+     where id = 'smoke-listing' and status = 'active'`,
+  );
+  assert.equal(secondReservation.rows[0].eligible, 0, "Belegtes Inserat darf nicht erneut reservierbar sein");
+  console.log("[supabase-smoke] Doppelreservierung verhindert");
+
   // A single party must not be able to mark a handover as complete.
   await client.query("savepoint unilateral_handover");
   await assert.rejects(
@@ -247,12 +254,7 @@ try {
   assert.equal(completed.rows[0].both_return, true);
   console.log("[supabase-smoke] Beidseitige Übergabe und Rückgabe inklusive Inseratfreigabe OK");
 
-  const secondReservation = await client.query(
-    `select count(*)::int as eligible from listings
-     where id = 'smoke-listing' and status = 'active'`,
-  );
-  assert.equal(secondReservation.rows[0].eligible, 0, "Belegtes Inserat darf nicht erneut reservierbar sein");
-  console.log("[supabase-smoke] Doppelreservierung verhindert");
+
 } finally {
   if (transactionStarted) {
     try {
