@@ -74,8 +74,9 @@ export function KreislaufProvider({ children }: { children: ReactNode }) {
   // Moderator eligibility is based on recent presence, not profile edits.
   // Update only while the app is visible, plus immediately when the user
   // returns to the tab. This timestamp is separate from Karma demurrage.
+  const activeUserId = user?.id;
   useEffect(() => {
-    if (!hydrated || !user) return;
+    if (!hydrated || !activeUserId) return;
     const touch = () => {
       if (document.visibilityState === "visible") {
         void touchActivity().catch(() => undefined);
@@ -88,7 +89,7 @@ export function KreislaufProvider({ children }: { children: ReactNode }) {
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", touch);
     };
-  }, [hydrated, user?.id]);
+  }, [hydrated, activeUserId]);
 
   const setRegion = useCallback(
     (id: string) => {
