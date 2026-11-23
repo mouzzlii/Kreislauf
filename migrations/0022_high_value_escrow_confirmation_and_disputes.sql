@@ -53,7 +53,7 @@ begin
 
   select e.* into v_case from public.escrow_cases e where e.id = v_case.id;
   if v_case.buyer_confirmed_at is null or v_case.seller_confirmed_at is null then
-    return query select v_case.status, false, false, v_case.funds_status;
+    return query select v_case.status, v_case.buyer_confirmed_at is not null, v_case.seller_confirmed_at is not null, v_case.funds_status;
     return;
   end if;
 
@@ -265,6 +265,11 @@ begin
     execute 'revoke all on function public.kreislauf_confirm_high_value_escrow(text,text) from authenticated';
     execute 'revoke all on function public.kreislauf_open_high_value_dispute(text,text,text) from authenticated';
     execute 'revoke all on function public.kreislauf_vote_escrow_resolution(text,text,text,text) from authenticated';
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'service_role') then
+    execute 'grant execute on function public.kreislauf_confirm_high_value_escrow(text,text) to service_role';
+    execute 'grant execute on function public.kreislauf_open_high_value_dispute(text,text,text) to service_role';
+    execute 'grant execute on function public.kreislauf_vote_escrow_resolution(text,text,text,text) to service_role';
   end if;
 end;
 $permissions$;
