@@ -29,6 +29,7 @@ const migrations = [
   "0020_escrow_moderator_quorum.sql",
   "0021_high_value_escrow_funds.sql",
   "0022_high_value_escrow_confirmation_and_disputes.sql",
+  "0023_freeze_high_value_escrow_ballots.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
@@ -129,7 +130,8 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
         ('test-moderator', 'Test Moderator 1', 'yspertal-b36', 100, true, 1, now()),
         ('test-moderator-2', 'Test Moderator 2', 'yspertal-b36', 100, true, 1, now()),
         ('test-moderator-3', 'Test Moderator 3', 'yspertal-b36', 100, true, 1, now()),
-        ('test-moderator-4', 'Test Moderator 4', 'yspertal-b36', 100, true, 1, now())
+        ('test-moderator-4', 'Test Moderator 4', 'yspertal-b36', 100, true, 1, now()),
+        ('test-moderator-5', 'Test Moderator 5', 'yspertal-b36', 100, true, 1, now())
        on conflict (user_id) do update set
          is_verified = excluded.is_verified,
          moderator_rank = excluded.moderator_rank,
@@ -463,6 +465,12 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     assert.equal(finalVote.rows[0].votes, 4);
     assert.equal(finalVote.rows[0].approvals, 3);
     assert.equal(finalVote.rows[0].status, "pending", "moderator quorum must not settle high-value escrow before both parties confirm handover");
+    await assert.rejects(
+      db.query("select * from kreislauf_cast_escrow_vote($1, $2, $3, $4)",
+        ["test-high-value", "test-moderator-5", "reject", "Verspätete Gegenstimme"]),
+      /Community-Abstimmung ist bereits abgeschlossen/,
+      "a late moderator vote must not reverse an already reached high-value quorum",
+    );
 
     const settled = await db.query(
       `select
