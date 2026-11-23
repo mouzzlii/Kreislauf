@@ -4,7 +4,7 @@
 
 ## Aktueller Stand
 
-<badge>Demo / Entwicklungsstand</badge>
+**Status: Demo / Entwicklungsstand**
 
 KREISLAUF ist eine funktionsfähige Entwicklungsbasis, aber noch keine öffentlich freigegebene Produktionsplattform. Die GitHub-Build- und Testprüfungen laufen erfolgreich. Reale Nutzerkonten, Identitätsprüfung, produktive Datenhaltung, Moderationsabläufe und ein vollständiger Ende-zu-Ende-Test sind noch nicht als öffentlicher Betrieb abgenommen.
 
