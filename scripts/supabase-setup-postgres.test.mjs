@@ -58,6 +58,44 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     );
     assert.equal(trigger.rows[0].installed, true, "booking state notifications must be installed");
 
+    // Escrow must fail closed if the assignment trigger cannot find four moderators.
+    await db.query(
+      `insert into profiles (user_id, username, region_id, is_verified, moderator_rank, last_active_at)
+       values
+         ('setup-test-mod-1', 'Moderator 1', 'yspertal-b36', true, 1, now()),
+         ('setup-test-mod-2', 'Moderator 2', 'yspertal-b36', true, 1, now()),
+         ('setup-test-mod-3', 'Moderator 3', 'yspertal-b36', true, 1, now())`,
+    );
+    await db.query(
+      `insert into listings
+         (id, user_id, region_id, title, description, category, price_karma, status, images, lat, lng, place_label)
+       values
+         ('setup-escrow-listing', 'setup-test-owner', 'yspertal-b36', 'Escrow quorum', 'Treuhand-Test', 'goods',
+          100, 'booked', '[]'::jsonb, 48.3, 15.06, 'Testort')`,
+    );
+    await assert.rejects(
+      db.query(
+        `insert into escrow_cases (id, listing_id, requester_id, moderator_id, reason)
+         values ('setup-escrow-insufficient', 'setup-escrow-listing', 'setup-test-renter',
+                 'setup-test-mod-1', 'Hochwertiges Tauschgeschäft')`,
+      ),
+      (error) => error.code === "23514",
+      "a new escrow case must roll back when fewer than four moderators can be assigned",
+    );
+    await db.query(
+      `insert into profiles (user_id, username, region_id, is_verified, moderator_rank, last_active_at)
+       values ('setup-test-mod-4', 'Moderator 4', 'yspertal-b36', true, 1, now())`,
+    );
+    await db.query(
+      `insert into escrow_cases (id, listing_id, requester_id, moderator_id, reason)
+       values ('setup-escrow-valid', 'setup-escrow-listing', 'setup-test-renter',
+               'setup-test-mod-1', 'Hochwertiges Tauschgeschäft')`,
+    );
+    const assigned = await db.query(
+      "select count(*)::int as count from escrow_moderators where escrow_id = 'setup-escrow-valid'",
+    );
+    assert.ok(assigned.rows[0].count >= 4, "a valid escrow case must have at least four assigned moderators");
+
     // A production clean install intentionally contains no demo users or bookings.
     // Create an isolated fixture here so the constraints are exercised against a real row.
     await db.query(
@@ -99,7 +137,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     );
 
     const applied = await db.query("select name from _migrations order by name");
-    assert.equal(applied.rows.length, 18);
+    assert.equal(applied.rows.length, 19);
   } finally {
     await db.close();
   }
