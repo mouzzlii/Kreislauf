@@ -9,7 +9,7 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 
 - [x] Produktions-Build läuft in CI erfolgreich.
 - [x] TypeScript-Prüfung läuft erfolgreich.
-- [x] Automatisierte Tests laufen erfolgreich (zuletzt vollständig bestätigt auf Commit `bdc7ee87ba5799b02fa4534030089d956038ec0f`; CI-Lauf 45056284379: Build, TypeScript, Tests, Lint und Dependency-Audit erfolgreich).
+- [x] Automatisierte Tests laufen erfolgreich. Letzter vollständig bestätigter Lauf: GitHub Actions `45154616521` auf Commit `40f41cd68bc74eeb15c3a23275d8b96fe7ff6734` (Build, TypeScript, Tests, Lint und Dependency-Audit erfolgreich).
 - [x] Lint läuft erfolgreich.
 - [x] Abhängigkeiten werden auf bekannte Sicherheitslücken geprüft.
 - [x] Produktions-Build wird blockiert, wenn PostgreSQL-, Better-Auth-, eigener OAuth-Broker- oder Medien-Storage-Konfiguration fehlt.
@@ -25,9 +25,9 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - [x] Hochwert-Treuhand fail-closed gehärtet: Auch nach einer Moderationsmehrheit bleiben Inserat und Punkte gesperrt; die Mehrheitsentscheidung allein löst keine Übergabe und keine Punkteübertragung aus. Die Oberfläche weist ausdrücklich auf die noch fehlende beidseitige Übergabebestätigung hin. Regressionstests einschließlich 2:2-Gleichstand sind im CI-Lauf 45061415223 und 45061409949 für Commit `4962e729aa542285c6927c3982e9a8cd429a9ffa` erfolgreich.
 - [x] Sharing-Treuhand: Übergabe ist serverseitig erst nach Freigabe möglich; strittige Treuhandfälle können nicht durch Stornieren der Buchung umgangen werden. Regressionstests im CI-Lauf 45055074165 auf Commit `fcc915a0c5e0d50031bd98ee2b4fa80157fbadf8` erfolgreich.
 - [x] Sharing-Treuhand zusätzlich gegen Umgehung über die Rückgabe abgesichert: Bei `disputed` bleibt die Buchung und das Inserat unverändert; der Rückgabeversuch wird mit einer klaren Fehlermeldung abgewiesen. Regressionstest prüft Storno und Rückgabe gemeinsam; CI-Lauf `45066586697` auf Commit `956cf525270d828ebf4514aba3cdca30ed585b5b` erfolgreich.
-- [x] Datenbankmigrationen sind im Supabase-Projekt registriert.
-- [x] RLS ist auf den geprüften öffentlichen Tabellen aktiviert.
-- [x] Direkte Tabellenrechte für die Rollen `anon` und `authenticated` wurden in `public` geprüft; die Abfrage ergab keine direkten Tabellenprivilegien.
+- [ ] Datenbankmigrationen sind im vorhandenen Supabase-Projekt noch nicht ausgeführt oder registriert. Die Clean-Install-Prüfung lief ausschließlich in einer temporären PostgreSQL-kompatiblen Testdatenbank.
+- [x] RLS ist im Clean-Install-Test auf den geprüften Tabellen aktiviert; dies ist kein Live-Nachweis für das Supabase-Projekt.
+- [x] Direkte Tabellenrechte der Rollen `anon` und `authenticated` wurden im Clean-Install-Test geprüft; die Abfrage ergab dort keine direkten Tabellenprivilegien. Das vorhandene Supabase-Projekt wurde nicht abgefragt.
 
 ## Vor echtem Mehrbenutzerbetrieb zwingend offen
 
@@ -190,3 +190,14 @@ Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt 
 - [ ] Vor einem echten Mehrbenutzerbetrieb bleiben isolierte Supabase-Migrationstests, getrennte echte Konten, vollständige End-to-End- und Android-Tests, Datenschutz-/Rechtsprüfung und unabhängige Sicherheitsprüfung erforderlich.
 
 **Einordnung:** Der aktuelle Code- und Preview-Build ist grün und bereitgestellt. KREISLAUF ist damit weiterhin eine Testdemo, nicht die fertig freigegebene öffentliche Plattform.
+
+
+## Korrektur des Prüfkontexts – 23.11.2026
+
+Ältere Einträge in dieser Checkliste dokumentieren historische Code- und Teststände. Sie dürfen nicht als Nachweis einer bereits erfolgten Live-Einrichtung verstanden werden.
+
+- [x] Aktueller Dokumentations-/Entwicklungs-Commit: `3c15875d1397ea858ce68a841f249cb9658f6f95` (Supabase-Anleitung präzisiert).
+- [x] Unmittelbar vorheriger Code-Commit `40f41cd68bc74eeb15c3a23275d8b96fe7ff6734`: GitHub Actions `45154616521` vollständig erfolgreich; Build, TypeScript, Tests, Lint und Dependency-Audit.
+- [x] Vercel-Preview für Code-Commit `40f41cd`: Deployment `dpl_AHQP7tQ3oHYzXSbLuva4NQ9fFcdf` ist `READY`.
+- [ ] Der neue Dokumentations-Commit `3c15875` hat noch keinen eigenen CI-/Preview-Nachweis.
+- [ ] Es besteht weiterhin keine bestätigte Verbindung zum vorhandenen Supabase-Projekt; keine Live-Migration wurde ausgeführt.
