@@ -1601,40 +1601,115 @@ export const voteEscrow = createServerFn({ method: "POST" })
   });
 
 
+export const confirmHighValueEscrow = createServerFn({ method: "POST" })
+  .validator((input: unknown) => ({ id: idOf(input, "id") }))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    const sql = await getSql();
+    try {
+      await sql.query("select * from kreislauf_confirm_high_value_escrow($1, $2)", [data.id, context.userId]);
+      return { ok: true };
+    } catch (error) {
+      return fail(error instanceof Error ? error.message : "Übergabe konnte nicht bestätigt werden.");
+    }
+  });
+
+export const openHighValueDispute = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    const id = idOf(input, "id");
+    const source = input as Record<string, unknown>;
+    const reason = typeof source.reason === "string" ? source.reason.trim().slice(0, 1000) : "";
+    if (reason.length < 10) throw new Error("Bitte beschreibe den Streitfall mit mindestens 10 Zeichen.");
+    return { id, reason };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    const sql = await getSql();
+    try {
+      await sql.query("select kreislauf_open_high_value_dispute($1, $2, $3)", [data.id, context.userId, data.reason]);
+      return { ok: true };
+    } catch (error) {
+      return fail(error instanceof Error ? error.message : "Streitfall konnte nicht eröffnet werden.");
+    }
+  });
+
+export const voteEscrowResolution = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    const id = idOf(input, "id");
+    const source = input as Record<string, unknown>;
+    const decision = source.decision === "release" || source.decision === "refund" ? source.decision : null;
+    if (!decision) throw new Error("Entscheidung muss Freigabe oder Erstattung sein.");
+    const note = typeof source.note === "string" ? source.note.trim().slice(0, 500) : "";
+    return { id, decision, note };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    const sql = await getSql();
+    try {
+      await sql.query("select * from kreislauf_vote_escrow_resolution($1, $2, $3, $4)",
+        [data.id, context.userId, data.decision, data.note]);
+      return { ok: true };
+    } catch (error) {
+      return fail(error instanceof Error ? error.message : "Streitfallentscheidung konnte nicht gespeichert werden.");
+    }
+  });
+
 export type EscrowSummary = {
-  status: "pending" | "released" | "disputed" | "cancelled" | null;
+  status: "pending" | "released" | "disputed" | "cancelled" | "refunded" | null;
   votes: number;
   approvals: number;
   rejections: number;
   assigned: number;
   canVote: boolean;
   hasVoted: boolean;
+  buyerId: string | null;
+  sellerId: string | null;
+  amountKarma: number;
+  fundsStatus: "not_applicable" | "held" | "released" | "refunded";
+  buyerConfirmed: boolean;
+  sellerConfirmed: boolean;
+  isBuyer: boolean;
+  isSeller: boolean;
+  canConfirm: boolean;
+  canOpenDispute: boolean;
+  disputeReason: string;
+  reason: string;
+  resolutionVotes: number;
+  resolutionReleases: number;
+  resolutionRefunds: number;
+  canResolve: boolean;
+  hasResolutionVote: boolean;
 };
-
 export const getEscrowSummary = createServerFn({ method: "GET" })
   .validator((input: unknown) => ({ id: idOf(input, "id") }))
   .middleware([authMiddleware])
   .handler(async ({ data, context }): Promise<EscrowSummary> => {
     const sql = await getSql();
-    const cases = await sql.query<{ id: string; status: string }>(
-      `select e.id, e.status from escrow_cases e
+    const cases = await sql.query<Row>(
+      `select e.id, e.status, e.buyer_id as "buyerId", e.seller_id as "sellerId",
+         e.amount_karma as "amountKarma", e.funds_status as "fundsStatus",
+         e.buyer_confirmed_at as "buyerConfirmedAt", e.seller_confirmed_at as "sellerConfirmedAt",
+         e.dispute_reason as "disputeReason", e.reason
+       from escrow_cases e
        where e.listing_id = $1
          and (
-           exists (
-             select 1 from listings l
-             where l.id = e.listing_id and (l.user_id = $2 or e.requester_id = $2)
-           )
-           or exists (
-             select 1 from escrow_moderators a
-             where a.escrow_id = e.id and a.moderator_id = $2
-           )
+           exists (select 1 from listings l where l.id = e.listing_id and (l.user_id = $2 or e.requester_id = $2))
+           or exists (select 1 from escrow_moderators a where a.escrow_id = e.id and a.moderator_id = $2)
          )
        order by e.created_at desc limit 1`,
       [data.id, context.userId],
     );
-    if (!cases.length) return { status: null, votes: 0, approvals: 0, rejections: 0, assigned: 0, canVote: false, hasVoted: false };
-    const escrowId = cases[0].id;
-    const [counts, assignment, ownVote] = await Promise.all([
+    if (!cases.length) return {
+      status: null, votes: 0, approvals: 0, rejections: 0, assigned: 0,
+      canVote: false, hasVoted: false, buyerId: null, sellerId: null, amountKarma: 0,
+      fundsStatus: "not_applicable", buyerConfirmed: false, sellerConfirmed: false,
+      isBuyer: false, isSeller: false, canConfirm: false, canOpenDispute: false,
+      disputeReason: "", reason: "", resolutionVotes: 0, resolutionReleases: 0, resolutionRefunds: 0,
+      canResolve: false, hasResolutionVote: false,
+    };
+    const current = cases[0];
+    const escrowId = asString(current.id);
+    const [counts, assignment, ownVote, resolutionCounts, ownResolutionVote] = await Promise.all([
       sql.query<Row>(
         `select count(v.id)::int as votes,
           count(*) filter (where v.vote = 'approve')::int as approvals,
@@ -1647,13 +1722,45 @@ export const getEscrowSummary = createServerFn({ method: "GET" })
            and p.moderator_rank > 0 and p.last_active_at >= now() - interval '30 days'`,
         [escrowId, context.userId]),
       sql.query("select 1 from escrow_votes where escrow_id = $1 and moderator_id = $2", [escrowId, context.userId]),
+      sql.query<Row>(
+        `select count(*)::int as votes,
+          count(*) filter (where decision = 'release')::int as releases,
+          count(*) filter (where decision = 'refund')::int as refunds
+         from escrow_resolution_votes where escrow_id = $1`, [escrowId]),
+      sql.query("select 1 from escrow_resolution_votes where escrow_id = $1 and moderator_id = $2", [escrowId, context.userId]),
     ]);
     const row = counts[0] ?? {};
+    const resolution = resolutionCounts[0] ?? {};
+    const votes = asNumber(row.votes);
+    const approvals = asNumber(row.approvals);
+    const rejections = asNumber(row.rejections);
+    const assigned = asNumber(row.assigned);
+    const isBuyer = current.buyerId === context.userId;
+    const isSeller = current.sellerId === context.userId;
+    const approved = votes >= 4 && approvals >= Math.ceil(votes * 2 / 3);
     return {
-      status: asString(cases[0].status, "pending") as "pending" | "released" | "disputed" | "cancelled",
-      votes: asNumber(row.votes), approvals: asNumber(row.approvals),
-      rejections: asNumber(row.rejections), assigned: asNumber(row.assigned),
-      canVote: assignment.length > 0 && ownVote.length === 0 && cases[0].status === "pending" && !(asNumber(row.votes) >= 4 && (asNumber(row.approvals) >= Math.ceil(asNumber(row.votes) * 2 / 3) || asNumber(row.rejections) >= Math.ceil(asNumber(row.votes) * 2 / 3))),
+      status: asString(current.status, "pending") as EscrowSummary["status"],
+      votes, approvals, rejections, assigned,
+      canVote: assignment.length > 0 && ownVote.length === 0 && current.status === "pending"
+        && !(votes >= 4 && (approvals >= Math.ceil(votes * 2 / 3) || rejections >= Math.ceil(votes * 2 / 3))),
       hasVoted: ownVote.length > 0,
+      buyerId: current.buyerId == null ? null : asString(current.buyerId),
+      sellerId: current.sellerId == null ? null : asString(current.sellerId),
+      amountKarma: asNumber(current.amountKarma),
+      fundsStatus: asString(current.fundsStatus, "not_applicable") as EscrowSummary["fundsStatus"],
+      buyerConfirmed: current.buyerConfirmedAt != null,
+      sellerConfirmed: current.sellerConfirmedAt != null,
+      isBuyer, isSeller,
+      canConfirm: (isBuyer || isSeller) && current.status === "pending" && current.fundsStatus === "held"
+        && approved && !(isBuyer ? current.buyerConfirmedAt != null : current.sellerConfirmedAt != null),
+      canOpenDispute: (isBuyer || isSeller) && current.status === "pending" && current.fundsStatus === "held",
+      disputeReason: asString(current.disputeReason),
+      reason: asString(current.reason),
+      resolutionVotes: asNumber(resolution.votes),
+      resolutionReleases: asNumber(resolution.releases),
+      resolutionRefunds: asNumber(resolution.refunds),
+      canResolve: assignment.length > 0 && ownResolutionVote.length === 0 && current.status === "disputed"
+        && current.fundsStatus === "held",
+      hasResolutionVote: ownResolutionVote.length > 0,
     };
   });
