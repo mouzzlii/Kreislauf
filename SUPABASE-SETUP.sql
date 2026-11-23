@@ -1520,6 +1520,16 @@ using public.escrow_cases e
 where e.id = v.escrow_id
   and v.moderator_id in (e.buyer_id, e.seller_id);
 
+-- 0026_complete_escrow_foreign_key_indexes.sql: complete escrow foreign-key indexes.
+create index if not exists escrow_cases_buyer_id_fk_idx
+  on public.escrow_cases(buyer_id);
+create index if not exists escrow_cases_region_id_fk_idx
+  on public.escrow_cases(region_id);
+create index if not exists escrow_cases_seller_id_fk_idx
+  on public.escrow_cases(seller_id);
+create index if not exists escrow_resolution_votes_moderator_id_fk_idx
+  on public.escrow_resolution_votes(moderator_id);
+
 -- Mark the bundled migrations as applied so the app does not rerun them at deploy.
 insert into _migrations(name) values
   ('0001_auth.sql'),
@@ -1545,7 +1555,8 @@ insert into _migrations(name) values
   ('0022_high_value_escrow_confirmation_and_disputes.sql'),
   ('0023_freeze_high_value_escrow_ballots.sql'),
   ('0024_independent_escrow_resolution.sql'),
-  ('0025_archive_legacy_conflicted_escrow_votes.sql')
+  ('0025_archive_legacy_conflicted_escrow_votes.sql'),
+  ('0026_complete_escrow_foreign_key_indexes.sql')
 on conflict (name) do nothing;
 
 commit;
