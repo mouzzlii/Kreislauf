@@ -242,3 +242,13 @@ Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt 
 - [x] Datenbank-CI-Lauf `45157497685` erfolgreich. Der optionale Remote-Verifier wurde mangels GitHub-Secret `SUPABASE_TEST_DATABASE_URL` übersprungen; das separate Testprojekt wurde über den Supabase-Connector manuell geprüft.
 - [ ] **Neuer Sicherheitsblocker:** Gemeinsam genutztes Preview-OAuth-Client-Secret ist als Quellcode-Konstante im Repository und damit in der Git-Historie enthalten. Auth-Broker-Rotation und Umstellung auf geschützte Umgebungsvariablen sind erforderlich. Siehe [GitHub Issue #2](https://github.com/mouzzlii/Kreislauf/issues/2). Der alte Wert darf nicht weiter als geheim betrachtet werden.
 - [ ] Kein Produktionsstart, keine PR-Zusammenführung und keine Änderung an der ursprünglichen Supabase-Datenbank.
+
+
+## Ergänzung – 23.11.2026: OAuth-Regressionstest abgeschlossen
+
+- Aktueller Branch-HEAD: `44e994b4146eca187643c9a22832f7c300401ca1` (`test: prevent OAuth secrets from returning to source`).
+- GitHub Actions Lauf `45167546406`: vollständig erfolgreich – Dependency-Installation, Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- Der neue Regressionstest prüft, dass `src/lib/auth/preview.ts` kein Preview-Client-Secret und keine inline gesetzte Client-Secret-Zuweisung enthält und dass `src/lib/auth/server.ts` ausschließlich `GROK_AUTH_CLIENT_SECRET` aus der Laufzeitumgebung verwendet und die Föderation ohne dieses Secret deaktiviert lässt.
+- Der Test bestätigt den aktuellen Quellcode. Er entfernt kein früher veröffentlichtes Secret aus der Git-Historie und ersetzt nicht dessen Widerruf/Rotation beim Auth-Broker.
+- Für Commit `44e994b` liegt noch kein erfolgreicher Vercel-Preview-Build vor. Der letzte erfasste Deployment-Versuch bezog sich auf den älteren Zwischenstand `a855244` und schlug fehl; der korrigierte aktuelle Stand wurde noch nicht als Preview verifiziert.
+- PR #1 bleibt offen und Draft. Keine Zusammenführung, keine Live-Supabase-Migration und keine Produktionsfreigabe.
