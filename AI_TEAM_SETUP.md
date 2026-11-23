@@ -57,7 +57,7 @@ Zusätzlich müssen die jeweils aktuell unterstützten Modellkennungen als nicht
 - `XAI_MODEL`
 - `OPENAI_MODEL`
 
-Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen angepasst werden können. Das ChatGPT-Web-/App-Gespräch selbst ist nicht automatisch eine API-Identität; der GPT-Schritt läuft über die OpenAI-API als separater Dienst und benötigt einen eigenen API-Schlüssel sowie ein entsprechendes Abrechnungskonto.
+Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen angepasst werden können. Zusätzlich benötigt er `AI_TEAM_REPO_READ_TOKEN`: ein Fine-grained GitHub-Token mit ausschließlich `Contents: read-only` (und Metadata-Lesezugriff) auf die vier Projekt-Repositories. Es wird nur zum Laden von README und Dateipfaden verwendet; das separate `GITHUB_TOKEN` des Workflows schreibt die Antwort ausschließlich in das zentrale Issue. Das Lesetoken gehört ausschließlich in GitHub Actions Secrets. Das ChatGPT-Web-/App-Gespräch selbst ist nicht automatisch eine API-Identität; der GPT-Schritt läuft über die OpenAI-API als separater Dienst und benötigt einen eigenen API-Schlüssel sowie ein entsprechendes Abrechnungskonto.
 
 ## Sicherheits- und Kostenregeln
 
@@ -70,11 +70,20 @@ Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen an
 - Harte Grenzen für Eingabegröße, Ausgabegröße, Aufrufe pro Issue und Kosten/Budget vor Aktivierung festlegen.
 - Fehler und nicht verfügbare Provider sichtbar protokollieren; keine falschen Erfolgsbehauptungen.
 
+## Repository-Zuordnung als Actions-Variablen
+
+- `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf` (Standardwert bereits hinterlegt)
+- `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS` (Standardwert bereits hinterlegt)
+- `PROJECT_REPO_TRAKUNA` (erst nach Bestätigung des kanonischen Repositories setzen)
+- `PROJECT_REPO_SCAN_PROFIT` (erst nach Identifikation des kanonischen Repositories setzen)
+
+Der Relay lädt zu jeder Debatte das README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Daten werden ausdrücklich als nicht vertrauenswürdiger Kontext behandelt.
+
 ## Noch offene Voraussetzungen
 
 - [ ] SCAN-PROFIT: kanonisches GitHub-Repository eindeutig identifizieren.
 - [ ] TRAKUNA: kanonisches Quell-Repository zwischen den vorhandenen Gateway-Repositories bestätigen.
-- [ ] Kontoinhaber richtet die Provider-API-Schlüssel als GitHub Actions Secrets ein.
+- [ ] Kontoinhaber richtet die drei Provider-API-Schlüssel und `AI_TEAM_REPO_READ_TOKEN` als GitHub Actions Secrets ein.
 - [ ] Modellkennungen, Kostenlimit und maximale Gesprächsrunden festlegen.
 - [ ] Erst danach Workflow und Relay implementieren und mit Test-Issue Ende-zu-Ende prüfen.
 
