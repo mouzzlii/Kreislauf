@@ -28,6 +28,7 @@ const migrations = [
   "0020_escrow_moderator_quorum.sql",
   "0021_high_value_escrow_funds.sql",
   "0022_high_value_escrow_confirmation_and_disputes.sql",
+  "0023_freeze_high_value_escrow_ballots.sql",
 ];
 
 async function checked(label, operation) {
@@ -110,7 +111,8 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
         ('escrow-mod-1','Escrow Mod 1','yspertal-b36',10,true,1,now()),
         ('escrow-mod-2','Escrow Mod 2','yspertal-b36',10,true,1,now()),
         ('escrow-mod-3','Escrow Mod 3','yspertal-b36',10,true,1,now()),
-        ('escrow-mod-4','Escrow Mod 4','yspertal-b36',10,true,1,now())`,
+        ('escrow-mod-4','Escrow Mod 4','yspertal-b36',10,true,1,now()),
+        ('escrow-mod-5','Escrow Mod 5','yspertal-b36',10,true,1,now())`,
     );
 
     await checked("create funded escrow", () => createHeldEscrow(db,"escrow-listing-1","escrow-case-1","escrow-buyer","escrow-seller","escrow-mod-1"));
@@ -134,6 +136,12 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
       await checked("initial moderator approval", () => db.query("select * from kreislauf_cast_escrow_vote($1,$2,$3,$4)",
         ["escrow-listing-1",moderator,"approve","Freigabeprüfung"]));
     }
+    await assert.rejects(
+      db.query("select * from kreislauf_cast_escrow_vote($1,$2,$3,$4)",
+        ["escrow-listing-1","escrow-mod-5","reject","Verspätete Gegenstimme"]),
+      /Community-Abstimmung ist bereits abgeschlossen/,
+      "a late vote cannot reverse an already reached high-value escrow quorum",
+    );
     const first = await checked("first party confirmation", () => db.query(
       "select * from kreislauf_confirm_high_value_escrow($1,$2)",
       ["escrow-listing-1","escrow-buyer"],
