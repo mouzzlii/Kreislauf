@@ -47,6 +47,7 @@ jobs:
           assert.ok(source.includes("reserveDailyDebate(comment.id)"));
           assert.ok(source.includes("KI-Team-Debatte abgebrochen"));
           assert.ok(source.includes("Fehlerphase: ${phase}"));
+          assert.ok(source.includes("Tageskontingent bleibt verbraucht"));
           assert.ok(source.includes("issues/11/comments?per_page=100&sort=created&direction=desc"));
           assert.ok(workflow.includes("group: ai-team-global-budget"));
           assert.ok(setup.includes("Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag"));
