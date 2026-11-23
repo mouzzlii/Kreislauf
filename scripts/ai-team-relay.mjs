@@ -75,22 +75,24 @@ async function askOpenAI(instructions, input) {
 }
 
 async function askGemini(instructions, input) {
-  const data = await api(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`,
-    {
-      method: "POST",
-      headers: {
-        "x-goog-api-key": GEMINI_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: instructions }] },
-        contents: [{ role: "user", parts: [{ text: input }] }],
-        generationConfig: { maxOutputTokens: MAX_OUTPUT_TOKENS },
-      }),
+  const data = await api("https://generativelanguage.googleapis.com/v1beta/interactions", {
+    method: "POST",
+    headers: {
+      "x-goog-api-key": GEMINI_API_KEY,
+      "Content-Type": "application/json",
     },
-  );
-  const output = (data.candidates?.[0]?.content?.parts || [])
+    body: JSON.stringify({
+      model: GEMINI_MODEL,
+      system_instruction: instructions,
+      input,
+      generation_config: { max_output_tokens: MAX_OUTPUT_TOKENS },
+      store: false,
+    }),
+  });
+  const output = (data.steps || [])
+    .filter((step) => step.type === "model_output")
+    .flatMap((step) => step.content || [])
+    .filter((part) => part.type === "text")
     .map((part) => part.text || "")
     .join("\n")
     .trim();
