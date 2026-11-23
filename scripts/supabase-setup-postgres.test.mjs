@@ -58,6 +58,28 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     );
     assert.equal(trigger.rows[0].installed, true, "booking state notifications must be installed");
 
+    // A production clean install intentionally contains no demo users or bookings.
+    // Create an isolated fixture here so the constraints are exercised against a real row.
+    await db.query(
+      `insert into profiles (user_id, username, region_id)
+       values ('setup-test-owner', 'Setup Test Owner', 'yspertal-b36'),
+              ('setup-test-renter', 'Setup Test Renter', 'yspertal-b36')`,
+    );
+    await db.query(
+      `insert into listings
+         (id, user_id, region_id, title, description, category, price_karma, status, images, lat, lng, place_label)
+       values
+         ('setup-test-listing', 'setup-test-owner', 'yspertal-b36', 'Setup Test', 'Nur für den Datenbanktest',
+          'sharing', 10, 'booked', '[]'::jsonb, 48.3, 15.06, 'Testort')`,
+    );
+    await db.query(
+      `insert into bookings
+         (id, listing_id, renter_id, owner_id, starts_at, ends_at, status, amount_karma)
+       values
+         ('setup-test-booking', 'setup-test-listing', 'setup-test-renter', 'setup-test-owner',
+          now(), now() + interval '1 day', 'reserved', 10)`,
+    );
+
     // Escrow must fail closed if the assignment trigger cannot find four moderators.
     await db.query(
       `insert into profiles (user_id, username, region_id, is_verified, moderator_rank, last_active_at)
@@ -95,28 +117,6 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
       "select count(*)::int as count from escrow_moderators where escrow_id = 'setup-escrow-valid'",
     );
     assert.ok(assigned.rows[0].count >= 4, "a valid escrow case must have at least four assigned moderators");
-
-    // A production clean install intentionally contains no demo users or bookings.
-    // Create an isolated fixture here so the constraints are exercised against a real row.
-    await db.query(
-      `insert into profiles (user_id, username, region_id)
-       values ('setup-test-owner', 'Setup Test Owner', 'yspertal-b36'),
-              ('setup-test-renter', 'Setup Test Renter', 'yspertal-b36')`,
-    );
-    await db.query(
-      `insert into listings
-         (id, user_id, region_id, title, description, category, price_karma, status, images, lat, lng, place_label)
-       values
-         ('setup-test-listing', 'setup-test-owner', 'yspertal-b36', 'Setup Test', 'Nur für den Datenbanktest',
-          'sharing', 10, 'booked', '[]'::jsonb, 48.3, 15.06, 'Testort')`,
-    );
-    await db.query(
-      `insert into bookings
-         (id, listing_id, renter_id, owner_id, starts_at, ends_at, status, amount_karma)
-       values
-         ('setup-test-booking', 'setup-test-listing', 'setup-test-renter', 'setup-test-owner',
-          now(), now() + interval '1 day', 'reserved', 10)`,
-    );
 
     // The clean-install bundle must enforce both parties' confirmations.
     await assert.rejects(
