@@ -8,7 +8,7 @@ export const VIDEO_PRESETS: Record<VideoPreset, { label: string; maxFiles: numbe
 
 export type VideoDurationCheck =
   | { ok: true; totalSeconds: number }
-  | { ok: false; reason: "empty" | "too-many" | "invalid-duration" | "clip-too-long" | "total-too-long"; totalSeconds: number };
+  | { ok: false; reason: "empty" | "too-many" | "invalid-duration" | "clip-too-long"; totalSeconds: number };
 
 export function checkVideoDurations(preset: VideoPreset, durations: number[]): VideoDurationCheck {
   const limits = VIDEO_PRESETS[preset];
@@ -21,7 +21,6 @@ export function checkVideoDurations(preset: VideoPreset, durations: number[]): V
   if (durations.some((duration) => duration > limits.maxEachSeconds)) {
     return { ok: false, reason: "clip-too-long", totalSeconds };
   }
-  if (totalSeconds > 60) return { ok: false, reason: "total-too-long", totalSeconds };
   return { ok: true, totalSeconds };
 }
 
