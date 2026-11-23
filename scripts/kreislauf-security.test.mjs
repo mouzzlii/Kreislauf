@@ -506,6 +506,13 @@ test("community escrow status refreshes while the listing is visible", () => {
   assert.match(escrowPanel, /if \(cancelled \|\| loading/);
 });
 
+test("notification bell refreshes on foreground and avoids hidden-tab polling", () => {
+  assert.match(shell, /document\.visibilityState !== "visible"/);
+  assert.match(shell, /document\.addEventListener\("visibilitychange", refresh\)/);
+  assert.match(shell, /document\.removeEventListener\("visibilitychange", refresh\)/);
+  assert.match(shell, /window\.setInterval\(refresh, 30_000\)/);
+});
+
 test("listing conversations refresh immediately when the app becomes visible", () => {
   assert.equal((listingConversation.match(/document\.addEventListener\("visibilitychange", refresh\)/g) ?? []).length, 2);
   assert.equal((listingConversation.match(/document\.removeEventListener\("visibilitychange", refresh\)/g) ?? []).length, 2);
