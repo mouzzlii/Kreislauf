@@ -84,7 +84,7 @@ Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories.
 - [x] TRAKUNA: `mouzzlii/Fuck` als maßgebliches TRAKUNA-Repository aus dem aktuellen Repository-Abgleich festgelegt; das Gateway-Experiment bleibt getrennt.
 - [ ] Kontoinhaber richtet die drei Provider-API-Schlüssel und `AI_TEAM_REPO_READ_TOKEN` als GitHub Actions Secrets ein.
 - [ ] Providerseitige Ausgabenlimits/Kostenkontrollen und maximale Gesprächsrunden festlegen; danach `AI_TEAM_BUDGET_CONFIRMED=true` als bewusste manuelle Aktivierungsfreigabe setzen. Die Variable prüft Anbieterbudgets nicht automatisch.
-- [ ] Erst danach Workflow und Relay implementieren und mit Test-Issue Ende-zu-Ende prüfen.
+- [ ] Erst danach den bereits vorbereiteten Workflow kontrolliert aktivieren und mit einem synthetischen Test-Issue Ende-zu-Ende prüfen.
 
 ## Freigabekriterium
 
