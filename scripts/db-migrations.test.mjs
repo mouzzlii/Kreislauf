@@ -26,6 +26,7 @@ const migrations = [
   "0017_allow_activity_ledger_entries.sql",
   "0018_booking_bilateral_handover.sql",
   "0019_booking_bilateral_return.sql",
+  "0020_escrow_moderator_quorum.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
