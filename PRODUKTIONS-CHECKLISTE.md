@@ -118,3 +118,11 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - Neue PGlite-Integrationstests decken Reservierung, unzulässige Moderatoren-/Parteibestätigungen, einseitige Bestätigung ohne Auszahlung, beidseitige Auszahlung, Streitfall, Rückerstattung, Wiederfreigabe des Inserats und Systemnachrichten ab.
 - `SUPABASE-SETUP.sql` enthält die Migrationen 0021 und 0022. Die Migrationen wurden nicht auf dem verbundenen Supabase-Projekt ausgeführt.
 - GitHub Actions Lauf `45096806816` auf Commit `e11a2fb86077eb52348045350ec91f92d01621b8`: erfolgreich – Produktions-Build, TypeScript, 260 Skript-Tests, 81 zusätzliche Tests, Lint und Dependency-Audit mit 0 gemeldeten Schwachstellen. Enthalten sind auch der Treuhand-Integrationstest und der UI-Hinweis für den Fall, dass nach allen Stimmen keine Zweidrittelmehrheit zustande kommt.
+
+
+## Ergänzung – 23.11.2026: Medien-URL-Prüfung gehärtet
+
+- Wiederverwendete Inseratbilder werden nur akzeptiert, wenn HTTPS, ein exakter Vercel-Blob-Store-Hostname, Standardport, keine URL-Zugangsdaten und der persönliche Pfad `/listings/{Nutzerkennung}/` übereinstimmen.
+- Regressionstests weisen verschachtelte/lookalike Hosts, Zugangsdaten in URLs, Sonderports und normalisierte Pfad-Traversal-Versuche zurück.
+- GitHub Actions Lauf `45097198523` auf Commit `fc8144441afd2cbb60182194b9f650ea241de515`: erfolgreich – Produktions-Build, TypeScript, 260 Skript-Tests, 83 zusätzliche Tests, Lint und Dependency-Audit mit 0 gemeldeten Schwachstellen.
+- Die Prüfung betrifft URL-Validierung und Quellcode. Ein realer Blob-Upload/-Löschtest ist weiterhin offen; Video-Uploads bleiben bewusst gesperrt, bis eine serverseitige Medienprüfung verfügbar ist.
