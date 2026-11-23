@@ -61,7 +61,7 @@ Die SQL-Datei markiert die enthaltenen Migrationen `0001_auth.sql` bis `0007_har
 
 ## Noch nicht enthalten
 
-- Die echte ID-Austria-Anbindung braucht die offizielle Freigabe und Zugangsdaten.
+- Die echte ID-Austria-Anbindung braucht zuerst die Registrierung des Service Owners und der KREISLAUF-Anwendung im ID-Austria-Service-Provider-Registrierungssystem (IDA-SPR). Für OIDC sind Authorization Code Flow, eine URL-basierte Client-ID im Kontext der Anwendung, eine registrierte HTTPS-Redirect-URL und ein verpflichtendes Client-Secret vorgesehen. Das Secret wird bei Erstellung nur einmal angezeigt. Private Service Provider benötigen für zusätzliche Personenmerkmale einen Akkreditierungsprozess. Bis zur Registrierung und Ende-zu-Ende-Prüfung bleibt die vorhandene Funktion ein klar gekennzeichneter Mock. Offizielle technische Informationen: [Registrierung](https://www.id-austria.gv.at/de/developer/registrieren) · [OIDC-Anbindung](https://www.id-austria.gv.at/de/developer/anbinden/anbindung-mit-openid-connect).
 - Video-Uploads sind aktuell absichtlich vollständig gesperrt. Vor der Freigabe muss die tatsächliche Laufzeit serverseitig aus der Videodatei geprüft werden.
 - Vor dem öffentlichen Start sind Mehrbenutzer-, Rollen-, Treuhand- und Datenschutztests erforderlich.
 
