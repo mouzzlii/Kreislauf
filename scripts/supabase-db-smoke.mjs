@@ -1,14 +1,13 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { randomBytes } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
 
-const rawConnectionString = process.env.SUPABASE_DATABASE_URL ?? "";
+const rawConnectionString = process.env.SUPABASE_TEST_DATABASE_URL ?? "";
 const connectionString = rawConnectionString.trim();
 if (!connectionString) {
-  throw new Error("SUPABASE_DATABASE_URL fehlt. Lege die Verbindungs-URL als GitHub Actions Secret an.");
+  throw new Error("SUPABASE_TEST_DATABASE_URL fehlt. Verwende ausschließlich eine separate, isolierte Supabase-Testdatenbank (eigenes Testprojekt), niemals die Produktionsdatenbank.");
 }
 const parsedConnection = new URL(connectionString);
 const encodedPassword = parsedConnection.password;
@@ -40,8 +39,20 @@ const migrations = [
   "0003_kreislauf_v2.sql",
   "0004_messages_escrow.sql",
   "0005_escrow_atomicity.sql",
+  "0006_escrow_cancellation.sql",
+  "0007_harden_function_search_path.sql",
+  "0009_lock_down_legacy_tables.sql",
+  "0010_lock_down_default_privileges.sql",
+  "0011_limit_listing_message_rate.sql",
+  "0012_atomic_listing_message_rate_limits.sql",
+  "0013_listing_video_urls.sql",
+  "0014_foreign_key_indexes.sql",
+  "0015_listing_paused_status.sql",
+  "0016_reconcile_demo_karma_ledger.sql",
+  "0017_allow_activity_ledger_entries.sql",
+  "0018_booking_bilateral_handover.sql",
+  "0019_booking_bilateral_return.sql",
 ];
-const schema = `kreislauf_smoke_${randomBytes(6).toString("hex")}`;
 const client = new pg.Client({
   connectionString,
   connectionTimeoutMillis: 10_000,
@@ -55,12 +66,12 @@ try {
   const version = await client.query("select version() as version");
   console.log("[supabase-smoke] Verbindung erfolgreich:", version.rows[0].version);
 
+  // Migrations deliberately target public.* objects. Run only against a
+  // dedicated test Supabase project/database, never production. The complete
+  // schema + seed + flow test is wrapped in one transaction and rolled back.
   await client.query("begin");
   transactionStarted = true;
-  await client.query(`create schema "${schema}"`);
-  // Keep public out of search_path: an unqualified DROP INDEX in a migration
-  // must never resolve to and remove an existing production index.
-  await client.query(`set local search_path to "${schema}"`);
+  await client.query("set local lock_timeout = '5s'");
 
   for (const name of migrations) {
     const sql = await readFile(join(root, "migrations", name), "utf8");
@@ -199,7 +210,7 @@ try {
   if (transactionStarted) {
     try {
       await client.query("rollback");
-      console.log("[supabase-smoke] ROLLBACK erfolgreich – keine Testdaten wurden gespeichert.");
+      console.log("[supabase-smoke] ROLLBACK erfolgreich – Schema, Migrationen und Testdaten wurden nicht gespeichert.");
     } catch (error) {
       console.error("[supabase-smoke] WARNUNG: Rollback fehlgeschlagen:", error);
       process.exitCode = 1;
