@@ -6,7 +6,9 @@ Regionales Kreislauf- und Tauschsystem für das Yspertal / die B36.
 
 Die aktuelle Vorschau ist eine gemeinsame Testversion, kein produktiver Mehrbenutzerbetrieb.
 
-**[Aktuelle KREISLAUF-Testvorschau öffnen](https://grok-workspace-r33smm8gf-kreislauf.vercel.app/)** – Preview-Deploy für Commit `2f116992dd2c13f3d4a5fe2f8e4e0e14c948cb7e`, Status `READY`. CI (Build, TypeScript, automatisierte Tests, Sicherheitsprüfung und Lint) ist für den vorangegangenen Code-Commit `2fc83b8ea22d5ec5bb9bf45a3b4021f05c75a907` erfolgreich. Die fünf Basisrouten `/`, `/karte`, `/inserat/neu`, `/konto` und `/inserat/lst-most` wurden auf dieser bereitgestellten Version mit HTTP 200 geprüft; der neuere Commit enthält nur eine README-Aktualisierung. Es bleibt eine gemeinsame Demo ohne persönliche Registrierung und ohne dauerhafte Mehrbenutzerdaten. Es bleibt eine gemeinsame Demo ohne persönliche Registrierung und ohne dauerhafte Mehrbenutzerdaten. Keine echten persönlichen oder vertraulichen Daten eingeben.
+**[Aktuelle KREISLAUF-Testvorschau öffnen](https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/)** – stabiler Preview-Alias des Entwicklungszweigs. Der aktuell zugehörige Vercel-Deploy für Commit `a5bf49e3c4edb0cac2d86ebd19fe33801ffcbb72` steht auf `READY`. Die fünf Basisrouten `/`, `/karte`, `/inserat/neu`, `/konto` und `/inserat/lst-most` wurden auf diesem Alias mit HTTP 200 geprüft. Der GitHub-Actions-Lauf [45257723434](https://github.com/mouzzlii/Kreislauf/actions/runs/45257723434) für diesen Dokumentations-Commit ist erfolgreich. Das ist kein vollständiger Browser-, Kamera- oder Mehrbenutzer-Ende-zu-Ende-Test.
+
+Es bleibt eine gemeinsame Demo ohne persönliche Registrierung und ohne verlässliche dauerhafte Mehrbenutzerdaten. Bitte keine echten persönlichen oder vertraulichen Daten eingeben.
 
 **[Deutsche Anleitung zum Ausprobieren](DEMO-ANLEITUNG.md)**
 
