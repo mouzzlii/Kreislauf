@@ -240,7 +240,7 @@ async function reserveDailyDebate(triggerCommentId) {
     `${reservationPrefix}${triggerCommentId} -->`,
     `Reservierung für KI-Team-Debatte am ${today} (UTC).`,
     "Das Tageskontingent wird vor Provider-Aufrufen reserviert; auch fehlgeschlagene Debatten verbrauchen einen Platz.",
-  ].join("\\n\\n");
+  ].join("\n\n");
   await githubRequest("issues/11/comments", {
     method: "POST",
     body: JSON.stringify({ body }),
@@ -259,7 +259,7 @@ async function runPhase(issueNumber, marker, phase, work) {
       `Fehlerphase: ${phase}`,
       detail,
       "Tageskontingent bleibt verbraucht, da die Reservierung vor dem Provider-Aufruf erfolgt ist.",
-    ].join("\\n\\n");
+    ].join("\n\n");
     await githubRequest(`issues/${issueNumber}/comments`, {
       method: "POST",
       body: JSON.stringify({ body }),
@@ -354,7 +354,7 @@ async function main() {
           "### KI-Team-Debatte abgebrochen",
           `Das UTC-Tageskontingent von maximal ${MAX_DAILY_DEBATES} Debatten ist bereits ausgeschöpft.`,
           "Bitte am nächsten UTC-Kalendertag erneut versuchen. Es wurden keine Provider aufgerufen.",
-        ].join("\\n\\n"),
+        ].join("\n\n"),
       }),
     });
     return;
