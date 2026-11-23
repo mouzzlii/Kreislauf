@@ -2,7 +2,7 @@
 
 ## Demo öffnen
 
-Die aktuelle [Vercel-Vorschau](https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/) kannst du in Chrome auf deinem Android-Handy ansehen. Der aktuelle Preview-Deploy für Commit `eb56b06eee7164e5ffb1a6e4ee9134f852e6974c` ist `READY`. Die Routen Startseite, Karte, Inserat-Erstellung, Konto und ein Beispiel-Inserat wurden auf dem aktuellen Alias serverseitig mit HTTP 200 abgerufen. Das ist ein erfolgreicher Seiten-/Erreichbarkeitstest, aber kein vollständiger Browser-, Kamera- oder Mehrbenutzer-Ende-zu-Ende-Test. Es gibt in dieser Version keine persönliche Registrierung.
+Die aktuelle [Vercel-Vorschau](https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/) kannst du in Chrome auf deinem Android-Handy ansehen. Der aktuelle Preview-Deploy für Commit `adbb4cd6feb2f82a60cfc42acc5e7821b9f3b46f` ist `READY`. Die Routen Startseite, Karte, Inserat-Erstellung, Konto und ein Beispiel-Inserat wurden auf dem aktuellen Alias serverseitig mit HTTP 200 abgerufen. Das ist ein erfolgreicher Seiten-/Erreichbarkeitstest, aber kein vollständiger Browser-, Kamera- oder Mehrbenutzer-Ende-zu-Ende-Test. Es gibt in dieser Version keine persönliche Registrierung.
 
 **Wichtig:** Alle Besucher verwenden denselben Demo-Zugang. Namen, Inserate und Testaktionen sind nicht privat. Bitte keine echten persönlichen Daten, Adressen oder vertraulichen Nachrichten eingeben. Die Demo-Datenbank läuft derzeit als temporäre PGLite-Datenbank im Arbeitsspeicher. Daten können nach einem Neustart verschwinden. Da Vercel mehrere Serverinstanzen parallel betreiben kann, sind Testdaten zwischen verschiedenen Instanzen nicht zuverlässig synchron; die Demo ist daher kein belastbarer gemeinsamer Mehrbenutzer-Test.
 

@@ -298,3 +298,22 @@ Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt 
 - [x] Supabase-Anleitung auf Testprojekt-first umgestellt: Schema-Setup nur im separaten `kreislauf-test`; das ursprüngliche Supabase-Projekt darf nicht ohne Sicherung, gesonderte Prüfung und ausdrückliche Freigabe verändert werden.
 - [x] OAuth-Hinweis korrigiert: das Secret ist im aktuellen Quellstand entfernt, muss aber wegen der früheren Git-Historie weiterhin beim Auth-Broker widerrufen/rotiert werden.
 - [ ] Kein vollständiger interaktiver Android-/Kamera-/Mehrbenutzer-E2E-Test; kein Produktionsstart, kein Merge von PR #1 und keine Änderung am ursprünglichen Supabase-Projekt.
+
+
+## Verifizierter Gesamtstand – 23.11.2026, aktuelle Nachprüfung
+
+Dieser Abschnitt ist die maßgebliche Zusammenfassung für den aktuellen Branch-Stand; ältere Abschnitte dokumentieren ausschließlich historische Zwischenstände.
+
+- [x] Branch `demo/local-auth-off`, Commit `adbb4cd6feb2f82a60cfc42acc5e7821b9f3b46f`.
+- [x] GitHub Actions Lauf `45229526252` für diesen Commit vollständig erfolgreich: Abhängigkeiten/Lockfile, Dependency-Security-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- [x] Vercel Deployment `dpl_Biqe7GLvKHVqmqBBpGWhEreaLdaE` für genau diesen Commit ist `READY`.
+- [x] Aktueller Preview-Alias: https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/
+- [x] Serverseitige HTTP-Prüfung auf dem aktuellen Alias: `/`, `/karte`, `/inserat/neu`, `/konto`, `/inserat/lst-most` liefern jeweils HTTP 200.
+- [x] Der Upload-Endpunkt bleibt bewusst geschlossen (HTTP 503); die Inserat-Erstellung weist Video-URLs ebenfalls ab, solange keine echte serverseitige Medienprüfung besteht.
+- [x] Die Supabase-Anleitung schreibt Testprojekt-first vor. Das ursprüngliche Supabase-Projekt wurde in dieser Arbeit nicht verändert.
+- [x] OAuth-Secret ist aus dem aktuellen Quellstand entfernt; die Widerruf-/Rotationspflicht für den alten Wert in der Git-Historie bleibt offen (Issue #2).
+- [ ] Kein vollständiger interaktiver Android-, Kamera- oder Mehrbenutzer-Ende-zu-Ende-Test wurde ausgeführt.
+- [ ] Kein produktiver Datenbankbetrieb, keine persönliche Anmeldung, kein Video-Upload und keine echte ID-Austria-Verifikation freigegeben.
+- [ ] PR #1 bleibt offen und nicht zusammengeführt.
+
+**Freigabeentscheidung:** Die Testvorschau ist technisch bereitgestellt und die automatisierten Codeprüfungen sind grün. KREISLAUF ist ausdrücklich nicht produktionsbereit.
