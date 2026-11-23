@@ -157,3 +157,12 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - [x] Separater Clean-Install-Datenbanktest `45150894502` auf Commit `2c48d6b6bdb41469c96bea304584ca0b24950d25`: Supabase-Setup-SQL, RLS, Rechte und 24 Anwendungsmigrationen erfolgreich in temporärer PostgreSQL-kompatibler Testdatenbank.
 - [ ] Noch offen: Migrationen auf einem isolierten echten Supabase-Testprojekt ausführen und Mehrbenutzerabläufe mit getrennten Konten prüfen. Das vorhandene Supabase-Projekt wurde nicht verändert.
 - Der nachfolgende Commit `eeba0aa0dab5e47f6199b5177fd50da411094b69` aktualisiert ausschließlich die Supabase-Anleitung; der erfolgreiche Code-Prüflauf gilt für den vorherigen Code-Stand.
+
+## Aktualisierung – 23.11.2026: aktueller Preview-Stand
+
+- [x] GitHub Actions Lauf `45151317208` auf Commit `10e11484f6895c2bfb2f1e6c7ee93e04fd4a3185`: Build-/Test-Prüfung erfolgreich. Der Commit enthält nur die aktualisierte Dokumentation; die Code-Prüfung war bereits auf dem vorherigen Code-Stand erfolgreich.
+- [x] Vercel-Preview für genau diesen Commit ist `READY`; Git-Branch `demo/local-auth-off`, Projekt `grok-workspace`, Framework TanStack Start.
+- Preview-Adresse: https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/
+- [ ] Der Status `READY` bestätigt den erfolgreichen Vercel-Build und die Bereitstellung, nicht den vollständigen manuellen Browser-/Android-Praxistest oder eine Verbindung zur echten Supabase-Datenbank.
+- [ ] PR #1 bleibt offen und als Entwurf markiert; nicht zusammengeführt. Keine Live-Supabase-Migration und keine Produktionsfreigabe.
+
