@@ -22,7 +22,9 @@ CHRONOS-Projektverknüpfung: https://github.com/mouzzlii/CHRONOS/issues/13
 
 ## Zielarchitektur und vorhandener Relay-Entwurf
 
-GitHub Actions (oder ein kleiner Webhook-Dienst) reagiert nur auf einen ausdrücklich adressierten Kommentar, beispielsweise:
+GitHub Actions reagiert nur auf einen ausdrücklich adressierten Kommentar. Der vorbereitete Relay verwendet die offiziellen API-Oberflächen: OpenAI Responses API, Gemini Interactions API und xAI Responses API. Die Gemini- und xAI-Anfragen sind zustandslos bzw. mit `store: false` angelegt; Modellnamen können über Actions-Variablen überschrieben werden. Offizielle Dokumentation: https://developers.openai.com/api/reference/resources/responses/methods/create · https://ai.google.dev/api/interactions-api · https://docs.x.ai/developers/rest-api-reference/inference/responses
+
+Beispiel:
 
 ```text
 @ai-team debate [SCAN-PROFIT]
@@ -33,7 +35,7 @@ Grok soll ihn kritisch prüfen und Gemini soll auf die Kritik antworten.
 Geplanter Ablauf:
 1. Trigger und Projektkennung validieren.
 2. Nur freigegebene GitHub-Repositories und Issues akzeptieren.
-3. Gemini, xAI/Grok und optional OpenAI über deren offizielle APIs aufrufen.
+3. GPT, Gemini und Grok nacheinander über ihre offiziellen APIs aufrufen (GPT-Erstanalyse → Gemini-Gegenprüfung → Grok-Gegenprüfung → GPT-Synthese).
 4. Antworten mit Agentenkennung und Referenzen als GitHub-Kommentare protokollieren.
 5. Eine begrenzte Zahl von Gesprächsrunden und Token-/Kostenlimits erzwingen.
 6. Bot-eigene Kommentare ignorieren, um Endlosschleifen zu verhindern.
@@ -55,7 +57,7 @@ Zusätzlich müssen die jeweils aktuell unterstützten Modellkennungen als nicht
 - `XAI_MODEL`
 - optional `OPENAI_MODEL`
 
-Die konkreten Modellkennungen und API-Endpunkte müssen unmittelbar vor Implementierung anhand der offiziellen Provider-Dokumentation geprüft werden. Das ChatGPT-Web-/App-Gespräch selbst ist nicht automatisch eine API-Identität; ein OpenAI-API-Aufruf wäre ein separater Dienst und benötigt einen eigenen API-Schlüssel sowie ein entsprechendes Abrechnungskonto.
+Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen angepasst werden können. Das ChatGPT-Web-/App-Gespräch selbst ist nicht automatisch eine API-Identität; der GPT-Schritt läuft über die OpenAI-API als separater Dienst und benötigt einen eigenen API-Schlüssel sowie ein entsprechendes Abrechnungskonto.
 
 ## Sicherheits- und Kostenregeln
 
