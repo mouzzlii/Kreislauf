@@ -166,3 +166,12 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - [ ] Der Status `READY` bestätigt den erfolgreichen Vercel-Build und die Bereitstellung, nicht den vollständigen manuellen Browser-/Android-Praxistest oder eine Verbindung zur echten Supabase-Datenbank.
 - [ ] PR #1 bleibt offen und als Entwurf markiert; nicht zusammengeführt. Keine Live-Supabase-Migration und keine Produktionsfreigabe.
 
+## Aktualisierung – 23.11.2026: Preview-Datenhaltung und Betriebsgrenzen
+
+- [x] Startseite und Demo-Anleitung weisen jetzt ausdrücklich darauf hin, dass PGLite auf Vercel nur im Arbeitsspeicher je Serverinstanz läuft. Bei parallelen Serverinstanzen sind Daten nicht zuverlässig synchron; Neustarts können Testdaten verlieren.
+- [x] Supabase-Anleitung erklärt die tatsächliche Architektur: Better Auth für Konten, Supabase als PostgreSQL-Datenbank über serverseitige `DATABASE_URL`; weder Supabase-JavaScript-Client noch Supabase Auth werden derzeit verwendet.
+- [x] Vercel-Umgebungsvariablen wurden ohne Auslesen geheimer Werte geprüft: `DATABASE_URL` fehlt; `VITE_AUTH_ENABLED=false`; `BLOB_READ_WRITE_TOKEN` ist angelegt, aber leer. Auth-URL und Auth-Secret sind vorhanden.
+- [ ] Keine Datenbankverbindung wurde hergestellt, keine Migration auf Supabase ausgeführt und kein Produktionsschalter verändert. Für echte Mehrbenutzer- und Persistenztests wird ein separates Supabase-Testprojekt benötigt.
+- [x] Der Testfix für Dezimal-Rundung in `geo-privacy.test.ts` ist im Preview-Branch enthalten. Die zuletzt zuvor gelaufene GitHub-Prüfung hatte diesen Test noch fehlschlagen lassen; für den aktuellen Commit liegt noch kein vollständiger GitHub-Actions-Testlauf vor.
+- [ ] Vercel-Preview-Build für den aktuellen Dokumentations-/UI-Stand läuft bzw. wird nach Commit `f957d9e076fa2abb1cd86e300c9bf768392c0847` geprüft. Ein READY-Status ist noch nicht bestätigt.
+
