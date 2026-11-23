@@ -150,7 +150,7 @@ async function main() {
     return;
   }
 
-  const match = comment.body?.match(/^\\s*\\/ai-team\\s+debate\\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS)\\s*:\\s*([\\s\\S]+)$/i);
+  const match = comment.body?.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS)\s*:\s*([\s\S]+)$/i);
   if (!match) return;
 
   const project = match[1].toUpperCase();
