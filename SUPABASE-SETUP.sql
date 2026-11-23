@@ -992,7 +992,16 @@ after insert on public.escrow_cases
 for each row execute function public.kreislauf_require_escrow_moderator_quorum();
 
 revoke all on function public.kreislauf_require_escrow_moderator_quorum() from public;
-revoke all on function public.kreislauf_require_escrow_moderator_quorum() from anon, authenticated;
+do $permissions$
+begin
+  if exists (select 1 from pg_roles where rolname = 'anon') then
+    execute 'revoke all on function public.kreislauf_require_escrow_moderator_quorum() from anon';
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'authenticated') then
+    execute 'revoke all on function public.kreislauf_require_escrow_moderator_quorum() from authenticated';
+  end if;
+end;
+$permissions$;
 
 -- Mark the bundled migrations as applied so the app does not rerun them at deploy.
 insert into _migrations(name) values
