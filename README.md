@@ -20,6 +20,7 @@ KREISLAUF ist eine funktionsfähige Entwicklungsbasis, aber noch keine öffentli
 - Treuhand- und Übergabestatusmodell; der vollständige Nachrichten-/Treuhand-Demofluss ist derzeit separat im Preview-Branch verfügbar
 - Responsive Oberfläche mit Waldgrün-/Naturfarbwelt
 - Lokale PGlite-Datenbank als Entwicklungsstandard; Neon kann über `DATABASE_URL` angebunden werden
+- **Datenbankhinweis:** Der aktuelle App-Code nutzt PGlite oder Neon/Postgres über `DATABASE_URL`. Die vorhandenen Supabase-Projekte sind aktuell nicht automatisch mit der Anwendung verbunden. Vor einer Supabase-Nutzung müssen Verbindung, Migration-Drift und Auth-Schema ausdrücklich eingerichtet und geprüft werden.
 
 ## Demo starten
 
