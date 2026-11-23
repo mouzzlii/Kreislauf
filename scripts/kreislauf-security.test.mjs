@@ -7,6 +7,7 @@ const idAustriaMode = await readFile(new URL("../src/features/kreislauf/id-austr
 const listingMedia = await readFile(new URL("../src/features/kreislauf/media.ts", import.meta.url), "utf8");
 const escrowSql = await readFile(new URL("../migrations/0005_escrow_atomicity.sql", import.meta.url), "utf8");
 const escrowFundsSql = await readFile(new URL("../migrations/0021_high_value_escrow_funds.sql", import.meta.url), "utf8");
+const escrowSettlementSql = await readFile(new URL("../migrations/0022_high_value_escrow_confirmation_and_disputes.sql", import.meta.url), "utf8");
 const coreSql = await readFile(new URL("../migrations/0003_kreislauf_v2.sql", import.meta.url), "utf8");
 const ledgerSql = await readFile(new URL("../migrations/0002_kreislauf.sql", import.meta.url), "utf8");
 const activityLedgerSql = await readFile(new URL("../migrations/0017_allow_activity_ledger_entries.sql", import.meta.url), "utf8");
@@ -46,6 +47,7 @@ test("private KREISLAUF actions require verified server-side identity middleware
     "createListing", "tradeListing", "reserveListing", "transitionBooking",
     "addReview", "getMeetingPoint", "getListingBooking", "getListingMessages",
     "sendListingMessage", "getListingThreads", "getEscrowSummary", "voteEscrow",
+    "confirmHighValueEscrow", "openHighValueDispute", "voteEscrowResolution",
   ]) {
     assert.match(serverFunction(name), /\.middleware\(\[authMiddleware\]\)/, `${name} must require authMiddleware`);
   }
@@ -468,4 +470,24 @@ test("listing messages and their conversation are persisted in one SQL statement
   const writePath = send.slice(send.indexOf("const inserted = await sql.query"));
   assert.equal((writePath.match(/sql\.query/g) ?? []).length, 1, "conversation and message must be one database write");
   assert.doesNotMatch(writePath, /select id from listing_conversations where listing_id/);
+});
+
+test("high-value escrow reserves buyer Karma and requires bilateral confirmation before release", () => {
+  assert.match(escrowFundsSql, /funds_status = 'held'/);
+  assert.match(escrowFundsSql, /'escrow_hold'/);
+  assert.match(escrowSettlementSql, /p_actor_id not in \(v_case\.buyer_id, v_case\.seller_id\)/);
+  assert.match(escrowSettlementSql, /v_votes < 4[\s\S]*?v_approvals < ceil/);
+  assert.match(escrowSettlementSql, /buyer_confirmed_at is null or v_case\.seller_confirmed_at is null/);
+  assert.match(escrowSettlementSql, /'escrow_release'/);
+  assert.match(escrowSettlementSql, /status = 'completed'/);
+});
+
+test("high-value escrow disputes are resolved by an independent moderator quorum with refund or release", () => {
+  assert.match(escrowSettlementSql, /kreislauf_open_high_value_dispute/);
+  assert.match(escrowSettlementSql, /kreislauf_vote_escrow_resolution/);
+  assert.match(escrowSettlementSql, /decision in \('release','refund'\)/);
+  assert.match(escrowSettlementSql, /v_votes >= 4 and greatest\(v_releases,v_refunds\) >= ceil/);
+  assert.match(escrowSettlementSql, /'escrow_refund'/);
+  assert.match(escrowSettlementSql, /status = 'refunded'/);
+  assert.match(escrowSettlementSql, /status = 'active'/);
 });
