@@ -267,7 +267,7 @@ export const getListing = createServerFn({ method: "GET" })
          from item_history h where h.item_uuid = $1 order by h.created_at desc limit 8`,
         [listing.itemUuid],
       ),
-      sql.query<Row>(`select id from escrow_cases where listing_id = $1 and status in ('pending', 'disputed') limit 1`, [listing.id]),
+      sql.query<Row>(`select id from escrow_cases where listing_id = $1 and status in ('pending', 'disputed', 'released', 'refunded') limit 1`, [listing.id]),
       sql.query<Row>(
         `select r.id, reviewer.username as "reviewerName",
            r.punctuality, r.item_condition as "itemCondition", r.reliability, r.note,
