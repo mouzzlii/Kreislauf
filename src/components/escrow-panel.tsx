@@ -10,9 +10,30 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
   const [resolutionNote, setResolutionNote] = useState("");
   useEffect(() => {
     let cancelled = false;
-    getEscrowSummary({ data: { id: listingId } }).then((value) => { if (!cancelled) setSummary(value); })
-      .catch(() => { if (!cancelled) setError("Treuhandstatus konnte nicht geladen werden."); });
-    return () => { cancelled = true; };
+    let loading = false;
+    const refresh = () => {
+      if (cancelled || loading || document.visibilityState !== "visible") return;
+      loading = true;
+      getEscrowSummary({ data: { id: listingId } })
+        .then((value) => {
+          if (!cancelled) {
+            setSummary(value);
+            setError("");
+          }
+        })
+        .catch(() => {
+          if (!cancelled && !hasLoaded) setError("Treuhandstatus konnte nicht geladen werden.");
+        })
+        .finally(() => { loading = false; });
+    };
+    refresh();
+    const interval = window.setInterval(refresh, 15_000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [listingId]);
   if (!summary) return error ? <p className="mt-3 text-sm text-copper">{error}</p> : null;
   if (!summary.status) return null;
