@@ -24,7 +24,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
       "regions", "profiles", "listings", "bookings", "reviews",
       "ledger_entries", "item_history", "escrow_cases",
       "listing_conversations", "listing_messages", "listing_message_rate_limits", "escrow_moderators",
-      "escrow_votes", "user", "session", "account", "verification",
+      "escrow_votes", "escrow_resolution_votes", "user", "session", "account", "verification",
     ]) {
       assert.equal(tables.get(table), true, `RLS is not enabled for ${table}`);
     }
@@ -137,7 +137,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     );
 
     const applied = await db.query("select name from _migrations order by name");
-    assert.equal(applied.rows.length, 19);
+    assert.equal(applied.rows.length, 20);
   } finally {
     await db.close();
   }
