@@ -488,6 +488,7 @@ test("high-value escrow reserves buyer Karma and requires bilateral confirmation
 test("high-value escrow disputes are resolved by an independent moderator quorum with refund or release", () => {
   assert.match(escrowSettlementSql, /kreislauf_open_high_value_dispute/);
   assert.match(escrowSettlementSql, /kreislauf_vote_escrow_resolution/);
+  assert.match(escrowFundsSql, /decision in \('release','refund'\)/);
   assert.match(escrowSettlementSql, /p_decision not in \('release','refund'\)/);
   assert.match(escrowSettlementSql, /v_votes >= 4 and greatest\(v_releases,v_refunds\) >= ceil/);
   assert.match(escrowSettlementSql, /'escrow_refund'/);
