@@ -74,7 +74,7 @@ Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen an
 - `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf` (Standardwert bereits hinterlegt)
 - `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS` (Standardwert bereits hinterlegt)
 - `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway-neu` (vom Nutzer bestätigt)
-- `PROJECT_REPO_SCAN_PROFIT` (erst nach Identifikation des kanonischen Repositories setzen)
+- `PROJECT_REPO_SCAN_PROFIT` (noch nicht gesetzt; das GitHub-Repository ist nicht auffindbar. Der aktuelle Projektstand 2.0.60 liegt als ZIP-Prüfpaket und Netlify-Paket in der ChatGPT-Dateibibliothek vor.)
 
 Der Relay lädt zu jeder Debatte das README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Daten werden ausdrücklich als nicht vertrauenswürdiger Kontext behandelt.
 
@@ -89,7 +89,7 @@ Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories.
 
 ## Noch offene Voraussetzungen
 
-- [ ] SCAN-PROFIT: kanonisches GitHub-Repository eindeutig identifizieren.
+- [ ] SCAN-PROFIT: ein eigenes privates GitHub-Repository für den vorhandenen Projektstand 2.0.60 anlegen und den Quellstand übernehmen. In den verbundenen GitHub-Repositories wurde kein bestehendes SCAN-PROFIT-Repository gefunden.
 - [x] TRAKUNA: `mouzzlii/multi-carrier-gateway-neu` als maßgebliches Repository vom Nutzer bestätigt.
 - [ ] Kontoinhaber richtet die drei Provider-API-Schlüssel und `AI_TEAM_REPO_READ_TOKEN` als GitHub Actions Secrets ein.
 - [ ] Modellkennungen, Kostenlimit und maximale Gesprächsrunden festlegen.
