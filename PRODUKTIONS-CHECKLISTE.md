@@ -274,3 +274,15 @@ Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt 
 - Der QR-Scanner beendet Kamera-Stream und Scan-Schleife, sobald die App in den Hintergrund wechselt. Manuelle Eingabe bleibt als Alternative verfügbar.
 - Diese Prüfungen bestätigen den Quellcode im Entwicklungszweig. Sie belegen weder eine Live-Supabase-Migration noch dauerhafte Mehrbenutzerdaten, echte Authentifizierung, Video-Uploads oder einen aktuellen Vercel-Preview des geprüften Commits.
 - Vercel-Preview: der aktuell bekannte READY-Stand ist älter als Commit `6c3e5063`; kein produktiver Deploy, kein Merge von PR #1 und keine Änderung am ursprünglichen Supabase-Projekt.
+
+
+## Aktualisierte Preview-Prüfung – 23.11.2026
+
+- [x] Vercel-Preview für Commit `adcb3a3f355d141206468ead9e26c735b8203f32`: Deployment `dpl_4cnGa6YJVCVmgbM1ksto3wg5ctsy`, Status `READY`.
+- [x] Die Alias-Adresse `https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/` zeigt auf diese aktuelle Bereitstellung.
+- [x] Serverseitige Seitenabrufe lieferten HTTP 200 für `/`, `/karte`, `/inserat/neu`, `/konto` und `/inserat/lst-most`.
+- [x] GitHub Actions Lauf `45227251558` für Commit `adcb3a3f355d141206468ead9e26c735b8203f32`: Job `build` abgeschlossen, Ergebnis `success`.
+- [x] Die deutsche Demo-Anleitung und README wurden aktualisiert, damit sie nicht mehr fälschlich von einer veralteten Vorschau sprechen.
+- [ ] Der HTTP-200-Seitentest ersetzt keinen vollständigen Browser-/Android-E2E-Test, keinen Kamera-Test und keinen Test mit zwei getrennten Konten.
+- [ ] Die Preview ist weiterhin keine produktionsreife Mehrbenutzerplattform: PGLite läuft im Arbeitsspeicher, persönliche Konten bleiben deaktiviert, Video-Uploads bleiben gesperrt und ID Austria ist nur simuliert.
+- [ ] OAuth-Secret-Rotation beim Auth-Broker bleibt offen (siehe [Issue #2](https://github.com/mouzzlii/Kreislauf/issues/2)). Keine Produktionsfreigabe, kein Merge von PR #1 und keine Änderung am ursprünglichen Supabase-Projekt.
