@@ -24,12 +24,13 @@ KREISLAUF verwendet derzeit **Better Auth** für die Anmeldung und eine serverse
 6. Noch **keinen neuen Deploy starten**, bevor auch der Auth-Schalter aus Abschnitt 3 gesetzt ist. Die App verweigert absichtlich den Zugriff, wenn eine echte Datenbank aktiv ist, aber die Anmeldung ausgeschaltet bleibt.
 
 
-### Aktueller Vercel-Status (zuletzt geprüft: 22.11.2026)
+### Aktueller Vercel-Status (geprüft: 23.11.2026)
 
-- `DATABASE_URL`: noch nicht vorhanden.
-- `VITE_AUTH_ENABLED`: steht absichtlich auf `false`.
-- `BLOB_READ_WRITE_TOKEN`: Variable ist angelegt, enthält aber derzeit keinen verwendbaren Token.
-- `BETTER_AUTH_URL` und `BETTER_AUTH_SECRET`: vorhanden; geheime Werte bleiben in Vercel und werden nicht ausgelesen oder im Chat angezeigt.
+- `DATABASE_URL`: ist derzeit nicht in der Vercel-Projektkonfiguration vorhanden.
+- `VITE_AUTH_ENABLED`: steht absichtlich auf `false` für den gemeinsamen Demo-Modus.
+- `BLOB_READ_WRITE_TOKEN`: Variable ist angelegt, aber leer und damit nicht verwendbar.
+- `BETTER_AUTH_URL` und `BETTER_AUTH_SECRET`: vorhanden; die Secret-Werte wurden nicht ausgelesen und bleiben in Vercel.
+- Die Vorschau verwendet deshalb weiterhin PGLite im Arbeitsspeicher und ist nicht persistent. Es wurde keine Datenbankverbindung und keine Migration auf deinem Supabase-Projekt eingerichtet.
 - `ID_AUSTRIA_MOCK_MODE=true`: nur für den Demo-Preview-Zweig vorgesehen.
 
 Der Produktions-Build prüft zusätzlich, ob `DATABASE_URL` eine gültige PostgreSQL-URL ist, echte Anmeldung aktiv ist, ein mindestens 32 Zeichen langes `BETTER_AUTH_SECRET`, eine HTTPS-Adresse für `BETTER_AUTH_URL`, ein eigener HTTPS-Auth-Broker samt `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` sowie ein Medien-Storage-Token vorhanden sind. Die fest im Quellcode enthaltenen OAuth-Vorschau-Zugangsdaten sind ausschließlich für Sandbox-Hosts bestimmt und werden nicht als Produktionszugang akzeptiert. Damit wird ein versehentlicher Start mit Vorschau-Identität oder ohne dauerhafte Datenbank/Medienablage blockiert. Die Demo-Preview bleibt davon unberührt.
