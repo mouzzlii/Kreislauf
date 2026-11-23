@@ -175,3 +175,18 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - [x] Der Testfix für Dezimal-Rundung in `geo-privacy.test.ts` ist im Preview-Branch enthalten. Die zuletzt zuvor gelaufene GitHub-Prüfung hatte diesen Test noch fehlschlagen lassen; für den aktuellen Commit liegt noch kein vollständiger GitHub-Actions-Testlauf vor.
 - [ ] Vercel-Preview-Build für den aktuellen Dokumentations-/UI-Stand läuft bzw. wird nach Commit `f957d9e076fa2abb1cd86e300c9bf768392c0847` geprüft. Ein READY-Status ist noch nicht bestätigt.
 
+## Verifizierter Nachtrag – 23.11.2026, 10:16 UTC
+
+Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt bestätigten Preview- und CI-Stand.
+
+- [x] Aktueller Branch-Commit: `a47cacf1978299e112d3db4456282a3e3a168138`.
+- [x] GitHub Actions Lauf `45153494166` (Run 686) für diesen Commit: vollständig erfolgreich. Abhängigkeiten installiert und geprüft, Produktions-Build, TypeScript, automatisierte Tests und Lint/Code-Qualität abgeschlossen.
+- [x] Der kombinierte Commit-Status meldet Vercel `success`.
+- [x] Vercel Deployment `dpl_HpPVNzAke8E7T7WBdBvY5N5j484B` für exakt diesen Commit und Branch: `READY`. Vorschau: https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/
+- [x] Build-Protokoll bestätigt den Checkout von Commit `a47cacf`, die erfolgreiche Vite-/Nitro-Erstellung und den abgeschlossenen Deployment-Status.
+- [ ] Ein manueller Browser-/Android-Funktionstest wurde hier nicht nachgewiesen. Das Fehlen von Runtime-Logs ist kein Beleg dafür, dass alle Seiten und Funktionen erfolgreich aufgerufen wurden.
+- [ ] PR #1 bleibt als Entwurf offen und wurde nicht zusammengeführt. Es liegen keine PR-Reviews oder Review-Threads vor.
+- [ ] Die produktiven Blocker bleiben unverändert: keine `DATABASE_URL`, persönliche Authentifizierung deaktiviert, Blob-Token leer, kein echter ID-Austria-Anschluss, Video-Upload fail-closed. Es wurden keine Supabase-Migrationen oder Produktionsänderungen vorgenommen.
+- [ ] Vor einem echten Mehrbenutzerbetrieb bleiben isolierte Supabase-Migrationstests, getrennte echte Konten, vollständige End-to-End- und Android-Tests, Datenschutz-/Rechtsprüfung und unabhängige Sicherheitsprüfung erforderlich.
+
+**Einordnung:** Der aktuelle Code- und Preview-Build ist grün und bereitgestellt. KREISLAUF ist damit weiterhin eine Testdemo, nicht die fertig freigegebene öffentliche Plattform.
