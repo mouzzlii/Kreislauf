@@ -258,6 +258,7 @@ async function main() {
     !OPENAI_API_KEY && "OPENAI_API_KEY",
     !GEMINI_API_KEY && "GEMINI_API_KEY",
     !XAI_API_KEY && "XAI_API_KEY",
+    !AI_TEAM_REPO_READ_TOKEN && "AI_TEAM_REPO_READ_TOKEN",
   ].filter(Boolean);
   const missingModels = [
     !OPENAI_MODEL && "OPENAI_MODEL",
@@ -271,6 +272,7 @@ async function main() {
       missing.length ? `Es fehlen GitHub-Actions-Secrets: ${missing.join(", ")}.` : "",
       missingModels.length ? `Es fehlen GitHub-Actions-Variablen mit ausdrücklich ausgewählten, aktuell unterstützten Modellkennungen: ${missingModels.join(", ")}.` : "",
       "Bitte Schlüssel ausschließlich unter Repository Settings → Secrets and variables → Actions → Secrets und Modellkennungen unter Variables hinterlegen. Niemals Schlüssel in Issues, Chats oder Quellcode posten.",
+      "AI_TEAM_REPO_READ_TOKEN muss ein Fine-grained GitHub-Token mit ausschließlich Contents: Read auf die vier Projekt-Repositories sein.",
       "Es werden keine Provider aufgerufen, solange Pflichtangaben fehlen.",
     ].filter(Boolean).join("\n\n");
     await githubRequest(`issues/${issue.number}/comments`, {
