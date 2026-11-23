@@ -44,17 +44,13 @@ async function api(url, options = {}) {
   return data;
 }
 
-function textFromOpenAI(data) {
-  return data.choices?.[0]?.message?.content?.trim() || "";
-}
-
 function textFromResponses(data) {
   return (data.output || [])
     .filter((item) => item.type === "message")
     .flatMap((item) => item.content || [])
     .filter((part) => part.type === "output_text" || part.type === "text")
     .map((part) => part.text || "")
-    .join("\\n")
+    .join("\n")
     .trim();
 }
 
