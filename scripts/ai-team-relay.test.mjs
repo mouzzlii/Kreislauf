@@ -29,6 +29,10 @@ assert.ok(relaySource.includes('const OPENAI_MODEL = process.env.OPENAI_MODEL?.t
 assert.ok(relaySource.includes('const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes('const XAI_MODEL = process.env.XAI_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes("missingModels.length"));
+assert.ok(relaySource.includes('!AI_TEAM_REPO_READ_TOKEN && "AI_TEAM_REPO_READ_TOKEN"'));
+assert.ok(relaySource.includes("Fine-grained GitHub-Token mit ausschließlich Contents: Read"));
+const workflowSource = await readFile(new URL("../.github/workflows/ai-team-communication.yml", import.meta.url), "utf8");
+assert.ok(workflowSource.includes("github.event.issue.number == 11"));
 assert.equal((relaySource.match(/AI_TEAM_BUDGET_CONFIRMED !== "true"/g) || []).length, 1);
 assert.doesNotMatch(relaySource, /gpt-6\\.2-astra|gemini-3\\.8-flash|grok-4\\.7/);
 console.log("AI team routing, explicit-model, and budget-gate tests passed.");
