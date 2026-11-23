@@ -18,8 +18,9 @@ CHRONOS-Projektverknüpfung: https://github.com/mouzzlii/CHRONOS/issues/13
 - Projektregister und Arbeitsregeln im zentralen Issue.
 - CHRONOS-Issue verweist auf die Zentrale.
 - Separater Vorbereitungsbranch: `chore/ai-team-communication-foundation`.
+- Entwurf eines GitHub-Actions-Workflows und eines Node.js-Relays für einen ausdrücklich ausgelösten Drei-Anbieter-Austausch (GPT → Gemini → Grok → GPT) liegt im Draft-PR #12. Der Workflow prüft den Kommentar-Absender, begrenzt Eingabe/Ausgabe, vermeidet Bot-Schleifen und schreibt eine nachvollziehbare Debatte als Issue-Kommentar zurück.
 
-## Zielarchitektur für automatische Kommunikation
+## Zielarchitektur und vorhandener Relay-Entwurf
 
 GitHub Actions (oder ein kleiner Webhook-Dienst) reagiert nur auf einen ausdrücklich adressierten Kommentar, beispielsweise:
 
@@ -84,4 +85,4 @@ Automatische KI-Kommunikation gilt erst als aktiv, wenn ein echter Test nachweis
 4. Bot-Schleifen werden verhindert.
 5. Nicht konfigurierte Provider, API-Fehler und Budgetgrenzen werden korrekt behandelt.
 
-Bis dahin ist die GitHub-Zentrale manuell nutzbar; automatische KI-zu-KI-Nachrichten sind noch nicht aktiv.
+Der Relay-Code ist im Draft-PR vorbereitet, aber noch nicht in `main` und nicht aktiv. Automatische KI-zu-KI-Nachrichten starten erst nach PR-Prüfung/Merge, Hinterlegung aller drei Provider-Secrets und einem erfolgreichen Ende-zu-Ende-Test.
