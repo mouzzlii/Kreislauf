@@ -30,6 +30,14 @@ const migrations = [
   "0022_high_value_escrow_confirmation_and_disputes.sql",
 ];
 
+async function checked(label, operation) {
+  try {
+    return await operation();
+  } catch (error) {
+    throw new Error(`${label}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
 async function createHeldEscrow(db, listingId, escrowId, buyerId, sellerId, moderatorId) {
   await db.query(
     `insert into listings
@@ -105,7 +113,7 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
         ('escrow-mod-4','Escrow Mod 4','yspertal-b36',10,true,1,now())`,
     );
 
-    await createHeldEscrow(db,"escrow-listing-1","escrow-case-1","escrow-buyer","escrow-seller","escrow-mod-1");
+    await checked("create funded escrow", () => createHeldEscrow(db,"escrow-listing-1","escrow-case-1","escrow-buyer","escrow-seller","escrow-mod-1"));
     const held = await db.query(
       `select
         (select karma_balance from profiles where user_id='escrow-buyer') as buyer_balance,
@@ -123,13 +131,13 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     );
 
     for (const moderator of ["escrow-mod-1","escrow-mod-2","escrow-mod-3","escrow-mod-4"]) {
-      await db.query("select * from kreislauf_cast_escrow_vote($1,$2,$3,$4)",
-        ["escrow-listing-1",moderator,"approve","Freigabeprüfung"]);
+      await checked("initial moderator approval", () => db.query("select * from kreislauf_cast_escrow_vote($1,$2,$3,$4)",
+        ["escrow-listing-1",moderator,"approve","Freigabeprüfung"]));
     }
-    const first = await db.query(
+    const first = await checked("first party confirmation", () => db.query(
       "select * from kreislauf_confirm_high_value_escrow($1,$2)",
       ["escrow-listing-1","escrow-buyer"],
-    );
+    ));
     assert.equal(first.rows[0].status,"pending","one confirmation must not release funds");
     assert.equal(first.rows[0].buyer_confirmed,true);
     assert.equal(first.rows[0].seller_confirmed,false);
@@ -140,10 +148,10 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     assert.equal(oneSided.rows[0].seller_balance,0);
     assert.equal(oneSided.rows[0].listing_status,"booked");
 
-    const completed = await db.query(
+    const completed = await checked("second party confirmation and settlement", () => db.query(
       "select * from kreislauf_confirm_high_value_escrow($1,$2)",
       ["escrow-listing-1","escrow-seller"],
-    );
+    ));
     assert.equal(completed.rows[0].status,"released");
     const released = await db.query(
       `select
@@ -165,11 +173,11 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     await db.query(
       "insert into ledger_entries(region_id,receiver_id,amount_karma,entry_kind,message) values ('yspertal-b36','escrow-buyer',100,'mint','Testguthaben für Erstattung')",
     );
-    await createHeldEscrow(db,"escrow-listing-2","escrow-case-2","escrow-buyer","escrow-seller","escrow-mod-1");
-    await db.query(
+    await checked("create second funded escrow", () => createHeldEscrow(db,"escrow-listing-2","escrow-case-2","escrow-buyer","escrow-seller","escrow-mod-1"));
+    await checked("open participant dispute", () => db.query(
       "select kreislauf_open_high_value_dispute($1,$2,$3)",
       ["escrow-listing-2","escrow-buyer","Ware kam beschädigt an; bitte Belege prüfen."],
-    );
+    ));
     await assert.rejects(
       db.query("select * from kreislauf_vote_escrow_resolution($1,$2,$3,$4)",
         ["escrow-listing-2","escrow-buyer","refund","Unzulässige Käuferstimme"]),
@@ -177,8 +185,8 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
       "a party cannot decide its own dispute",
     );
     for (const moderator of ["escrow-mod-1","escrow-mod-2","escrow-mod-3","escrow-mod-4"]) {
-      await db.query("select * from kreislauf_vote_escrow_resolution($1,$2,$3,$4)",
-        ["escrow-listing-2",moderator,"refund","Erstattung gerechtfertigt"]);
+      await checked("moderator refund vote", () => db.query("select * from kreislauf_vote_escrow_resolution($1,$2,$3,$4)",
+        ["escrow-listing-2",moderator,"refund","Erstattung gerechtfertigt"]));
     }
     const refunded = await db.query(
       `select
