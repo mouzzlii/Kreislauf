@@ -27,3 +27,10 @@ assert.match(relaySource, /TRAKUNA:\s*process\.env\.PROJECT_REPO_TRAKUNA\s*\|\|\
 assert.match(relaySource, /AI_TEAM_BUDGET_CONFIRMED !== "true"/);
 assert.match(relaySource, /PROJECT_REPO_SCAN_PROFIT\s*\|\|\s*""/);
 console.log("AI team routing and budget-gate tests passed.");
+
+assert.match(relaySource, /const OPENAI_MODEL = process\.env\.OPENAI_MODEL\?\.trim\(\) \|\| ""/);
+assert.match(relaySource, /const GEMINI_MODEL = process\.env\.GEMINI_MODEL\?\.trim\(\) \|\| ""/);
+assert.match(relaySource, /const XAI_MODEL = process\.env\.XAI_MODEL\?\.trim\(\) \|\| ""/);
+assert.match(relaySource, /missingModels\.length/);
+assert.doesNotMatch(relaySource, /gpt-6\.2-astra|gemini-3\.8-flash|grok-4\.7/);
+console.log("AI team model configuration safety tests passed.");
