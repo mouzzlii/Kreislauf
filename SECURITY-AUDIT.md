@@ -215,3 +215,11 @@ Zusätzliche Prüfung: Dieselbe Datenbankregel schützt auch die anfängliche Co
 - Die öffentliche Preview-Client-ID darf im Quellcode stehen; das dazugehörige Secret nicht.
 - **Wichtig:** Das Entfernen aus dem aktuellen Branch löscht den Wert nicht aus der Git-Historie. Die Rotation bzw. der Widerruf beim Auth-Broker bleibt zwingend. Bis der Betreiber dies bestätigt und ein neues Secret ausschließlich als geschützte Umgebungsvariable hinterlegt ist, bleibt Anmeldung deaktiviert und die Produktionsfreigabe gesperrt.
 - Die Änderungen müssen durch den vollständigen CI-Lauf und einen neuen Preview-Check verifiziert werden. Ein erfolgreicher Build ersetzt weder die Broker-Rotation noch einen OAuth-End-to-End-Test.
+
+
+## Ergänzung – Build-Nachkontrolle nach OAuth-Härtung
+
+- Vercel-Deployment `dpl_GA33Jum7NLfijAgqQ7fprhhFmcbF` für den Zwischenstand `a855244` ist fehlgeschlagen: `server.ts` importierte dort noch den inzwischen entfernten Export `PREVIEW_CLIENT_SECRET`.
+- Der unmittelbar folgende Code-Commit `f2f8bf5` hat den veralteten Import und jede Verwendung des Quellcode-Secrets entfernt. Die aktuelle Branch-Datei `src/lib/auth/server.ts` liest das Secret ausschließlich aus `GROK_AUTH_CLIENT_SECRET`.
+- GitHub Actions Läufe `45166904197` (Commit `f2f8bf5`) und `45166947670` (Dokumentationsstand `3133f1f`) sind erfolgreich: Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- Der erfolgreiche CI-Lauf ist eine Codeprüfung. Ein erfolgreicher Vercel-Preview-Build des finalen Branch-Stands muss separat bestätigt werden; das fehlgeschlagene Zwischen-Deployment wird nicht als gültige Vorschau ausgegeben.
