@@ -55,7 +55,7 @@ geeignete Secrets eingerichtet werden:
 Zusätzlich müssen die jeweils aktuell unterstützten Modellkennungen als nicht geheime Variablen konfiguriert werden, zum Beispiel:
 - `GEMINI_MODEL`
 - `XAI_MODEL`
-- optional `OPENAI_MODEL`
+- `OPENAI_MODEL`
 
 Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen angepasst werden können. Das ChatGPT-Web-/App-Gespräch selbst ist nicht automatisch eine API-Identität; der GPT-Schritt läuft über die OpenAI-API als separater Dienst und benötigt einen eigenen API-Schlüssel sowie ein entsprechendes Abrechnungskonto.
 
@@ -87,4 +87,4 @@ Automatische KI-Kommunikation gilt erst als aktiv, wenn ein echter Test nachweis
 4. Bot-Schleifen werden verhindert.
 5. Nicht konfigurierte Provider, API-Fehler und Budgetgrenzen werden korrekt behandelt.
 
-Der Relay-Code ist im Draft-PR vorbereitet, aber noch nicht in `main` und nicht aktiv. Automatische KI-zu-KI-Nachrichten starten erst nach PR-Prüfung/Merge, Hinterlegung aller drei Provider-Secrets und einem erfolgreichen Ende-zu-Ende-Test.
+Der Relay-Code ist im Draft-PR vorbereitet, aber noch nicht in `main` und nicht aktiv. Der gültige Trigger lautet exakt `/ai-team debate PROJEKT: Auftrag` (z. B. `/ai-team debate CHRONOS: Prüfe die Room-Migrationen`). Automatische KI-zu-KI-Nachrichten starten erst nach PR-Prüfung/Merge, Hinterlegung aller drei Provider-Secrets und einem erfolgreichen Ende-zu-Ende-Test.
