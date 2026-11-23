@@ -204,7 +204,7 @@ const MAX_DAILY_DEBATES = 2;
 async function reserveDailyDebate(commentId) {
   const date = new Date().toISOString().slice(0, 10);
   const prefix = `<!-- ai-team-daily-budget:${date}:`;
-  const comments = await githubRequest("issues/11/comments?per_page=100");
+  const comments = await githubRequest("issues/11/comments?per_page=100&sort=created&direction=desc");
   const used = comments.filter((item) => item.body?.includes(prefix)).length;
   if (used >= MAX_DAILY_DEBATES) return false;
 
