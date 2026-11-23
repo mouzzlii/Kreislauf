@@ -218,6 +218,9 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     assert.equal(refundMessage.rows[0].count,1,"the refund must be announced in the listing conversation");
 
     await checked("create third funded escrow", () => createHeldEscrow(db,"escrow-listing-3","escrow-case-3","escrow-buyer","escrow-seller","escrow-mod-1"));
+    const thirdCaseState = await db.query("select status, funds_status, reason from escrow_cases where id = $1",["escrow-case-3"]);
+    assert.equal(thirdCaseState.rows[0]?.status,"pending","third case must remain pending before a party dispute");
+    assert.equal(thirdCaseState.rows[0]?.funds_status,"held","third case must retain reserved Karma");
     await assert.rejects(
       db.query("select kreislauf_open_high_value_dispute($1,$2,$3)",
         ["escrow-listing-3","escrow-mod-1","Moderator darf keinen fremden Streitfall eröffnen."]),
