@@ -18,9 +18,10 @@ const PROJECT_REPOS = {
   CHRONOS: process.env.PROJECT_REPO_CHRONOS || "mouzzlii/CHRONOS",
 };
 
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-6.2-astra";
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-const XAI_MODEL = process.env.XAI_MODEL || "grok-4.7";
+// Require explicit, currently supported model IDs; never guess provider defaults.
+const OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || "";
+const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || "";
+const XAI_MODEL = process.env.XAI_MODEL?.trim() || "";
 const AI_TEAM_ALLOWED_USERS = process.env.AI_TEAM_ALLOWED_USERS || "mouzzlii";
 
 const MAX_INPUT_CHARS = 8000;
@@ -199,29 +200,6 @@ async function githubRequest(path, options = {}) {
   });
 }
 
-const MAX_DAILY_DEBATES = 2;
-
-async function reserveDailyDebate(commentId) {
-  const date = new Date().toISOString().slice(0, 10);
-  const prefix = `<!-- ai-team-daily-budget:${date}:`;
-  const comments = await githubRequest("issues/11/comments?per_page=100&sort=created&direction=desc");
-  const used = comments.filter((item) => item.body?.includes(prefix)).length;
-  if (used >= MAX_DAILY_DEBATES) return false;
-
-  const marker = `${prefix}${commentId} -->`;
-  await githubRequest("issues/11/comments", {
-    method: "POST",
-    body: JSON.stringify({
-      body: [
-        marker,
-        `KI-Team-Relay Tageskontingent reserviert: ${used + 1}/${MAX_DAILY_DEBATES} Debatten am ${date} (UTC).`,
-        "Dies begrenzt die Zahl der Aufrufe, ersetzt aber keine USD-Ausgabenlimits bei den API-Anbietern.",
-      ].join("\n\n"),
-    }),
-  });
-  return true;
-}
-
 async function main() {
   if (!GITHUB_TOKEN || !GITHUB_REPOSITORY || !GITHUB_EVENT_PATH) {
     throw new Error("Missing GitHub Actions event configuration.");
@@ -258,13 +236,20 @@ async function main() {
     !GEMINI_API_KEY && "GEMINI_API_KEY",
     !XAI_API_KEY && "XAI_API_KEY",
   ].filter(Boolean);
-  if (missing.length) {
+  const missingModels = [
+    !OPENAI_MODEL && "OPENAI_MODEL",
+    !GEMINI_MODEL && "GEMINI_MODEL",
+    !XAI_MODEL && "XAI_MODEL",
+  ].filter(Boolean);
+  if (missing.length || missingModels.length) {
     const message = [
       marker,
       "### KI-Team-Relay noch nicht vollständig konfiguriert",
-      `Es fehlen GitHub-Actions-Secrets: ${missing.join(", ")}.`,
-      "Bitte die Schlüssel ausschließlich unter Repository Settings → Secrets and variables → Actions hinterlegen. Niemals in Issues, Chats oder Quellcode posten.",
-    ].join("\n\n");
+      missing.length ? `Es fehlen GitHub-Actions-Secrets: ${missing.join(", ")}.` : "",
+      missingModels.length ? `Es fehlen GitHub-Actions-Variablen mit ausdrücklich ausgewählten, aktuell unterstützten Modellkennungen: ${missingModels.join(", ")}.` : "",
+      "Bitte Schlüssel ausschließlich unter Repository Settings → Secrets and variables → Actions → Secrets und Modellkennungen unter Variables hinterlegen. Niemals Schlüssel in Issues, Chats oder Quellcode posten.",
+      "Es werden keine Provider aufgerufen, solange Pflichtangaben fehlen.",
+    ].filter(Boolean).join("\n\n");
     await githubRequest(`issues/${issue.number}/comments`, {
       method: "POST",
       body: JSON.stringify({ body: message }),
@@ -283,17 +268,6 @@ async function main() {
     await githubRequest(`issues/${issue.number}/comments`, {
       method: "POST",
       body: JSON.stringify({ body: message }),
-    });
-    return;
-  }
-
-  const budgetReserved = await reserveDailyDebate(comment.id);
-  if (!budgetReserved) {
-    await githubRequest(`issues/${issue.number}/comments`, {
-      method: "POST",
-      body: JSON.stringify({
-        body: [marker, "### KI-Team-Relay Tageslimit erreicht", "Das feste Tageskontingent von zwei Debatten (UTC) ist ausgeschöpft. Es wurde kein KI-Provider aufgerufen."].join("\n\n"),
-      }),
     });
     return;
   }
