@@ -35,6 +35,7 @@ const authVerify = await readFile(new URL("../src/lib/auth/verify.server.ts", im
 const authMiddlewareSource = await readFile(new URL("../src/lib/auth/middleware.ts", import.meta.url), "utf8");
 const databaseSource = await readFile(new URL("../src/lib/db.ts", import.meta.url), "utf8");
 const kreislaufContext = await readFile(new URL("../src/features/kreislauf/context.tsx", import.meta.url), "utf8");
+const qrScanner = await readFile(new URL("../src/components/qr-scanner.tsx", import.meta.url), "utf8");
 
 function serverFunction(name) {
   const start = api.indexOf(`export const ${name} = createServerFn`);
@@ -487,6 +488,14 @@ test("listing messages and their conversation are persisted in one SQL statement
   const writePath = send.slice(send.indexOf("const inserted = await sql.query"));
   assert.equal((writePath.match(/sql\.query/g) ?? []).length, 1, "conversation and message must be one database write");
   assert.doesNotMatch(writePath, /select id from listing_conversations where listing_id/);
+});
+
+test("QR scanner releases camera access when the app is hidden", () => {
+  assert.match(qrScanner, /document\.visibilityState !== "hidden"/);
+  assert.match(qrScanner, /streamRef\.current\.getTracks\(\)\.forEach\(\(track\) => track\.stop\(\)\)/);
+  assert.match(qrScanner, /videoRef\.current\.srcObject = null/);
+  assert.match(qrScanner, /Kamera aus Datenschutzgründen pausiert/);
+  assert.match(qrScanner, /removeEventListener\("visibilitychange", pauseWhenHidden\)/);
 });
 
 test("community escrow status refreshes while the listing is visible", () => {
