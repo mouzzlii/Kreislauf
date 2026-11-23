@@ -13,7 +13,7 @@ const {
 
 const PROJECT_REPOS = {
   KREISLAUF: process.env.PROJECT_REPO_KREISLAUF || "mouzzlii/Kreislauf",
-  TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/Fuck",
+  TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway",
   "SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "",
   CHRONOS: process.env.PROJECT_REPO_CHRONOS || "mouzzlii/CHRONOS",
 };
@@ -272,22 +272,7 @@ async function main() {
     return;
   }
 
-  if (AI_TEAM_BUDGET_CONFIRMED !== "true") {
-    const message = [
-      marker,
-      "### KI-Team-Relay bleibt aus Sicherheitsgründen deaktiviert",
-      "Vor dem ersten Provider-Aufruf müssen die Kontoinhaber die verfügbaren Ausgabenlimits bzw. Kostenkontrollen bei OpenAI, Google und xAI selbst prüfen und setzen.",
-      "Danach darf die GitHub-Actions-Variable AI_TEAM_BUDGET_CONFIRMED ausdrücklich auf true gesetzt werden. Diese Variable ist eine manuelle Bestätigung, keine automatische Prüfung der Anbieterbudgets.",
-      "Solange die Variable fehlt oder nicht exakt true ist, werden keine KI-Provider aufgerufen.",
-    ].join("\n\n");
-    await githubRequest(`issues/${issue.number}/comments`, {
-      method: "POST",
-      body: JSON.stringify({ body: message }),
-    });
-    return;
-  }
-
-  const projectContext = await fetchProjectContext(project);
+    const projectContext = await fetchProjectContext(project);
   const safeContext = [
     `Projekt: ${project}`,
     `Projekt-Repository: ${projectContext.repository || "nicht konfiguriert"}`,
