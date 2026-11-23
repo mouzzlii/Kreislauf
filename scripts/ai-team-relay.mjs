@@ -8,11 +8,12 @@ const {
   GEMINI_API_KEY,
   XAI_API_KEY,
   AI_TEAM_REPO_READ_TOKEN,
+  AI_TEAM_BUDGET_CONFIRMED,
 } = process.env;
 
 const PROJECT_REPOS = {
   KREISLAUF: process.env.PROJECT_REPO_KREISLAUF || "mouzzlii/Kreislauf",
-  TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway-neu",
+  TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/Fuck",
   "SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "",
   CHRONOS: process.env.PROJECT_REPO_CHRONOS || "mouzzlii/CHRONOS",
 };
@@ -241,6 +242,21 @@ async function main() {
       `Es fehlen GitHub-Actions-Secrets: ${missing.join(", ")}.`,
       "Bitte die Schlüssel ausschließlich unter Repository Settings → Secrets and variables → Actions hinterlegen. Niemals in Issues, Chats oder Quellcode posten.",
     ].join("\n\n");
+    await githubRequest(`issues/${issue.number}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ body: message }),
+    });
+    return;
+  }
+
+  if (AI_TEAM_BUDGET_CONFIRMED !== "true") {
+    const message = [
+      marker,
+      "### KI-Team-Relay bleibt aus Sicherheitsgründen deaktiviert",
+      "Vor dem ersten Provider-Aufruf müssen die Kontoinhaber die verfügbaren Ausgabenlimits bzw. Kostenkontrollen bei OpenAI, Google und xAI selbst prüfen und setzen.",
+      "Danach darf die GitHub-Actions-Variable AI_TEAM_BUDGET_CONFIRMED ausdrücklich auf true gesetzt werden. Diese Variable ist eine manuelle Bestätigung, keine automatische Prüfung der Anbieterbudgets.",
+      "Solange die Variable fehlt oder nicht exakt true ist, werden keine KI-Provider aufgerufen.",
+    ].join("\\n\\n");
     await githubRequest(`issues/${issue.number}/comments`, {
       method: "POST",
       body: JSON.stringify({ body: message }),
