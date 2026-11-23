@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 const parseCommand = (body) => {
   const match = body.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS)\s*:\s*([\s\S]+)$/i);
   if (!match) return null;
-  return { project: match[1].toUpperCase(), request: match[2].trim() };
+  const request = match[2].trim();
+  if (!request) return null;
+  return { project: match[1].toUpperCase(), request };
 };
 
 assert.deepEqual(parseCommand("/ai-team debate SCAN-PROFIT: Prüfe den Scan-Lock"), {
