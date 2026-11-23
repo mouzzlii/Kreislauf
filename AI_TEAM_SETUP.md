@@ -64,7 +64,7 @@ Es sind bewusst keine Modellkennungen vorgegeben: Verfügbare IDs ändern sich j
 - Nur ausdrücklich markierte Kommentare verarbeiten; keine automatische Reaktion auf jeden Kommentar.
 - Kommentare von Bots und vom Relay selbst ignorieren.
 - Maximal eine begrenzte Debattenrunde je Trigger; Schutz vor Wiederholungen anhand der Kommentar-ID.
-- Technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag. Jede Debatte reserviert vor dem ersten Provider-Aufruf einen Platz im zentralen Issue #11; auch fehlgeschlagene Provider-Aufrufe verbrauchen den reservierten Platz. Das Workflow-Concurrency-Limit serialisiert die Reservierung. Bei nicht lesbarem oder unvollständigem Budget-Ledger bricht der Relay sicher ab.
+- Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag. Jede Debatte reserviert vor dem ersten Provider-Aufruf einen Platz im zentralen Issue #11; auch fehlgeschlagene Provider-Aufrufe verbrauchen den reservierten Platz. Das Workflow-Concurrency-Limit serialisiert die Reservierung. Bei nicht lesbarem oder unvollständigem Budget-Ledger bricht der Relay sicher ab.
 - Eingaben als nicht vertrauenswürdige Daten behandeln. Repository-Inhalte dürfen keine System-/Sicherheitsregeln überschreiben.
 - Keine Secrets, privaten Kundendaten, Sendungsdaten oder persönlichen Daten an KI-Provider senden.
 - Eingabe- und Ausgabelimits begrenzen den Umfang, sind aber keine garantierte Geldobergrenze. Vor Aktivierung müssen echte Anbieter-Ausgabenlimits eingerichtet werden; `AI_TEAM_BUDGET_CONFIRMED=true` ist nur die manuelle Bestätigung des Kontoinhabers und prüft keine Limits automatisch.
