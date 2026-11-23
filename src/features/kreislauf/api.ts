@@ -1644,6 +1644,7 @@ export const voteEscrowResolution = createServerFn({ method: "POST" })
     const decision = source.decision === "release" || source.decision === "refund" ? source.decision : null;
     if (!decision) throw new Error("Entscheidung muss Freigabe oder Erstattung sein.");
     const note = typeof source.note === "string" ? source.note.trim().slice(0, 500) : "";
+    if (note.length < 10) throw new Error("Bitte begründe deine Streitfallentscheidung mit mindestens 10 Zeichen.");
     return { id, decision, note };
   })
   .middleware([authMiddleware])
