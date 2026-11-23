@@ -140,7 +140,8 @@ test("community escrow assigns up to seven moderators and decides after four vot
 test("moderators who already voted are not offered another vote", () => {
   const summary = serverFunction("getEscrowSummary");
   assert.match(summary, /select 1 from escrow_votes where escrow_id = \$1 and moderator_id = \$2/);
-  assert.match(summary, /canVote: assignment\.length > 0 && ownVote\.length === 0 && current\.status === "pending"/);
+  assert.match(summary, /canVote: !isBuyer && !isSeller && assignment\.length > 0 && ownVote\.length === 0 && current\.status === "pending"/);
+  assert.match(summary, /canResolve: !isBuyer && !isSeller && assignment\.length > 0 && ownResolutionVote\.length === 0 && current\.status === "disputed"/);
   assert.match(escrowPanel, /summary\.canVote && !summary\.hasVoted/);
 });
 
