@@ -69,30 +69,21 @@ Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen an
 - Harte Grenzen für Eingabegröße, Ausgabegröße, Aufrufe pro Issue und Kosten/Budget vor Aktivierung festlegen.
 - Fehler und nicht verfügbare Provider sichtbar protokollieren; keine falschen Erfolgsbehauptungen.
 
-## Repository-Zuordnung als Actions-Variablen
+## Verbindliche Repository-Zuordnung
 
-- `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf` (Standardwert bereits hinterlegt)
-- `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS` (Standardwert bereits hinterlegt)
-- `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway-neu` (vom Nutzer bestätigt)
-- `PROJECT_REPO_SCAN_PROFIT` (noch nicht gesetzt; das GitHub-Repository ist nicht auffindbar. Der aktuelle Projektstand 2.0.60 liegt als ZIP-Prüfpaket und Netlify-Paket in der ChatGPT-Dateibibliothek vor.)
+- `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf`
+- `PROJECT_REPO_TRAKUNA=mouzzlii/Fuck` – maßgebliches TRAKUNA-Repository; `multi-carrier-gateway-neu` bleibt ein separates Experiment und darf nicht als kanonische Quelle verwendet werden.
+- `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS`
+- `PROJECT_REPO_SCAN_PROFIT` bleibt leer, bis das aktuelle Projekt 2.0.60 in ein eigenes GitHub-Repository übernommen wurde. Das ältere Library-Paket 2.0.45 ist nicht der aktuelle Quellstand und wird nicht als Ersatz verwendet.
 
-Der Relay lädt zu jeder Debatte das README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Daten werden ausdrücklich als nicht vertrauenswürdiger Kontext behandelt.
-
-## Repository-Zuordnung als Actions-Variablen
-
-- `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf` (Standardwert bereits hinterlegt)
-- `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS` (Standardwert bereits hinterlegt)
-- `PROJECT_REPO_TRAKUNA` (erst nach Bestätigung des kanonischen Repositories setzen)
-- `PROJECT_REPO_SCAN_PROFIT` (erst nach Identifikation des kanonischen Repositories setzen)
-
-Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt. Die TRAKUNA-Zuordnung ist bestätigt; für SCAN-PROFIT bleibt die Variable bis zur eindeutigen Repository-Identifikation leer.
+Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
 
 ## Noch offene Voraussetzungen
 
 - [ ] SCAN-PROFIT: ein eigenes privates GitHub-Repository für den vorhandenen Projektstand 2.0.60 anlegen und den Quellstand übernehmen. In den verbundenen GitHub-Repositories wurde kein bestehendes SCAN-PROFIT-Repository gefunden.
-- [x] TRAKUNA: `mouzzlii/multi-carrier-gateway-neu` als maßgebliches Repository vom Nutzer bestätigt.
+- [x] TRAKUNA: `mouzzlii/Fuck` als maßgebliches TRAKUNA-Repository aus dem aktuellen Repository-Abgleich festgelegt; das Gateway-Experiment bleibt getrennt.
 - [ ] Kontoinhaber richtet die drei Provider-API-Schlüssel und `AI_TEAM_REPO_READ_TOKEN` als GitHub Actions Secrets ein.
-- [ ] Modellkennungen, Kostenlimit und maximale Gesprächsrunden festlegen.
+- [ ] Providerseitige Ausgabenlimits/Kostenkontrollen und maximale Gesprächsrunden festlegen; danach `AI_TEAM_BUDGET_CONFIRMED=true` als bewusste manuelle Aktivierungsfreigabe setzen. Die Variable prüft Anbieterbudgets nicht automatisch.
 - [ ] Erst danach Workflow und Relay implementieren und mit Test-Issue Ende-zu-Ende prüfen.
 
 ## Freigabekriterium
@@ -104,4 +95,4 @@ Automatische KI-Kommunikation gilt erst als aktiv, wenn ein echter Test nachweis
 4. Bot-Schleifen werden verhindert.
 5. Nicht konfigurierte Provider, API-Fehler und Budgetgrenzen werden korrekt behandelt.
 
-Der Relay-Code ist im Draft-PR vorbereitet, aber noch nicht in `main` und nicht aktiv. Der gültige Trigger lautet exakt `/ai-team debate PROJEKT: Auftrag` (z. B. `/ai-team debate CHRONOS: Prüfe die Room-Migrationen`). Automatische KI-zu-KI-Nachrichten starten erst nach PR-Prüfung/Merge, Hinterlegung aller drei Provider-Secrets und einem erfolgreichen Ende-zu-Ende-Test.
+Der Relay-Code ist im Draft-PR vorbereitet, aber noch nicht in `main` und nicht aktiv. Ohne die Variable `AI_TEAM_BUDGET_CONFIRMED=true` bleibt er selbst bei vorhandenen API-Schlüsseln vor jedem Provider-Aufruf gesperrt. Der gültige Trigger lautet exakt `/ai-team debate PROJEKT: Auftrag` (z. B. `/ai-team debate CHRONOS: Prüfe die Room-Migrationen`). Automatische KI-zu-KI-Nachrichten starten erst nach PR-Prüfung/Merge, Hinterlegung aller drei Provider-Secrets und einem erfolgreichen Ende-zu-Ende-Test.
