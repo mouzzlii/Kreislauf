@@ -41,11 +41,11 @@ jobs:
           const source = readFileSync("scripts/ai-team-relay.mjs", "utf8");
           const setup = readFileSync("AI_TEAM_SETUP.md", "utf8");
           const workflow = readFileSync(".github/workflows/ai-team-communication.yml", "utf8");
-          assert.match(source, /TRAKUNA: process\\.env\\.PROJECT_REPO_TRAKUNA \\|\\| "mouzzlii\\/Fuck"/);
-          assert.match(source, /"SCAN-PROFIT": process\\.env\\.PROJECT_REPO_SCAN_PROFIT \\|\\| "mouzzlii\\/SCAN-PROFIT"/);
-          assert.match(source, /MAX_DAILY_DEBATES = 2/);
-          assert.match(source, /reserveDailyDebate\\(comment\\.id\\)/);
-          assert.match(workflow, /group: ai-team-global-budget/);
-          assert.match(setup, /maximal zwei Debatten pro UTC-Kalendertag/);
+          assert.ok(source.includes('TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/Fuck"'));
+          assert.ok(source.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
+          assert.ok(source.includes("MAX_DAILY_DEBATES = 2"));
+          assert.ok(source.includes("reserveDailyDebate(comment.id)"));
+          assert.ok(workflow.includes("group: ai-team-global-budget"));
+          assert.ok(setup.includes("maximal zwei Debatten pro UTC-Kalendertag"));
           console.log("Project mapping and daily invocation cap verified.");
           NODE
