@@ -6,9 +6,9 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import {
   appNameFromHost,
-  createHeadInjector,
+  createHeadInjector as createHeadInjectorImpl,
   grokXCreatorHeadTags,
-  injectGrokPwaHead,
+  injectGrokPwaHead as injectGrokPwaHeadImpl,
   isDocumentPath,
   isInstallQuery,
   publicAppHost,
@@ -18,6 +18,16 @@ import {
   stripInstallParams,
 } from "./grok-pwa-shared.mjs";
 import { renderInstallPage } from "./grok-pwa-plugin.mjs";
+
+// Keep tests independent of the repository's real src/lib/og/site.json.
+// Tests that need a baked site pass it explicitly; disk-card tests still use cwd.
+function injectGrokPwaHead(html, ctx = {}) {
+  return injectGrokPwaHeadImpl(html, { site: {}, ...ctx });
+}
+
+function createHeadInjector(ctx = {}) {
+  return createHeadInjectorImpl({ site: {}, ...ctx });
+}
 
 const TEMPLATE_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
