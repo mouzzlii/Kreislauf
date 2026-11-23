@@ -199,6 +199,29 @@ async function githubRequest(path, options = {}) {
   });
 }
 
+const MAX_DAILY_DEBATES = 2;
+
+async function reserveDailyDebate(commentId) {
+  const date = new Date().toISOString().slice(0, 10);
+  const prefix = `<!-- ai-team-daily-budget:${date}:`;
+  const comments = await githubRequest("issues/11/comments?per_page=100");
+  const used = comments.filter((item) => item.body?.includes(prefix)).length;
+  if (used >= MAX_DAILY_DEBATES) return false;
+
+  const marker = `${prefix}${commentId} -->`;
+  await githubRequest("issues/11/comments", {
+    method: "POST",
+    body: JSON.stringify({
+      body: [
+        marker,
+        `KI-Team-Relay Tageskontingent reserviert: ${used + 1}/${MAX_DAILY_DEBATES} Debatten am ${date} (UTC).`,
+        "Dies begrenzt die Zahl der Aufrufe, ersetzt aber keine USD-Ausgabenlimits bei den API-Anbietern.",
+      ].join("\\n\\n"),
+    }),
+  });
+  return true;
+}
+
 async function main() {
   if (!GITHUB_TOKEN || !GITHUB_REPOSITORY || !GITHUB_EVENT_PATH) {
     throw new Error("Missing GitHub Actions event configuration.");
@@ -260,6 +283,17 @@ async function main() {
     await githubRequest(`issues/${issue.number}/comments`, {
       method: "POST",
       body: JSON.stringify({ body: message }),
+    });
+    return;
+  }
+
+  const budgetReserved = await reserveDailyDebate(comment.id);
+  if (!budgetReserved) {
+    await githubRequest(`issues/${issue.number}/comments`, {
+      method: "POST",
+      body: JSON.stringify({
+        body: [marker, "### KI-Team-Relay Tageslimit erreicht", "Das feste Tageskontingent von zwei Debatten (UTC) ist ausgeschöpft. Es wurde kein KI-Provider aufgerufen."].join("\\n\\n"),
+      }),
     });
     return;
   }
