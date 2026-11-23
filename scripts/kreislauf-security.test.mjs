@@ -497,6 +497,13 @@ test("community escrow status refreshes while the listing is visible", () => {
   assert.match(escrowPanel, /if \(cancelled \|\| loading/);
 });
 
+test("listing conversations refresh immediately when the app becomes visible", () => {
+  assert.equal((listingConversation.match(/document\.addEventListener\("visibilitychange", refresh\)/g) ?? []).length, 2);
+  assert.equal((listingConversation.match(/document\.removeEventListener\("visibilitychange", refresh\)/g) ?? []).length, 2);
+  assert.match(listingConversation, /window\.setInterval\(refresh, 8_000\)/);
+  assert.match(listingConversation, /window\.setInterval\(refresh, 15_000\)/);
+});
+
 test("high-value escrow reserves buyer Karma and requires bilateral confirmation before release", () => {
   assert.match(escrowFundsSql, /funds_status in \([^)]*'held'/);
   assert.match(escrowFundsSql, /'escrow_hold'/);
