@@ -14,7 +14,7 @@ function listingIdFromValue(value: string): string | null {
   if (!trimmed) return null;
   try {
     const url = new URL(trimmed, window.location.origin);
-    if (url.origin !== window.location.origin) return null;
+    if (url.origin !== window.location.origin || url.username || url.password) return null;
     const match = url.pathname.match(/^\/inserat\/([a-z0-9-]{2,80})\/?$/i);
     return match?.[1] ?? null;
   } catch {
@@ -77,6 +77,13 @@ export function QrScanner({ onOpenListing }: { onOpenListing: (id: string) => vo
         audio: false,
         video: { facingMode: { ideal: "environment" } },
       });
+      // Permission prompts may resolve after the user backgrounds the app.
+      // Do not attach a camera stream to a hidden page in that race window.
+      if (document.visibilityState === "hidden") {
+        stream.getTracks().forEach((track) => track.stop());
+        setMessage("Kamera wurde nicht gestartet, weil KREISLAUF nicht sichtbar ist. Öffne die App und starte den Scan erneut.");
+        return;
+      }
       streamRef.current = stream;
       const video = videoRef.current;
       if (!video) {
