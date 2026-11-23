@@ -10,6 +10,7 @@ security definer
 set search_path = public, pg_temp
 as $fn$
 #variable_conflict use_column
+#variable_conflict use_column
 declare
   v_case public.escrow_cases%rowtype;
   v_votes integer;
@@ -151,6 +152,7 @@ language plpgsql
 security definer
 set search_path = public, pg_temp
 as $fn$
+#variable_conflict use_column
 declare
   v_case public.escrow_cases%rowtype;
   v_votes integer;
