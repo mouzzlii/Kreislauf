@@ -2,7 +2,7 @@
 
 ## Demo öffnen
 
-Öffne den aktuellen [Vercel-Preview](https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/) in Chrome auf deinem Android-Handy und tippe auf **Gemeinsame Demo öffnen**. Der Preview wird automatisch aus dem Entwicklungszweig aktualisiert. Es gibt in dieser Version keine persönliche Registrierung.
+Die zuletzt veröffentlichte [Vercel-Vorschau](https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/) kannst du in Chrome auf deinem Android-Handy ansehen. **Sie ist jedoch älter als der aktuelle Sicherheitsstand im Entwicklungszweig.** Nach der OAuth-Härtung wurde noch kein erfolgreicher neuer Preview-Build bestätigt. Die Vorschau ist deshalb nur eine ältere Ansicht und kein verlässlicher Test des aktuellen Codes. Es gibt in dieser Version keine persönliche Registrierung.
 
 **Wichtig:** Alle Besucher verwenden denselben Demo-Zugang. Namen, Inserate und Testaktionen sind nicht privat. Bitte keine echten persönlichen Daten, Adressen oder vertraulichen Nachrichten eingeben. Die Demo-Datenbank läuft derzeit als temporäre PGLite-Datenbank im Arbeitsspeicher. Daten können nach einem Neustart verschwinden. Da Vercel mehrere Serverinstanzen parallel betreiben kann, sind Testdaten zwischen verschiedenen Instanzen nicht zuverlässig synchron; die Demo ist daher kein belastbarer gemeinsamer Mehrbenutzer-Test.
 
