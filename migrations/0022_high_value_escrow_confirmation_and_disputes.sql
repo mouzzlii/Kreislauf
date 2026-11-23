@@ -6,6 +6,7 @@ create or replace function public.kreislauf_confirm_high_value_escrow(
   p_actor_id text
 ) returns table(status text, buyer_confirmed boolean, seller_confirmed boolean, funds_status text)
 language plpgsql
+security definer
 set search_path = public, pg_temp
 as $fn$
 declare
@@ -106,6 +107,7 @@ create or replace function public.kreislauf_open_high_value_dispute(
   p_reason text
 ) returns text
 language plpgsql
+security definer
 set search_path = public, pg_temp
 as $fn$
 declare
@@ -145,6 +147,7 @@ create or replace function public.kreislauf_vote_escrow_resolution(
   p_note text default ''
 ) returns table(status text, votes integer, releases integer, refunds integer, assigned integer)
 language plpgsql
+security definer
 set search_path = public, pg_temp
 as $fn$
 declare
@@ -250,6 +253,55 @@ begin
   return query select v_case.status,v_votes,v_releases,v_refunds,v_assigned;
 end;
 $fn$;
+
+
+-- Participant-visible message when reserved Karma is released or refunded.
+create or replace function public.kreislauf_escrow_funds_message()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $fn$
+declare
+  v_buyer text;
+  v_seller text;
+  v_body text;
+begin
+  if NEW.entry_kind not in ('escrow_release','escrow_refund') or NEW.listing_id is null then
+    return NEW;
+  end if;
+  select buyer_id, seller_id into v_buyer, v_seller
+  from public.escrow_cases
+  where listing_id = NEW.listing_id and funds_status = 'held'
+  order by created_at desc limit 1;
+  if v_buyer is null or v_seller is null then return NEW; end if;
+  v_body := case NEW.entry_kind
+    when 'escrow_release' then 'Treuhand abgeschlossen: Die reservierten Karma-Punkte wurden an die anbietende Person übertragen.'
+    else 'Treuhand abgeschlossen: Die reservierten Karma-Punkte wurden an die kaufende Person zurückerstattet.'
+  end;
+  perform public.kreislauf_system_message(NEW.listing_id, v_buyer, v_seller, v_body);
+  return NEW;
+end;
+$fn$;
+
+drop trigger if exists escrow_funds_message_created on public.ledger_entries;
+create trigger escrow_funds_message_created
+after insert on public.ledger_entries
+for each row
+when (NEW.entry_kind in ('escrow_release','escrow_refund'))
+execute function public.kreislauf_escrow_funds_message();
+
+revoke all on function public.kreislauf_escrow_funds_message() from public;
+do $message_permissions$
+begin
+  if exists (select 1 from pg_roles where rolname = 'anon') then
+    execute 'revoke all on function public.kreislauf_escrow_funds_message() from anon';
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'authenticated') then
+    execute 'revoke all on function public.kreislauf_escrow_funds_message() from authenticated';
+  end if;
+end;
+$message_permissions$;
 
 revoke all on function public.kreislauf_confirm_high_value_escrow(text,text) from public;
 revoke all on function public.kreislauf_open_high_value_dispute(text,text,text) from public;
