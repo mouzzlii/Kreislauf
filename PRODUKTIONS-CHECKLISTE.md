@@ -201,3 +201,8 @@ Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt 
 - [x] Vercel-Preview für Code-Commit `40f41cd`: Deployment `dpl_AHQP7tQ3oHYzXSbLuva4NQ9fFcdf` ist `READY`.
 - [ ] Der neue Dokumentations-Commit `3c15875` hat noch keinen eigenen CI-/Preview-Nachweis.
 - [ ] Es besteht weiterhin keine bestätigte Verbindung zum vorhandenen Supabase-Projekt; keine Live-Migration wurde ausgeführt.
+
+
+- [x] Die Supabase-Anleitung wurde im Commit `3c15875d1397ea858ce68a841f249cb9658f6f95` bereinigt: doppelte Erklärung entfernt und nicht belegte Live-Performance-Aussage korrigiert.
+- [x] Diese Checklisten-Korrektur liegt im Commit `db7daad327aa9ee57f199a5cbcf7c3c60185f1f6`.
+- [ ] Für `db7daad` wurde noch kein GitHub-Actions-Lauf gestartet. Vercel meldet für den Commit derzeit `failure` mit Verweis auf das erreichte Build-Limit (`upgradeToPro=build-rate-limit`); die letzte bestätigte READY-Vorschau bleibt auf `40f41cd`.
