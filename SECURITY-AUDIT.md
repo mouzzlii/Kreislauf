@@ -131,3 +131,12 @@ Vorher konnte eine einzelne Buchungspartei eine Sharing-Rückgabe abschließen u
 ## Nachrichtenpersistenz
 
 Das Öffnen bzw. Aktualisieren einer Inserat-Unterhaltung und das Einfügen der dazugehörigen Nachricht erfolgen in einem einzigen SQL-Statement. Scheitert das Einfügen der Nachricht, wird auch die neue Unterhaltung nicht separat gespeichert. Ein Regressionstest schützt diese Atomaritätsanforderung. Dies ist eine Code-/Testabsicherung; ein Live-Test gegen die produktive Datenbank ist davon getrennt.
+
+
+## Ergänzung – 23.11.2026: Treuhand-Quorum auf Datenbankebene
+
+Migration `0020_escrow_moderator_quorum.sql` ergänzt einen zweiten Trigger auf `escrow_cases`. Der bestehende Zuweisungstrigger läuft aufgrund der alphabetischen Trigger-Reihenfolge zuerst. Der neue Trigger zählt anschließend die tatsächlichen Zeilen in `escrow_moderators` und bricht den Insert mit SQLSTATE `23514` ab, wenn weniger als vier Moderationspersonen zugewiesen wurden. Da dies innerhalb derselben Datenbankanweisung wie die Reservierung/Treuhanderöffnung geschieht, wird die gesamte Anweisung zurückgerollt.
+
+Der Clean-Install-Test deckt beide Seiten ab: drei Moderatoren führen zum Rollback; nach Hinzufügen eines vierten Moderators wird der Fall mit mindestens vier Zuweisungen angelegt. Dieselbe Regel ist in `SUPABASE-SETUP.sql` enthalten.
+
+Verifiziert auf Commit `2d064231d7458bf45b8093d7834d7e55e5124381`, GitHub Actions Lauf `45094441832`: Build, TypeScript, automatisierte Tests, Lint und Dependency-Audit erfolgreich. Dies ist ein Test in der CI-/PGlite-Umgebung, keine Ausführung der Migration auf der externen Supabase-Datenbank.
