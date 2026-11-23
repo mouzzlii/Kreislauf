@@ -172,3 +172,11 @@ Der Regressionstest hebt für einen Testkäufer die Moderatorenrechte an, weist 
 
 
 Zusätzliche Prüfung: Dieselbe Datenbankregel schützt auch die anfängliche Community-Freigabe (Tabelle `escrow_votes`). Ein Käufer oder Verkäufer kann daher nicht als Moderator die erste Freigabe für die eigene Treuhand beeinflussen. Ein Regressionstest setzt den Käufer testweise auf Moderatorstatus und erwartet, dass seine eigene Stimme abgewiesen wird. Beide Trigger sind im Supabase-Neuinstallationsskript enthalten.
+
+## Ergänzung – 23.11.2026: Unabhängigkeit beider Treuhand-Abstimmungen
+
+- Migration `0024_independent_escrow_resolution.sql` installiert einen Datenbank-Trigger auf der ersten Community-Freigabe (`escrow_votes`) und einen auf der späteren Streitfallentscheidung (`escrow_resolution_votes`).
+- Beide Trigger prüfen die Käufer- und Verkäufer-IDs des zugehörigen Treuhandfalls. Eine Tauschpartei kann nicht über den eigenen Fall abstimmen, auch wenn sie zusätzlich Moderationsrechte besitzt oder fälschlich als Moderator zugeordnet wurde.
+- Der Supabase-Neuinstallations-SQL-Block enthält dieselben Trigger. Der PostgreSQL-kompatible Setup-Test prüft deren Installation und eine negative Abstimmung durch den Käufer.
+- GitHub Actions Lauf `45150174522` auf Commit `6e63a5d4df5c7f9cc3e60d9de2f77c8742545a13`: Build, TypeScript, automatisierte Tests und Lint erfolgreich; Dependency-Audit erfolgreich.
+- Diese Prüfung läuft auf einer isolierten temporären PostgreSQL-kompatiblen Testdatenbank. Sie belegt weder die Ausführung der neuen Migration auf dem verbundenen Supabase-Projekt noch einen produktiven Mehrbenutzerbetrieb.
