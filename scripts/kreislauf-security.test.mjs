@@ -496,6 +496,8 @@ test("QR scanner releases camera access when the app is hidden", () => {
   assert.match(qrScanner, /videoRef\.current\.srcObject = null/);
   assert.match(qrScanner, /Kamera aus Datenschutzgründen pausiert/);
   assert.match(qrScanner, /removeEventListener\("visibilitychange", pauseWhenHidden\)/);
+  assert.match(qrScanner, /document\.visibilityState === "hidden"[\s\S]*?stream\.getTracks\(\)\.forEach\(\(track\) => track\.stop\(\)\)/);
+  assert.match(qrScanner, /url\.username \|\| url\.password/);
 });
 
 test("community escrow status refreshes while the listing is visible", () => {
