@@ -391,6 +391,21 @@ export const ensureProfile = createServerFn({ method: "POST" })
     return profile;
   });
 
+/**
+ * Refreshes the member's activity timestamp without changing the Karma
+ * demurrage clock. Active moderators must not become ineligible merely
+ * because they browse the app without editing their profile.
+ */
+export const touchActivity = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }): Promise<void> => {
+    const sql = await getSql();
+    await sql.query(
+      "update profiles set last_active_at = now() where user_id = $1",
+      [context.userId],
+    );
+  });
+
 export const getMine = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }): Promise<{ profile: Profile | null; ledger: LedgerEntry[] }> => {
