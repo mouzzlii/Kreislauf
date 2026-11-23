@@ -69,14 +69,15 @@ test("high-value trades are reserved in community escrow before any settlement",
   const trade = serverFunction("tradeListing");
   const highValue = trade.slice(trade.indexOf("if (highValue[0])"), trade.indexOf("const rows = await sql.query", trade.indexOf("if (highValue[0])")));
   assert.match(highValue, /moderators\.length < 4/);
-  assert.match(highValue, /with target as \(select id from listings where id = \$1 and status = 'active' for update\)/);
+  assert.match(highValue, /with target as materialized \([\s\S]*?for update of l/);
   assert.match(highValue, /insert into escrow_cases/);
   assert.match(highValue, /funds_status/);
   assert.match(highValue, /karma_balance = p\.karma_balance - e\.amount_karma/);
   assert.match(highValue, /escrow_hold/);
   assert.match(escrowFundsSql, /funds_status in/);
   assert.match(highValue, /update listings set status = 'booked'/);
-  assert.doesNotMatch(highValue, /update profiles|insert into ledger_entries/);
+  assert.match(highValue, /update profiles p set karma_balance = p\.karma_balance - e\.amount_karma/);
+  assert.match(highValue, /insert into ledger_entries[\s\S]*?escrow_hold/);
   const settlement = escrowSql.slice(escrowSql.indexOf("if v_case.reason = 'Hochwertiges Tauschgeschäft'"), escrowSql.indexOf("elsif v_votes >= 4 and v_rejections"));
   assert.match(settlement, /Fail closed/);
   assert.match(settlement, /null;/);
@@ -137,7 +138,7 @@ test("community escrow assigns up to seven moderators and decides after four vot
 test("moderators who already voted are not offered another vote", () => {
   const summary = serverFunction("getEscrowSummary");
   assert.match(summary, /select 1 from escrow_votes where escrow_id = \$1 and moderator_id = \$2/);
-  assert.match(summary, /canVote: assignment\.length > 0 && ownVote\.length === 0 && cases\[0\]\.status === "pending"/);
+  assert.match(summary, /canVote: assignment\.length > 0 && ownVote\.length === 0 && current\.status === "pending"/);
   assert.match(escrowPanel, /summary\.canVote && !summary\.hasVoted/);
 });
 
