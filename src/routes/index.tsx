@@ -71,7 +71,7 @@ function Home() {
           <p className="mt-1 text-sm text-muted">
             Inserate und Testnachrichten können für andere Testbesucher sichtbar sein.
             Bitte verwende keine echten privaten Daten, Telefonnummern oder vertraulichen Treffpunkte.
-            Persönliche Konten und dauerhafte Speicherung werden vor dem öffentlichen Start eingerichtet.
+            Persönliche Konten und dauerhafte Speicherung werden vor dem öffentlichen Start eingerichtet. Die Vorschau nutzt eine temporäre Datenbank je Serverinstanz: Daten können nach Neustarts verschwinden und sind zwischen parallel laufenden Instanzen nicht zuverlässig synchron.
           </p>
         </aside>
       ) : null}
