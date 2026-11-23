@@ -127,6 +127,15 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     assert.equal(held.rows[0].holds,1,"the reserve is written to the immutable ledger");
     assert.ok(held.rows[0].assigned>=4,"four independent moderators must be assigned");
 
+    await db.query("update profiles set moderator_rank=1 where user_id='escrow-buyer'");
+    await db.query("insert into escrow_moderators(escrow_id,moderator_id) values ('escrow-case-1','escrow-buyer')");
+    await assert.rejects(
+      db.query("select * from kreislauf_cast_escrow_vote($1,$2,$3,$4)",
+        ["escrow-listing-1","escrow-buyer","approve","Eigene Treuhandfreigabe"]),
+      /Tauschparteien dürfen nicht über ihren eigenen Streitfall abstimmen/,
+      "a buyer who also has moderator privileges must not vote on the initial escrow approval ballot",
+    );
+
     await assert.rejects(
       db.query("select * from kreislauf_confirm_high_value_escrow($1,$2)",["escrow-listing-1","escrow-mod-1"]),
       /Nur die beiden Tauschparteien/,
