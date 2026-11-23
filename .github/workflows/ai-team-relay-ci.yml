@@ -48,7 +48,9 @@ jobs:
           assert.ok(source.includes("KI-Team-Debatte abgebrochen"));
           assert.ok(source.includes("Fehlerphase: ${phase}"));
           assert.ok(source.includes("Tageskontingent bleibt verbraucht"));
-          assert.ok(source.includes("issues/11/comments?per_page=100&sort=created&direction=desc"));
+          assert.ok(source.includes("sort=created&direction=desc&page=${page}"));
+          assert.ok(source.includes("exceeded 1000 comments; refusing provider calls"));
+          assert.ok(source.includes("createdDate === date && item.body?.includes(prefix)"));
           assert.ok(workflow.includes("group: ai-team-global-budget"));
           assert.ok(workflow.includes("github.event.issue.number == 11"));
           assert.ok(setup.includes("Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag"));
