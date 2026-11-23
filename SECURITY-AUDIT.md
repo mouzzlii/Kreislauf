@@ -190,3 +190,10 @@ Zusätzliche Prüfung: Dieselbe Datenbankregel schützt auch die anfängliche Co
 - PGlite-Regressionstest simuliert vor der Migration abgegebene Stimmen in beiden Abstimmungen, prüft deren Archivierung und stellt sicher, dass sie aus den aktiven Quoren verschwinden.
 - Supabase-Clean-Install-Skript und Setup-Test enthalten Migration 0025 und das private Archiv.
 - Diese Migration ist im Repository vorbereitet. Sie wurde nicht auf dem verbundenen Supabase-Projekt ausgeführt.
+
+## Prüfstatus – 23.11.2026: Migration 0025
+
+- GitHub Actions Build-/Testlauf `45151061298` auf Commit `7d98b7597f5b3b339176dca16ad2bd8a0b63072e`: erfolgreich – Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- Separater Datenbank-Setup-Lauf `45150894502` auf Commit `2c48d6b6bdb41469c96bea304584ca0b24950d25`: erfolgreich – Clean-Install-SQL, RLS und Tabellen-/Funktionsrechte in einer temporären PostgreSQL-kompatiblen Testdatenbank.
+- Der Code-Prüflauf enthält die Regression für Altstimmen in beiden Abstimmungen. Der separate Setup-Lauf prüft die aktuelle Supabase-Neuinstallation mit Migration 0025.
+- Diese Läufe bestätigen den Repository-Code und das Clean-Install-Skript. Sie belegen nicht, dass Migrationen auf dem verbundenen Supabase-Projekt oder in einer realen Produktionsdatenbank ausgeführt wurden.
