@@ -39,6 +39,7 @@ describe("production release guard", () => {
       GROK_AUTH_ISSUER: "",
       GROK_AUTH_CLIENT_ID: "",
       GROK_AUTH_CLIENT_SECRET: "",
+      GROK_AUTH_SECRET_ROTATION_CONFIRMED: "false",
       BLOB_READ_WRITE_TOKEN: "",
     });
     assert.equal(result.status, 0, result.stderr);
