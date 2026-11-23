@@ -17,7 +17,7 @@ KREISLAUF ist eine funktionsfähige Entwicklungsbasis, aber noch keine öffentli
 - Karma-Guthaben mit unveränderlichem Ledger
 - Gemeinschaftsmechanik gegen dauerhaftes Stillliegen: derzeit 0,5 % pro stillen Monat; Karma wird dabei nicht an andere Personen übertragen
 - Profile, Bewertungen und Vertrauensanzeige
-- Buchungs-/Übergabezustände und Treuhand-Statusmodell
+- Treuhand- und Übergabestatusmodell; der vollständige Nachrichten-/Treuhand-Demofluss ist derzeit separat im Preview-Branch verfügbar
 - Responsive Oberfläche mit Waldgrün-/Naturfarbwelt
 - Lokale PGlite-Datenbank als Entwicklungsstandard; Neon kann über `DATABASE_URL` angebunden werden
 
@@ -31,6 +31,13 @@ npm run dev
 ```
 
 Danach im Browser `http://localhost:8080` öffnen.
+
+### Browser-Preview zum Testen
+
+[**KREISLAUF-Demo im Browser öffnen**](https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/)
+
+Diese Vorschau basiert auf dem nicht gemergten Branch `demo/local-auth-off`. Sie enthält den erweiterten Demo-Ablauf für inseratgebundene Nachrichten und Community-Treuhand. Vercel meldet die Vorschau als **READY**. Sie verwendet einen gemeinsamen Demo-Nutzer und eine flüchtige Entwicklungsdatenbank; Daten können zurückgesetzt werden. Keine echten persönlichen Daten, echten Nutzerkonten oder verbindlichen Tauschvorgänge verwenden. Direkter Tausch und kombinierte Angebote sind in dieser Vorschau noch nicht vollständig umgesetzt.
+
 
 Die Workspace-Konfiguration `.grok/app-env.json` setzt `VITE_AUTH_ENABLED=false`. Damit läuft die lokale Demo mit einem gemeinsamen Entwicklungsnutzer statt mit echten Konten. Das ist ausschließlich für Entwicklung und Tests gedacht. Für einen Test am Android-Handy können Handy und Entwicklungscomputer im selben WLAN sein; die Adresse des Computers muss dann statt `localhost` verwendet werden. Den Entwicklungsserver nicht öffentlich ins Internet stellen.
 
