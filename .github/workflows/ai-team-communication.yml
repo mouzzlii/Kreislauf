@@ -16,6 +16,7 @@ jobs:
   debate:
     if: >-
       github.event.issue.pull_request == null &&
+      github.event.issue.number == 11 &&
       github.event.comment.user.type != 'Bot' &&
       startsWith(github.event.comment.body, '/ai-team debate ')
     runs-on: ubuntu-latest
