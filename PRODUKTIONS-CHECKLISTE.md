@@ -218,3 +218,17 @@ Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt 
 - [ ] Externer Node-Smoke-Test über GitHub Actions benötigt das Secret `SUPABASE_TEST_DATABASE_URL`; es wurde nicht im Chat oder Quellcode hinterlegt.
 - [ ] Keine Produktionsdatenbankmigration, keine Aktivierung persönlicher Konten und keine Produktionsfreigabe.
 - [ ] Echte Auth-Broker-Zugangsdaten, Video-Storage samt serverseitiger Medienprüfung, echte ID-Austria-Anbindung, Mehrbenutzer-/Android-Praxistests sowie Datenschutz- und Betriebsfreigabe bleiben offen.
+
+
+## Verifizierter Arbeitsstand – 23.11.2026, 10:37 UTC
+
+- [x] Aktueller Branch-Stand: `74c08337521e2e12dfd51211a92dc25b0e06c389`.
+- [x] GitHub Actions Lauf `45157643112` auf diesem Commit erfolgreich: Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- [x] Datenbanktest-Lauf `45157497685` für Commit `3aceea54f374bfae5ff4f57ff03482a300e86f86` erfolgreich: temporäre PostgreSQL-/PGlite-Migrationstests und Clean-Install-Prüfungen.
+- [x] Separates Supabase-Projekt `kreislauf-test` ist `ACTIVE_HEALTHY`. 20 öffentliche Tabellen, alle mit RLS; null direkte Tabellenrechte für `anon`/`authenticated`; die letzten Migrationen 0024–0026 sind registriert.
+- [x] Direkte Testprojektprüfung: beide Treuhand-Sperrtrigger aktiv; Käufer-/Verkäuferstimmen abgewiesen; zwei simulierte Altstimmen wurden archiviert und aus den aktiven Abstimmungen entfernt. Alle Testdatensätze wurden zurückgerollt.
+- [x] Die vier fehlenden Fremdschlüssel-Indizes aus dem Supabase-Advisor wurden ergänzt und verifiziert. Der Advisor meldet keine unindizierten Fremdschlüssel mehr.
+- [x] Read-only Testprojektprüfung für GitHub Actions vorbereitet. Sie wird nur ausgeführt, wenn `SUPABASE_TEST_DATABASE_URL` als Repository-Secret hinterlegt ist; ohne Secret wird sie ausdrücklich übersprungen.
+- [x] Letzte bestätigte Vercel-Preview: Deployment `dpl_346qJq9N3tod13b6bjEt56DVmFNM`, Commit `e43a49ca5d3a8090ed432c855b03f4504b5f1cd9`, Status `READY`.
+- [ ] Ein neuer Preview-Deploy für Commit `74c0833` wurde durch Vercel mit HTTP 402 abgelehnt: `api-deployments-free-per-day`, Limit von mehr als 100 API-Deployments pro Tag; erneuter Versuch erst nach 24 Stunden. Kein Upgrade und keine Abrechnungsänderung vorgenommen.
+- [ ] Die Produktionsblocker bleiben bestehen: keine Produktions-`DATABASE_URL`, persönliche Konten sind im Demo-Zweig ausgeschaltet, kein eigener OAuth-Broker, kein produktiver Medien-Storage/Video-Prüfer, keine echte ID-Austria-Anbindung und keine vollständigen Android-/Mehrbenutzer-/Datenschutzfreigaben.
