@@ -15,7 +15,7 @@ let decodedPassword = "";
 try {
   decodedPassword = decodeURIComponent(encodedPassword);
 } catch {
-  throw new Error("Das Passwort in SUPABASE_DATABASE_URL enthält eine ungültige URL-Kodierung.");
+  throw new Error("Das Passwort in SUPABASE_TEST_DATABASE_URL enthält eine ungültige URL-Kodierung.");
 }
 console.log("[supabase-smoke] Verbindungsziel (ohne Passwort):", {
   host: parsedConnection.hostname,
