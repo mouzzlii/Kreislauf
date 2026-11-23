@@ -263,9 +263,7 @@ function NewListing() {
                       });
                       const message = result.reason === "clip-too-long"
                         ? `Ein Video ist länger als ${limit.maxEachSeconds} Sekunden.`
-                        : result.reason === "total-too-long"
-                          ? "Alle Videos zusammen dürfen höchstens 60 Sekunden dauern."
-                          : "Die ausgewählten Videos passen nicht zu diesem Format.";
+                        : "Die ausgewählten Videos passen nicht zu diesem Format.";
                       setError(message);
                       return;
                     }
