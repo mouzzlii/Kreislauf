@@ -13,5 +13,5 @@ test("the live-preview OAuth client secret is never embedded in source", async (
   assert.match(preview, /export const PREVIEW_CLIENT_ID = "grok_preview"/);
   assert.doesNotMatch(preview, /PREVIEW_CLIENT_SECRET|GROK_PREVIEW_CLIENT_SECRET|[a-f0-9]{64}/i);
   assert.match(server, /const grokClientSecret = env\("GROK_AUTH_CLIENT_SECRET"\);/);
-  assert.doesNotMatch(server, /PREVIEW_CLIENT_SECRET/);
+  assert.doesNotMatch(server, /PREVIEW_CLIENT_SECRET|[a-f0-9]{64}/i);
 });
