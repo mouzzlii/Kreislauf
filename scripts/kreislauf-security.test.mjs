@@ -489,6 +489,14 @@ test("listing messages and their conversation are persisted in one SQL statement
   assert.doesNotMatch(writePath, /select id from listing_conversations where listing_id/);
 });
 
+test("community escrow status refreshes while the listing is visible", () => {
+  assert.match(escrowPanel, /window\.setInterval\(refresh, 15_000\)/);
+  assert.match(escrowPanel, /document\.addEventListener\("visibilitychange", refresh\)/);
+  assert.match(escrowPanel, /document\.visibilityState !== "visible"/);
+  assert.match(escrowPanel, /removeEventListener\("visibilitychange", refresh\)/);
+  assert.match(escrowPanel, /if \(cancelled \|\| loading/);
+});
+
 test("high-value escrow reserves buyer Karma and requires bilateral confirmation before release", () => {
   assert.match(escrowFundsSql, /funds_status in \([^)]*'held'/);
   assert.match(escrowFundsSql, /'escrow_hold'/);
