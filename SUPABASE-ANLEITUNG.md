@@ -1,6 +1,6 @@
 # KREISLAUF – Supabase vorbereiten
 
-Diese Anleitung ist für das vorhandene Supabase-Projekt gedacht. Die SQL-Datei legt die Tabellen und Funktionen für KREISLAUF an, **ohne Demo-Mitglieder, Demo-Inserate oder künstliche Karma-Guthaben einzuspielen**.
+Diese Anleitung beschreibt die sichere Vorbereitung. **Erste Einrichtung und alle Migrationstests gehören ausschließlich in das separate Supabase-Testprojekt `kreislauf-test`.** Das ursprüngliche Supabase-Projekt bleibt unangetastet, bis ein eigener Produktionsplan, eine geprüfte Sicherung und eine ausdrückliche Freigabe vorliegen. Die SQL-Datei legt Tabellen und Funktionen für KREISLAUF an, ohne Demo-Mitglieder, Demo-Inserate oder künstliche Karma-Guthaben einzuspielen.
 
 ## Architekturhinweis
 
@@ -8,11 +8,14 @@ KREISLAUF verwendet derzeit **Better Auth** für die Anmeldung und eine serverse
 
 ## 1. Datenbankschema anlegen
 
-1. Öffne dein bestehendes Supabase-Projekt.
-2. Öffne links den **SQL Editor**.
-3. Öffne im GitHub-Projekt die Datei `SUPABASE-SETUP.sql`.
-4. Kopiere den vollständigen Inhalt in eine neue SQL-Abfrage und führe sie einmal aus.
-5. Supabase muss die Ausführung erfolgreich bestätigen. Bei einem Fehler nicht mehrfach blind ausführen; zuerst die konkrete Fehlermeldung prüfen.
+1. Öffne ausdrücklich das separate Supabase-Testprojekt **`kreislauf-test`**, nicht das ursprüngliche Projekt.
+2. Prüfe oben im Dashboard den Projektnamen, bevor du irgendetwas ausführst.
+3. Öffne links den **SQL Editor**.
+4. Öffne im GitHub-Projekt die Datei `SUPABASE-SETUP.sql`.
+5. Kopiere den vollständigen Inhalt in eine neue SQL-Abfrage und führe ihn einmal aus.
+6. Supabase muss die Ausführung erfolgreich bestätigen. Bei einem Fehler nicht mehrfach blind ausführen; zuerst die konkrete Fehlermeldung prüfen.
+
+**Nicht im ursprünglichen Supabase-Projekt ausführen.** Die dortige Datenbank wurde bislang nicht migriert. Ein späterer Produktivschritt braucht eine gesonderte Prüfung des vorhandenen Schemas, eine Sicherung und eine ausdrückliche Freigabe.
 
 ## 2. Vercel-Datenbankverbindung vorbereiten
 
@@ -33,18 +36,18 @@ KREISLAUF verwendet derzeit **Better Auth** für die Anmeldung und eine serverse
 - Die Vorschau verwendet deshalb weiterhin PGLite im Arbeitsspeicher und ist nicht persistent. Es wurde keine Datenbankverbindung und keine Migration auf deinem Supabase-Projekt eingerichtet.
 - `ID_AUSTRIA_MOCK_MODE=true`: nur für den Demo-Preview-Zweig vorgesehen.
 
-Der Produktions-Build prüft zusätzlich, ob `DATABASE_URL` eine gültige PostgreSQL-URL ist, echte Anmeldung aktiv ist, ein mindestens 32 Zeichen langes `BETTER_AUTH_SECRET`, eine HTTPS-Adresse für `BETTER_AUTH_URL`, ein eigener HTTPS-Auth-Broker samt `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` sowie ein Medien-Storage-Token vorhanden sind. Die fest im Quellcode enthaltenen OAuth-Vorschau-Zugangsdaten sind ausschließlich für Sandbox-Hosts bestimmt und werden nicht als Produktionszugang akzeptiert. Damit wird ein versehentlicher Start mit Vorschau-Identität oder ohne dauerhafte Datenbank/Medienablage blockiert. Die Demo-Preview bleibt davon unberührt.
+Der Produktions-Build prüft zusätzlich, ob `DATABASE_URL` eine gültige PostgreSQL-URL ist, echte Anmeldung aktiv ist, ein mindestens 32 Zeichen langes `BETTER_AUTH_SECRET`, eine HTTPS-Adresse für `BETTER_AUTH_URL`, ein eigener HTTPS-Auth-Broker samt `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` sowie ein Medien-Storage-Token vorhanden sind. **Im aktuellen Quellstand ist kein OAuth-Client-Secret mehr fest codiert.** Ein früher im Git-Verlauf veröffentlichter Preview-Schlüssel muss dennoch vom Auth-Broker-Betreiber widerrufen/rotiert werden; das Entfernen aus dem aktuellen Quellstand löscht ihn nicht aus der Git-Historie (siehe [Issue #2](https://github.com/mouzzlii/Kreislauf/issues/2)). Die Anmeldung und Produktionsfreigabe bleiben bis zur bestätigten Rotation gesperrt. Damit wird ein versehentlicher Start ohne dauerhafte Datenbank/Medienablage oder mit nicht freigegebener Auth-Konfiguration blockiert. Die Demo-Preview bleibt davon unberührt.
 
 ## 3. Persönliche Konten sicher aktivieren
 
-Die derzeitige Vorschau verwendet absichtlich einen gemeinsamen Demo-Zugang. **BETTER_AUTH_URL und BETTER_AUTH_SECRET sind bereits gesetzt. Es fehlt noch DATABASE_URL.** Erst wenn die Datenbankverbindung gespeichert und erreichbar ist, darf die Anmeldung aktiviert werden.
+Die derzeitige Vorschau verwendet absichtlich einen gemeinsamen Demo-Zugang. **BETTER_AUTH_URL und BETTER_AUTH_SECRET sind bereits gesetzt. Es fehlt noch DATABASE_URL.** Zusätzlich muss vor jeder Aktivierung persönlicher Konten die OAuth-Secret-Rotation beim Auth-Broker schriftlich bestätigt und ein neues Secret ausschließlich als geschützte Umgebungsvariable hinterlegt sein. Erst danach und nach getrennten Mehrbenutzertests darf die Anmeldung aktiviert werden.
 
 1. In Vercel `VITE_AUTH_ENABLED=true` zunächst ausschließlich für **Production** setzen, sobald die Produktionsdatenbank, die Auth-Broker-Anwendung und alle unten genannten Voraussetzungen bereitstehen. Preview bleibt bis zu einer getrennten Testdatenbank im Demo-Modus.
 2. Erst wenn alle Variablen für Production gespeichert sind, einen neuen Produktions-Build/Deploy starten. Nicht zwischenzeitlich mit `DATABASE_URL` und ausgeschalteter Anmeldung deployen. Preview-Deployments dürfen keine Produktionsdatenbank verwenden.
 3. Danach zuerst Konto anlegen, abmelden und wieder anmelden testen. E-Mail/Passwort ist in der Anmeldemaske vorgesehen.
 4. Google/X-Anmeldung benötigt zusätzlich eine eigene, für die KREISLAUF-Domain freigeschaltete Broker-Anwendung. Dafür sind `GROK_AUTH_ISSUER`, `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` erforderlich. Diese Werte müssen vom Betreiber des Auth-Brokers bereitgestellt werden; die Vorschau-Zugangsdaten sind keine Produktions-Zugangsdaten.
 
-Die SQL-Datei markiert die enthaltenen Migrationen `0001_auth.sql` bis `0007_harden_function_search_path.sql` sowie `0009` bis `0025` als angewendet. Die optionale Migration `0008_harden_legacy_function_search_path.sql` bleibt bei einer Neuinstallation absichtlich außen vor, weil sie nur eine Altbestandsfunktion absichert. Die übrigen Datenbankfunktionen erhalten einen festen `search_path`, damit sie keine fremden Objekte über eine manipulierte Namensauflösung verwenden.
+Die SQL-Datei markiert die enthaltenen Migrationen `0001_auth.sql` bis `0007_harden_function_search_path.sql` sowie `0009` bis `0026` als angewendet. Die optionale Migration `0008_harden_legacy_function_search_path.sql` bleibt bei einer Neuinstallation absichtlich außen vor, weil sie nur eine Altbestandsfunktion absichert. Die übrigen Datenbankfunktionen erhalten einen festen `search_path`, damit sie keine fremden Objekte über eine manipulierte Namensauflösung verwenden.
 
 
 ## 4. Sicherheitsprüfung vor dem öffentlichen Start
