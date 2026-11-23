@@ -10,6 +10,9 @@ on:
       - package.json
       - package-lock.json
       - scripts/db-migrations.test.mjs
+      - scripts/supabase-setup-postgres.test.mjs
+      - scripts/supabase-setup.test.mjs
+      - SUPABASE-SETUP.sql
       - migrations/**
 
 permissions:
