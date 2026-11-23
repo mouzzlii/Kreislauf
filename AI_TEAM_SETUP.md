@@ -17,8 +17,8 @@ CHRONOS-Projektverknüpfung: https://github.com/mouzzlii/CHRONOS/issues/13
 - Zentrales GitHub-Issue als gemeinsamer Kommunikationskanal.
 - Projektregister und Arbeitsregeln im zentralen Issue.
 - CHRONOS-Issue verweist auf die Zentrale.
-- Separater Vorbereitungsbranch: `chore/ai-team-communication-foundation`.
-- Entwurf eines GitHub-Actions-Workflows und eines Node.js-Relays für einen ausdrücklich ausgelösten Drei-Anbieter-Austausch (GPT → Gemini → Grok → GPT) liegt im Draft-PR #12. Der Workflow prüft den Kommentar-Absender, begrenzt Eingabe/Ausgabe, vermeidet Bot-Schleifen und schreibt eine nachvollziehbare Debatte als Issue-Kommentar zurück.
+- Die sichere Relay-Implementierung ist nach erfolgreicher CI in `main` integriert.
+- GitHub-Actions-Workflow und Node.js-Relay für einen ausdrücklich ausgelösten Drei-Anbieter-Austausch (GPT → Gemini → Grok → GPT) sind in `main` integriert. Der Workflow prüft den Kommentar-Absender, begrenzt Eingabe/Ausgabe, vermeidet Bot-Schleifen und schreibt eine nachvollziehbare Debatte als Issue-Kommentar zurück.
 
 ## Zielarchitektur und vorhandener Relay-Entwurf
 
@@ -73,11 +73,11 @@ Es sind bewusst keine Modellkennungen vorgegeben: Verfügbare IDs ändern sich j
 ## Verbindliche Repository-Zuordnung
 
 - `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf`
-- `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway` sowie `PROJECT_REPO_TRAKUNA_ANDROID=mouzzlii/Fuck` – maßgebliches TRAKUNA-Repository; `multi-carrier-gateway-neu` bleibt ein separates Experiment und darf nicht als kanonische Quelle verwendet werden.
+- `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway` (Architektur/Koordination) sowie `PROJECT_REPO_TRAKUNA_ANDROID=mouzzlii/Fuck` (aktuelle Android-Implementierung). Beide Quellen werden gemeinsam gelesen; `multi-carrier-gateway-neu` bleibt ein separates Experiment.
 - `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS`
-- `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT` – privates Repository für den aktuellen 2.0.60-Projektstand. Der eigenständige 2.0.60-App-Einstieg, PWA-Manifest, Service Worker, App-Symbol und CI-Prüfworkflow sind eingespielt. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; bis dahin darf die Relay-Kontextanalyse nicht als vollständige Quellcodeprüfung ausgegeben werden.
+- `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT` – privates Repository für den aktuellen 2.0.64-Projektstand. Der eigenständige 2.0.64-App-Einstieg, PWA-Manifest, Service Worker, App-Symbol und CI-Prüfworkflow sind eingespielt. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; bis dahin darf die Relay-Kontextanalyse nicht als vollständige Quellcodeprüfung ausgegeben werden.
 
-Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Für SCAN-PROFIT ist das Repository zwar zugeordnet, aber die vollständige 2.0.60-Anwendung muss noch importiert werden; bis dahin darf die Kontextanalyse nicht als vollständige Quellcodeprüfung gelten. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
+Der Relay lädt README und maximal 100 Dateipfade je zugeordnetem Repository. Für TRAKUNA werden Koordinations- und Android-Quellrepository gemeinsam geladen. Für SCAN-PROFIT ist das Repository zwar zugeordnet, aber die vollständige 2.0.64-Anwendung muss noch importiert werden; bis dahin darf die Kontextanalyse nicht als vollständige Quellcodeprüfung gelten. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
 
 ## Noch offene Voraussetzungen
 
@@ -97,4 +97,4 @@ Automatische KI-Kommunikation gilt erst als aktiv, wenn ein echter Test nachweis
 4. Bot-Schleifen werden verhindert.
 5. Nicht konfigurierte Provider, API-Fehler und Budgetgrenzen werden korrekt behandelt.
 
-Der Relay-Code ist im Draft-PR vorbereitet, aber noch nicht in `main` und nicht aktiv. Ohne die Variable `AI_TEAM_BUDGET_CONFIRMED=true` bleibt er selbst bei vorhandenen API-Schlüsseln vor jedem Provider-Aufruf gesperrt. Der gültige Trigger lautet exakt `/ai-team debate PROJEKT: Auftrag` (z. B. `/ai-team debate CHRONOS: Prüfe die Room-Migrationen`). Automatische KI-zu-KI-Nachrichten starten erst nach PR-Prüfung/Merge, Hinterlegung aller drei Provider-Secrets und Modellvariablen, Einrichtung echter Anbieter-Ausgabenlimits sowie einem erfolgreichen Ende-zu-Ende-Test.
+Der Relay-Code ist in `main` integriert, aber noch nicht für Live-Aufrufe freigegeben. Ohne die Variable `AI_TEAM_BUDGET_CONFIRMED=true` bleibt er selbst bei vorhandenen API-Schlüsseln vor jedem Provider-Aufruf gesperrt. Für den Livebetrieb fehlen weiterhin die Provider-Secrets, explizit gewählte Modellkennungen, echte Anbieter-Ausgabenlimits und ein erfolgreicher synthetischer Ende-zu-Ende-Test. Der gültige Trigger lautet exakt `/ai-team debate PROJEKT: Auftrag` (z. B. `/ai-team debate CHRONOS: Prüfe die Room-Migrationen`). Automatische KI-zu-KI-Nachrichten starten erst nach PR-Prüfung/Merge, Hinterlegung aller drei Provider-Secrets und Modellvariablen, Einrichtung echter Anbieter-Ausgabenlimits sowie einem erfolgreichen Ende-zu-Ende-Test.
