@@ -141,3 +141,12 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 **Demo-Entwicklungszweig:** Build und automatisierte Code-Prüfungen erfolgreich auf Commit `6e63a5d4df5c7f9cc3e60d9de2f77c8742545a13`. Die Dokumentationsnachträge liegen auf `e73fe7cc30dc16b5c116ff36ada2d96dfed4a6a6`. PR #1 bleibt ein offener Entwurf und wurde nicht zusammengeführt.
 
 **Keine Produktionsfreigabe:** Die Live-Supabase-Migration wurde nicht ausgeführt. Echte Benutzerkonten, persistente Datenbankverbindung, echte ID-Austria-Anbindung, Medien- und Video-Upload, Mehrbenutzer-/Android-Tests sowie unabhängige Betriebs- und Datenschutzprüfung bleiben offen. Keine Produktionsdaten wurden verändert.
+
+## Ergänzung – 23.11.2026: Rückwirkende Bereinigung unzulässiger Treuhandstimmen
+
+- [x] Migration 0025 archiviert Stimmen von Käufer/Verkäufer aus beiden Treuhand-Abstimmungen und entfernt sie aus den aktiven Abstimmungstabellen, damit alte Stimmen nicht mehr zum Quorum zählen.
+- [x] Das Archiv behält die ursprüngliche Entscheidung, Begründung, Abstimmungszeit, Parteirolle und den damaligen Fallstatus; der Zugriff ist per RLS und Tabellenrechten gesperrt.
+- [x] PGlite-Regressionstest simuliert Altstimmen vor der Migration, prüft die Archivierung beider Abstimmungsarten und die Entfernung aus den aktiven Quoren.
+- [x] Treuhandübersicht zeigt Parteien keine Abstimmungsaktionen mehr, selbst wenn diese zusätzlich Moderatorenrechte besitzen.
+- [x] Supabase-Setup-SQL und Clean-Install-Test sind auf 24 Anwendungsmigrationen aktualisiert.
+- [ ] Migration 0025 auf einer isolierten Supabase-Testdatenbank und anschließend ein realer Mehrbenutzer-Test bleiben offen. Das verbundene Supabase-Projekt wurde nicht verändert.
