@@ -197,3 +197,12 @@ Zusätzliche Prüfung: Dieselbe Datenbankregel schützt auch die anfängliche Co
 - Separater Datenbank-Setup-Lauf `45150894502` auf Commit `2c48d6b6bdb41469c96bea304584ca0b24950d25`: erfolgreich – Clean-Install-SQL, RLS und Tabellen-/Funktionsrechte in einer temporären PostgreSQL-kompatiblen Testdatenbank.
 - Der Code-Prüflauf enthält die Regression für Altstimmen in beiden Abstimmungen. Der separate Setup-Lauf prüft die aktuelle Supabase-Neuinstallation mit Migration 0025.
 - Diese Läufe bestätigen den Repository-Code und das Clean-Install-Skript. Sie belegen nicht, dass Migrationen auf dem verbundenen Supabase-Projekt oder in einer realen Produktionsdatenbank ausgeführt wurden.
+
+
+## Ergänzung – 23.11.2026: Aktueller Branch- und Preview-Check
+
+- GitHub Actions Lauf `45165838001` auf Commit `e9f350461d772564b457d6503680928b24875c4d`: erfolgreich – Installation, Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- Vercel Preview `dpl_Fg8oFbhgRDNFrU5YidCyCmHqjMGG` für denselben Commit: Status `READY`. Die Runtime-Log-Abfrage für die letzten 30 Minuten ergab keine Warnungen oder Fehler. Das ist kein vollständiger Browser-/E2E-Test.
+- Separater Datenbank-CI-Lauf `45157497685`: erfolgreich – lokale Clean-Install-/Migrationsprüfung und Syntaxprüfung des read-only Supabase-Verifiers. Der optionale Remote-Verifier wurde mangels `SUPABASE_TEST_DATABASE_URL`-GitHub-Secret übersprungen; die entsprechenden Testprojekt-Befunde wurden separat über den Supabase-Connector geprüft.
+- **Neuer Sicherheitsfund:** `src/lib/auth/preview.ts` enthält ein gemeinsam genutztes Preview-OAuth-Client-Secret als Quellcode-Konstante. Der Wert ist damit auch in der Git-Historie vorhanden. Das ist kein akzeptabler Speicherort für ein Geheimnis. GitHub Issue [#2](https://github.com/mouzzlii/Kreislauf/issues/2) dokumentiert die erforderliche Rotation beim Betreiber des Auth-Brokers und die anschließende Umstellung auf geschützte Umgebungsvariablen. Die Rotation kann nicht allein durch dieses Repository durchgeführt werden.
+- Die persönliche Anmeldung bleibt im aktuellen Demo-Modus deaktiviert. Bis zur Rotation und erneuten Prüfung darf das veröffentlichte Preview-Secret nicht als sicher betrachtet werden. Die Produktionsfreigabe bleibt gesperrt.
