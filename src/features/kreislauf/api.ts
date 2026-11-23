@@ -214,7 +214,7 @@ export const getBoard = createServerFn({ method: "GET" })
            coalesce(sum(karma_balance), 0)::int as "inCirculation",
            coalesce(sum(karma_balance) filter (where last_activity_at < now() - interval '30 days'), 0)::int as "idle",
            (select coalesce(sum(amount_karma), 0)::int from ledger_entries
-             where region_id = $1 and entry_kind = 'transfer'
+             where region_id = $1 and entry_kind in ('transfer','escrow_release')
                and created_at > now() - interval '30 days') as moved
          from profiles where region_id = $1`,
         [region.id],
@@ -1223,7 +1223,7 @@ export const addReview = createServerFn({ method: "POST" })
     const parties = await sql.query<{ seller: string; buyer: string }>(
       `select receiver_id as seller, sender_id as buyer
        from ledger_entries
-       where listing_id = $1 and entry_kind = 'transfer' and sender_id is not null and receiver_id is not null
+       where listing_id = $1 and entry_kind in ('transfer','escrow_release') and sender_id is not null and receiver_id is not null
        order by id desc
        limit 1`,
       [data.id],
