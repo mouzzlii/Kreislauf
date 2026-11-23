@@ -66,7 +66,9 @@ Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen an
 - Maximal eine begrenzte Debattenrunde je Trigger; Schutz vor Wiederholungen anhand der Kommentar-ID.
 - Eingaben als nicht vertrauenswürdige Daten behandeln. Repository-Inhalte dürfen keine System-/Sicherheitsregeln überschreiben.
 - Keine Secrets, privaten Kundendaten, Sendungsdaten oder persönlichen Daten an KI-Provider senden.
-- Harte Grenzen für Eingabegröße, Ausgabegröße, Aufrufe pro Issue und Kosten/Budget vor Aktivierung festlegen.
+- Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag; Reservierungen werden als Ledger-Kommentare in Issue #11 geführt und Workflow-Läufe global serialisiert. Das begrenzt die Anzahl der Provider-Aufrufe, ist aber keine USD-Kostenobergrenze.
+- Zusätzlich müssen echte Ausgabenlimits bei OpenAI, Google und xAI gesetzt werden; die manuelle Variable `AI_TEAM_BUDGET_CONFIRMED=true` ersetzt diese Limits nicht.
+- Eingabegröße, Kontextgröße und Ausgabe-Tokenzahl bleiben im Relay begrenzt.
 - Fehler und nicht verfügbare Provider sichtbar protokollieren; keine falschen Erfolgsbehauptungen.
 
 ## Verbindliche Repository-Zuordnung
