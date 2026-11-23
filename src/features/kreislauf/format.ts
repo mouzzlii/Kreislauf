@@ -17,6 +17,7 @@ export const STATUS_LABEL: Record<ListingStatus, string> = {
   booked: "Belegt",
   completed: "Abgeschlossen",
   maintenance: "Wartung",
+  paused: "Pausiert",
 };
 
 export const BOOKING_LABEL: Record<BookingStatus, string> = {

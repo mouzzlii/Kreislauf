@@ -1,8 +1,8 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Shell } from "@/components/shell";
 import { Button, Field, fieldClass } from "@/components/ui";
-import { GROK_PROVIDERS, authClient, signIn } from "@/lib/auth/client";
+import { GROK_PROVIDERS, authClient, authEnabled, signIn } from "@/lib/auth/client";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/login")({ component: Login });
@@ -20,6 +20,23 @@ function Login() {
     return (
       <Shell>
         <div className="h-40 animate-pulse rounded-3xl bg-elev" />
+      </Shell>
+    );
+  }
+  if (!authEnabled) {
+    return (
+      <Shell>
+        <div className="mx-auto max-w-sm">
+          <p className="text-xs font-semibold uppercase tracking-wider text-forest">KREISLAUF · Testversion</p>
+          <h1 className="mt-2 font-display text-4xl text-fg">Demo-Zugang</h1>
+          <p className="mt-3 text-muted">
+            Diese Vorschau verwendet derzeit ein gemeinsames Testkonto. Eine persönliche Registrierung und private Konten sind noch nicht freigeschaltet.
+            Änderungen können in dieser Demo für andere Testbesucher sichtbar sein.
+          </p>
+          <Link to="/" className="mt-6 inline-flex h-11 items-center rounded-lg bg-forest px-5 text-sm font-medium text-paper">
+            Demo öffnen
+          </Link>
+        </div>
       </Shell>
     );
   }

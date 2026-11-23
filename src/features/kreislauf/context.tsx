@@ -1,34 +1,18 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { ensureProfile, setRegion as setRegionFn } from "./api";
-import { DEFAULT_REGION, type Profile } from "./types";
+import { ensureProfile, setRegion as setRegionFn, touchActivity } from "./api";
+import { DEFAULT_REGION } from "./types";
+import type { Profile } from "./types";
+import { KreislaufContext, type Theme } from "./context-core";
 
 const REGION_KEY = "kreislauf-region";
 const THEME_KEY = "kreislauf-theme";
-
-type Theme = "dark" | "light";
-
-type KreislaufContextValue = {
-  regionId: string;
-  setRegion: (id: string) => void;
-  profile: Profile | null;
-  refreshProfile: () => Promise<void>;
-  hydrated: boolean;
-  version: number;
-  bump: () => void;
-  theme: Theme;
-  toggleTheme: () => void;
-};
-
-const KreislaufContext = createContext<KreislaufContextValue | null>(null);
 
 function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("light", theme === "light");
@@ -87,6 +71,26 @@ export function KreislaufProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, user?.id]);
 
+  // Moderator eligibility is based on recent presence, not profile edits.
+  // Update only while the app is visible, plus immediately when the user
+  // returns to the tab. This timestamp is separate from Karma demurrage.
+  const activeUserId = user?.id;
+  useEffect(() => {
+    if (!hydrated || !activeUserId) return;
+    const touch = () => {
+      if (document.visibilityState === "visible") {
+        void touchActivity().catch(() => undefined);
+      }
+    };
+    touch();
+    const interval = window.setInterval(touch, 15 * 60 * 1000);
+    document.addEventListener("visibilitychange", touch);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", touch);
+    };
+  }, [hydrated, activeUserId]);
+
   const setRegion = useCallback(
     (id: string) => {
       setRegionId(id);
@@ -126,10 +130,4 @@ export function KreislaufProvider({ children }: { children: ReactNode }) {
   );
 
   return <KreislaufContext.Provider value={value}>{children}</KreislaufContext.Provider>;
-}
-
-export function useKreislauf(): KreislaufContextValue {
-  const value = useContext(KreislaufContext);
-  if (!value) throw new Error("KreislaufProvider fehlt");
-  return value;
 }

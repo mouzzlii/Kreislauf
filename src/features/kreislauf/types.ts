@@ -1,6 +1,6 @@
 export type Category = "goods" | "service" | "sharing";
 export type OfferType = "sell" | "search" | "gift";
-export type ListingStatus = "active" | "booked" | "completed" | "maintenance";
+export type ListingStatus = "active" | "booked" | "completed" | "maintenance" | "paused";
 export type BookingStatus = "reserved" | "handed_over" | "returned" | "cancelled";
 
 export type Region = {
@@ -29,6 +29,7 @@ export type Listing = {
   priceKarma: number;
   status: ListingStatus;
   images: string[];
+  videoUrls: string[];
   lat: number;
   lng: number;
   placeLabel: string;
@@ -60,12 +61,16 @@ export type Booking = {
   endsAt: string;
   status: BookingStatus;
   amountKarma: number;
+  renterConfirmed: boolean;
+  ownerConfirmed: boolean;
+  renterReturned: boolean;
+  ownerReturned: boolean;
 };
 
 export type LedgerEntry = {
   id: number;
   amountKarma: number;
-  entryKind: "mint" | "transfer" | "demurrage" | "activity";
+  entryKind: "mint" | "transfer" | "demurrage" | "activity" | "escrow_hold" | "escrow_release" | "escrow_refund";
   message: string;
   createdAt: string;
   senderName: string | null;
@@ -107,7 +112,7 @@ export type ItemHistoryEntry = { placeLabel: string; createdAt: string; eventKin
 export type ListingDetail = {
   listing: Listing;
   history: ItemHistoryEntry[];
-  escrowPending: boolean;
+  escrowVisible: boolean;
   booking: Booking | null;
   reviews: Review[];
 };

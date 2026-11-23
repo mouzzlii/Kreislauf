@@ -1,18 +1,23 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ListingVisual } from "@/components/listing-card";
+import { ListingConversation } from "@/components/listing-conversation";
+import { EscrowPanel } from "@/components/escrow-panel";
+import { QrScanner } from "@/components/qr-scanner";
 import { Shell } from "@/components/shell";
 import { Button, fieldClass } from "@/components/ui";
 import {
   addReview,
   getListing,
+  getListingBooking,
+  getProviderListings,
   getMeetingPoint,
-  releaseEscrow,
   reserveListing,
+  setListingAvailability,
   tradeListing,
   transitionBooking,
 } from "@/features/kreislauf/api";
-import { useKreislauf } from "@/features/kreislauf/context";
+import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import {
   BOOKING_LABEL,
   CATEGORY_LABEL,
@@ -22,10 +27,13 @@ import {
   formatWhen,
   priceCaption,
 } from "@/features/kreislauf/format";
-import type { ListingDetail } from "@/features/kreislauf/types";
+import type { Booking, Listing, ListingDetail } from "@/features/kreislauf/types";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/inserat/$listingId")({
+  validateSearch: (search: Record<string, unknown>): { conversation?: string } => ({
+    ...(typeof search.conversation === "string" ? { conversation: search.conversation } : {}),
+  }),
   loader: ({ params }) => getListing({ data: { id: params.listingId } }),
   component: ListingPage,
 });
@@ -34,11 +42,16 @@ function ListingPage() {
   const initial = Route.useLoaderData();
   const { listingId } = Route.useParams();
   const navigate = useNavigate();
+  const { conversation: requestedConversationId } = Route.useSearch();
   const { version, bump, refreshProfile, profile } = useKreislauf();
   const { user, isPending } = useCurrentUserState();
   const [detail, setDetail] = useState<ListingDetail | null>(initial);
+  const providerUserId = detail?.listing?.userId;
+  const [booking, setBooking] = useState<Booking | null>(null);
+  const [providerListings, setProviderListings] = useState<Listing[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [tradeConfirmOpen, setTradeConfirmOpen] = useState(false);
   const [meetingPointUrl, setMeetingPointUrl] = useState<string | null>(null);
   const [qrTarget, setQrTarget] = useState(`/inserat/${listingId}`);
   const [startsAt, setStartsAt] = useState("");
@@ -57,6 +70,27 @@ function ListingPage() {
   }, [listingId, version]);
 
   useEffect(() => {
+    if (!providerUserId) { setProviderListings([]); return; }
+    let cancel = false;
+    getProviderListings({ data: { id: listingId, excludeId: listingId } })
+      .then((items) => { if (!cancel) setProviderListings(items); })
+      .catch(() => { if (!cancel) setProviderListings([]); });
+    return () => { cancel = true; };
+  }, [providerUserId, listingId]);
+
+  useEffect(() => {
+    if (!user) {
+      setBooking(null);
+      return;
+    }
+    let cancel = false;
+    getListingBooking({ data: { id: listingId } })
+      .then((result) => { if (!cancel) setBooking(result); })
+      .catch(() => { if (!cancel) setBooking(null); });
+    return () => { cancel = true; };
+  }, [listingId, user, version]);
+
+  useEffect(() => {
     setQrTarget(`${window.location.origin}/inserat/${listingId}`);
   }, [listingId]);
 
@@ -67,7 +101,7 @@ function ListingPage() {
       if (!cancel) setMeetingPointUrl(result.url);
     }).catch(() => { if (!cancel) setMeetingPointUrl(null); });
     return () => { cancel = true; };
-  }, [listingId, user?.id, version]);
+  }, [listingId, user, version]);
 
   if (!detail) {
     return (
@@ -80,7 +114,7 @@ function ListingPage() {
     );
   }
 
-  const { listing, booking, reviews } = detail;
+  const { listing, reviews } = detail;
   const mine = user?.id === listing.userId;
   const party = user && booking && (user.id === booking.renterId || user.id === booking.ownerId);
 
@@ -107,7 +141,12 @@ function ListingPage() {
         Markt
       </Link>
       <div className="mt-3 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-        <ListingVisual listing={listing} className="aspect-[4/3] w-full rounded-3xl" />
+        <div className="space-y-4">
+          <ListingGallery listing={listing} />
+          {listing.videoUrls.map((url) => (
+            <video key={url} src={url} controls playsInline preload="metadata" className="max-h-[480px] w-full rounded-3xl bg-black" aria-label="Inseratvideo" />
+          ))}
+        </div>
         <div>
           <p className="text-sm text-copper">
             {listing.offerType === "sell" ? "Biete / Verkaufe" : listing.offerType === "search" ? "Suche nach" : "Verschenke"} · {CATEGORY_LABEL[listing.category]} · {STATUS_LABEL[listing.status]}
@@ -128,9 +167,30 @@ function ListingPage() {
               {isPending ? (
                 <div className="h-11 w-40 animate-pulse rounded-lg bg-elev-2" />
               ) : user && profile?.isVerified ? (
-                <Button disabled={busy} onClick={() => void run(() => tradeListing({ data: { id: listing.id } }))}>
-                  {listing.category === "service" ? "Hilfe begleichen" : "Tauschen"}
-                </Button>
+                tradeConfirmOpen ? (
+                  <div className="rounded-2xl border border-copper/30 bg-copper/5 p-4" role="group" aria-label="Tausch bestätigen">
+                    <p className="text-sm text-fg">
+                      {listing.priceKarma >= 100
+                        ? "Es wird eine Community-Treuhand eröffnet. Die Moderation allein überträgt noch kein Karma. Beide Tauschparteien müssen die Übergabe und den Empfang bestätigen; Streitfälle benötigen eine dokumentierte Klärung."
+                        : listing.offerType === "gift"
+                          ? "Die Weitergabe ist kostenlos. Nach Bestätigung wird die Übergabe im Kreislauf vermerkt."
+                          : `Mit deiner Bestätigung werden ${formatKarma(listing.priceKarma)} sofort von deinem Karma-Guthaben abgezogen und dem Anbieter gutgeschrieben.`}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button disabled={busy} onClick={() => {
+                        setTradeConfirmOpen(false);
+                        void run(() => tradeListing({ data: { id: listing.id } }));
+                      }}>
+                        {listing.priceKarma >= 100 ? "Treuhand anfragen" : "Verbindlich bestätigen"}
+                      </Button>
+                      <Button variant="ghost" disabled={busy} onClick={() => setTradeConfirmOpen(false)}>Abbrechen</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button disabled={busy} onClick={() => setTradeConfirmOpen(true)}>
+                    {listing.priceKarma >= 100 ? "Treuhand anfragen" : listing.category === "service" ? "Hilfe begleichen" : "Tauschen"}
+                  </Button>
+                )
               ) : user ? (
                 <Link to="/konto" className="inline-flex h-11 items-center rounded-lg bg-forest px-4 text-sm font-medium text-paper">Zuerst ID Austria bestätigen</Link>
               ) : (
@@ -138,7 +198,13 @@ function ListingPage() {
                   Anmelden zum Tauschen
                 </Link>
               )}
-              <p className="mt-2 text-sm text-subtle">Karma geht sofort an {listing.ownerName}.</p>
+              <p className="mt-2 text-sm text-subtle">
+                {listing.priceKarma >= 100
+                  ? "Hochwertiger Tausch mit Community-Treuhand. Nach dem Mehrheitsbeschluss bleibt der Vorgang gesperrt, bis beide Seiten die Übergabe bestätigen und offene Streitfälle geklärt sind."
+                  : listing.offerType === "gift"
+                    ? "Kostenlose Weitergabe mit Aktivitätsvermerk."
+                    : "Karma wird nach deiner Bestätigung sofort übertragen."}
+              </p>
             </div>
           ) : null}
 
@@ -171,14 +237,27 @@ function ListingPage() {
             </form>
           ) : null}
 
-          {mine && listing.status === "active" ? (
-            <p className="mt-5 text-sm text-muted">Das ist dein Inserat.</p>
+          {mine ? (
+            <div className="mt-5 rounded-2xl border border-line bg-elev p-4">
+              <p className="text-sm text-muted">Das ist dein Inserat. Du kannst es vorübergehend aus dem Markt nehmen und später wieder freischalten.</p>
+              {listing.status === "active" || listing.status === "paused" ? (
+                <Button
+                  className="mt-3"
+                  variant={listing.status === "active" ? "ghost" : "primary"}
+                  disabled={busy}
+                  onClick={() => void run(() => setListingAvailability({ data: { id: listing.id, action: listing.status === "active" ? "pause" : "resume" } }))}
+                >
+                  {listing.status === "active" ? "Inserat pausieren" : "Inserat wieder freigeben"}
+                </Button>
+              ) : (
+                <p className="mt-2 text-xs text-subtle">Dieses Inserat kann wegen seines aktuellen Status nicht pausiert werden.</p>
+              )}
+            </div>
           ) : null}
           {listing.status === "completed" && user ? <Button className="mt-4" variant="ghost" onClick={() => navigate({ to: "/inserat/neu", search: { reuse: listing.itemUuid } })}>Erneut im Kreislauf einstellen</Button> : null}
 
           {meetingPointUrl ? <a href={meetingPointUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex text-sm text-forest underline">Privaten Treffpunkt in what3words öffnen</a> : null}
-          {detail.escrowPending ? <p className="mt-3 rounded-xl border border-line bg-elev-2 p-3 text-sm text-muted">Community-Treuhand ist aktiv. Eine verifizierte, aktive Moderationsperson begleitet die Freigabe.</p> : null}
-          {profile && profile.moderatorRank > 0 && detail.escrowPending ? <Button className="mt-3" variant="ghost" disabled={busy} onClick={() => void run(() => releaseEscrow({ data: { id: listing.id } }))}>Treuhand freigeben</Button> : null}
+          {user && detail.escrowVisible ? <EscrowPanel listingId={listing.id} /> : null}
 
           {booking ? (
             <div className="mt-5 rounded-3xl border border-line bg-elev p-4">
@@ -192,18 +271,41 @@ function ListingPage() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   {booking.status === "reserved" ? (
                     <>
-                      <Button disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "handover" } }))}>
-                        Übergeben
-                      </Button>
-                      <Button variant="ghost" disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "cancel" } }))}>
-                        Stornieren
-                      </Button>
+                      <p className="w-full text-sm text-subtle">
+                        Übergabebestätigung: {booking.renterConfirmed ? "Abholende Person bestätigt" : "Abholende Person offen"} · {booking.ownerConfirmed ? "Anbietende Person bestätigt" : "Anbietende Person offen"}.
+                        Karma wird erst nach beiden Bestätigungen übertragen.
+                      </p>
+                      {!(user?.id === booking.renterId ? booking.renterConfirmed : booking.ownerConfirmed) ||
+                      (booking.renterConfirmed && booking.ownerConfirmed) ? (
+                        <Button disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "handover" } }))}>
+                          {booking.renterConfirmed && booking.ownerConfirmed ? "Übergabe erneut prüfen" :
+                            (user?.id === booking.renterId ? booking.renterConfirmed : booking.ownerConfirmed)
+                              ? "Bestätigung gespeichert" : "Übergabe bestätigen"}
+                        </Button>
+                      ) : (
+                        <Button disabled>Bestätigung gespeichert</Button>
+                      )}
+                      {!booking.renterConfirmed && !booking.ownerConfirmed ? (
+                        <Button variant="ghost" disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "cancel" } }))}>
+                          Stornieren
+                        </Button>
+                      ) : null}
                     </>
                   ) : null}
                   {booking.status === "handed_over" ? (
-                    <Button disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "return" } }))}>
-                      Zurückgeben
-                    </Button>
+                    <>
+                      <p className="w-full text-sm text-subtle">
+                        Rückgabebestätigung: {booking.renterReturned ? "Abholende Person bestätigt" : "Abholende Person offen"} · {booking.ownerReturned ? "Anbietende Person bestätigt" : "Anbietende Person offen"}.
+                        Die Rückgabe wird erst nach beiden Bestätigungen abgeschlossen.
+                      </p>
+                      {!(user?.id === booking.renterId ? booking.renterReturned : booking.ownerReturned) ? (
+                        <Button disabled={busy} onClick={() => void run(() => transitionBooking({ data: { id: booking.id, action: "return" } }))}>
+                          Rückgabe bestätigen
+                        </Button>
+                      ) : (
+                        <Button disabled>Rückgabe bestätigt</Button>
+                      )}
+                    </>
                   ) : null}
                 </div>
               ) : null}
@@ -235,13 +337,45 @@ function ListingPage() {
         </div>
       </div>
 
+      <ListingConversation
+        listingId={listing.id}
+        ownerId={listing.userId}
+        currentUserId={user?.id ?? null}
+        initialRequesterId={requestedConversationId}
+/>
+
+      {providerListings.length > 0 ? (
+        <section className="mt-8">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-forest">Vom selben Anbieter</p>
+              <h2 className="mt-1 font-display text-2xl text-fg">Weitere Inserate</h2>
+            </div>
+            <span className="text-xs text-subtle">{providerListings.length} aktiv</span>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {providerListings.map((item) => (
+              <Link key={item.id} to="/inserat/$listingId" params={{ listingId: item.id }} className="group overflow-hidden rounded-2xl border border-line bg-elev">
+                <ListingVisual listing={item} className="aspect-[4/3] w-full" />
+                <div className="p-3">
+                  <p className="line-clamp-2 text-sm font-medium text-fg group-hover:underline">{item.title}</p>
+                  <p className="mt-1 text-xs text-muted">{priceCaption(item.category, item.priceKarma)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <QrScanner onOpenListing={(id) => void navigate({ to: "/inserat/$listingId", params: { listingId: id } })} />
+
       <section className="mt-8 grid gap-4 md:grid-cols-2">
         <div className="rounded-3xl border border-line bg-elev p-4">
           <h2 className="font-display text-xl">Produkt-QR-Code</h2>
           <p className="mt-1 text-xs text-subtle">Artikelkennung: {listing.itemUuid}</p>
           <img className="mt-3 h-40 w-40 rounded-xl bg-white p-2" alt="QR-Code zum Produkt" src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(qrTarget)}`} />
           <Button className="mt-3" variant="ghost" onClick={() => window.print()}>QR-Code / Seite drucken</Button>
-          <p className="mt-2 text-xs text-subtle">Der Code führt zur Produktseite. Eine automatische Wiederveröffentlichung per Scan ist in dieser Version noch nicht aktiviert.</p>
+          <p className="mt-2 text-xs text-subtle">Der Code führt zur Produktseite. Der Scanner oben öffnet erkannte KREISLAUF-Inserate direkt.</p>
         </div>
         <div className="rounded-3xl border border-line bg-elev p-4">
           <h2 className="font-display text-xl">Kurz-Historie</h2>
@@ -268,6 +402,48 @@ function ListingPage() {
         )}
       </section>
     </Shell>
+  );
+}
+
+
+function ListingGallery({ listing }: { listing: Listing }) {
+  const images = listing.images.slice(0, 4);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setActiveIndex(0);
+    setFailed(false);
+  }, [listing.id]);
+
+  if (images.length <= 1 || failed) {
+    return <ListingVisual listing={listing} className="aspect-[4/3] w-full rounded-3xl" />;
+  }
+
+  return (
+    <div className="min-w-0">
+      <img
+        src={images[activeIndex]}
+        alt={`${listing.title} – Bild ${activeIndex + 1}`}
+        className="aspect-[4/3] w-full rounded-3xl object-cover"
+        onError={() => setFailed(true)}
+      />
+      <div className="mt-3 grid grid-cols-4 gap-2" aria-label="Weitere Produktfotos">
+        {images.map((image, index) => (
+          <button
+            key={`${listing.id}-image-${index}`}
+            type="button"
+            aria-label={`Bild ${index + 1} anzeigen`}
+            aria-pressed={activeIndex === index}
+            onClick={() => setActiveIndex(index)}
+            className={`overflow-hidden rounded-xl border-2 ${activeIndex === index ? "border-forest" : "border-transparent"}`}
+          >
+            <img src={image} alt="" className="aspect-[4/3] w-full object-cover" />
+          </button>
+        ))}
+      </div>
+      <p className="mt-2 text-right text-xs text-subtle">{activeIndex + 1} von {images.length} Fotos</p>
+    </div>
   );
 }
 

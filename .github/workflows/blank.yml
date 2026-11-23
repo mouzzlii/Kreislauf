@@ -7,34 +7,42 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v5
-
+        with:
+          persist-credentials: false
       - name: Node.js einrichten
         uses: actions/setup-node@v5
         with:
           node-version: 22
-
-      - name: Abhängigkeiten installieren
+      - name: Abhängigkeiten installieren und Lockfile abgleichen
         id: install
-        run: npm ci --no-audit --no-fund
-
+        run: npm install --no-audit --no-fund --fetch-retries=1 --fetch-timeout=30000
+      - name: Sichere transitive Updates auflösen
+        continue-on-error: true
+        run: npm audit fix --no-fund --fetch-retries=1 --fetch-timeout=30000
+      - name: Abhängigkeiten auf bekannte Sicherheitslücken prüfen
+        id: audit
+        run: npm audit --audit-level=high
+      - name: Router generieren und Produktions-Build prüfen
+        id: build
+        if: ${{ always() && steps.install.outcome == 'success' }}
+        run: npm run build:dev
       - name: TypeScript prüfen
         id: typecheck
+        if: ${{ always() && steps.install.outcome == 'success' && steps.build.outcome == 'success' }}
         run: npm run typecheck
-
       - name: Automatisierte Tests
         id: tests
+        if: ${{ always() && steps.install.outcome == 'success' && steps.typecheck.outcome == 'success' }}
         run: npm test
-
       - name: Code-Qualität prüfen
         if: ${{ always() && steps.install.outcome == 'success' && steps.typecheck.outcome == 'success' }}
         run: npm run lint
-
-      - name: Produktions-Build erstellen
-        if: ${{ always() && steps.install.outcome == 'success' && steps.typecheck.outcome == 'success' }}
-        run: npm run build:dev

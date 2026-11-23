@@ -4,7 +4,7 @@ import { ListingCard } from "@/components/listing-card";
 import { RegionMap } from "@/components/region-map";
 import { Shell } from "@/components/shell";
 import { getBoard } from "@/features/kreislauf/api";
-import { useKreislauf } from "@/features/kreislauf/context";
+import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import { DEFAULT_REGION, type Board } from "@/features/kreislauf/types";
 
 export const Route = createFileRoute("/karte")({
@@ -29,13 +29,16 @@ function MapPage() {
     };
   }, [hydrated, initial.region.id, regionId, version]);
 
-  const pins = board.listings.filter((listing) => listing.status !== "completed");
+  const pins = board.listings.filter((listing) => !["completed", "maintenance", "paused"].includes(listing.status));
 
   return (
     <Shell regions={board.regions}>
       <h1 className="font-display text-4xl text-fg">In der Nähe</h1>
       <p className="mt-2 max-w-xl text-muted">
         Flotte, Güter und Hilfe in {board.region.name}. G steht für Gut, H für Hilfe, F für Flotte.
+      </p>
+      <p className="mt-2 max-w-xl text-xs text-subtle">
+        Kartenpunkte sind aus Datenschutzgründen bewusst ungenau. Den genauen Treffpunkt sehen nur bestätigte Tauschparteien.
       </p>
       <div className="mt-5">
         <RegionMap region={board.region} listings={pins} />

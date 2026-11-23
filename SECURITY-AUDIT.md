@@ -1,0 +1,241 @@
+# KREISLAUF – Sicherheitsprüfung
+
+Stand: 22. November 2026  
+Prüfumfang: Repository-Zweig `demo/local-auth-off`, verbundene Supabase-Datenbank und Vercel-Projekt.
+
+## Was tatsächlich geprüft wurde
+
+- Statische Prüfung der serverseitigen Aktionen und ihrer Authentifizierungs-Middleware.
+- Prüfung der Datenbankrechte für die Rollen `anon` und `authenticated`.
+- Prüfung, ob öffentliche Datenbanktabellen Row-Level-Security verwenden.
+- Prüfung der Ausführungsrechte für Datenbankfunktionen und der Function-`search_path`-Einstellungen.
+- Supabase Security Advisor.
+- Automatisierte Projekt-, SQL-Migrations-, Typ-, Build- und Abhängigkeitstests über GitHub Actions; Ergebnisse gelten jeweils nur für den konkret geprüften Commit.
+- Quellcodeprüfung der Tausch-, Buchungs-, Nachrichten- und Treuhandabläufe.
+
+## Behobene bzw. gehärtete Punkte
+
+1. Alte Prototyp-Tabellen werden durch Migration 0009 gesperrt: RLS aktiv, alte Policies entfernt und Browser-Rechte widerrufen.
+2. Migration 0010 entzieht Standardrechte für künftig durch die App-Rolle `postgres` angelegte Tabellen, Sequenzen und Funktionen.
+3. Datenbankfunktionen erhielten feste `search_path`-Einstellungen.
+4. Direkte Tauschvorgänge sperren Inserat und beteiligte Konten vor der Buchung, um parallele Doppelabschlüsse zu verhindern.
+5. Vercel-Antworten erhalten HSTS, `X-Content-Type-Options: nosniff` und eine restriktive Referrer-Policy.
+6. Der Blob-Schlüssel ist in Vercel als Secret markiert.
+7. Better Auth wurde auf 1.7.27 aktualisiert; die generische OAuth-Anmeldung nutzt die neue Social-API. Der Popup-Endpunkt akzeptiert nur die zwei explizit konfigurierten Provider.
+8. CI prüfte den aktualisierten Abhängigkeitsbaum mit `npm audit`: **0 bekannte Schwachstellen**. Dependabot ist für wöchentliche Updates eingerichtet.
+
+## Verifizierte Datenbankbefunde
+
+- 0 öffentliche Tabellen ohne RLS.
+- 0 öffentliche Tabellen mit direkten Tabellen-Lese-/Schreibrechten für `anon` oder `authenticated`.
+- Der Chat-Rate-Limit-Trigger ist aktiv; seine Zählertabelle hat RLS und keine Lese-/Schreibrechte für Browserrollen.
+- Ein Regionswechsel kann nicht mehr unkontrolliert `profiles.region_id` ändern. Der Server sperrt die Profilzeile und lehnt einen Wechsel ab, solange kein regionaler Karma-/Ledger-Übertragungsprozess vorgesehen ist. Regressionstest im CI-Lauf `45068568745` erfolgreich.
+- Keine direkten Ausführungsrechte für öffentliche Datenbankfunktionen durch diese Browser-Rollen.
+- Supabase meldet noch INFO-Hinweise zu RLS-Tabellen ohne Policies. Das ist hier beabsichtigt, weil die App ausschließlich über serverseitige Datenbankverbindungen zugreift und Browser-Rollen keine Tabellenrechte erhalten.
+
+## Grenzen – kein bestandener externer Penetrationstest
+
+Es wurde kein Team aus 50–100 menschlichen Sicherheitsexperten beauftragt. Es fand auch kein unabhängiger externer Penetrationstest, kein Last-/DDoS-Test und kein umfassender Angriffstest gegen produktive Nutzerkonten statt. Die hier dokumentierten Ergebnisse sind automatisierte und statische Prüfungen innerhalb des verbundenen Projekts; sie sind keine Garantie, dass keine unbekannte Schwachstelle existiert.
+
+## Noch nicht für den Produktivbetrieb freigegeben
+
+- Vercel fehlt weiterhin `DATABASE_URL`. `BETTER_AUTH_URL` und ein zufällig erzeugtes `BETTER_AUTH_SECRET` sind bereits verschlüsselt in Vercel hinterlegt. Echte Authentifizierung bleibt deaktiviert, bis die Datenbankverbindung eingerichtet und mit getrennten Konten getestet ist.
+- ID Austria ist weiterhin nur ein gekennzeichneter Mock, keine echte Behördenanbindung.
+- Videoauswahl und Video-Upload sind derzeit in allen Umgebungen gesperrt. `/api/upload` antwortet absichtlich mit HTTP 503. Eine unabhängige serverseitige Prüfung der tatsächlichen Laufzeit aus der Videodatei selbst ist noch nicht implementiert. Vor Freigabe sind diese Prüfung sowie Upload-/Lösch- und Quoten-Tests erforderlich.
+- Hochwert-Treuhand bleibt nach Moderationsmehrheit absichtlich im Status `pending`; Inserat und Punkte werden nicht freigegeben, bevor beidseitige Übergabe-/Empfangsbestätigung und ein autorisierter Streitfallprozess existieren.
+- Sharing-Buchungen mit Status `disputed` können weder storniert noch über die Rückgabe abgeschlossen werden. Die Buchungs-/Inseratsstatus bleiben gesperrt, bis der Streitfall ausdrücklich geklärt ist. Regressionstest im CI-Lauf `45066586697` auf Commit `956cf525270d828ebf4514aba3cdca30ed585b5b` erfolgreich.
+- Es fehlt ein vollständiger End-to-End-Test mit mehreren echten Benutzerkonten.
+- Datenschutz, Nutzungsbedingungen und Impressum müssen rechtlich geprüft und ergänzt werden.
+
+**Freigabestatus: Nicht produktionsfreigegeben.** Erst nach Konfiguration der Authentifizierung, erfolgreichen CI- und Funktionstests sowie einem unabhängigen Penetrationstest sollte die Plattform für echte Nutzer geöffnet werden.
+
+
+## Aktuelle zusätzliche Datenbankmigrationen
+
+- `0011_limit_listing_message_rate.sql`: erster Nachrichtenlimit-Schutz.
+- `0012_atomic_listing_message_rate_limits.sql`: atomare, gegen parallele Anfragen gehärtete Zähler; auf dem verbundenen Supabase-Projekt eingespielt.
+- `0013_listing_video_urls.sql`: persistente Video-URLs pro Inserat; auf dem verbundenen Supabase-Projekt eingespielt.
+
+
+## Medien-Uploads (neuer Stand)
+
+- Das Datenmodell kann bis zu vier Video-URLs pro Inserat speichern.
+- Der Upload-Endpunkt nimmt derzeit in keiner Umgebung Dateien an. Er antwortet absichtlich mit HTTP 503, bis die tatsächliche Videodauer serverseitig aus der Datei selbst geprüft wird.
+- Die geplanten Limits bleiben 1 × 60 Sekunden, 2 × 30 Sekunden oder 4 × 20 Sekunden bei maximal 60 Sekunden Gesamtzeit.
+- Die Browser-Dauerprüfung ist nicht vertrauenswürdig und wird nicht als Sicherheitskontrolle verwendet. Eine unabhängige serverseitige Medienprüfung ist noch nicht implementiert.
+
+
+## Aktueller Entwicklungsstand Video
+
+- Migration `0013_listing_video_urls.sql` wurde auf dem verbundenen Supabase-Projekt eingespielt.
+- Der Upload-Endpunkt `/api/upload` antwortet aktuell fail-closed mit HTTP 503 in allen Umgebungen. Das verhindert, dass manipulierte Client-Metadaten für einen Upload ausreichen.
+- Der gesperrte Router-Endpunkt und die dazugehörigen Sicherheitstests wurden erfolgreich durch CI geprüft. Der Vercel-Preview-Build auf Commit `a7502d9` wurde zwar als READY markiert, der erste echte Seitenaufruf schlug jedoch beim PGLite-Start fehl (`role "anon" does not exist`). Dieser Preview-Link ist deshalb nicht als funktionierende Demo freizugeben. Der Fehler wurde im Branch mit Commit `d91b83b` durch eine PGlite-Rolleninitialisierung behoben und die CI ist erneut grün. Ein korrigierter Vercel-Preview-Build konnte wegen des Vercel-Limits von mehr als 100 Deployments pro Tag (Sperre für 24 Stunden) noch nicht erstellt werden.
+
+
+## Verifikation am 22.11.2026
+
+- GitHub Actions für Commit `a7502d931b3a0eaf288017c6be8eec353ad2c2ae`: Abhängigkeitsprüfung, Router-/Build-Prüfung, TypeScript, Tests und Lint erfolgreich.
+- `npm audit --audit-level=high` erfolgreich nach Aktualisierung der betroffenen transitiven Abhängigkeiten.
+- Vercel Preview-Deployment `dpl_FezUFzj6SXvaEmjWzn9UKR1Pedok`: Status `READY`, Branch `demo/local-auth-off`.
+- Supabase: 0 öffentliche Tabellen ohne RLS und 0 Tabellen mit direkten Browser-Lese-/Schreibrechten für `anon` oder `authenticated`.
+- Supabase Security Advisor: 23 INFO-Hinweise zu absichtlich server-only Tabellen mit RLS ohne Browser-Policies; keine neuen Browser-Tabellenrechte wurden dafür vergeben.
+
+
+## Nachträglicher Laufzeitfund und Korrektur
+
+- Der erste öffentliche Aufruf des Vercel-Preview-Builds offenbarte einen Fehler, den die vorherigen CI-Tests nicht abdeckten: PGlite hatte die Supabase-Rollen `anon`, `authenticated` und `service_role` nicht angelegt.
+- `src/lib/db-roles.ts` provisioniert diese Rollen nun idempotent vor dem Einspielen der Migrationen.
+- `src/lib/db-roles.test.ts` testet die Rolleninitialisierung einschließlich der realen Migration `0010_lock_down_default_privileges.sql`.
+- Commit `d91b83bcba144e14eb03dbdad71aadcd6e429e26`: Sicherheitsprüfung, Build, TypeScript, Tests und Lint erfolgreich.
+- Ein korrigierter Preview-Build ist inzwischen READY: Deployment `dpl_ECvvj9W7JKBFGWHu9H11vnoP4BZX`, Commit `cb117e7`, Alias `grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app`. Er enthält den aktuellen Anwendungscode mit gesperrtem Video-Endpunkt und Produktionssperre für die ID-Austria-Demo. Die späteren Dokumentations- und Datenbankindexänderungen sind nicht Bestandteil dieses Builds. Ein erfolgreicher manueller Laufzeittest der Seite wurde in dieser Umgebung nicht nachgewiesen.
+
+
+## Datenbankleistung – Migration 0014
+
+- Die Migration `foreign_key_indexes` wurde am 22.11.2026 auf dem verbundenen Supabase-Projekt eingespielt.
+- Auf dem verbundenen Projekt sind 19 zusätzliche Fremdschlüssel-Indizes vorhanden; die Performance-Prüfung meldet keine unindizierten Fremdschlüssel mehr.
+- Die Migration im Repository erstellt bei einer Neuinstallation 14 Indizes für die tatsächlich verwendeten Schema-Tabellen. Veraltete Prototyp-Tabellen wie `marketplace_items`, `rentals`, `legacy_bookings` und `transactions` sind nicht Bestandteil des sauberen Neuaufbaus.
+- Die 19 Indizes werden vom Advisor derzeit teilweise als unbenutzt gemeldet, weil noch kein echter Nutzerbetrieb mit realer Datenlast stattfindet. Sie werden deshalb nicht vorschnell entfernt.
+- Nach der Migration erneut geprüft: 0 öffentliche Tabellen ohne RLS, 0 direkte Tabellenrechte für `anon` oder `authenticated`, 19 Fremdschlüssel-Indizes.
+
+
+- `ensureProfile` legt Profil und regionale Startgutschrift jetzt in einer einzelnen SQL-Anweisung an. Dadurch können Profil und initiale Karma-Ledger-Buchung nicht durch einen Fehler zwischen zwei getrennten Statements auseinanderlaufen. Der Regressionstest läuft im CI erfolgreich; eine Live-Datenbankmigration bzw. ein produktiver DB-Test ist damit nicht belegt.
+
+## Demo-Karma-Ledger-Abgleich – Migration 0016
+
+- Bei der Quellcodeprüfung waren die sechs vorbereiteten `seed-*`-Profile nicht mit dem Netto-Saldo ihrer unveränderlichen Ledger-Einträge deckungsgleich.
+- Migration `0016_reconcile_demo_karma_ledger.sql` gleicht die Differenz durch explizite `mint`- bzw. `demurrage`-Buchungen aus. Die Profilguthaben werden nicht stillschweigend überschrieben; der Verlauf bleibt nachvollziehbar.
+- Die Migration ist gegen manuelle Wiederholung abgesichert und wurde auch in `SUPABASE-SETUP.sql` samt `_migrations`-Eintrag aufgenommen.
+- Der lokale PostgreSQL-/PGlite-Migrationstest prüft jetzt die Übereinstimmung aller Demo-Konten, die sechs erwarteten Korrekturbuchungen und die Idempotenz. GitHub Actions Lauf `45072941076`: erfolgreich.
+- Das ist ein automatisierter Test auf einer temporären Testdatenbank. Die Migration wurde dadurch nicht auf dem verbundenen Supabase-Projekt ausgeführt und ist kein Live-Datenbanknachweis.
+- Die Kontodarstellung kennzeichnet diese Korrekturbuchungen ausdrücklich als Demo-Datenabgleich und nicht fälschlich als normale Startgutschrift bzw. laufende Umlaufsicherung.
+- Vollständiger GitHub-Actions-Lauf für Commit `79a44f6439b70364bc1b83e69b489a6d3a453d50`: `45073176756` erfolgreich (Dependency-Audit ohne gemeldete Schwachstellen, Produktions-Build, TypeScript, automatisierte Tests und Lint).
+- Auch dieser Lauf prüft den Quellcode und temporäre Testdatenbanken. Er belegt weder die Ausführung von Migration 0016 auf Supabase noch einen Live-Mehrbenutzerbetrieb.
+
+
+## Karma-Ledger: Aktivitätsbuchungen
+
+Der ursprüngliche `entry_kind`-Check erlaubte `activity` nicht, obwohl Tausch- und Übergabe-Code Aktivitätsboni als diesen Typ protokolliert. Migration `0017_allow_activity_ledger_entries.sql` ergänzt den erlaubten Typ; `SUPABASE-SETUP.sql` enthält dieselbe Regel. Ein PGlite-Regressionstest prüft, dass ein Aktivitäts-Ledgereintrag angenommen wird. Ein Live-Supabase-Lauf wurde dadurch nicht nachgewiesen.
+
+
+## Sharing-Übergabe: beidseitige Bestätigung
+
+Die bisherige Übergabefunktion ließ eine einzelne Buchungspartei die Übergabe und Karma-Übertragung auslösen, obwohl die Oberfläche eine Bestätigung beider Seiten ankündigte. Die Funktion speichert nun je eine Bestätigung für Abholende und Anbietende und setzt die Buchung erst nach beiden Bestätigungen auf `handed_over`. Beide Profile werden vor der Abwicklung gesperrt; Karma, Ledger und Artikelhistorie werden in derselben SQL-Anweisung aktualisiert. Nach der ersten Bestätigung ist eine Stornierung gesperrt. Migration `0018_booking_bilateral_handover.sql` backfüllt bereits abgeschlossene Buchungen und erzwingt die Bestätigungen für abgeschlossene Status.
+
+
+## Sharing-Rückgabe: beidseitige Bestätigung
+
+Vorher konnte eine einzelne Buchungspartei eine Sharing-Rückgabe abschließen und das Inserat wieder freigeben. Die Rückgabefunktion speichert nun getrennte Bestätigungen von abholender und anbietender Partei. Erst die zweite Bestätigung setzt den Buchungsstatus auf `returned` und aktiviert das Inserat wieder. Die Datenbank erzwingt beide Zeitstempel; die PGlite-Integration führt den echten Rückgabe-SQL-Ablauf mit beiden Konten aus. Migration `0019_booking_bilateral_return.sql` backfüllt bestehende abgeschlossene Rückgaben.
+
+
+## Nachrichtenpersistenz
+
+Das Öffnen bzw. Aktualisieren einer Inserat-Unterhaltung und das Einfügen der dazugehörigen Nachricht erfolgen in einem einzigen SQL-Statement. Scheitert das Einfügen der Nachricht, wird auch die neue Unterhaltung nicht separat gespeichert. Ein Regressionstest schützt diese Atomaritätsanforderung. Dies ist eine Code-/Testabsicherung; ein Live-Test gegen die produktive Datenbank ist davon getrennt.
+
+
+## Ergänzung – 23.11.2026: Treuhand-Quorum auf Datenbankebene
+
+Migration `0020_escrow_moderator_quorum.sql` ergänzt einen zweiten Trigger auf `escrow_cases`. Der bestehende Zuweisungstrigger läuft aufgrund der alphabetischen Trigger-Reihenfolge zuerst. Der neue Trigger zählt anschließend die tatsächlichen Zeilen in `escrow_moderators` und bricht den Insert mit SQLSTATE `23514` ab, wenn weniger als vier Moderationspersonen zugewiesen wurden. Da dies innerhalb derselben Datenbankanweisung wie die Reservierung/Treuhanderöffnung geschieht, wird die gesamte Anweisung zurückgerollt.
+
+Der Clean-Install-Test deckt beide Seiten ab: drei Moderatoren führen zum Rollback; nach Hinzufügen eines vierten Moderators wird der Fall mit mindestens vier Zuweisungen angelegt. Dieselbe Regel ist in `SUPABASE-SETUP.sql` enthalten.
+
+Verifiziert auf Commit `2d064231d7458bf45b8093d7834d7e55e5124381`, GitHub Actions Lauf `45094441832`: Build, TypeScript, automatisierte Tests, Lint und Dependency-Audit erfolgreich. Dies ist ein Test in der CI-/PGlite-Umgebung, keine Ausführung der Migration auf der externen Supabase-Datenbank.
+
+
+## Ergänzung – 23.11.2026: Reservierung, Auszahlung und Streitfall bei hochwertiger Treuhand
+
+Migrationen `0021_high_value_escrow_funds.sql` und `0022_high_value_escrow_confirmation_and_disputes.sql` erweitern den bisherigen Fail-closed-Schutz:
+
+- Die Kaufpunkte werden bei der Eröffnung tatsächlich vom verfügbaren Käuferguthaben abgezogen. Die Bewegung wird als `escrow_hold` im Ledger gespeichert; die Reservierung und die Inseratssperre erfolgen atomar mit dem Treuhandfall.
+- Eine Moderationsmehrheit allein überträgt keine Punkte. Nach Freigabe müssen Käufer und Verkäufer jeweils Empfang/Übergabe bestätigen. Erst die zweite Bestätigung bucht den Betrag dem Verkäufer gut, schließt das Inserat und protokolliert die Historie.
+- Ein Streitfall kann von einer der beiden Parteien eröffnet werden. Zugewiesene, aktive und verifizierte Moderatoren entscheiden mit mindestens vier Stimmen und Zweidrittelmehrheit zwischen Auszahlung und Rückerstattung. Jede Stimme muss eine mindestens zehn Zeichen lange Begründung enthalten.
+- Auszahlung und Erstattung sind atomar mit Profilguthaben, Ledger, Inseratsstatus und Systemnachricht im zugehörigen Gespräch verknüpft.
+- Die Funktionen laufen als `SECURITY DEFINER` mit festem `search_path`; Ausführungsrechte für Browserrollen werden entzogen. Die Tabelle `escrow_resolution_votes` hat RLS aktiviert und keine direkten Browserrechte.
+- Wenn nach allen zugeteilten Stimmen keine Zweidrittelmehrheit zustande kommt, bleibt die Treuhand bewusst gesperrt. Es wird keine automatische Entscheidung erfunden; die Oberfläche weist auf die notwendige manuelle Klärung außerhalb der Plattform hin.
+- Der PGlite-Integrationstest prüft den vollständigen Ablauf einschließlich unberechtigter Akteure, einseitiger Bestätigung, Auszahlung, Streitfall-Rückerstattung und zugehöriger Systemmeldungen.
+
+GitHub Actions Lauf `45096806816` auf Commit `e11a2fb86077eb52348045350ec91f92d01621b8` war erfolgreich: Produktions-Build, TypeScript, 260 Skript-Tests, 81 zusätzliche Tests, Lint und Dependency-Audit mit 0 gemeldeten Schwachstellen. Das ist ein automatisierter Test des Repository-Codes und einer temporären PostgreSQL-kompatiblen Datenbank, kein Live-Test gegen Supabase oder Vercel.
+
+
+## Ergänzung – 23.11.2026: Medien-URL-Validierung
+
+Die Wiederverwendung gespeicherter Inseratbilder akzeptiert jetzt ausschließlich HTTPS-URLs mit einem exakten Vercel-Blob-Store-Hostname, Standardport, ohne URL-Benutzerdaten und mit dem zum angemeldeten Konto passenden Pfad. Die Tests decken lookalike-/verschachtelte Hosts, benutzerdefinierte Ports, Credentials und normalisierte Pfad-Traversal-Versuche ab.
+
+GitHub Actions Lauf `45097198523` auf Commit `fc8144441afd2cbb60182194b9f650ea241de515`: Build, TypeScript, 260 Skript-Tests, 83 zusätzliche Tests, Lint und Dependency-Audit erfolgreich; 0 bekannte Schwachstellen. Ein echter Vercel-Blob-Upload/-Löschtest ist damit nicht belegt. Video-Uploads bleiben fail-closed, bis eine serverseitige Prüfung der tatsächlichen Videodatei implementiert und Ende-zu-Ende getestet ist.
+
+
+## Ergänzung – 23.11.2026: Unabhängigkeit bei Treuhand-Streitfällen
+
+Migration `0024_independent_escrow_resolution.sql` ergänzt einen Datenbanktrigger auf `escrow_resolution_votes`. Käufer und Verkäufer dürfen nicht über ihren eigenen Streitfall abstimmen – auch dann nicht, wenn ein Parteikonto zusätzlich Moderationsrechte besitzt oder versehentlich als Moderator zugewiesen wurde. Die Prüfung erfolgt unmittelbar vor dem Einfügen jeder Streitfallstimme und kann daher nicht durch eine manipulierte Oberfläche umgangen werden.
+
+Der Regressionstest hebt für einen Testkäufer die Moderatorenrechte an, weist ihn zusätzlich dem eigenen Fall zu und erwartet, dass die Datenbank seine Abstimmung zurückweist. Die Migration ist außerdem im Supabase-Neuinstallationsskript und in den Clean-Install-Testlisten enthalten. Die Ausführung auf dem echten Supabase-Projekt und ein neuer GitHub-Actions-Lauf für diesen Commit stehen noch aus.
+
+
+Zusätzliche Prüfung: Dieselbe Datenbankregel schützt auch die anfängliche Community-Freigabe (Tabelle `escrow_votes`). Ein Käufer oder Verkäufer kann daher nicht als Moderator die erste Freigabe für die eigene Treuhand beeinflussen. Ein Regressionstest setzt den Käufer testweise auf Moderatorstatus und erwartet, dass seine eigene Stimme abgewiesen wird. Beide Trigger sind im Supabase-Neuinstallationsskript enthalten.
+
+## Ergänzung – 23.11.2026: Unabhängigkeit beider Treuhand-Abstimmungen
+
+- Migration `0024_independent_escrow_resolution.sql` installiert einen Datenbank-Trigger auf der ersten Community-Freigabe (`escrow_votes`) und einen auf der späteren Streitfallentscheidung (`escrow_resolution_votes`).
+- Beide Trigger prüfen die Käufer- und Verkäufer-IDs des zugehörigen Treuhandfalls. Eine Tauschpartei kann nicht über den eigenen Fall abstimmen, auch wenn sie zusätzlich Moderationsrechte besitzt oder fälschlich als Moderator zugeordnet wurde.
+- Der Supabase-Neuinstallations-SQL-Block enthält dieselben Trigger. Der PostgreSQL-kompatible Setup-Test prüft deren Installation und eine negative Abstimmung durch den Käufer.
+- GitHub Actions Lauf `45150174522` auf Commit `6e63a5d4df5c7f9cc3e60d9de2f77c8742545a13`: Build, TypeScript, automatisierte Tests und Lint erfolgreich; Dependency-Audit erfolgreich.
+- Diese Prüfung läuft auf einer isolierten temporären PostgreSQL-kompatiblen Testdatenbank. Sie belegt weder die Ausführung der neuen Migration auf dem verbundenen Supabase-Projekt noch einen produktiven Mehrbenutzerbetrieb.
+
+## Ergänzung – 23.11.2026: Altstimmen aus Treuhand-Abstimmungen
+
+- Prüfung der Migration 0024 ergab: Die neuen Trigger verhinderten zwar neue Stimmen von Käufer/Verkäufer, entfernten aber keine vor der Migration abgegebenen Stimmen aus den Quoren.
+- Migration `0025_archive_legacy_conflicted_escrow_votes.sql` archiviert solche Altstimmen beider Abstimmungen mit Original-ID, Fall, Rolle (Käufer/Verkäufer), Entscheidung, Begründung, Zeitstempel und damaligem Fallstatus. Anschließend werden die Stimmen aus den aktiven Abstimmungstabellen entfernt, damit sie keine Mehrheitsberechnung mehr beeinflussen.
+- Das Archiv ist RLS-geschützt und für anon, authenticated und service_role gesperrt. Es bleibt über die private Server-Datenbankverbindung für Audit-Zwecke erhalten.
+- Die Treuhandübersicht blendet Abstimmungsaktionen für Käufer und Verkäufer auch dann aus, wenn sie zusätzliche Moderatorenrechte besitzen. Die Datenbank-Trigger bleiben die maßgebliche Sicherheitsgrenze.
+- PGlite-Regressionstest simuliert vor der Migration abgegebene Stimmen in beiden Abstimmungen, prüft deren Archivierung und stellt sicher, dass sie aus den aktiven Quoren verschwinden.
+- Supabase-Clean-Install-Skript und Setup-Test enthalten Migration 0025 und das private Archiv.
+- Diese Migration ist im Repository vorbereitet. Sie wurde nicht auf dem verbundenen Supabase-Projekt ausgeführt.
+
+## Prüfstatus – 23.11.2026: Migration 0025
+
+- GitHub Actions Build-/Testlauf `45151061298` auf Commit `7d98b7597f5b3b339176dca16ad2bd8a0b63072e`: erfolgreich – Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- Separater Datenbank-Setup-Lauf `45150894502` auf Commit `2c48d6b6bdb41469c96bea304584ca0b24950d25`: erfolgreich – Clean-Install-SQL, RLS und Tabellen-/Funktionsrechte in einer temporären PostgreSQL-kompatiblen Testdatenbank.
+- Der Code-Prüflauf enthält die Regression für Altstimmen in beiden Abstimmungen. Der separate Setup-Lauf prüft die aktuelle Supabase-Neuinstallation mit Migration 0025.
+- Diese Läufe bestätigen den Repository-Code und das Clean-Install-Skript. Sie belegen nicht, dass Migrationen auf dem verbundenen Supabase-Projekt oder in einer realen Produktionsdatenbank ausgeführt wurden.
+
+
+## Ergänzung – 23.11.2026: Aktueller Branch- und Preview-Check
+
+- GitHub Actions Lauf `45165838001` auf Commit `e9f350461d772564b457d6503680928b24875c4d`: erfolgreich – Installation, Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- Vercel Preview `dpl_Fg8oFbhgRDNFrU5YidCyCmHqjMGG` für denselben Commit: Status `READY`. Die Runtime-Log-Abfrage für die letzten 30 Minuten ergab keine Warnungen oder Fehler. Das ist kein vollständiger Browser-/E2E-Test.
+- Separater Datenbank-CI-Lauf `45157497685`: erfolgreich – lokale Clean-Install-/Migrationsprüfung und Syntaxprüfung des read-only Supabase-Verifiers. Der optionale Remote-Verifier wurde mangels `SUPABASE_TEST_DATABASE_URL`-GitHub-Secret übersprungen; die entsprechenden Testprojekt-Befunde wurden separat über den Supabase-Connector geprüft.
+- **Neuer Sicherheitsfund:** `src/lib/auth/preview.ts` enthält ein gemeinsam genutztes Preview-OAuth-Client-Secret als Quellcode-Konstante. Der Wert ist damit auch in der Git-Historie vorhanden. Das ist kein akzeptabler Speicherort für ein Geheimnis. GitHub Issue [#2](https://github.com/mouzzlii/Kreislauf/issues/2) dokumentiert die erforderliche Rotation beim Betreiber des Auth-Brokers und die anschließende Umstellung auf geschützte Umgebungsvariablen. Die Rotation kann nicht allein durch dieses Repository durchgeführt werden.
+- Die persönliche Anmeldung bleibt im aktuellen Demo-Modus deaktiviert. Bis zur Rotation und erneuten Prüfung darf das veröffentlichte Preview-Secret nicht als sicher betrachtet werden. Die Produktionsfreigabe bleibt gesperrt.
+
+
+## Ergänzung – 23.11.2026: OAuth-Secret aus dem aktuellen Quellstand entfernt
+
+- In Commit `a855244` wurde die fest codierte Preview-OAuth-Secret-Konstante aus `src/lib/auth/preview.ts` entfernt.
+- In Commit `f2f8bf5` wurde `src/lib/auth/server.ts` so geändert, dass das OAuth-Client-Secret ausschließlich aus `GROK_AUTH_CLIENT_SECRET` gelesen wird. Fehlt die geschützte Umgebungsvariable, bleibt die föderierte Anmeldung deaktiviert (fail closed).
+- Die öffentliche Preview-Client-ID darf im Quellcode stehen; das dazugehörige Secret nicht.
+- **Wichtig:** Das Entfernen aus dem aktuellen Branch löscht den Wert nicht aus der Git-Historie. Die Rotation bzw. der Widerruf beim Auth-Broker bleibt zwingend. Bis der Betreiber dies bestätigt und ein neues Secret ausschließlich als geschützte Umgebungsvariable hinterlegt ist, bleibt Anmeldung deaktiviert und die Produktionsfreigabe gesperrt.
+- Die Änderungen müssen durch den vollständigen CI-Lauf und einen neuen Preview-Check verifiziert werden. Ein erfolgreicher Build ersetzt weder die Broker-Rotation noch einen OAuth-End-to-End-Test.
+
+
+## Ergänzung – Build-Nachkontrolle nach OAuth-Härtung
+
+- Vercel-Deployment `dpl_GA33Jum7NLfijAgqQ7fprhhFmcbF` für den Zwischenstand `a855244` ist fehlgeschlagen: `server.ts` importierte dort noch den inzwischen entfernten Export `PREVIEW_CLIENT_SECRET`.
+- Der unmittelbar folgende Code-Commit `f2f8bf5` hat den veralteten Import und jede Verwendung des Quellcode-Secrets entfernt. Die aktuelle Branch-Datei `src/lib/auth/server.ts` liest das Secret ausschließlich aus `GROK_AUTH_CLIENT_SECRET`.
+- GitHub Actions Läufe `45166904197` (Commit `f2f8bf5`) und `45166947670` (Dokumentationsstand `3133f1f`) sind erfolgreich: Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- Der erfolgreiche CI-Lauf ist eine Codeprüfung. Ein erfolgreicher Vercel-Preview-Build des finalen Branch-Stands muss separat bestätigt werden; das fehlgeschlagene Zwischen-Deployment wird nicht als gültige Vorschau ausgegeben.
+
+
+## OAuth-Secret-Hygiene – Nachprüfung 23.11.2026
+
+Der aktuelle Branch-HEAD `44e994b4146eca187643c9a22832f7c300401ca1` enthält einen Regressionstest gegen die erneute Aufnahme des gemeinsam genutzten Preview-OAuth-Secrets in den Quellcode. Der Test kontrolliert die Preview-Konfiguration und den Server-Auth-Pfad: Das Secret darf nur aus `GROK_AUTH_CLIENT_SECRET` zur Laufzeit gelesen werden; ohne diesen Wert bleibt die Föderation deaktiviert.
+
+GitHub Actions Lauf `45167546406` war vollständig erfolgreich (Dependency-Audit, Produktions-Build, TypeScript, Tests und Lint). Das ist eine Codeprüfung. Die frühere Veröffentlichung des Secrets in der Git-Historie bleibt ein eigenständiger Vorfall: Widerruf/Rotation durch den Auth-Broker-Betreiber ist weiterhin erforderlich. Für den aktuellen HEAD ist noch kein erfolgreicher Vercel-Preview-Build nachgewiesen.
+
+
+## Nachprüfung – 23.11.2026: Demo-Registrierung und Videogrenzen
+
+Die Better-Auth-E-Mail-/Passwort-Funktion war entgegen der Beschreibung im Modul eingeschaltet. Sie ist für den aktuellen Demo-Modus jetzt explizit deaktiviert; ein Regressionstest prüft diese Sicherheitsvorgabe. Damit werden keine persönlichen Konten vorgetäuscht, solange die Demo mit gemeinsamer Testidentität und ohne persistente Datenbank läuft.
+
+Die Videoformatvalidierung enthielt eine nicht vom Nutzer gewünschte zusätzliche 60-Sekunden-Gesamtgrenze. Sie wurde entfernt: Die vorgesehenen Grenzen sind 1 × 60 s, 2 × 30 s oder 4 × 20 s (maximal 80 s Gesamtmaterial bei vier Clips). Client-Fehlermeldung und Serverformatprüfung verwenden dieselben Regeln. Der Upload-Endpunkt bleibt weiterhin fail-closed und liefert HTTP 503, solange keine echte serverseitige Medienprüfung und sichere Speicherung implementiert sind.
+
+GitHub Actions Lauf `45169081364` für Code-Commit `eb685817f0caf943e2211c87bbd510457134648b` war erfolgreich: Dependency-Audit, Build, TypeScript, automatisierte Tests und Lint. Keine Live-Datenbankmigration und kein neuer Vercel-Deploy wurden dadurch ausgeführt.

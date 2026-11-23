@@ -1,4 +1,5 @@
 import { pendingMigrations } from "../../scripts/migration-plan.mjs";
+import { ensurePgliteRoles } from "./db-roles.ts";
 
 /** Which database backend is active. */
 export type DbSource = "neon" | "pglite";
@@ -11,15 +12,15 @@ const databaseUrl =
   rawDatabaseUrl && rawDatabaseUrl.trim() ? rawDatabaseUrl : undefined;
 
 /**
- * Active backend: real **Neon** when `DATABASE_URL` is set (deployed / configured
+ * Active backend: real PostgreSQL (currently Supabase) when `DATABASE_URL` is set (deployed / configured
  * sandbox), otherwise a local embedded **PGLite** (Postgres compiled to WASM) so
  * the app has a working database even with nothing configured — the live preview
- * included. Swap in Neon later by just setting `DATABASE_URL`; no code changes.
+ * included. A different PostgreSQL provider can be used by changing `DATABASE_URL`; no query-layer code changes are needed.
  */
 export const dbSource: DbSource = databaseUrl ? "neon" : "pglite";
 
 /**
- * Minimal shared SQL surface, satisfied by both Neon and PGLite. Both the
+ * Minimal shared SQL surface, satisfied by remote PostgreSQL and PGLite. Both the
  * tagged-template and `.query()` forms resolve to an array of row objects:
  *
  *   const sql = await getSql();
@@ -87,8 +88,8 @@ function toSql(run: Run): Sql {
 
 function createNeonSql(): Promise<Sql> {
   globalRef.__pgSqlPromise__ ??= (async () => {
-    // Regular Postgres driver: node-postgres (`pg`) — works directly with Neon's
-    // pooled endpoint. One pool per process; warm serverless instances reuse it.
+    // Regular PostgreSQL driver: node-postgres (`pg`) — works with Supabase's
+    // Session Pooler and standard PostgreSQL connection endpoints. One pool per process; warm serverless instances reuse it.
     const { Pool, types } = await import("pg");
     types.setTypeParser(OID_INT8, Number);
     types.setTypeParser(OID_DATE, identity);
@@ -106,7 +107,7 @@ function createNeonSql(): Promise<Sql> {
 }
 
 async function createPgliteSql(): Promise<Sql> {
-  // Embedded Postgres, imported on demand so it never loads on the Neon path.
+  // Embedded Postgres, imported on demand so it never loads on the remote PostgreSQL path.
   // One in-memory instance per process, shared across HMR module instances, so
   // data survives source edits (it resets on dev-server restart).
   globalRef.__pgliteInstance__ ??= (async () => {
@@ -119,6 +120,7 @@ async function createPgliteSql(): Promise<Sql> {
       },
     });
     await pg.waitReady;
+    await ensurePgliteRoles(pg);
     await pg.exec(
       "create table if not exists _migrations (name text primary key, applied_at timestamptz not null default now())",
     );
@@ -180,7 +182,7 @@ async function createSql(): Promise<Sql> {
 }
 
 /**
- * Get the shared, **server-only** SQL client. Neon when `DATABASE_URL` is set,
+ * Get the shared, **server-only** SQL client. Remote PostgreSQL (Supabase) when `DATABASE_URL` is set,
  * otherwise the local PGLite fallback. Memoized — safe to call per request.
  *
  * Schema comes from `migrations/*.sql`, auto-applied before the first query on
@@ -197,7 +199,7 @@ export function getSql(): Promise<Sql> {
 /**
  * The shared PGLite instance (preview only), with `migrations/*.sql` applied.
  * Lets Better Auth persist to the SAME embedded DB as app data in preview (via a
- * Kysely dialect). Throws when `DATABASE_URL` is set (that path uses Neon).
+ * Kysely dialect). Throws when `DATABASE_URL` is set (that path uses remote PostgreSQL).
  */
 export async function getPglite(): Promise<import("@electric-sql/pglite").PGlite> {
   if (dbSource !== "pglite") {
@@ -214,7 +216,7 @@ export async function getPglite(): Promise<import("@electric-sql/pglite").PGlite
  *
  * - **PGLite** (preview / no `DATABASE_URL`): open the in-memory DB and apply
  *   `migrations/*.sql`. Idempotent — concurrent callers share one promise.
- * - **Neon**: no-op (pool is created lazily on first query).
+ * - **Remote PostgreSQL**: no-op (pool is created lazily on first query).
  *
  * Vite `configureServer` awaits this at dev startup; production imports of this
  * module kick it off immediately (see bottom of file).

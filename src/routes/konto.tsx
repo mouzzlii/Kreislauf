@@ -2,10 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Shell } from "@/components/shell";
 import { Button, Field, fieldClass } from "@/components/ui";
-import { getBoard, getMine, updateProfile, verifyWithIdAustria } from "@/features/kreislauf/api";
-import { useKreislauf } from "@/features/kreislauf/context";
+import { getBoard, getMine, getMyListings, setListingAvailability, updateProfile, verifyWithIdAustria } from "@/features/kreislauf/api";
+import { useKreislauf } from "@/features/kreislauf/use-kreislauf";
 import { formatKarma, formatTrust, formatWhen } from "@/features/kreislauf/format";
-import { DEFAULT_REGION, type Board, type LedgerEntry, type Profile } from "@/features/kreislauf/types";
+import { DEFAULT_REGION, type Board, type LedgerEntry, type Listing, type Profile } from "@/features/kreislauf/types";
 import { UserButton } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
@@ -17,9 +17,13 @@ export const Route = createFileRoute("/konto")({
 function AccountPage() {
   const initial = Route.useLoaderData();
   const { user, isPending } = useCurrentUserState();
-  const { profile, refreshProfile, regionId, hydrated, version } = useKreislauf();
+  const { profile, refreshProfile, regionId, hydrated, version, bump } = useKreislauf();
   const [board, setBoard] = useState<Board>(initial);
   const [mine, setMine] = useState<LedgerEntry[] | null>(null);
+  const [myListings, setMyListings] = useState<Listing[] | null>(null);
+  const [listingBusy, setListingBusy] = useState<string | null>(null);
+  const [listingMessage, setListingMessage] = useState<string | null>(null);
+  const [listingLoadError, setListingLoadError] = useState(false);
   const [name, setName] = useState("");
 
   useEffect(() => {
@@ -54,7 +58,28 @@ function AccountPage() {
     return () => {
       cancel = true;
     };
-  }, [user?.id, profile?.karmaBalance]);
+  }, [user, profile?.karmaBalance]);
+
+  useEffect(() => {
+    if (!user) { setMyListings(null); return; }
+    let cancel = false;
+    getMyListings().then((items) => { if (!cancel) { setMyListings(items); setListingLoadError(false); } }).catch(() => { if (!cancel) { setMyListings([]); setListingLoadError(true); } });
+    return () => { cancel = true; };
+  }, [user, version]);
+
+  async function changeListingStatus(id: string) {
+    setListingBusy(id);
+    setListingMessage(null);
+    try {
+      const result = await setListingAvailability({ data: { id, action: "resume" } });
+      if (!result.ok) { setListingMessage(result.error ?? "Inserat konnte nicht freigegeben werden."); return; }
+      setMyListings(await getMyListings());
+      bump();
+      setListingMessage("Inserat ist wieder im Markt sichtbar.");
+    } catch (error) {
+      setListingMessage(error instanceof Error ? error.message : "Inserat konnte nicht freigegeben werden.");
+    } finally { setListingBusy(null); }
+  }
 
   const ledger = user && mine ? mine : board.ledger;
 
@@ -75,6 +100,28 @@ function AccountPage() {
           </Link>
         </div>
       )}
+
+      {user ? (
+        <section className="mt-8">
+          <h2 className="font-display text-2xl text-fg">Meine Inserate</h2>
+          <p className="mt-1 text-sm text-subtle">Pausierte Inserate sind für andere nicht mehr aufrufbar. Du kannst sie hier wieder freigeben.</p>
+          <ul className="mt-4 space-y-3">
+            {myListings === null ? <li className="rounded-2xl border border-line bg-elev p-4 text-sm text-muted">Inserate werden geladen…</li> : null}
+            {myListings !== null && listingLoadError ? <li className="rounded-2xl border border-line bg-elev p-4 text-sm text-muted">Deine Inserate konnten nicht geladen werden. Bitte versuche es später erneut.</li> : null}
+            {myListings !== null && !listingLoadError && myListings.length === 0 ? <li className="rounded-2xl border border-line bg-elev p-4 text-sm text-muted">Du hast noch keine Inserate.</li> : null}
+            {myListings?.map((listing) => (
+              <li key={listing.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-elev p-4">
+                <div className="min-w-0">
+                  <p className="font-medium text-fg">{listing.title}</p>
+                  <p className="mt-1 text-xs text-subtle">{listing.status === "paused" ? "Pausiert" : listing.status === "active" ? "Aktiv" : listing.status === "booked" ? "Angefragt / gebucht" : "Abgeschlossen"}</p>
+                </div>
+                {listing.status === "paused" ? <Button disabled={listingBusy === listing.id} onClick={() => void changeListingStatus(listing.id)}>{listingBusy === listing.id ? "Wird freigegeben…" : "Wieder freigeben"}</Button> : <Link to="/inserat/$listingId" params={{ listingId: listing.id }} className="text-sm text-forest underline-offset-4 hover:underline">Inserat öffnen</Link>}
+              </li>
+            ))}
+          </ul>
+          {listingMessage ? <p className="mt-3 text-sm text-muted" role="status">{listingMessage}</p> : null}
+        </section>
+      ) : null}
 
       <section className="mt-8">
         <h2 className="font-display text-2xl text-fg">{user ? "Deine Bewegungen" : "Letzter Umlauf"}</h2>
@@ -165,9 +212,10 @@ function AccountBody({
               );
             }}
           >
-            Standort teilen
+            Standort für Umkreissuche setzen
           </Button>
         </div>
+        <p className="text-xs text-subtle">Dein genauer Standort bleibt in deinem privaten Profil. Öffentliche Kartenpunkte werden absichtlich verschoben und gerundet.</p>
         {note ? <p className="text-sm text-muted">{note}</p> : null}
       </form>
     </div>
@@ -194,8 +242,10 @@ function IdAustriaVerification({ refreshProfile }: { refreshProfile: () => Promi
 }
 
 function LedgerRow({ entry }: { entry: LedgerEntry }) {
-  const who =
-    entry.entryKind === "mint"
+  const isDemoAdjustment = entry.message === "Demo-Kontostand-Abgleich 0016";
+  const who = isDemoAdjustment
+    ? "Korrektur der vorbereiteten Demo-Daten"
+    : entry.entryKind === "mint"
       ? `Startguthaben an ${entry.receiverName ?? "Mitglied"}`
       : entry.entryKind === "demurrage"
         ? `${entry.senderName ?? "Mitglied"} an die Umlaufsicherung`
