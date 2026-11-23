@@ -513,6 +513,15 @@ test("notification bell refreshes on foreground and avoids hidden-tab polling", 
   assert.match(shell, /window\.setInterval\(refresh, 30_000\)/);
 });
 
+test("switching listing conversation clears the previous participant messages", () => {
+  const effectStart = listingConversation.indexOf("const requesterId =");
+  const messageEffectStart = listingConversation.indexOf("useEffect(() => {", effectStart);
+  const messageEffectEnd = listingConversation.indexOf("\n  }, [currentUserId, listingId, requesterId]);", messageEffectStart);
+  const messageEffect = listingConversation.slice(messageEffectStart, messageEffectEnd);
+  assert.match(messageEffect, /setMessages\(\[\]\)/);
+  assert.ok(messageEffect.indexOf("setMessages([])") < messageEffect.indexOf("getListingMessages("));
+});
+
 test("listing conversations refresh immediately when the app becomes visible", () => {
   assert.equal((listingConversation.match(/document\.addEventListener\("visibilitychange", refresh\)/g) ?? []).length, 2);
   assert.equal((listingConversation.match(/document\.removeEventListener\("visibilitychange", refresh\)/g) ?? []).length, 2);
