@@ -1221,10 +1221,14 @@ export const addReview = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<ActionResult> => {
     const sql = await getSql();
     const parties = await sql.query<{ seller: string; buyer: string }>(
-      `select receiver_id as seller, sender_id as buyer
+      `select seller_id as seller, buyer_id as buyer
+       from escrow_cases
+       where listing_id = $1 and funds_status = 'released'
+       union all
+       select receiver_id as seller, sender_id as buyer
        from ledger_entries
-       where listing_id = $1 and entry_kind in ('transfer','escrow_release') and sender_id is not null and receiver_id is not null
-       order by id desc
+       where listing_id = $1 and entry_kind = 'transfer'
+         and sender_id is not null and receiver_id is not null
        limit 1`,
       [data.id],
     );
