@@ -216,7 +216,7 @@ async function reserveDailyDebate(commentId) {
         marker,
         `KI-Team-Relay Tageskontingent reserviert: ${used + 1}/${MAX_DAILY_DEBATES} Debatten am ${date} (UTC).`,
         "Dies begrenzt die Zahl der Aufrufe, ersetzt aber keine USD-Ausgabenlimits bei den API-Anbietern.",
-      ].join("\\n\\n"),
+      ].join("\n\n"),
     }),
   });
   return true;
@@ -292,7 +292,7 @@ async function main() {
     await githubRequest(`issues/${issue.number}/comments`, {
       method: "POST",
       body: JSON.stringify({
-        body: [marker, "### KI-Team-Relay Tageslimit erreicht", "Das feste Tageskontingent von zwei Debatten (UTC) ist ausgeschöpft. Es wurde kein KI-Provider aufgerufen."].join("\\n\\n"),
+        body: [marker, "### KI-Team-Relay Tageslimit erreicht", "Das feste Tageskontingent von zwei Debatten (UTC) ist ausgeschöpft. Es wurde kein KI-Provider aufgerufen."].join("\n\n"),
       }),
     });
     return;
