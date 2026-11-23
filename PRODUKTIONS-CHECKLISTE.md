@@ -286,3 +286,15 @@ Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt 
 - [ ] Der HTTP-200-Seitentest ersetzt keinen vollständigen Browser-/Android-E2E-Test, keinen Kamera-Test und keinen Test mit zwei getrennten Konten.
 - [ ] Die Preview ist weiterhin keine produktionsreife Mehrbenutzerplattform: PGLite läuft im Arbeitsspeicher, persönliche Konten bleiben deaktiviert, Video-Uploads bleiben gesperrt und ID Austria ist nur simuliert.
 - [ ] OAuth-Secret-Rotation beim Auth-Broker bleibt offen (siehe [Issue #2](https://github.com/mouzzlii/Kreislauf/issues/2)). Keine Produktionsfreigabe, kein Merge von PR #1 und keine Änderung am ursprünglichen Supabase-Projekt.
+
+
+## Nachprüfung – aktueller Dokumentations- und Preview-Stand
+
+- [x] Aktueller Branch-HEAD: `eb56b06eee7164e5ffb1a6e4ee9134f852e6974c`.
+- [x] GitHub Actions Lauf `45229213574` für genau diesen Commit erfolgreich: Dependency-Install/Lockfile, Security-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- [x] Vercel-Preview `dpl_Bf9ACdT3uLA1V9guppeD1G4Uwc5P` für genau diesen Commit: `READY`; Alias `https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/`.
+- [x] HTTP 200 auf dem aktuellen Alias für Startseite, Karte, Inserat-Erstellung, Konto und Beispiel-Inserat.
+- [x] Vercel-Runtime-Logs für das 30-Minuten-Fenster nach Bereitstellung: keine Einträge gefunden.
+- [x] Supabase-Anleitung auf Testprojekt-first umgestellt: Schema-Setup nur im separaten `kreislauf-test`; das ursprüngliche Supabase-Projekt darf nicht ohne Sicherung, gesonderte Prüfung und ausdrückliche Freigabe verändert werden.
+- [x] OAuth-Hinweis korrigiert: das Secret ist im aktuellen Quellstand entfernt, muss aber wegen der früheren Git-Historie weiterhin beim Auth-Broker widerrufen/rotiert werden.
+- [ ] Kein vollständiger interaktiver Android-/Kamera-/Mehrbenutzer-E2E-Test; kein Produktionsstart, kein Merge von PR #1 und keine Änderung am ursprünglichen Supabase-Projekt.
