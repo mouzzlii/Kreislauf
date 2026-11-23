@@ -455,6 +455,8 @@ test("sharing return and listing reactivation require both booking parties", () 
 test("listing messages and their conversation are persisted in one SQL statement", () => {
   const send = serverFunction("sendListingMessage");
   assert.match(send, /with conversation as \([\s\S]*insert into listing_conversations/);
+  assert.match(send, /where l\.id = \$2 and l\.user_id = \$4[\s\S]*l\.status = 'active'[\s\S]*from listing_conversations existing/);
+  assert.match(send, /for update[\s\S]*on conflict \(listing_id, requester_id\)/);
   assert.match(send, /on conflict \(listing_id, requester_id\)[\s\S]*do update set updated_at = now\(\)/);
   assert.match(send, /message as \([\s\S]*insert into listing_messages[\s\S]*from conversation/);
   assert.match(send, /if \(!inserted\.length\) return fail\("Nachricht konnte nicht gespeichert werden\."/);
