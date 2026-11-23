@@ -48,9 +48,10 @@ Die API-Schlüssel sind nicht in dieser Sitzung vorhanden und dürfen nicht im C
 `Settings → Secrets and variables → Actions`
 
 geeignete Secrets eingerichtet werden:
+- `OPENAI_API_KEY`
 - `GEMINI_API_KEY`
 - `XAI_API_KEY`
-- optional `OPENAI_API_KEY`
+- `AI_TEAM_REPO_READ_TOKEN`
 
 Zusätzlich müssen die jeweils aktuell unterstützten Modellkennungen als nicht geheime Variablen konfiguriert werden, zum Beispiel:
 - `GEMINI_MODEL`
@@ -78,6 +79,15 @@ Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen an
 - `PROJECT_REPO_SCAN_PROFIT` (erst nach Identifikation des kanonischen Repositories setzen)
 
 Der Relay lädt zu jeder Debatte das README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Daten werden ausdrücklich als nicht vertrauenswürdiger Kontext behandelt.
+
+## Repository-Zuordnung als Actions-Variablen
+
+- `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf` (Standardwert bereits hinterlegt)
+- `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS` (Standardwert bereits hinterlegt)
+- `PROJECT_REPO_TRAKUNA` (erst nach Bestätigung des kanonischen Repositories setzen)
+- `PROJECT_REPO_SCAN_PROFIT` (erst nach Identifikation des kanonischen Repositories setzen)
+
+Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
 
 ## Noch offene Voraussetzungen
 
