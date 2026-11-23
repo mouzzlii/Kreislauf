@@ -1,0 +1,56 @@
+name: KI-Team-Relay CI
+# Checks the configured canonical repositories, explicit provider models, and bounded daily usage.
+
+on:
+  push:
+    branches:
+      - chore/ai-team-communication-foundation
+    paths:
+      - "scripts/ai-team-relay.mjs"
+      - "scripts/ai-team-relay.test.mjs"
+      - ".github/workflows/ai-team-communication.yml"
+      - ".github/workflows/ai-team-relay-ci.yml"
+      - "AI_TEAM_SETUP.md"
+  pull_request:
+    paths:
+      - "scripts/ai-team-relay.mjs"
+      - "scripts/ai-team-relay.test.mjs"
+      - ".github/workflows/ai-team-communication.yml"
+      - ".github/workflows/ai-team-relay-ci.yml"
+      - "AI_TEAM_SETUP.md"
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-and-parser-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: node --check scripts/ai-team-relay.mjs
+      - name: Test command parser
+        run: node scripts/ai-team-relay.test.mjs
+      - name: Verify safe project mapping and daily cap
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { readFileSync } from "node:fs";
+          const source = readFileSync("scripts/ai-team-relay.mjs", "utf8");
+          const setup = readFileSync("AI_TEAM_SETUP.md", "utf8");
+          const workflow = readFileSync(".github/workflows/ai-team-communication.yml", "utf8");
+          assert.ok(source.includes('TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway"'));
+          assert.ok(source.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
+          assert.ok(source.includes("MAX_DAILY_DEBATES = 2"));
+          assert.ok(source.includes("reserveDailyDebate(comment.id)"));
+          assert.ok(source.includes("KI-Team-Debatte abgebrochen"));
+          assert.ok(source.includes("Fehlerphase: ${phase}"));
+          assert.ok(source.includes("Tageskontingent bleibt verbraucht"));
+          assert.ok(source.includes("issues/11/comments?per_page=100&sort=created&direction=desc"));
+          assert.ok(workflow.includes("group: ai-team-global-budget"));
+          assert.ok(setup.includes("Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag"));
+          console.log("Project mapping and daily invocation cap verified.");
+          NODE

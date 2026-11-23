@@ -1,0 +1,55 @@
+name: KI-Team-Kommunikation
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: ai-team-global-budget
+  cancel-in-progress: false
+
+jobs:
+  debate:
+    if: >-
+      github.event.issue.pull_request == null &&
+      github.event.issue.number == 11 &&
+      github.event.comment.user.type != 'Bot' &&
+      startsWith(github.event.comment.body, '/ai-team debate ')
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout coordination scripts
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check relay script syntax
+        run: node --check scripts/ai-team-relay.mjs
+
+      - name: Run bounded multi-agent debate
+        run: node scripts/ai-team-relay.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          AI_TEAM_REPO_READ_TOKEN: ${{ secrets.AI_TEAM_REPO_READ_TOKEN }}
+          AI_TEAM_BUDGET_CONFIRMED: ${{ vars.AI_TEAM_BUDGET_CONFIRMED }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          XAI_MODEL: ${{ vars.XAI_MODEL }}
+          AI_TEAM_ALLOWED_USERS: ${{ vars.AI_TEAM_ALLOWED_USERS }}
+          PROJECT_REPO_KREISLAUF: ${{ vars.PROJECT_REPO_KREISLAUF }}
+          PROJECT_REPO_TRAKUNA: ${{ vars.PROJECT_REPO_TRAKUNA }}
+          PROJECT_REPO_TRAKUNA_ANDROID: ${{ vars.PROJECT_REPO_TRAKUNA_ANDROID }}
+          PROJECT_REPO_SCAN_PROFIT: ${{ vars.PROJECT_REPO_SCAN_PROFIT }}
+          PROJECT_REPO_CHRONOS: ${{ vars.PROJECT_REPO_CHRONOS }}

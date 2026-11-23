@@ -6,9 +6,9 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import {
   appNameFromHost,
-  createHeadInjector,
+  createHeadInjector as createHeadInjectorImpl,
   grokXCreatorHeadTags,
-  injectGrokPwaHead,
+  injectGrokPwaHead as injectGrokPwaHeadImpl,
   isDocumentPath,
   isInstallQuery,
   publicAppHost,
@@ -18,6 +18,16 @@ import {
   stripInstallParams,
 } from "./grok-pwa-shared.mjs";
 import { renderInstallPage } from "./grok-pwa-plugin.mjs";
+
+// Keep tests independent of the repository's real src/lib/og/site.json.
+// Tests that need a baked site pass it explicitly; disk-card tests still use cwd.
+function injectGrokPwaHead(html, ctx = {}) {
+  return injectGrokPwaHeadImpl(html, { site: {}, cwd: mkdtempSync(join(tmpdir(), "grok-test-cwd-")), ...ctx });
+}
+
+function createHeadInjector(ctx = {}) {
+  return createHeadInjectorImpl({ site: {}, cwd: mkdtempSync(join(tmpdir(), "grok-stream-test-cwd-")), ...ctx });
+}
 
 const TEMPLATE_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -306,6 +316,7 @@ test("emits og:image for a public host and prefers a custom card", () => {
   const placeholder = injectGrokPwaHead("<html><head></head></html>", {
     appName: "Wild Race",
     host: "wild-race.grok.me",
+    cwd: mkdtempSync(join(tmpdir(), "grok-og-placeholder-empty-")),
     site: { title: "Wild Race" },
   });
   assert.match(
@@ -326,6 +337,7 @@ test("emits og:image for a public host and prefers a custom card", () => {
 test("placeholder og:image appends site.color when it is 6-digit hex", () => {
   const themed = injectGrokPwaHead("<html><head></head></html>", {
     host: "wild-race.grok.me",
+    cwd: mkdtempSync(join(tmpdir(), "grok-og-color-empty-")),
     site: { title: "Wild Race", color: "#FF4D2E" },
   });
   assert.match(
