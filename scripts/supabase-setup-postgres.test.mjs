@@ -36,6 +36,10 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
       "select count(*)::int as count from pg_trigger where tgname = 'escrow_resolution_vote_independent' and not tgisinternal",
     );
     assert.equal(independentVoteTrigger.rows[0].count, 1, "the independent dispute-vote trigger must be active");
+    const independentApprovalTrigger = await db.query(
+      "select count(*)::int as count from pg_trigger where tgname = 'escrow_approval_vote_independent' and not tgisinternal",
+    );
+    assert.equal(independentApprovalTrigger.rows[0].count, 1, "the independent approval-vote trigger must be active");
 
     const access = await db.query(`
       select
