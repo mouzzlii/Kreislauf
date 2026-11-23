@@ -401,7 +401,7 @@ export const touchActivity = createServerFn({ method: "POST" })
   .handler(async ({ context }): Promise<void> => {
     const sql = await getSql();
     await sql.query(
-      "update profiles set last_active_at = now() where user_id = $1",
+      "update profiles set last_active_at = now() where user_id = $1 and (last_active_at is null or last_active_at < now() - interval '5 minutes')",
       [context.userId],
     );
   });
