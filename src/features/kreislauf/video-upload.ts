@@ -41,7 +41,7 @@ export function validateListingVideoSet(
   const result = checkVideoDurations(preset, parsed);
   if (!result.ok) {
     const limit = VIDEO_PRESETS[preset];
-    throw new Error(`Videoauswahl überschreitet das gewählte Format (max. ${limit.maxEachSeconds} Sekunden je Clip und 60 Sekunden gesamt)`);
+    throw new Error(`Videoauswahl überschreitet das gewählte Format (max. ${limit.maxFiles} Clips mit je ${limit.maxEachSeconds} Sekunden)`);
   }
   return parsed;
 }
