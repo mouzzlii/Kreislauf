@@ -48,8 +48,18 @@ function textFromOpenAI(data) {
   return data.choices?.[0]?.message?.content?.trim() || "";
 }
 
+function textFromResponses(data) {
+  return (data.output || [])
+    .filter((item) => item.type === "message")
+    .flatMap((item) => item.content || [])
+    .filter((part) => part.type === "output_text" || part.type === "text")
+    .map((part) => part.text || "")
+    .join("\\n")
+    .trim();
+}
+
 async function askOpenAI(instructions, input) {
-  const data = await api("https://api.openai.com/v1/chat/completions", {
+  const data = await api("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${OPENAI_API_KEY}`,
@@ -57,14 +67,13 @@ async function askOpenAI(instructions, input) {
     },
     body: JSON.stringify({
       model: OPENAI_MODEL,
-      messages: [
-        { role: "system", content: instructions },
-        { role: "user", content: input },
-      ],
-      max_completion_tokens: MAX_OUTPUT_TOKENS,
+      instructions,
+      input,
+      max_output_tokens: MAX_OUTPUT_TOKENS,
+      store: false,
     }),
   });
-  const output = textFromOpenAI(data);
+  const output = textFromResponses(data);
   if (!output) throw new Error("OpenAI returned an empty response.");
   return output;
 }
@@ -94,7 +103,7 @@ async function askGemini(instructions, input) {
 }
 
 async function askGrok(instructions, input) {
-  const data = await api("https://api.x.ai/v1/chat/completions", {
+  const data = await api("https://api.x.ai/v1/responses", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${XAI_API_KEY}`,
@@ -102,14 +111,13 @@ async function askGrok(instructions, input) {
     },
     body: JSON.stringify({
       model: XAI_MODEL,
-      messages: [
-        { role: "system", content: instructions },
-        { role: "user", content: input },
-      ],
-      max_tokens: MAX_OUTPUT_TOKENS,
+      instructions,
+      input,
+      max_output_tokens: MAX_OUTPUT_TOKENS,
+      store: false,
     }),
   });
-  const output = textFromOpenAI(data);
+  const output = textFromResponses(data);
   if (!output) throw new Error("Grok returned an empty response.");
   return output;
 }
