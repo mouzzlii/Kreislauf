@@ -162,3 +162,10 @@ GitHub Actions Lauf `45096806816` auf Commit `e11a2fb86077eb52348045350ec91f92d0
 Die Wiederverwendung gespeicherter Inseratbilder akzeptiert jetzt ausschließlich HTTPS-URLs mit einem exakten Vercel-Blob-Store-Hostname, Standardport, ohne URL-Benutzerdaten und mit dem zum angemeldeten Konto passenden Pfad. Die Tests decken lookalike-/verschachtelte Hosts, benutzerdefinierte Ports, Credentials und normalisierte Pfad-Traversal-Versuche ab.
 
 GitHub Actions Lauf `45097198523` auf Commit `fc8144441afd2cbb60182194b9f650ea241de515`: Build, TypeScript, 260 Skript-Tests, 83 zusätzliche Tests, Lint und Dependency-Audit erfolgreich; 0 bekannte Schwachstellen. Ein echter Vercel-Blob-Upload/-Löschtest ist damit nicht belegt. Video-Uploads bleiben fail-closed, bis eine serverseitige Prüfung der tatsächlichen Videodatei implementiert und Ende-zu-Ende getestet ist.
+
+
+## Ergänzung – 23.11.2026: Unabhängigkeit bei Treuhand-Streitfällen
+
+Migration `0024_independent_escrow_resolution.sql` ergänzt einen Datenbanktrigger auf `escrow_resolution_votes`. Käufer und Verkäufer dürfen nicht über ihren eigenen Streitfall abstimmen – auch dann nicht, wenn ein Parteikonto zusätzlich Moderationsrechte besitzt oder versehentlich als Moderator zugewiesen wurde. Die Prüfung erfolgt unmittelbar vor dem Einfügen jeder Streitfallstimme und kann daher nicht durch eine manipulierte Oberfläche umgangen werden.
+
+Der Regressionstest hebt für einen Testkäufer die Moderatorenrechte an, weist ihn zusätzlich dem eigenen Fall zu und erwartet, dass die Datenbank seine Abstimmung zurückweist. Die Migration ist außerdem im Supabase-Neuinstallationsskript und in den Clean-Install-Testlisten enthalten. Die Ausführung auf dem echten Supabase-Projekt und ein neuer GitHub-Actions-Lauf für diesen Commit stehen noch aus.
