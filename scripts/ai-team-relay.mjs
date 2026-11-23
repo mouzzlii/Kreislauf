@@ -205,8 +205,30 @@ const MAX_DAILY_DEBATES = 2;
 async function reserveDailyDebate(commentId) {
   const date = new Date().toISOString().slice(0, 10);
   const prefix = `<!-- ai-team-daily-budget:${date}:`;
-  const comments = await githubRequest("issues/11/comments?per_page=100&sort=created&direction=desc");
-  const used = comments.filter((item) => item.body?.includes(prefix)).length;
+  let used = 0;
+  let page = 1;
+  while (page <= 10) {
+    const comments = await githubRequest(
+      `issues/11/comments?per_page=100&sort=created&direction=desc&page=${page}`,
+    );
+    if (!Array.isArray(comments)) {
+      throw new Error("Daily budget ledger returned an invalid response; refusing provider calls.");
+    }
+    let reachedOlderDate = false;
+    for (const item of comments) {
+      const createdDate = item.created_at?.slice(0, 10);
+      if (createdDate && createdDate < date) {
+        reachedOlderDate = true;
+        break;
+      }
+      if (createdDate === date && item.body?.includes(prefix)) used += 1;
+    }
+    if (reachedOlderDate || comments.length < 100) break;
+    page += 1;
+  }
+  if (page > 10) {
+    throw new Error("Daily budget ledger exceeded 1000 comments; refusing provider calls.");
+  }
   if (used >= MAX_DAILY_DEBATES) return false;
 
   const marker = `${prefix}${commentId} -->`;
