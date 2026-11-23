@@ -329,6 +329,7 @@ async function main() {
     !OPENAI_API_KEY && "OPENAI_API_KEY",
     !GEMINI_API_KEY && "GEMINI_API_KEY",
     !XAI_API_KEY && "XAI_API_KEY",
+    !AI_TEAM_REPO_READ_TOKEN && "AI_TEAM_REPO_READ_TOKEN",
   ].filter(Boolean);
   const missingModels = [
     !OPENAI_MODEL && "OPENAI_MODEL",

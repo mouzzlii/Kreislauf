@@ -44,6 +44,7 @@ jobs:
           const workflow = readFileSync(".github/workflows/ai-team-communication.yml", "utf8");
           assert.ok(source.includes('TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway"'));
           assert.ok(source.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
+          assert.ok(source.includes('!AI_TEAM_REPO_READ_TOKEN && "AI_TEAM_REPO_READ_TOKEN"'));
           assert.ok(source.includes("MAX_DAILY_DEBATES = 2"));
           assert.ok(source.includes("reserveDailyDebate(comment.id)"));
           assert.ok(source.includes("KI-Team-Debatte abgebrochen"));

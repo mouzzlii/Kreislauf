@@ -77,7 +77,7 @@ Es sind bewusst keine Modellkennungen vorgegeben: Verfügbare IDs ändern sich j
 - `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS`
 - `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT` – privates Repository für den aktuellen 2.0.66-Projektstand. Der eigenständige 2.0.66-App-Einstieg, PWA-Manifest, Service Worker, App-Symbole und CI-Prüfworkflow sind eingespielt. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; bis dahin darf die Relay-Kontextanalyse nicht als vollständige Quellcodeprüfung ausgegeben werden.
 
-Der Relay lädt README und maximal 100 Dateipfade je zugeordnetem Repository. Für TRAKUNA werden Koordinations- und Android-Quellrepository gemeinsam geladen. Für SCAN-PROFIT ist das Repository zwar zugeordnet, aber die vollständige 2.0.66-Anwendung muss noch importiert werden; bis dahin darf die Kontextanalyse nicht als vollständige Quellcodeprüfung gelten. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
+Der Relay lädt README und maximal 100 Dateipfade je zugeordnetem Repository. Für TRAKUNA werden Koordinations- und Android-Quellrepository gemeinsam geladen. Für SCAN-PROFIT ist das Repository zwar zugeordnet, aber die vollständige 2.0.66-Anwendung muss noch importiert werden; bis dahin darf die Kontextanalyse nicht als vollständige Quellcodeprüfung gelten. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlt AI_TEAM_REPO_READ_TOKEN, bricht der Relay vor jedem Provider-Aufruf fail-closed ab. Damit wird verhindert, dass eine angeblich projektbezogene Debatte ohne den freigegebenen Repository-Kontext startet.
 
 ## Noch offene Voraussetzungen
 
