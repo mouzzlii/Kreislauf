@@ -1746,7 +1746,7 @@ export const getEscrowSummary = createServerFn({ method: "GET" })
     return {
       status: asString(current.status, "pending") as EscrowSummary["status"],
       votes, approvals, rejections, assigned,
-      canVote: assignment.length > 0 && ownVote.length === 0 && current.status === "pending"
+      canVote: !isBuyer && !isSeller && assignment.length > 0 && ownVote.length === 0 && current.status === "pending"
         && !(votes >= 4 && (approvals >= Math.ceil(votes * 2 / 3) || rejections >= Math.ceil(votes * 2 / 3))),
       hasVoted: ownVote.length > 0,
       buyerId: current.buyerId == null ? null : asString(current.buyerId),
@@ -1764,7 +1764,7 @@ export const getEscrowSummary = createServerFn({ method: "GET" })
       resolutionVotes: asNumber(resolution.votes),
       resolutionReleases: asNumber(resolution.releases),
       resolutionRefunds: asNumber(resolution.refunds),
-      canResolve: assignment.length > 0 && ownResolutionVote.length === 0 && current.status === "disputed"
+      canResolve: !isBuyer && !isSeller && assignment.length > 0 && ownResolutionVote.length === 0 && current.status === "disputed"
         && current.fundsStatus === "held",
       hasResolutionVote: ownResolutionVote.length > 0,
     };
