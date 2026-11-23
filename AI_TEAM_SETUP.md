@@ -76,13 +76,13 @@ Es sind bewusst keine Modellkennungen vorgegeben: Verfügbare IDs ändern sich j
 - `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf`
 - `PROJECT_REPO_TRAKUNA=mouzzlii/Fuck` – maßgebliches TRAKUNA-Repository; `multi-carrier-gateway-neu` bleibt ein separates Experiment und darf nicht als kanonische Quelle verwendet werden.
 - `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS`
-- `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT` – privates Repository für den aktuellen 2.0.60-Projektstand. Der eigenständige 2.0.60-App-Einstieg, PWA-Manifest, Service Worker, App-Symbol und CI-Prüfworkflow sind eingespielt. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; bis dahin darf die Relay-Kontextanalyse nicht als vollständige Quellcodeprüfung ausgegeben werden.
+- `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT` – privates Repository für den aktuellen 2.0.64-Prüfarchivstand. Der eigenständige App-Einstieg, PWA-Manifest, Service Worker, App-Symbol und CI-Prüfworkflow sind eingespielt. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; bis dahin darf die Relay-Kontextanalyse nicht als vollständige Quellcodeprüfung ausgegeben werden.
 
-Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
+Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlendes oder nicht leseberechtigtes `AI_TEAM_REPO_READ_TOKEN` verhindert den Provider-Aufruf bereits vor dem Start; ohne verifizierbaren Projektkontext findet keine KI-Debatte statt.
 
 ## Noch offene Voraussetzungen
 
-- [x] SCAN-PROFIT: privates Repository `mouzzlii/SCAN-PROFIT` angelegt und in der Relay-Konfiguration als Standard zugeordnet. Der eigenständige 2.0.60-App-Einstieg, PWA-Manifest, Service Worker, App-Symbol und CI-Prüfworkflow sind eingespielt. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; dies bleibt ein separater Quellcode-Migrationspunkt.
+- [x] SCAN-PROFIT: privates Repository `mouzzlii/SCAN-PROFIT` angelegt und in der Relay-Konfiguration als Standard zugeordnet. Das vollständige 2.0.64-Prüfarchiv wurde lokal geprüft (153/153 Tests, statischer Build und Smoke-Test erfolgreich), ist aber noch nicht vollständig in GitHub importiert. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; dies bleibt ein separater Quellcode-Migrationspunkt.
 - [x] TRAKUNA: `mouzzlii/Fuck` als maßgebliches TRAKUNA-Repository aus dem aktuellen Repository-Abgleich festgelegt; das Gateway-Experiment bleibt getrennt.
 - [ ] Kontoinhaber richtet die drei Provider-API-Schlüssel und `AI_TEAM_REPO_READ_TOKEN` als GitHub Actions Secrets ein.
 - [x] Technischer Tagesdeckel von maximal zwei Debatten pro UTC-Tag, mit zentralem Ledger in Issue #11 und global serialisierten Relay-Läufen. Der Ledger liest die neuesten Kommentare zuerst; dies begrenzt Aufrufzahlen, ist aber keine USD-Kostenobergrenze.
