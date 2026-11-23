@@ -29,7 +29,6 @@ const migrations = [
   "0020_escrow_moderator_quorum.sql",
   "0021_high_value_escrow_funds.sql",
   "0022_high_value_escrow_confirmation_and_disputes.sql",
-  "0022_high_value_escrow_confirmation_and_disputes.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
