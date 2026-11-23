@@ -206,3 +206,12 @@ Zusätzliche Prüfung: Dieselbe Datenbankregel schützt auch die anfängliche Co
 - Separater Datenbank-CI-Lauf `45157497685`: erfolgreich – lokale Clean-Install-/Migrationsprüfung und Syntaxprüfung des read-only Supabase-Verifiers. Der optionale Remote-Verifier wurde mangels `SUPABASE_TEST_DATABASE_URL`-GitHub-Secret übersprungen; die entsprechenden Testprojekt-Befunde wurden separat über den Supabase-Connector geprüft.
 - **Neuer Sicherheitsfund:** `src/lib/auth/preview.ts` enthält ein gemeinsam genutztes Preview-OAuth-Client-Secret als Quellcode-Konstante. Der Wert ist damit auch in der Git-Historie vorhanden. Das ist kein akzeptabler Speicherort für ein Geheimnis. GitHub Issue [#2](https://github.com/mouzzlii/Kreislauf/issues/2) dokumentiert die erforderliche Rotation beim Betreiber des Auth-Brokers und die anschließende Umstellung auf geschützte Umgebungsvariablen. Die Rotation kann nicht allein durch dieses Repository durchgeführt werden.
 - Die persönliche Anmeldung bleibt im aktuellen Demo-Modus deaktiviert. Bis zur Rotation und erneuten Prüfung darf das veröffentlichte Preview-Secret nicht als sicher betrachtet werden. Die Produktionsfreigabe bleibt gesperrt.
+
+
+## Ergänzung – 23.11.2026: OAuth-Secret aus dem aktuellen Quellstand entfernt
+
+- In Commit `a855244` wurde die fest codierte Preview-OAuth-Secret-Konstante aus `src/lib/auth/preview.ts` entfernt.
+- In Commit `f2f8bf5` wurde `src/lib/auth/server.ts` so geändert, dass das OAuth-Client-Secret ausschließlich aus `GROK_AUTH_CLIENT_SECRET` gelesen wird. Fehlt die geschützte Umgebungsvariable, bleibt die föderierte Anmeldung deaktiviert (fail closed).
+- Die öffentliche Preview-Client-ID darf im Quellcode stehen; das dazugehörige Secret nicht.
+- **Wichtig:** Das Entfernen aus dem aktuellen Branch löscht den Wert nicht aus der Git-Historie. Die Rotation bzw. der Widerruf beim Auth-Broker bleibt zwingend. Bis der Betreiber dies bestätigt und ein neues Secret ausschließlich als geschützte Umgebungsvariable hinterlegt ist, bleibt Anmeldung deaktiviert und die Produktionsfreigabe gesperrt.
+- Die Änderungen müssen durch den vollständigen CI-Lauf und einen neuen Preview-Check verifiziert werden. Ein erfolgreicher Build ersetzt weder die Broker-Rotation noch einen OAuth-End-to-End-Test.
