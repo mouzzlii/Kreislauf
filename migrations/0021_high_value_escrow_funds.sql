@@ -63,4 +63,17 @@ create table if not exists public.escrow_resolution_votes (
 create index if not exists escrow_resolution_votes_case_idx
   on public.escrow_resolution_votes(escrow_id);
 alter table public.escrow_resolution_votes enable row level security;
-revoke all on table public.escrow_resolution_votes from public, anon, authenticated, service_role;
+revoke all on table public.escrow_resolution_votes from public;
+do $permissions$
+begin
+  if exists (select 1 from pg_roles where rolname = 'anon') then
+    execute 'revoke all on table public.escrow_resolution_votes from anon';
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'authenticated') then
+    execute 'revoke all on table public.escrow_resolution_votes from authenticated';
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'service_role') then
+    execute 'revoke all on table public.escrow_resolution_votes from service_role';
+  end if;
+end;
+$permissions$;
