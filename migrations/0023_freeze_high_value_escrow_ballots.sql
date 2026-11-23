@@ -71,7 +71,7 @@ begin
     if v_case.reason = 'Hochwertiges Tauschgeschäft' then
       -- Fail closed: moderator approval is not proof that goods changed hands.
       -- Keep the listing reserved and the case pending until bilateral receipt
-      -- confirmation and a separately audited dispute process are implemented.
+      -- confirmation and any dispute is handled through the recorded moderator-resolution process.
       null;
     else
       update escrow_cases as ec set status = 'released', resolved_at = now()
