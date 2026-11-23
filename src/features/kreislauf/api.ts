@@ -739,11 +739,51 @@ export const tradeListing = createServerFn({ method: "POST" })
          order by random() limit 7`, [highValue[0].region_id, context.userId, highValue[0].user_id]);
       if (moderators.length < 4) return fail("Für die Treuhand müssen mindestens vier aktive, verifizierte Moderationspersonen verfügbar sein.");
       const held = await sql.query(
-        `with target as (select id from listings where id = $1 and status = 'active' for update),
-         escrow as (insert into escrow_cases (id,listing_id,requester_id,moderator_id,reason)
-           select $2,id,$3,$4,'Hochwertiges Tauschgeschäft' from target returning listing_id),
-         reserved as (update listings set status = 'booked' where id = (select listing_id from escrow) returning id)
-         select id from reserved`, [`esc-${crypto.randomUUID()}`, data.id, context.userId, moderators[0].user_id]);
+        `with target as materialized (
+           select l.id, l.user_id as seller_id, l.region_id, l.price_karma, l.title
+           from listings l
+           join profiles buyer on buyer.user_id = $3 and buyer.region_id = l.region_id
+           where l.id = $1 and l.status = 'active' and l.category in ('goods','service')
+             and l.offer_type = 'sell' and l.price_karma >= 100 and l.user_id <> $3
+           for update of l
+         ),
+         locked_profiles as materialized (
+           select p.user_id, p.karma_balance
+           from profiles p join target t on p.user_id = $3 or p.user_id = t.seller_id
+           order by p.user_id for update of p
+         ),
+         eligible as materialized (
+           select t.* from target t
+           where (select count(*) from locked_profiles) = 2
+             and (select karma_balance from locked_profiles where user_id = $3) >= t.price_karma
+         ),
+         escrow as (
+           insert into escrow_cases
+             (id,listing_id,requester_id,moderator_id,reason,buyer_id,seller_id,region_id,amount_karma,funds_status)
+           select $2,e.id,$3,$4,'Hochwertiges Tauschgeschäft',$3,e.seller_id,e.region_id,e.price_karma,'held'
+           from eligible e
+           returning id,listing_id,buyer_id,region_id,amount_karma
+         ),
+         debited as (
+           update profiles p set karma_balance = p.karma_balance - e.amount_karma, last_activity_at = now()
+           from escrow e where p.user_id = e.buyer_id and p.karma_balance >= e.amount_karma
+           returning p.user_id
+         ),
+         hold_log as (
+           insert into ledger_entries(region_id,sender_id,listing_id,amount_karma,entry_kind,message)
+           select e.region_id,e.buyer_id,e.listing_id,e.amount_karma,'escrow_hold',
+             'Karma für hochwertige Treuhand reserviert: ' || (select title from target)
+           from escrow e join debited d on d.user_id = e.buyer_id
+           returning id
+         ),
+         reserved as (
+           update listings l set status = 'booked'
+           from escrow e, hold_log h
+           where l.id = e.listing_id and l.status = 'active'
+           returning l.id
+         )
+         select id from reserved`,
+        [data.id, `esc-${crypto.randomUUID()}`, context.userId, moderators[0].user_id]);
       return held.length ? { ok: true } : fail("Dieses Inserat wurde inzwischen angefragt.");
     }
     const rows = await sql.query<{ id: number }>(
