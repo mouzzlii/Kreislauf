@@ -1,2 +1,61 @@
-# Kreislauf
-KREISLAUF – Regionales Tauschsystem Yspertal
+# KREISLAUF – Regionales Tauschsystem Yspertal
+
+**Ziel:** Menschen, Vereine, Schulen und Betriebe im Yspertal und entlang der B36 verbinden – durch Tauschen, Teilen, Helfen und ein transparentes Gemeinschaftsguthaben.
+
+## Aktueller Stand
+
+<badge>Demo / Entwicklungsstand</badge>
+
+KREISLAUF ist eine funktionsfähige Entwicklungsbasis, aber noch keine öffentlich freigegebene Produktionsplattform. Die GitHub-Build- und Testprüfungen laufen erfolgreich. Reale Nutzerkonten, Identitätsprüfung, produktive Datenhaltung, Moderationsabläufe und ein vollständiger Ende-zu-Ende-Test sind noch nicht als öffentlicher Betrieb abgenommen.
+
+## Was bereits im Projekt enthalten ist
+
+- Regionaler Marktplatz mit **Biete**, **Suche** und **Verschenke**
+- Kategorien für Güter, Dienstleistungen und gemeinsames Nutzen
+- Inserate erstellen, ansehen und Detailseiten öffnen
+- Regionale Kartenansicht mit Angeboten in der Nähe
+- Karma-Guthaben mit unveränderlichem Ledger
+- Gemeinschaftsmechanik gegen dauerhaftes Stillliegen: derzeit 0,5 % pro stillen Monat; Karma wird dabei nicht an andere Personen übertragen
+- Profile, Bewertungen und Vertrauensanzeige
+- Buchungs-/Übergabezustände und Treuhand-Statusmodell
+- Responsive Oberfläche mit Waldgrün-/Naturfarbwelt
+- Lokale PGlite-Datenbank als Entwicklungsstandard; Neon kann über `DATABASE_URL` angebunden werden
+
+## Demo starten
+
+Voraussetzungen: Node.js 22 oder neuer und npm.
+
+```bash
+npm install
+npm run dev
+```
+
+Danach im Browser `http://localhost:8080` öffnen.
+
+Die Workspace-Konfiguration `.grok/app-env.json` setzt `VITE_AUTH_ENABLED=false`. Damit läuft die lokale Demo mit einem gemeinsamen Entwicklungsnutzer statt mit echten Konten. Das ist ausschließlich für Entwicklung und Tests gedacht. Für einen Test am Android-Handy können Handy und Entwicklungscomputer im selben WLAN sein; die Adresse des Computers muss dann statt `localhost` verwendet werden. Den Entwicklungsserver nicht öffentlich ins Internet stellen.
+
+## Prüfungen
+
+```bash
+npm test
+npm run typecheck
+npm run lint
+npm run build
+```
+
+`npm run build` erstellt den Produktions-Build und führt anschließend die Datenbankmigrationen aus. Die CI prüft Build, Authentifizierungsgrenzen und Tests.
+
+## Wichtige Grenzen vor einem öffentlichen Start
+
+- Die lokale Demo-Authentifizierung ist kein Ersatz für echte Nutzerkonten.
+- Eine produktive ID-Austria-Identitätsprüfung ist noch nicht nachgewiesen.
+- Treuhand-, Buchungs- und Karma-Abläufe benötigen reale Ende-zu-Ende-Tests mit mehreren getrennten Konten.
+- Datenbank, Backups, Wiederherstellung, Moderation und Datenschutz müssen für den echten Betrieb eingerichtet und geprüft werden.
+- Karma ist ein internes Gemeinschafts-/Aktivitätsguthaben, kein Geld, nicht auszahlbar und keine Zahlungsfunktion.
+- Keine echten Zahlungen oder Geldtransfers zwischen Nutzern.
+
+**Sicherheitsregel:** Die lokale Demo mit deaktivierter Authentifizierung darf nicht öffentlich betrieben werden. Vor einem öffentlichen Start müssen Authentifizierung aktiviert, eine geeignete produktive Datenbank und Backups eingerichtet und die Sicherheits-/Datenschutzprüfung abgeschlossen sein.
+
+## Gemeinsame Projektkoordination
+
+Die KI-Team-Koordination für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS ist im zentralen [Koordinations-Issue](https://github.com/mouzzlii/Kreislauf/issues/11) vorbereitet. Der Relay ist in `main` integriert, bleibt aber bis zur Einrichtung der Provider-Secrets, Modellkennungen, Anbieter-Ausgabenlimits und ausdrücklichen Budgetfreigabe gesperrt.
