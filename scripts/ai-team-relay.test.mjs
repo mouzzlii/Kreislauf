@@ -23,7 +23,7 @@ assert.equal(parseCommand("/ai-team debate TRAKUNA:   "), null);
 console.log("AI team command parser tests passed.");
 
 const relaySource = await readFile(new URL("./ai-team-relay.mjs", import.meta.url), "utf8");
-assert.ok(relaySource.includes('TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/Fuck"'));
+assert.ok(relaySource.includes('TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway"'));
 assert.ok(relaySource.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
 assert.ok(relaySource.includes('const OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes('const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || ""'));
