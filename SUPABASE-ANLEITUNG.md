@@ -39,7 +39,7 @@ Die derzeitige Vorschau verwendet absichtlich einen gemeinsamen Demo-Zugang. **B
 3. Danach zuerst Konto anlegen, abmelden und wieder anmelden testen. E-Mail/Passwort ist in der Anmeldemaske vorgesehen.
 4. Google/X-Anmeldung benötigt zusätzlich eine eigene, für die KREISLAUF-Domain freigeschaltete Broker-Anwendung. Dafür sind `GROK_AUTH_ISSUER`, `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` erforderlich. Diese Werte müssen vom Betreiber des Auth-Brokers bereitgestellt werden; die Vorschau-Zugangsdaten sind keine Produktions-Zugangsdaten.
 
-Die SQL-Datei markiert die enthaltenen Migrationen `0001_auth.sql` bis `0007_harden_function_search_path.sql` sowie `0009` bis `0019` als angewendet. Die optionale Migration `0008_harden_legacy_function_search_path.sql` bleibt bei einer Neuinstallation absichtlich außen vor, weil sie nur eine Altbestandsfunktion absichert. Die Datenbankfunktionen erhalten einen festen `search_path`, damit sie keine fremden Objekte über eine manipulierte Namensauflösung verwenden.
+Die SQL-Datei markiert die enthaltenen Migrationen `0001_auth.sql` bis `0007_harden_function_search_path.sql` sowie `0009` bis `0025` als angewendet. Die optionale Migration `0008_harden_legacy_function_search_path.sql` bleibt bei einer Neuinstallation absichtlich außen vor, weil sie nur eine Altbestandsfunktion absichert. Die Datenbankfunktionen erhalten einen festen `search_path`, damit sie keine fremden Objekte über eine manipulierte Namensauflösung verwenden. Die optionale Migration `0008_harden_legacy_function_search_path.sql` bleibt bei einer Neuinstallation absichtlich außen vor, weil sie nur eine Altbestandsfunktion absichert. Die Datenbankfunktionen erhalten einen festen `search_path`, damit sie keine fremden Objekte über eine manipulierte Namensauflösung verwenden.
 
 
 ## 4. Sicherheitsprüfung vor dem öffentlichen Start
@@ -84,10 +84,14 @@ Migration 0014 ergänzt Indizes für die Fremdschlüssel der aktuell verwendeten
 
 ## 5. Supabase-Testlauf – nur mit separatem Testprojekt
 
-Der automatisierte Datenbank-Smoke-Test führt jetzt die Migrationen **0002 bis 0019** (die optionale Altbestandsmigration 0008 ausgenommen) sowie Reservierung, Moderationsquorum und Nachrichtenabläufe aus.
+Der automatisierte Datenbank-Smoke-Test führt jetzt die Migrationen **0002 bis 0025** (die optionale Altbestandsmigration 0008 ausgenommen) sowie Reservierung, Moderationsquorum, Nachrichtenabläufe und die Bereinigung älterer, unzulässiger Treuhandstimmen aus. Migration 0025 archiviert solche Stimmen von Käufer oder Verkäufer mit Begründung und Zeitstempel und entfernt sie aus den aktiven Abstimmungen, damit sie keine Mehrheiten mehr beeinflussen.
 
 **Wichtig:** Dafür ist ein eigenes, isoliertes Supabase-Testprojekt erforderlich. Niemals die Produktionsdatenbank oder das bestehende Live-Projekt als Testziel verwenden. Der Test verwendet die öffentliche Standardschema-Struktur, weil mehrere Migrationen ausdrücklich `public.*` referenzieren. Er startet eine Transaktion und rollt am Ende alles zurück; trotzdem ist das separate Testprojekt die Sicherheitsgrenze.
 
 Für GitHub Actions muss die Verbindungs-URL des separaten Testprojekts als Secret `SUPABASE_TEST_DATABASE_URL` hinterlegt werden. Das Secret `SUPABASE_DATABASE_URL` wird vom Test nicht mehr verwendet. Die URL bleibt in GitHub Secrets und wird nicht in Chat, Quellcode oder Browser-Variablen kopiert.
 
 Der Test wurde im Quellcode vorbereitet, aber noch nicht gegen ein echtes Supabase-Testprojekt ausgeführt. Ohne dieses separate Projekt bleibt der Live-Datenbanktest offen.
+
+### Treuhand-Abstimmungen und Altstimmen
+
+Die Migrationen 0024 und 0025 schützen beide Treuhand-Abstimmungen: Käufer und Verkäufer dürfen weder über die erste Community-Freigabe noch über die spätere Streitfallentscheidung des eigenen Falls abstimmen. Bereits vor Einführung dieser Sperre abgegebene Stimmen werden in einem privaten Audit-Archiv gesichert und aus den aktiven Abstimmungstabellen entfernt. Dadurch bleiben die Originalangaben nachvollziehbar, ohne dass diese Stimmen weiterhin die Mehrheitsberechnung beeinflussen. Die Bereinigung ist in den automatisierten PostgreSQL-kompatiblen Tests abgedeckt; sie wurde noch nicht auf dem verbundenen Supabase-Projekt ausgeführt.
