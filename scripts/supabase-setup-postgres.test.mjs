@@ -28,6 +28,15 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     ]) {
       assert.equal(tables.get(table), true, `RLS is not enabled for ${table}`);
     }
+    const independentVoteGuard = await db.query(
+      "select to_regprocedure('public.kreislauf_reject_party_escrow_resolution_vote()') as fn",
+    );
+    assert.ok(independentVoteGuard.rows[0].fn, "the Supabase setup must install the independent dispute-vote guard");
+    const independentVoteTrigger = await db.query(
+      "select count(*)::int as count from pg_trigger where tgname = 'escrow_resolution_vote_independent' and not tgisinternal",
+    );
+    assert.equal(independentVoteTrigger.rows[0].count, 1, "the independent dispute-vote trigger must be active");
+
     const access = await db.query(`
       select
         has_table_privilege('anon', 'public.listings', 'select') as anon_can_read_listings,
