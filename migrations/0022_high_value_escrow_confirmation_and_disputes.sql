@@ -165,6 +165,9 @@ begin
   if p_decision not in ('release','refund') then
     raise exception 'Ungültige Streitfallentscheidung.';
   end if;
+  if length(trim(coalesce(p_note,''))) < 10 then
+    raise exception 'Bitte begründe deine Streitfallentscheidung mit mindestens 10 Zeichen.';
+  end if;
 
   select e.* into v_case
   from public.escrow_cases e
