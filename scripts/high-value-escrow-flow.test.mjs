@@ -30,6 +30,7 @@ const migrations = [
   "0022_high_value_escrow_confirmation_and_disputes.sql",
   "0023_freeze_high_value_escrow_ballots.sql",
   "0024_independent_escrow_resolution.sql",
+  "0025_archive_legacy_conflicted_escrow_votes.sql",
 ];
 
 async function checked(label, operation) {
@@ -246,6 +247,40 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     await db.query(
       "insert into escrow_moderators(escrow_id,moderator_id) values ('escrow-case-3','escrow-buyer')",
     );
+
+    // Simulate conflicted ballots recorded before migration 0024 installed its
+    // triggers. Migration 0025 must archive them and remove them from quorum.
+    await db.exec(`
+      alter table escrow_votes disable trigger escrow_approval_vote_independent;
+      alter table escrow_resolution_votes disable trigger escrow_resolution_vote_independent;
+    `);
+    await db.query(
+      "insert into escrow_votes(escrow_id,moderator_id,vote,note) values ('escrow-case-3','escrow-buyer','approve','Alte unzulässige Freigabe')",
+    );
+    await db.query(
+      "insert into escrow_resolution_votes(escrow_id,moderator_id,decision,note) values ('escrow-case-3','escrow-buyer','refund','Alte unzulässige Erstattung')",
+    );
+    await db.exec(`
+      alter table escrow_votes enable trigger escrow_approval_vote_independent;
+      alter table escrow_resolution_votes enable trigger escrow_resolution_vote_independent;
+    `);
+    await db.exec(await readFile(join(root,"migrations","0025_archive_legacy_conflicted_escrow_votes.sql"),"utf8"));
+    const archivedConflicts = await db.query(
+      `select ballot_type,party_role,choice from escrow_vote_conflict_archive
+       where escrow_id='escrow-case-3' order by ballot_type`,
+    );
+    assert.deepEqual(archivedConflicts.rows,[
+      {ballot_type:"approval",party_role:"buyer",choice:"approve"},
+      {ballot_type:"resolution",party_role:"buyer",choice:"refund"},
+    ]);
+    const activeConflicts = await db.query(
+      `select
+        (select count(*)::int from escrow_votes where escrow_id='escrow-case-3' and moderator_id='escrow-buyer') as approvals,
+        (select count(*)::int from escrow_resolution_votes where escrow_id='escrow-case-3' and moderator_id='escrow-buyer') as resolutions`,
+    );
+    assert.equal(activeConflicts.rows[0].approvals,0,"legacy party approval must not count toward quorum");
+    assert.equal(activeConflicts.rows[0].resolutions,0,"legacy party resolution must not count toward quorum");
+
     await assert.rejects(
       db.query("select * from kreislauf_vote_escrow_resolution($1,$2,$3,$4)",
         ["escrow-listing-3","escrow-buyer","refund","Eigene Streitfallentscheidung"]),
