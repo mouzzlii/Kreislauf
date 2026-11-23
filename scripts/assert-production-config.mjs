@@ -47,6 +47,12 @@ if (!(process.env.GROK_AUTH_CLIENT_ID ?? "").trim()) {
 if ((process.env.GROK_AUTH_CLIENT_SECRET ?? "").trim().length < 32) {
   missing.push("GROK_AUTH_CLIENT_SECRET (eigener OAuth-Client-Schlüssel)");
 }
+// A leaked historical preview secret must be rotated at the broker before
+// production auth can be enabled. This explicit attestation makes that external
+// security action a release gate rather than a documentation-only reminder.
+if (process.env.GROK_AUTH_SECRET_ROTATION_CONFIRMED !== "true") {
+  missing.push("GROK_AUTH_SECRET_ROTATION_CONFIRMED=true (Widerruf/Rotation des früher veröffentlichten Preview-Secrets bestätigt)");
+}
 
 if (!(process.env.BLOB_READ_WRITE_TOKEN ?? "").trim()) {
   missing.push("BLOB_READ_WRITE_TOKEN (sicherer Medien-Storage)");

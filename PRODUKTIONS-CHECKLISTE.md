@@ -317,3 +317,5 @@ Dieser Abschnitt ist die maßgebliche Zusammenfassung für den aktuellen Branch-
 - [ ] PR #1 bleibt offen und nicht zusammengeführt.
 
 **Freigabeentscheidung:** Die Testvorschau ist technisch bereitgestellt und die automatisierten Codeprüfungen sind grün. KREISLAUF ist ausdrücklich nicht produktionsbereit.
+
+- [x] Zusätzliche Produktionssperre für den historischen OAuth-Schlüssel ergänzt: `GROK_AUTH_SECRET_ROTATION_CONFIRMED=true` ist jetzt Pflicht. Ein gültig aussehendes neues OAuth-Secret allein genügt nicht; die externe Rotation muss ausdrücklich bestätigt sein. Regressionstest prüft, dass Produktion ohne diese Bestätigung blockiert bleibt.

@@ -21,6 +21,7 @@ const validProduction = {
   GROK_AUTH_ISSUER: "https://auth.example.at",
   GROK_AUTH_CLIENT_ID: "kreislauf-production",
   GROK_AUTH_CLIENT_SECRET: "y".repeat(48),
+  GROK_AUTH_SECRET_ROTATION_CONFIRMED: "true",
   BLOB_READ_WRITE_TOKEN: "vercel_blob_rw_placeholder",
   ID_AUSTRIA_MOCK_MODE: "false",
   KREISLAUF_MEDIA_STORAGE_READY: "true",
@@ -59,7 +60,7 @@ describe("production release guard", () => {
       ID_AUSTRIA_PROVIDER_READY: "false",
     });
     assert.equal(result.status, 1);
-    for (const variable of ["DATABASE_URL", "VITE_AUTH_ENABLED=true", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "GROK_AUTH_ISSUER", "GROK_AUTH_CLIENT_ID", "GROK_AUTH_CLIENT_SECRET", "BLOB_READ_WRITE_TOKEN", "KREISLAUF_MEDIA_STORAGE_READY", "ID_AUSTRIA_PROVIDER_READY"]) {
+    for (const variable of ["DATABASE_URL", "VITE_AUTH_ENABLED=true", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "GROK_AUTH_ISSUER", "GROK_AUTH_CLIENT_ID", "GROK_AUTH_CLIENT_SECRET", "GROK_AUTH_SECRET_ROTATION_CONFIRMED", "BLOB_READ_WRITE_TOKEN", "KREISLAUF_MEDIA_STORAGE_READY", "ID_AUSTRIA_PROVIDER_READY"]) {
       assert.match(result.stderr, new RegExp(variable.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     }
   });
@@ -81,6 +82,12 @@ describe("production release guard", () => {
     assert.match(result.stderr, /GROK_AUTH_ISSUER/);
     assert.match(result.stderr, /GROK_AUTH_CLIENT_ID/);
     assert.match(result.stderr, /GROK_AUTH_CLIENT_SECRET/);
+  });
+
+  it("blocks production until the historical preview OAuth secret rotation is explicitly confirmed", () => {
+    const result = run({ ...validProduction, GROK_AUTH_SECRET_ROTATION_CONFIRMED: "false" });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /GROK_AUTH_SECRET_ROTATION_CONFIRMED/);
   });
 
   it("rejects an insecure OAuth broker URL", () => {
