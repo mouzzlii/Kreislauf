@@ -30,6 +30,7 @@ const migrations = [
   "0021_high_value_escrow_funds.sql",
   "0022_high_value_escrow_confirmation_and_disputes.sql",
   "0023_freeze_high_value_escrow_ballots.sql",
+  "0024_independent_escrow_resolution.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
