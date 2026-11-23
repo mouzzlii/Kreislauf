@@ -32,6 +32,7 @@ assert.ok(relaySource.includes('const OPENAI_MODEL = process.env.OPENAI_MODEL?.t
 assert.ok(relaySource.includes('const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes('const XAI_MODEL = process.env.XAI_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes("missingModels.length"));
+assert.ok(relaySource.includes('!AI_TEAM_REPO_READ_TOKEN && "AI_TEAM_REPO_READ_TOKEN"'));
 assert.equal((relaySource.match(/AI_TEAM_BUDGET_CONFIRMED !== "true"/g) || []).length, 1);
 assert.ok(relaySource.includes("const MAX_DAILY_DEBATES = 2;"));
 assert.ok(relaySource.includes("reserveDailyDebate(comment.id)"));
