@@ -72,16 +72,16 @@ Es sind bewusst keine Modellkennungen vorgegeben: Verfügbare IDs ändern sich j
 ## Verbindliche Repository-Zuordnung
 
 - `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf`
-- `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway` – maßgebliches TRAKUNA-Repository.
+- `PROJECT_REPO_TRAKUNA=mouzzlii/Fuck` – maßgebliches TRAKUNA-Repository; das Gateway-Experiment bleibt getrennt.
 - `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS`
-- `PROJECT_REPO_SCAN_PROFIT` bleibt leer, bis das aktuelle Projekt 2.0.60 in ein eigenes GitHub-Repository übernommen wurde. Das ältere Library-Paket 2.0.45 ist nicht der aktuelle Quellstand und wird nicht als Ersatz verwendet.
+- `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT` – Repository angelegt; es enthält derzeit README und Prüfhinweise, aber noch nicht den vollständigen ausführbaren Quellcode.
 
-Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Für TRAKUNA ist `mouzzlii/multi-carrier-gateway` voreingestellt; für SCAN-PROFIT bleibt die Zuordnung absichtlich leer, bis das aktuelle Repository bestätigt und konfiguriert ist. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
+Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Für TRAKUNA ist `mouzzlii/Fuck` voreingestellt. SCAN-PROFIT ist auf `mouzzlii/SCAN-PROFIT` geroutet; der Relay kann dort aktuell nur die vorhandenen README-/Prüfinformationen laden, nicht den noch fehlenden vollständigen Quellcode. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
 
 ## Noch offene Voraussetzungen
 
-- [ ] SCAN-PROFIT: ein eigenes privates GitHub-Repository für den vorhandenen Projektstand 2.0.60 anlegen und den Quellstand übernehmen. In den verbundenen GitHub-Repositories wurde kein bestehendes SCAN-PROFIT-Repository gefunden.
-- [x] TRAKUNA: `mouzzlii/multi-carrier-gateway` als maßgebliches TRAKUNA-Repository festgelegt.
+- [x] SCAN-PROFIT: privates Repository `mouzzlii/SCAN-PROFIT` ist angelegt und im Relay zugeordnet. Offen bleibt der Import des vollständigen ausführbaren Quellcodes; das Repository enthält derzeit nur README und Prüfhinweise.
+- [x] TRAKUNA: `mouzzlii/Fuck` als maßgebliches TRAKUNA-Repository festgelegt; das Gateway-Experiment bleibt getrennt.
 - [ ] Kontoinhaber richtet die drei Provider-API-Schlüssel und `AI_TEAM_REPO_READ_TOKEN` als GitHub Actions Secrets ein.
 - [ ] Providerseitige Ausgabenlimits/Kostenkontrollen und maximale Gesprächsrunden festlegen; danach `AI_TEAM_BUDGET_CONFIRMED=true` als bewusste manuelle Aktivierungsfreigabe setzen. Die Variable prüft Anbieterbudgets nicht automatisch.
 - [ ] Erst danach den bereits vorbereiteten Workflow kontrolliert aktivieren und mit einem synthetischen Test-Issue Ende-zu-Ende prüfen.
