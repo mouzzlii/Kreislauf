@@ -85,7 +85,8 @@ Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories.
 - [x] SCAN-PROFIT: privates Repository `mouzzlii/SCAN-PROFIT` angelegt und in der Relay-Konfiguration als Standard zugeordnet. Der eigenständige 2.0.60-App-Einstieg, PWA-Manifest, Service Worker, App-Symbol und CI-Prüfworkflow sind eingespielt. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; dies bleibt ein separater Quellcode-Migrationspunkt.
 - [x] TRAKUNA: `mouzzlii/Fuck` als maßgebliches TRAKUNA-Repository aus dem aktuellen Repository-Abgleich festgelegt; das Gateway-Experiment bleibt getrennt.
 - [ ] Kontoinhaber richtet die drei Provider-API-Schlüssel und `AI_TEAM_REPO_READ_TOKEN` als GitHub Actions Secrets ein.
-- [ ] Providerseitige Ausgabenlimits/Kostenkontrollen und maximale Gesprächsrunden festlegen; danach `AI_TEAM_BUDGET_CONFIRMED=true` als bewusste manuelle Aktivierungsfreigabe setzen. Die Variable prüft Anbieterbudgets nicht automatisch.
+- [x] Technischer Tagesdeckel von maximal zwei Debatten pro UTC-Tag, mit zentralem Ledger in Issue #11 und global serialisierten Relay-Läufen. Der Ledger liest die neuesten Kommentare zuerst; dies begrenzt Aufrufzahlen, ist aber keine USD-Kostenobergrenze.
+- [ ] Kontoinhaber setzt providerseitige Ausgabenlimits/Kostenkontrollen bei OpenAI, Google und xAI; erst danach `AI_TEAM_BUDGET_CONFIRMED=true` als bewusste manuelle Aktivierungsfreigabe setzen. Die Variable prüft Anbieterbudgets nicht automatisch.
 - [ ] Erst danach den bereits vorbereiteten Workflow kontrolliert aktivieren und mit einem synthetischen Test-Issue Ende-zu-Ende prüfen.
 
 ## Freigabekriterium
