@@ -150,3 +150,10 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - [x] Treuhandübersicht zeigt Parteien keine Abstimmungsaktionen mehr, selbst wenn diese zusätzlich Moderatorenrechte besitzen.
 - [x] Supabase-Setup-SQL und Clean-Install-Test sind auf 24 Anwendungsmigrationen aktualisiert.
 - [ ] Migration 0025 auf einer isolierten Supabase-Testdatenbank und anschließend ein realer Mehrbenutzer-Test bleiben offen. Das verbundene Supabase-Projekt wurde nicht verändert.
+
+## Prüfstatus – 23.11.2026: Migration 0025
+
+- [x] GitHub Actions `45151061298` auf Commit `7d98b7597f5b3b339176dca16ad2bd8a0b63072e`: Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint erfolgreich.
+- [x] Separater Clean-Install-Datenbanktest `45150894502` auf Commit `2c48d6b6bdb41469c96bea304584ca0b24950d25`: Supabase-Setup-SQL, RLS, Rechte und 24 Anwendungsmigrationen erfolgreich in temporärer PostgreSQL-kompatibler Testdatenbank.
+- [ ] Noch offen: Migrationen auf einem isolierten echten Supabase-Testprojekt ausführen und Mehrbenutzerabläufe mit getrennten Konten prüfen. Das vorhandene Supabase-Projekt wurde nicht verändert.
+- Der nachfolgende Commit `eeba0aa0dab5e47f6199b5177fd50da411094b69` aktualisiert ausschließlich die Supabase-Anleitung; der erfolgreiche Code-Prüflauf gilt für den vorherigen Code-Stand.
