@@ -70,7 +70,7 @@ export type Booking = {
 export type LedgerEntry = {
   id: number;
   amountKarma: number;
-  entryKind: "mint" | "transfer" | "demurrage" | "activity";
+  entryKind: "mint" | "transfer" | "demurrage" | "activity" | "escrow_hold" | "escrow_release" | "escrow_refund";
   message: string;
   createdAt: string;
   senderName: string | null;
