@@ -31,6 +31,8 @@ const migrations = [
   "0022_high_value_escrow_confirmation_and_disputes.sql",
   "0023_freeze_high_value_escrow_ballots.sql",
   "0024_independent_escrow_resolution.sql",
+  "0025_archive_legacy_conflicted_escrow_votes.sql",
+  "0026_complete_escrow_foreign_key_indexes.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
@@ -77,7 +79,7 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     const fkIndexes = await db.query(
       "select count(*)::int as count from pg_indexes where schemaname = 'public' and indexname like '%_fk_idx'",
     );
-    assert.equal(fkIndexes.rows[0].count, 14, "all current-schema foreign-key indexes must be present");
+    assert.equal(fkIndexes.rows[0].count, 18, "all current-schema foreign-key indexes must be present");
 
     const mismatchedDemoBalances = await db.query(
       `select p.user_id, p.karma_balance,
