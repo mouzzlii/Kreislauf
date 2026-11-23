@@ -56,6 +56,7 @@ describe("production release guard", () => {
       GROK_AUTH_ISSUER: "",
       GROK_AUTH_CLIENT_ID: "",
       GROK_AUTH_CLIENT_SECRET: "",
+      GROK_AUTH_SECRET_ROTATION_CONFIRMED: "false",
       BLOB_READ_WRITE_TOKEN: "",
       KREISLAUF_MEDIA_STORAGE_READY: "false",
       ID_AUSTRIA_PROVIDER_READY: "false",
