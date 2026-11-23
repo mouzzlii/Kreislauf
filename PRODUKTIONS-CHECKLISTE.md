@@ -206,3 +206,15 @@ Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt 
 - [x] Die Supabase-Anleitung wurde im Commit `3c15875d1397ea858ce68a841f249cb9658f6f95` bereinigt: doppelte Erklärung entfernt und nicht belegte Live-Performance-Aussage korrigiert.
 - [x] Diese Checklisten-Korrektur liegt im Commit `db7daad327aa9ee57f199a5cbcf7c3c60185f1f6`.
 - [ ] Für `db7daad` wurde noch kein GitHub-Actions-Lauf gestartet. Vercel meldet für den Commit derzeit `failure` mit Verweis auf das erreichte Build-Limit (`upgradeToPro=build-rate-limit`); die letzte bestätigte READY-Vorschau bleibt auf `40f41cd`.
+
+
+## Testprojekt-Prüfung – 23.11.2026
+
+- [x] Separates Supabase-Projekt `kreislauf-test` eingerichtet; das bisherige Supabase-Projekt wurde nicht verändert.
+- [x] Clean-Install-Schema `SUPABASE-SETUP.sql` im Testprojekt ausgeführt und Tabellen, RLS sowie Datenbankrechte geprüft.
+- [x] Inserat-Unterhaltung und automatische Systemnachricht mit temporären Datensätzen geprüft; Testtransaktion zurückgerollt.
+- [x] Datenbankseitige Sperre gegen Stimmen von Käufer/Verkäufer in beiden Treuhand-Abstimmungen direkt geprüft; unzulässige Stimmen wurden abgewiesen, Testdaten zurückgerollt.
+- [x] Migration `0026_complete_escrow_foreign_key_indexes.sql` ergänzt vier fehlende Fremdschlüssel-Indizes. Alle vier Indizes sind im Testprojekt vorhanden; Supabase meldet keine unindizierten Fremdschlüssel mehr.
+- [ ] Externer Node-Smoke-Test über GitHub Actions benötigt das Secret `SUPABASE_TEST_DATABASE_URL`; es wurde nicht im Chat oder Quellcode hinterlegt.
+- [ ] Keine Produktionsdatenbankmigration, keine Aktivierung persönlicher Konten und keine Produktionsfreigabe.
+- [ ] Echte Auth-Broker-Zugangsdaten, Video-Storage samt serverseitiger Medienprüfung, echte ID-Austria-Anbindung, Mehrbenutzer-/Android-Praxistests sowie Datenschutz- und Betriebsfreigabe bleiben offen.
