@@ -194,7 +194,7 @@ function NewListing() {
             />
             <span className="mt-1 block text-xs text-subtle">{images.length} von 4 Fotos ausgewählt. Du kannst weitere Fotos hinzufügen oder einzelne entfernen. Die Fotos werden für die Vorschau verkleinert. Video-Uploads sind im gemeinsamen Demo-Modus deaktiviert; sie setzen persönliche Konten und einen eingerichteten Medienspeicher voraus.</span>
           </Field>
-          <Field label="Videos (maximal 60 Sekunden Gesamtzeit)">
+          <Field label="Videooptionen (derzeit deaktiviert)">
             <select
               className={fieldClass}
               disabled
