@@ -74,7 +74,7 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
       <p className="mt-2 text-xs text-subtle">{summary.assigned} Moderationspersonen zugeteilt · Zweidrittelmehrheit ab mindestens 4 Stimmen.</p>
     </> : null}
     {summary.status === "disputed" ? <>
-      <p className="mt-2 text-sm text-copper">Streitfall offen: {summary.disputeReason || "Die Community-Abstimmung hat keine Freigabe ergeben."}</p>
+      <p className="mt-2 text-sm text-copper">Streitfall offen: {summary.disputeReason || "Die Community-Abstimmung hat keine Freigabe ergeben."} Das Inserat bleibt gesperrt, bis die unabhängige Entscheidung abgeschlossen ist.</p>
       <p className="mt-1 text-sm text-muted">Unabhängige Moderationsentscheidung: {summary.resolutionVotes} Stimmen, {summary.resolutionReleases} für Freigabe und {summary.resolutionRefunds} für Erstattung.</p>
       {summary.canResolve ? <div className="mt-3 flex flex-wrap gap-2">
         <Button disabled={busy} onClick={() => void runAction(
