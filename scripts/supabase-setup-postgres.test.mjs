@@ -58,6 +58,24 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     );
     assert.equal(trigger.rows[0].installed, true, "booking state notifications must be installed");
 
+    // The clean-install bundle must enforce both parties' confirmations.
+    await assert.rejects(
+      db.query("update bookings set status = 'handed_over', renter_handover_at = now() where id = 'bkg-anhaenger'"),
+      (error) => error.code === "23514",
+      "a one-sided handover must be rejected",
+    );
+    await db.query(
+      "update bookings set status = 'handed_over', renter_handover_at = now(), owner_handover_at = now() where id = 'bkg-anhaenger'",
+    );
+    await assert.rejects(
+      db.query("update bookings set status = 'returned', renter_return_at = now() where id = 'bkg-anhaenger'"),
+      (error) => error.code === "23514",
+      "a one-sided return must be rejected",
+    );
+    await db.query(
+      "update bookings set status = 'returned', renter_return_at = now(), owner_return_at = now() where id = 'bkg-anhaenger'",
+    );
+
     const applied = await db.query("select name from _migrations order by name");
     assert.equal(applied.rows.length, 18);
   } finally {
