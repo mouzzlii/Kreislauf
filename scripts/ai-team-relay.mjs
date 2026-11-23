@@ -330,21 +330,26 @@ async function main() {
   ].join(" ");
 
   console.log(`Starting bounded review for ${project} on issue #${issue.number}.`);
+  let phase = "OpenAI / GPT Erstanalyse";
+  try {
   const initial = await askOpenAI(
     `${baseInstructions} Erstelle zuerst eine eigenständige Analyse mit konkreten Risiken, Verbesserungsvorschlägen und überprüfbaren nächsten Schritten.`,
     safeContext,
   );
 
+  phase = "Gemini Gegenprüfung";
   const gemini = await askGemini(
     `${baseInstructions} Du bist Gemini und erhältst die Analyse eines anderen Agenten. Prüfe sie unabhängig, widersprich bei Bedarf und nenne fehlende Belege.`,
     `${safeContext}\n\nAnalyse von OpenAI/GPT:\n${initial}`,
   );
 
+  phase = "Grok Gegenprüfung";
   const grok = await askGrok(
     `${baseInstructions} Du bist Grok und bist der unabhängige Gegenprüfer. Prüfe den ursprünglichen Auftrag sowie die beiden Analysen. Identifiziere Denkfehler, Risiken und bessere Alternativen.`,
     `${safeContext}\n\nAnalyse von OpenAI/GPT:\n${initial}\n\nGegenprüfung von Gemini:\n${gemini}`,
   );
 
+  phase = "OpenAI / GPT Abschlusssynthese";
   const synthesis = await askOpenAI(
     `${baseInstructions} Du moderierst die Abschlussrunde. Fasse nur belastbare Übereinstimmungen zusammen, löse Widersprüche begründet auf und liste offene Nachweise. Behaupte nicht, dass Code geändert oder getestet wurde.`,
     `${safeContext}\n\nGPT-Erstanalyse:\n${initial}\n\nGemini-Gegenprüfung:\n${gemini}\n\nGrok-Gegenprüfung:\n${grok}\n\nErstelle die abschließende gemeinsame Empfehlung.`,
@@ -371,6 +376,22 @@ async function main() {
     body: JSON.stringify({ body }),
   });
   console.log("KI-Team-Debatte completed and recorded.");
+  } catch (error) {
+    const detail = error instanceof Error ? error.message.slice(0, 500) : "Unbekannter Provider-Fehler";
+    await githubRequest(`issues/${issue.number}/comments`, {
+      method: "POST",
+      body: JSON.stringify({
+        body: [
+          marker,
+          `### KI-Team-Debatte abgebrochen – ${project}`,
+          `Fehlerphase: ${phase}`,
+          `Fehler: ${detail}`,
+          "Es wurde keine vollständige gemeinsame Synthese erstellt. Das reservierte Tageskontingent bleibt verbraucht, auch wenn der Provider-Aufruf teilweise fehlgeschlagen ist.",
+        ].join("\\n\\n"),
+      }),
+    });
+    throw error;
+  }
 }
 
 main().catch((error) => fail(error instanceof Error ? error.message : "Unknown relay error."));
