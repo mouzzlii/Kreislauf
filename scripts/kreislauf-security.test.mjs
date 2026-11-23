@@ -329,7 +329,7 @@ test("listing creation rejects video references until server-side media inspecti
   assert.match(create, /Video-Uploads sind noch gesperrt/);
   assert.doesNotMatch(create, /validateListingVideoSet/);
   assert.match(create, /assertOwnedListingImageUrl\(imageUrl, context\.userId\)/);
-  assert.match(listingMedia, /\.public\.blob\.vercel-storage\.com/);
+  assert.ok(listingMedia.includes(String.raw`\\.public\\.blob\\.vercel-storage\\.com`));
   assert.match(listingMedia, /\/listings\/\$\{encodeURIComponent\(userId\)\}\//);
   assert.match(create, /video_urls/);
   assert.match(videoMigration, /add column if not exists video_urls jsonb/);
