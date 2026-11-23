@@ -45,6 +45,7 @@ jobs:
           assert.ok(source.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
           assert.ok(source.includes("MAX_DAILY_DEBATES = 2"));
           assert.ok(source.includes("reserveDailyDebate(comment.id)"));
+          assert.ok(source.includes("issues/11/comments?per_page=100&sort=created&direction=desc"));
           assert.ok(workflow.includes("group: ai-team-global-budget"));
           assert.ok(setup.includes("Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag"));
           console.log("Project mapping and daily invocation cap verified.");
