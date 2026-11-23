@@ -75,14 +75,16 @@ test("high-value trades are reserved in community escrow before any settlement",
   assert.match(highValue, /karma_balance = p\.karma_balance - e\.amount_karma/);
   assert.match(highValue, /escrow_hold/);
   assert.match(escrowFundsSql, /funds_status in/);
-  assert.match(highValue, /update listings set status = 'booked'/);
+  assert.match(highValue, /update listings l set status = 'booked'/);
   assert.match(highValue, /update profiles p set karma_balance = p\.karma_balance - e\.amount_karma/);
   assert.match(highValue, /insert into ledger_entries[\s\S]*?escrow_hold/);
   const settlement = escrowSql.slice(escrowSql.indexOf("if v_case.reason = 'Hochwertiges Tauschgeschäft'"), escrowSql.indexOf("elsif v_votes >= 4 and v_rejections"));
   assert.match(settlement, /Fail closed/);
   assert.match(settlement, /null;/);
   assert.doesNotMatch(settlement, /update profiles|insert into ledger_entries|set status = 'completed'/);
-  assert.match(escrowPanel, /beide Tauschparteien die Übergabe und den Empfang bestätigen/);
+  assert.match(escrowPanel, /summary\.canConfirm/);
+  assert.match(escrowPanel, /Empfang bestätigen/);
+  assert.match(escrowPanel, /Übergabe bestätigen/);
   assert.match(coreSql, /create unique index if not exists escrow_one_pending_per_listing_idx[\s\S]*?where status = 'pending'/);
 });
 
