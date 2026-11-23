@@ -91,6 +91,10 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
           )}>Erstattung empfehlen</Button>
         </div>
       </div> : summary.hasResolutionVote ? <p className="mt-2 text-xs text-subtle">Deine Streitfallstimme ist bereits gespeichert.</p> : null}
+      {summary.assigned > 0 && summary.resolutionVotes >= summary.assigned
+        && Math.max(summary.resolutionReleases, summary.resolutionRefunds) < Math.ceil(summary.resolutionVotes * 2 / 3)
+        ? <p className="mt-2 text-sm text-copper">Alle zugeteilten Stimmen sind abgegeben, aber es gibt keine Zweidrittelmehrheit. Die Punkte bleiben reserviert und das Inserat gesperrt; eine manuelle Klärung außerhalb der Plattform ist erforderlich.</p>
+        : null}
       <p className="mt-2 text-xs text-subtle">{summary.assigned} zugeteilte Moderationspersonen · mindestens 4 Stimmen und Zweidrittelmehrheit.</p>
     </> : null}
     {summary.status === "released" ? <p className="mt-2 text-sm text-forest">Treuhand abgeschlossen. Die reservierten Punkte wurden an die anbietende Person übertragen.</p> : null}
