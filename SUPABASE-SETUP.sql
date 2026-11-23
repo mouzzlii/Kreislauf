@@ -868,6 +868,22 @@ create trigger listing_messages_rate_limit before insert on public.listing_messa
 for each row execute function public.kreislauf_limit_listing_messages();
 revoke all on function public.kreislauf_limit_listing_messages() from public;
 
+-- 0014_foreign_key_indexes.sql: index foreign-key columns used by joins and deletes.
+create index if not exists bookings_owner_id_fk_idx on public.bookings(owner_id);
+create index if not exists bookings_renter_id_fk_idx on public.bookings(renter_id);
+create index if not exists escrow_cases_booking_id_fk_idx on public.escrow_cases(booking_id);
+create index if not exists escrow_cases_moderator_id_fk_idx on public.escrow_cases(moderator_id);
+create index if not exists escrow_cases_requester_id_fk_idx on public.escrow_cases(requester_id);
+create index if not exists escrow_moderators_moderator_id_fk_idx on public.escrow_moderators(moderator_id);
+create index if not exists escrow_votes_moderator_id_fk_idx on public.escrow_votes(moderator_id);
+create index if not exists item_history_listing_id_fk_idx on public.item_history(listing_id);
+create index if not exists item_history_owner_id_fk_idx on public.item_history(owner_id);
+create index if not exists ledger_entries_booking_id_fk_idx on public.ledger_entries(booking_id);
+create index if not exists ledger_entries_listing_id_fk_idx on public.ledger_entries(listing_id);
+create index if not exists listings_user_id_fk_idx on public.listings(user_id);
+create index if not exists reviews_reviewer_id_fk_idx on public.reviews(reviewer_id);
+create index if not exists reviews_subject_id_fk_idx on public.reviews(subject_id);
+
 -- Optional legacy migration 0008 is intentionally excluded from this clean-install script.
 -- It is applied separately only on upgraded projects where the legacy function exists.
 
@@ -958,6 +974,7 @@ insert into _migrations(name) values
   ('0011_limit_listing_message_rate.sql'),
   ('0012_atomic_listing_message_rate_limits.sql'),
   ('0013_listing_video_urls.sql'),
+  ('0014_foreign_key_indexes.sql'),
   ('0015_listing_paused_status.sql'),
   ('0016_reconcile_demo_karma_ledger.sql'),
   ('0017_allow_activity_ledger_entries.sql'),
