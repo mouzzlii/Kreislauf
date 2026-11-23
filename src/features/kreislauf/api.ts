@@ -1488,7 +1488,19 @@ export const sendListingMessage = createServerFn({ method: "POST" })
     const inserted = await sql.query<{ id: number }>(
       `with conversation as (
          insert into listing_conversations(id, listing_id, requester_id, owner_id)
-         values ($1, $2, $3, $4)
+         select $1, l.id, $3, $4
+         from listings l
+         where l.id = $2 and l.user_id = $4
+           and (
+             l.status = 'active'
+             or exists (
+               select 1 from listing_conversations existing
+               where existing.listing_id = l.id
+                 and existing.requester_id = $3
+                 and existing.owner_id = l.user_id
+             )
+           )
+         for update
          on conflict (listing_id, requester_id)
          do update set updated_at = now()
          returning id
