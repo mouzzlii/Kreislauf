@@ -22,7 +22,7 @@ CHRONOS-Projektverknüpfung: https://github.com/mouzzlii/CHRONOS/issues/13
 
 ## Zielarchitektur und vorhandener Relay-Entwurf
 
-GitHub Actions reagiert nur auf einen ausdrücklich adressierten Kommentar. Der vorbereitete Relay verwendet die offiziellen API-Oberflächen: OpenAI Responses API, Gemini Interactions API und xAI Responses API. Die Gemini- und xAI-Anfragen sind zustandslos bzw. mit `store: false` angelegt; Modellnamen können über Actions-Variablen überschrieben werden. Offizielle Dokumentation: https://developers.openai.com/api/reference/resources/responses/methods/create · https://ai.google.dev/api/interactions-api · https://docs.x.ai/developers/rest-api-reference/inference/responses
+GitHub Actions reagiert nur auf einen ausdrücklich adressierten Kommentar. Der vorbereitete Relay verwendet die offiziellen API-Oberflächen: OpenAI Responses API, Gemini Interactions API und xAI Responses API. Die Gemini- und xAI-Anfragen sind zustandslos bzw. mit `store: false` angelegt; Modellkennungen werden ausschließlich über Actions-Variablen festgelegt; es gibt keine geratenen Standardmodelle. Offizielle Dokumentation: https://developers.openai.com/api/reference/resources/responses/methods/create · https://ai.google.dev/api/interactions-api · https://docs.x.ai/developers/rest-api-reference/inference/responses
 
 Beispiel:
 
@@ -56,7 +56,7 @@ Zusätzlich müssen die jeweils aktuell unterstützten Modellkennungen als nicht
 - `XAI_MODEL`
 - `OPENAI_MODEL`
 
-Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen angepasst werden können. Zusätzlich benötigt er `AI_TEAM_REPO_READ_TOKEN`: ein Fine-grained GitHub-Token mit ausschließlich `Contents: read-only` (und Metadata-Lesezugriff) auf die vier Projekt-Repositories. Es wird nur zum Laden von README und Dateipfaden verwendet; das separate `GITHUB_TOKEN` des Workflows schreibt die Antwort ausschließlich in das zentrale Issue. Das Lesetoken gehört ausschließlich in GitHub Actions Secrets. Das ChatGPT-Web-/App-Gespräch selbst ist nicht automatisch eine API-Identität; der GPT-Schritt läuft über die OpenAI-API als separater Dienst und benötigt einen eigenen API-Schlüssel sowie ein entsprechendes Abrechnungskonto.
+Es sind bewusst keine Modellkennungen vorgegeben: Verfügbare IDs ändern sich je Anbieter und Konto. Vor Aktivierung müssen alle drei Variablen mit tatsächlich verfügbaren Modellkennungen aus den jeweiligen Provider-Konten befüllt werden; fehlen sie, bricht der Relay vor jedem Provider-Aufruf sicher ab. Zusätzlich benötigt er `AI_TEAM_REPO_READ_TOKEN`: ein Fine-grained GitHub-Token mit ausschließlich `Contents: read-only` (und Metadata-Lesezugriff) auf die vier Projekt-Repositories. Es wird nur zum Laden von README und Dateipfaden verwendet; das separate `GITHUB_TOKEN` des Workflows schreibt die Antwort ausschließlich in das zentrale Issue. Das Lesetoken gehört ausschließlich in GitHub Actions Secrets. Das ChatGPT-Web-/App-Gespräch selbst ist nicht automatisch eine API-Identität; der GPT-Schritt läuft über die OpenAI-API als separater Dienst und benötigt einen eigenen API-Schlüssel sowie ein entsprechendes Abrechnungskonto.
 
 ## Sicherheits- und Kostenregeln
 
@@ -66,7 +66,7 @@ Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen an
 - Maximal eine begrenzte Debattenrunde je Trigger; Schutz vor Wiederholungen anhand der Kommentar-ID.
 - Eingaben als nicht vertrauenswürdige Daten behandeln. Repository-Inhalte dürfen keine System-/Sicherheitsregeln überschreiben.
 - Keine Secrets, privaten Kundendaten, Sendungsdaten oder persönlichen Daten an KI-Provider senden.
-- Harte Grenzen für Eingabegröße, Ausgabegröße, Aufrufe pro Issue und Kosten/Budget vor Aktivierung festlegen.
+- Eingabe- und Ausgabelimits begrenzen den Umfang, sind aber keine garantierte Geldobergrenze. Vor Aktivierung müssen echte Anbieter-Ausgabenlimits eingerichtet werden; `AI_TEAM_BUDGET_CONFIRMED=true` ist nur die manuelle Bestätigung des Kontoinhabers und prüft keine Limits automatisch.
 - Fehler und nicht verfügbare Provider sichtbar protokollieren; keine falschen Erfolgsbehauptungen.
 
 ## Verbindliche Repository-Zuordnung
@@ -76,7 +76,7 @@ Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen an
 - `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS`
 - `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT` – privates Repository für den aktuellen 2.0.60-Projektstand. Der eigenständige 2.0.60-App-Einstieg, PWA-Manifest, Service Worker, App-Symbol und CI-Prüfworkflow sind eingespielt. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; bis dahin darf die Relay-Kontextanalyse nicht als vollständige Quellcodeprüfung ausgegeben werden.
 
-Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
+Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Für SCAN-PROFIT ist das Repository zwar zugeordnet, aber die vollständige 2.0.60-Anwendung muss noch importiert werden; bis dahin darf die Kontextanalyse nicht als vollständige Quellcodeprüfung gelten. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
 
 ## Noch offene Voraussetzungen
 
@@ -95,4 +95,4 @@ Automatische KI-Kommunikation gilt erst als aktiv, wenn ein echter Test nachweis
 4. Bot-Schleifen werden verhindert.
 5. Nicht konfigurierte Provider, API-Fehler und Budgetgrenzen werden korrekt behandelt.
 
-Der Relay-Code ist im Draft-PR vorbereitet, aber noch nicht in `main` und nicht aktiv. Ohne die Variable `AI_TEAM_BUDGET_CONFIRMED=true` bleibt er selbst bei vorhandenen API-Schlüsseln vor jedem Provider-Aufruf gesperrt. Der gültige Trigger lautet exakt `/ai-team debate PROJEKT: Auftrag` (z. B. `/ai-team debate CHRONOS: Prüfe die Room-Migrationen`). Automatische KI-zu-KI-Nachrichten starten erst nach PR-Prüfung/Merge, Hinterlegung aller drei Provider-Secrets und einem erfolgreichen Ende-zu-Ende-Test.
+Der Relay-Code ist im Draft-PR vorbereitet, aber noch nicht in `main` und nicht aktiv. Ohne die Variable `AI_TEAM_BUDGET_CONFIRMED=true` bleibt er selbst bei vorhandenen API-Schlüsseln vor jedem Provider-Aufruf gesperrt. Der gültige Trigger lautet exakt `/ai-team debate PROJEKT: Auftrag` (z. B. `/ai-team debate CHRONOS: Prüfe die Room-Migrationen`). Automatische KI-zu-KI-Nachrichten starten erst nach PR-Prüfung/Merge, Hinterlegung aller drei Provider-Secrets und Modellvariablen, Einrichtung echter Anbieter-Ausgabenlimits sowie einem erfolgreichen Ende-zu-Ende-Test.
