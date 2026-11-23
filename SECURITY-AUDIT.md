@@ -230,3 +230,12 @@ Zusätzliche Prüfung: Dieselbe Datenbankregel schützt auch die anfängliche Co
 Der aktuelle Branch-HEAD `44e994b4146eca187643c9a22832f7c300401ca1` enthält einen Regressionstest gegen die erneute Aufnahme des gemeinsam genutzten Preview-OAuth-Secrets in den Quellcode. Der Test kontrolliert die Preview-Konfiguration und den Server-Auth-Pfad: Das Secret darf nur aus `GROK_AUTH_CLIENT_SECRET` zur Laufzeit gelesen werden; ohne diesen Wert bleibt die Föderation deaktiviert.
 
 GitHub Actions Lauf `45167546406` war vollständig erfolgreich (Dependency-Audit, Produktions-Build, TypeScript, Tests und Lint). Das ist eine Codeprüfung. Die frühere Veröffentlichung des Secrets in der Git-Historie bleibt ein eigenständiger Vorfall: Widerruf/Rotation durch den Auth-Broker-Betreiber ist weiterhin erforderlich. Für den aktuellen HEAD ist noch kein erfolgreicher Vercel-Preview-Build nachgewiesen.
+
+
+## Nachprüfung – 23.11.2026: Demo-Registrierung und Videogrenzen
+
+Die Better-Auth-E-Mail-/Passwort-Funktion war entgegen der Beschreibung im Modul eingeschaltet. Sie ist für den aktuellen Demo-Modus jetzt explizit deaktiviert; ein Regressionstest prüft diese Sicherheitsvorgabe. Damit werden keine persönlichen Konten vorgetäuscht, solange die Demo mit gemeinsamer Testidentität und ohne persistente Datenbank läuft.
+
+Die Videoformatvalidierung enthielt eine nicht vom Nutzer gewünschte zusätzliche 60-Sekunden-Gesamtgrenze. Sie wurde entfernt: Die vorgesehenen Grenzen sind 1 × 60 s, 2 × 30 s oder 4 × 20 s (maximal 80 s Gesamtmaterial bei vier Clips). Client-Fehlermeldung und Serverformatprüfung verwenden dieselben Regeln. Der Upload-Endpunkt bleibt weiterhin fail-closed und liefert HTTP 503, solange keine echte serverseitige Medienprüfung und sichere Speicherung implementiert sind.
+
+GitHub Actions Lauf `45169081364` für Code-Commit `eb685817f0caf943e2211c87bbd510457134648b` war erfolgreich: Dependency-Audit, Build, TypeScript, automatisierte Tests und Lint. Keine Live-Datenbankmigration und kein neuer Vercel-Deploy wurden dadurch ausgeführt.
