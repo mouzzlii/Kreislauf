@@ -35,7 +35,12 @@ export function ListingConversation({
     };
     refresh();
     const interval = window.setInterval(refresh, 15_000);
-    return () => { cancelled = true; window.clearInterval(interval); };
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [currentUserId, initialRequesterId, isOwner, listingId]);
 
   const requesterId = isOwner ? activeRequester : currentUserId ?? "";
@@ -58,7 +63,12 @@ export function ListingConversation({
     };
     refresh();
     const interval = window.setInterval(refresh, 8_000);
-    return () => { cancelled = true; window.clearInterval(interval); };
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [currentUserId, listingId, requesterId]);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
