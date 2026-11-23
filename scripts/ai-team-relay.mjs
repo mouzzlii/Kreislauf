@@ -13,7 +13,7 @@ const {
 
 const PROJECT_REPOS = {
   KREISLAUF: process.env.PROJECT_REPO_KREISLAUF || "mouzzlii/Kreislauf",
-  TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/Fuck",
+  TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway",
   "SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT",
   CHRONOS: process.env.PROJECT_REPO_CHRONOS || "mouzzlii/CHRONOS",
 };
@@ -27,6 +27,7 @@ const AI_TEAM_ALLOWED_USERS = process.env.AI_TEAM_ALLOWED_USERS || "mouzzlii";
 const MAX_INPUT_CHARS = 8000;
 const MAX_CONTEXT_CHARS = 18000;
 const MAX_OUTPUT_TOKENS = 1000;
+const MAX_DAILY_DEBATES = 2;
 const MARKER_PREFIX = "<!-- ai-team-relay:";
 
 function fail(message) {
@@ -200,49 +201,74 @@ async function githubRequest(path, options = {}) {
   });
 }
 
-const MAX_DAILY_DEBATES = 2;
+async function reserveDailyDebate(triggerCommentId) {
+  const today = new Date().toISOString().slice(0, 10);
+  const dayStart = Date.parse(`${today}T00:00:00.000Z`);
+  const reservationPrefix = `<!-- ai-team-daily-budget:${today}:`;
+  let count = 0;
+  let alreadyReserved = false;
 
-async function reserveDailyDebate(commentId) {
-  const date = new Date().toISOString().slice(0, 10);
-  const prefix = `<!-- ai-team-daily-budget:${date}:`;
-  let used = 0;
-  let page = 1;
-  while (page <= 10) {
+  // The workflow's global concurrency group serializes reservations. Read
+  // recent ledger comments until the previous UTC day is reached.
+  for (let page = 1; page <= 20; page += 1) {
     const comments = await githubRequest(
       `issues/11/comments?per_page=100&sort=created&direction=desc&page=${page}`,
     );
     if (!Array.isArray(comments)) {
-      throw new Error("Daily budget ledger returned an invalid response; refusing provider calls.");
+      throw new Error("Daily budget ledger returned an unexpected response.");
     }
-    let reachedOlderDate = false;
+    let reachedPreviousDay = false;
     for (const item of comments) {
-      const createdDate = item.created_at?.slice(0, 10);
-      if (createdDate && createdDate < date) {
-        reachedOlderDate = true;
+      const createdAt = Date.parse(item.created_at || "");
+      if (Number.isFinite(createdAt) && createdAt < dayStart) {
+        reachedPreviousDay = true;
         break;
       }
-      if (createdDate === date && item.body?.includes(prefix)) used += 1;
+      const body = String(item.body || "");
+      if (body.includes(`${reservationPrefix}${triggerCommentId} -->`)) {
+        alreadyReserved = true;
+      }
+      if (body.includes(reservationPrefix)) count += 1;
     }
-    if (reachedOlderDate || comments.length < 100) break;
-    page += 1;
+    if (reachedPreviousDay || comments.length < 100) break;
+    if (page === 20) {
+      throw new Error("Daily budget ledger scan limit reached; refusing provider calls until the ledger can be checked.");
+    }
   }
-  if (page > 10) {
-    throw new Error("Daily budget ledger exceeded 1000 comments; refusing provider calls.");
-  }
-  if (used >= MAX_DAILY_DEBATES) return false;
 
-  const marker = `${prefix}${commentId} -->`;
+  if (alreadyReserved) return { allowed: false, duplicate: true, count };
+  if (count >= MAX_DAILY_DEBATES) return { allowed: false, duplicate: false, count };
+
+  const body = [
+    `${reservationPrefix}${triggerCommentId} -->`,
+    `Reservierung für KI-Team-Debatte am ${today} (UTC).`,
+    "Das Tageskontingent wird vor Provider-Aufrufen reserviert; auch fehlgeschlagene Debatten verbrauchen einen Platz.",
+  ].join("\n\n");
   await githubRequest("issues/11/comments", {
     method: "POST",
-    body: JSON.stringify({
-      body: [
-        marker,
-        `KI-Team-Relay Tageskontingent reserviert: ${used + 1}/${MAX_DAILY_DEBATES} Debatten am ${date} (UTC).`,
-        "Dies begrenzt die Zahl der Aufrufe, ersetzt aber keine USD-Ausgabenlimits bei den API-Anbietern.",
-      ].join("\n\n"),
-    }),
+    body: JSON.stringify({ body }),
   });
-  return true;
+  return { allowed: true, duplicate: false, count: count + 1 };
+}
+
+async function runPhase(issueNumber, marker, phase, work) {
+  try {
+    return await work();
+  } catch (error) {
+    const detail = error instanceof Error ? error.message.slice(0, 500) : "Unbekannter Fehler";
+    const body = [
+      marker,
+      "### KI-Team-Debatte abgebrochen",
+      `Fehlerphase: ${phase}`,
+      detail,
+      "Tageskontingent bleibt verbraucht, da die Reservierung vor dem Provider-Aufruf erfolgt ist.",
+    ].join("\n\n");
+    await githubRequest(`issues/${issueNumber}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ body }),
+    });
+    throw new Error(`Fehlerphase: ${phase}: ${detail}`);
+  }
 }
 
 async function main() {
@@ -280,7 +306,6 @@ async function main() {
     !OPENAI_API_KEY && "OPENAI_API_KEY",
     !GEMINI_API_KEY && "GEMINI_API_KEY",
     !XAI_API_KEY && "XAI_API_KEY",
-    !AI_TEAM_REPO_READ_TOKEN && "AI_TEAM_REPO_READ_TOKEN",
   ].filter(Boolean);
   const missingModels = [
     !OPENAI_MODEL && "OPENAI_MODEL",
@@ -294,7 +319,6 @@ async function main() {
       missing.length ? `Es fehlen GitHub-Actions-Secrets: ${missing.join(", ")}.` : "",
       missingModels.length ? `Es fehlen GitHub-Actions-Variablen mit ausdrücklich ausgewählten, aktuell unterstützten Modellkennungen: ${missingModels.join(", ")}.` : "",
       "Bitte Schlüssel ausschließlich unter Repository Settings → Secrets and variables → Actions → Secrets und Modellkennungen unter Variables hinterlegen. Niemals Schlüssel in Issues, Chats oder Quellcode posten.",
-      "AI_TEAM_REPO_READ_TOKEN muss ein Fine-grained GitHub-Token mit ausschließlich Contents: Read auf die vier Projekt-Repositories sein.",
       "Es werden keine Provider aufgerufen, solange Pflichtangaben fehlen.",
     ].filter(Boolean).join("\n\n");
     await githubRequest(`issues/${issue.number}/comments`, {
@@ -319,12 +343,21 @@ async function main() {
     return;
   }
 
-  const budgetReserved = await reserveDailyDebate(comment.id);
-  if (!budgetReserved) {
+  const reservation = await reserveDailyDebate(comment.id);
+  if (!reservation.allowed) {
+    if (reservation.duplicate) {
+      console.log("This trigger comment already has a daily budget reservation.");
+      return;
+    }
     await githubRequest(`issues/${issue.number}/comments`, {
       method: "POST",
       body: JSON.stringify({
-        body: [marker, "### KI-Team-Relay Tageslimit erreicht", "Das feste Tageskontingent von zwei Debatten (UTC) ist ausgeschöpft. Es wurde kein KI-Provider aufgerufen."].join("\n\n"),
+        body: [
+          marker,
+          "### KI-Team-Debatte abgebrochen",
+          `Das UTC-Tageskontingent von maximal ${MAX_DAILY_DEBATES} Debatten ist bereits ausgeschöpft.`,
+          "Bitte am nächsten UTC-Kalendertag erneut versuchen. Es wurden keine Provider aufgerufen.",
+        ].join("\n\n"),
       }),
     });
     return;
@@ -354,30 +387,25 @@ async function main() {
   ].join(" ");
 
   console.log(`Starting bounded review for ${project} on issue #${issue.number}.`);
-  let phase = "OpenAI / GPT Erstanalyse";
-  try {
-  const initial = await askOpenAI(
+  const initial = await runPhase(issue.number, marker, "OpenAI/GPT-Erstanalyse", () => askOpenAI(
     `${baseInstructions} Erstelle zuerst eine eigenständige Analyse mit konkreten Risiken, Verbesserungsvorschlägen und überprüfbaren nächsten Schritten.`,
     safeContext,
-  );
+  ));
 
-  phase = "Gemini Gegenprüfung";
-  const gemini = await askGemini(
+  const gemini = await runPhase(issue.number, marker, "Gemini-Gegenprüfung", () => askGemini(
     `${baseInstructions} Du bist Gemini und erhältst die Analyse eines anderen Agenten. Prüfe sie unabhängig, widersprich bei Bedarf und nenne fehlende Belege.`,
     `${safeContext}\n\nAnalyse von OpenAI/GPT:\n${initial}`,
-  );
+  ));
 
-  phase = "Grok Gegenprüfung";
-  const grok = await askGrok(
+  const grok = await runPhase(issue.number, marker, "Grok-Gegenprüfung", () => askGrok(
     `${baseInstructions} Du bist Grok und bist der unabhängige Gegenprüfer. Prüfe den ursprünglichen Auftrag sowie die beiden Analysen. Identifiziere Denkfehler, Risiken und bessere Alternativen.`,
     `${safeContext}\n\nAnalyse von OpenAI/GPT:\n${initial}\n\nGegenprüfung von Gemini:\n${gemini}`,
-  );
+  ));
 
-  phase = "OpenAI / GPT Abschlusssynthese";
-  const synthesis = await askOpenAI(
+  const synthesis = await runPhase(issue.number, marker, "OpenAI/GPT-Synthese", () => askOpenAI(
     `${baseInstructions} Du moderierst die Abschlussrunde. Fasse nur belastbare Übereinstimmungen zusammen, löse Widersprüche begründet auf und liste offene Nachweise. Behaupte nicht, dass Code geändert oder getestet wurde.`,
     `${safeContext}\n\nGPT-Erstanalyse:\n${initial}\n\nGemini-Gegenprüfung:\n${gemini}\n\nGrok-Gegenprüfung:\n${grok}\n\nErstelle die abschließende gemeinsame Empfehlung.`,
-  );
+  ));
 
   const body = [
     marker,
@@ -400,22 +428,6 @@ async function main() {
     body: JSON.stringify({ body }),
   });
   console.log("KI-Team-Debatte completed and recorded.");
-  } catch (error) {
-    const detail = error instanceof Error ? error.message.slice(0, 500) : "Unbekannter Provider-Fehler";
-    await githubRequest(`issues/${issue.number}/comments`, {
-      method: "POST",
-      body: JSON.stringify({
-        body: [
-          marker,
-          `### KI-Team-Debatte abgebrochen – ${project}`,
-          `Fehlerphase: ${phase}`,
-          `Fehler: ${detail}`,
-          "Es wurde keine vollständige gemeinsame Synthese erstellt. Das reservierte Tageskontingent bleibt verbraucht, auch wenn der Provider-Aufruf teilweise fehlgeschlagen ist.",
-        ].join("\n\n"),
-      }),
-    });
-    throw error;
-  }
 }
 
 main().catch((error) => fail(error instanceof Error ? error.message : "Unknown relay error."));
