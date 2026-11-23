@@ -169,3 +169,6 @@ GitHub Actions Lauf `45097198523` auf Commit `fc8144441afd2cbb60182194b9f650ea24
 Migration `0024_independent_escrow_resolution.sql` ergänzt einen Datenbanktrigger auf `escrow_resolution_votes`. Käufer und Verkäufer dürfen nicht über ihren eigenen Streitfall abstimmen – auch dann nicht, wenn ein Parteikonto zusätzlich Moderationsrechte besitzt oder versehentlich als Moderator zugewiesen wurde. Die Prüfung erfolgt unmittelbar vor dem Einfügen jeder Streitfallstimme und kann daher nicht durch eine manipulierte Oberfläche umgangen werden.
 
 Der Regressionstest hebt für einen Testkäufer die Moderatorenrechte an, weist ihn zusätzlich dem eigenen Fall zu und erwartet, dass die Datenbank seine Abstimmung zurückweist. Die Migration ist außerdem im Supabase-Neuinstallationsskript und in den Clean-Install-Testlisten enthalten. Die Ausführung auf dem echten Supabase-Projekt und ein neuer GitHub-Actions-Lauf für diesen Commit stehen noch aus.
+
+
+Zusätzliche Prüfung: Dieselbe Datenbankregel schützt auch die anfängliche Community-Freigabe (Tabelle `escrow_votes`). Ein Käufer oder Verkäufer kann daher nicht als Moderator die erste Freigabe für die eigene Treuhand beeinflussen. Ein Regressionstest setzt den Käufer testweise auf Moderatorstatus und erwartet, dass seine eigene Stimme abgewiesen wird. Beide Trigger sind im Supabase-Neuinstallationsskript enthalten.
