@@ -901,6 +901,49 @@ where not exists (
     and existing.message = 'Demo-Kontostand-Abgleich 0016'
     and (existing.sender_id = a.user_id or existing.receiver_id = a.user_id)
 );
+-- 0017_allow_activity_ledger_entries.sql: allow activity rewards emitted by the app.
+alter table public.ledger_entries
+  drop constraint if exists ledger_entries_entry_kind_check;
+alter table public.ledger_entries
+  add constraint ledger_entries_entry_kind_check
+  check (entry_kind in ('mint', 'transfer', 'demurrage', 'activity'));
+
+-- 0018_booking_bilateral_handover.sql: backfill completed historical handovers.
+alter table public.bookings
+  add column if not exists renter_handover_at timestamptz,
+  add column if not exists owner_handover_at timestamptz;
+update public.bookings
+set renter_handover_at = coalesce(renter_handover_at, created_at),
+    owner_handover_at = coalesce(owner_handover_at, created_at)
+where status in ('handed_over', 'returned')
+  and (renter_handover_at is null or owner_handover_at is null);
+alter table public.bookings
+  drop constraint if exists bookings_bilateral_handover_check;
+alter table public.bookings
+  add constraint bookings_bilateral_handover_check
+  check (
+    status not in ('handed_over', 'returned')
+    or (renter_handover_at is not null and owner_handover_at is not null)
+  );
+
+-- 0019_booking_bilateral_return.sql: release shared items after both confirmations.
+alter table public.bookings
+  add column if not exists renter_return_at timestamptz,
+  add column if not exists owner_return_at timestamptz;
+update public.bookings
+set renter_return_at = coalesce(renter_return_at, created_at),
+    owner_return_at = coalesce(owner_return_at, created_at)
+where status = 'returned'
+  and (renter_return_at is null or owner_return_at is null);
+alter table public.bookings
+  drop constraint if exists bookings_bilateral_return_check;
+alter table public.bookings
+  add constraint bookings_bilateral_return_check
+  check (
+    status <> 'returned'
+    or (renter_return_at is not null and owner_return_at is not null)
+  );
+
 -- Mark the bundled migrations as applied so the app does not rerun them at deploy.
 insert into _migrations(name) values
   ('0001_auth.sql'),
@@ -916,7 +959,10 @@ insert into _migrations(name) values
   ('0012_atomic_listing_message_rate_limits.sql'),
   ('0013_listing_video_urls.sql'),
   ('0015_listing_paused_status.sql'),
-  ('0016_reconcile_demo_karma_ledger.sql')
+  ('0016_reconcile_demo_karma_ledger.sql'),
+  ('0017_allow_activity_ledger_entries.sql'),
+  ('0018_booking_bilateral_handover.sql'),
+  ('0019_booking_bilateral_return.sql')
 on conflict (name) do nothing;
 
 commit;
