@@ -1,4 +1,5 @@
 name: KI-Team-Relay CI
+# Checks the configured canonical repositories, explicit provider models, and bounded daily usage.
 
 on:
   push:
