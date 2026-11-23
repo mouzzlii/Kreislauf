@@ -52,6 +52,10 @@ const migrations = [
   "0017_allow_activity_ledger_entries.sql",
   "0018_booking_bilateral_handover.sql",
   "0019_booking_bilateral_return.sql",
+  "0020_escrow_moderator_quorum.sql",
+  "0021_high_value_escrow_funds.sql",
+  "0022_high_value_escrow_confirmation_and_disputes.sql",
+  "0023_freeze_high_value_escrow_ballots.sql",
 ];
 const client = new pg.Client({
   connectionString,
