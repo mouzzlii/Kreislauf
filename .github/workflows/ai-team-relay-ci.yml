@@ -1,0 +1,26 @@
+name: KI-Team-Relay CI
+
+on:
+  pull_request:
+    paths:
+      - "scripts/ai-team-relay.mjs"
+      - "scripts/ai-team-relay.test.mjs"
+      - ".github/workflows/ai-team-communication.yml"
+      - ".github/workflows/ai-team-relay-ci.yml"
+      - "AI_TEAM_SETUP.md"
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-and-parser-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: node --check scripts/ai-team-relay.mjs
+      - name: Test command parser
+        run: node scripts/ai-team-relay.test.mjs
