@@ -19,16 +19,19 @@ create table if not exists _migrations (
 -- DATABASE_URL is set. The columns are camelCase and MUST stay double-quoted so
 -- Postgres preserves the case Better Auth queries by.
 --
--- Migrations in this folder are the single source of truth for your schema. They
--- apply to Neon during the Vercel build (`npm run build`) and to the local
--- PGLite fallback automatically on startup, so dev matches production. Applied
--- files are recorded by name in `_migrations` and NEVER run again.
+-- Ordered application migrations are the source of truth for schema changes.
+-- When DATABASE_URL is configured, the deploy-time migrator applies pending
+-- files to the configured PostgreSQL database during the build. The local and
+-- preview PGLite fallback applies the same migrations at startup. Applied files
+-- are recorded in `_migrations` and are not run again. This bundled SQL file is
+-- the clean-install script for the existing Supabase PostgreSQL project.
 --
 -- Put YOUR app's schema in NEW ordered files (0002_*.sql, 0003_*.sql, …), never
 -- in this one. For app tables, prefer snake_case and give per-user tables a
 -- `user_id TEXT NOT NULL` column (TEXT, not UUID — the preview dev user id is
 -- the string 'dev-user'), then scope every query to the authenticated user
--- server-side (see the `neon` + `auth` skills and src/lib/auth/verify.server.ts).
+-- server-side after verifying the Better Auth session in
+-- src/lib/auth/verify.server.ts).
 
 create table if not exists "user" (
   "id" text not null primary key,
@@ -82,13 +85,15 @@ create index if not exists "verification_identifier_idx" on "verification" ("ide
 
 -- 0002_kreislauf.sql: core schema and the Yspertal/B36 region.
 -- KREISLAUF — regionales Tausch-, Service- und Sharing-Schema
--- Portable PostgreSQL (Neon in production, PGLite in preview).
+-- Portable PostgreSQL (Supabase PostgreSQL for the managed database;
+-- PGLite for local/demo fallback when DATABASE_URL is not configured).
 -- Same model you would apply in the Supabase SQL editor:
 --   regions (tenants), profiles, listings, bookings, reviews,
 --   and an append-only karma ledger with a demurrage sink.
 -- Authorization is enforced in server functions against the verified session.
--- The app role is trusted (service-role equivalent); RLS is not enabled here
--- because it would lock that role out. A Supabase port sketch is at the bottom.
+-- The application accesses data through its private server-side DATABASE_URL.
+-- RLS is enabled below as defense in depth, and browser-facing anon/authenticated
+-- roles receive no direct table privileges. No Supabase browser client is used.
 
 create table if not exists regions (
   id text primary key,
