@@ -492,6 +492,8 @@ test("high-value escrow disputes are resolved by an independent moderator quorum
   assert.match(escrowSettlementSql, /p_decision not in \('release','refund'\)/);
   assert.match(escrowSettlementSql, /length\(trim\(coalesce\(p_note,''\)\)\) < 10/);
   assert.match(escrowPanel, /Begründung deiner Moderationsentscheidung/);
+  assert.match(escrowPanel, /keine Zweidrittelmehrheit/);
+  assert.match(escrowPanel, /Punkte bleiben reserviert und das Inserat gesperrt/);
   assert.match(escrowSettlementSql, /v_votes >= 4 and greatest\(v_releases,v_refunds\) >= ceil/);
   assert.match(escrowSettlementSql, /'escrow_refund'/);
   assert.match(escrowSettlementSql, /status = 'refunded'/);
