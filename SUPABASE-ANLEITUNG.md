@@ -93,9 +93,9 @@ Der automatisierte Datenbank-Smoke-Test führt jetzt die Migrationen **0002 bis 
 
 **Wichtig:** Dafür ist ein eigenes, isoliertes Supabase-Testprojekt erforderlich. Niemals die Produktionsdatenbank oder das bestehende Live-Projekt als Testziel verwenden. Der Test verwendet die öffentliche Standardschema-Struktur, weil mehrere Migrationen ausdrücklich `public.*` referenzieren. Er startet eine Transaktion und rollt am Ende alles zurück; trotzdem ist das separate Testprojekt die Sicherheitsgrenze.
 
-Für GitHub Actions muss die Verbindungs-URL des separaten Testprojekts als Secret `SUPABASE_TEST_DATABASE_URL` hinterlegt werden. Das Secret `SUPABASE_DATABASE_URL` wird vom Test nicht mehr verwendet. Die URL bleibt in GitHub Secrets und wird nicht in Chat, Quellcode oder Browser-Variablen kopiert.
+Für GitHub Actions kann die Verbindungs-URL des separaten Testprojekts als Secret `SUPABASE_TEST_DATABASE_URL` hinterlegt werden. Die URL bleibt in GitHub Secrets und wird nicht in Chat, Quellcode oder Browser-Variablen kopiert. Der Workflow prüft das bereits eingerichtete Testprojekt dann mit `scripts/supabase-test-project-verify.mjs` ausschließlich lesend. `scripts/supabase-db-smoke.mjs` ist dagegen ein Migrationstest für eine leere, isolierte Testdatenbank und darf nicht gegen das bereits eingerichtete Projekt ausgeführt werden.
 
-Das separate Testprojekt `kreislauf-test` wurde inzwischen erstellt. Das Clean-Install-Skript `SUPABASE-SETUP.sql` wurde dort ausgeführt und die Tabellen, RLS-Einstellungen, Rechte sowie zentrale Nachrichten- und Treuhandabläufe wurden direkt in PostgreSQL geprüft. Der vollständige Node-Smoke-Test über `pg` ist noch nicht durch GitHub Actions gelaufen; dafür muss `SUPABASE_TEST_DATABASE_URL` als GitHub Actions Secret gesetzt sein. Die ursprüngliche Supabase-Datenbank blieb unangetastet.
+Das separate Testprojekt `kreislauf-test` wurde inzwischen erstellt. Das Clean-Install-Skript `SUPABASE-SETUP.sql` wurde dort ausgeführt und Tabellen, RLS-Einstellungen, Rechte sowie zentrale Nachrichten- und Treuhandabläufe wurden direkt in PostgreSQL geprüft. Der externe GitHub-Actions-Lesecheck ist vorbereitet, aber noch nicht gelaufen, weil das Secret `SUPABASE_TEST_DATABASE_URL` nicht hinterlegt ist. Die ursprüngliche Supabase-Datenbank blieb unangetastet.
 
 ### Treuhand-Abstimmungen und Altstimmen
 
