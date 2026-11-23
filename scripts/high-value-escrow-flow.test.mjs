@@ -29,6 +29,7 @@ const migrations = [
   "0021_high_value_escrow_funds.sql",
   "0022_high_value_escrow_confirmation_and_disputes.sql",
   "0023_freeze_high_value_escrow_ballots.sql",
+  "0024_independent_escrow_resolution.sql",
 ];
 
 async function checked(label, operation) {
@@ -231,6 +232,17 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
       "select kreislauf_open_high_value_dispute($1,$2,$3)",
       ["escrow-listing-3","escrow-seller","Lieferung wurde nicht wie vereinbart ausgeführt."],
     ));
+
+    await db.query("update profiles set moderator_rank = 1 where user_id = 'escrow-buyer'");
+    await db.query(
+      "insert into escrow_moderators(escrow_id,moderator_id) values ('escrow-case-3','escrow-buyer')",
+    );
+    await assert.rejects(
+      db.query("select * from kreislauf_vote_escrow_resolution($1,$2,$3,$4)",
+        ["escrow-listing-3","escrow-buyer","refund","Eigene Streitfallentscheidung"]),
+      /Tauschparteien dürfen nicht über ihren eigenen Streitfall abstimmen/,
+      "a buyer who also has moderator privileges must not vote on their own dispute",
+    );
     for (const [moderator,decision] of [
       ["escrow-mod-1","release"],
       ["escrow-mod-2","release"],
