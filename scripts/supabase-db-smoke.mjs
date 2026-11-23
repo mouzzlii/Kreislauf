@@ -200,6 +200,53 @@ try {
   }
   console.log("[supabase-smoke] Vier Stimmen und Zweidrittel-Entscheidung OK");
 
+  // A single party must not be able to mark a handover as complete.
+  await client.query("savepoint unilateral_handover");
+  await assert.rejects(
+    client.query(
+      "update bookings set renter_handover_at = now(), status = 'handed_over' where id = 'smoke-booking'",
+    ),
+    (error) => error.code === "23514",
+    "one-sided handover must violate the bilateral check",
+  );
+  await client.query("rollback to savepoint unilateral_handover");
+  await client.query("release savepoint unilateral_handover");
+  await client.query(
+    `update bookings
+     set renter_handover_at = now(), owner_handover_at = now(), status = 'handed_over'
+     where id = 'smoke-booking'`,
+  );
+
+  // Likewise, one return confirmation cannot close the booking.
+  await client.query("savepoint unilateral_return");
+  await assert.rejects(
+    client.query(
+      "update bookings set renter_return_at = now(), status = 'returned' where id = 'smoke-booking'",
+    ),
+    (error) => error.code === "23514",
+    "one-sided return must violate the bilateral check",
+  );
+  await client.query("rollback to savepoint unilateral_return");
+  await client.query("release savepoint unilateral_return");
+  await client.query(
+    `update bookings
+     set renter_return_at = now(), owner_return_at = now(), status = 'returned'
+     where id = 'smoke-booking'`,
+  );
+  await client.query("update listings set status = 'active' where id = 'smoke-listing'");
+  const completed = await client.query(
+    `select b.status as booking_status, l.status as listing_status,
+       b.renter_handover_at is not null and b.owner_handover_at is not null as both_handover,
+       b.renter_return_at is not null and b.owner_return_at is not null as both_return
+     from bookings b join listings l on l.id = b.listing_id
+     where b.id = 'smoke-booking'`,
+  );
+  assert.equal(completed.rows[0].booking_status, "returned");
+  assert.equal(completed.rows[0].listing_status, "active");
+  assert.equal(completed.rows[0].both_handover, true);
+  assert.equal(completed.rows[0].both_return, true);
+  console.log("[supabase-smoke] Beidseitige Übergabe und Rückgabe inklusive Inseratfreigabe OK");
+
   const secondReservation = await client.query(
     `select count(*)::int as eligible from listings
      where id = 'smoke-listing' and status = 'active'`,
