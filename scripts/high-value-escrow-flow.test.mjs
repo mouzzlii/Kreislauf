@@ -184,6 +184,11 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
       /Keine aktive Moderationszuordnung/,
       "a party cannot decide its own dispute",
     );
+    await assert.rejects(
+      db.query("select * from kreislauf_vote_escrow_resolution($1,$2,$3,$4)",["escrow-listing-2","escrow-mod-1","refund","kurz"]),
+      /mindestens 10 Zeichen/,
+      "moderator dispute decisions must include a documented reason",
+    );
     for (const moderator of ["escrow-mod-1","escrow-mod-2","escrow-mod-3","escrow-mod-4"]) {
       await checked("moderator refund vote", () => db.query("select * from kreislauf_vote_escrow_resolution($1,$2,$3,$4)",
         ["escrow-listing-2",moderator,"refund","Erstattung gerechtfertigt"]));
