@@ -6,7 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { ensureProfile, setRegion as setRegionFn } from "./api";
+import { ensureProfile, setRegion as setRegionFn, touchActivity } from "./api";
 import { DEFAULT_REGION } from "./types";
 import type { Profile } from "./types";
 import { KreislaufContext, type Theme } from "./context-core";
@@ -69,6 +69,25 @@ export function KreislaufProvider({ children }: { children: ReactNode }) {
     };
     // refreshProfile changes with regionId; only re-ensure when the session identity changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, user?.id]);
+
+  // Moderator eligibility is based on recent presence, not profile edits.
+  // Update only while the app is visible, plus immediately when the user
+  // returns to the tab. This timestamp is separate from Karma demurrage.
+  useEffect(() => {
+    if (!hydrated || !user) return;
+    const touch = () => {
+      if (document.visibilityState === "visible") {
+        void touchActivity().catch(() => undefined);
+      }
+    };
+    touch();
+    const interval = window.setInterval(touch, 15 * 60 * 1000);
+    document.addEventListener("visibilitychange", touch);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", touch);
+    };
   }, [hydrated, user?.id]);
 
   const setRegion = useCallback(
