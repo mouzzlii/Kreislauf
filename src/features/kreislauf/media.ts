@@ -8,7 +8,7 @@ export function assertOwnedListingImageUrl(value: string, userId: string): void 
 
   if (
     parsed.protocol !== "https:" ||
-    !/^[a-z0-9-]+\\.public\\.blob\\.vercel-storage\\.com$/i.test(parsed.hostname) ||
+    !/^[a-z0-9-]+\.public\.blob\.vercel-storage\.com$/i.test(parsed.hostname) ||
     parsed.port !== "" ||
     parsed.username !== "" ||
     parsed.password !== "" ||
