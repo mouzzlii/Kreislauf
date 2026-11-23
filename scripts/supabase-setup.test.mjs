@@ -18,6 +18,7 @@ test("Supabase production setup includes all current application migrations", ()
     "0011_limit_listing_message_rate.sql",
     "0012_atomic_listing_message_rate_limits.sql",
     "0013_listing_video_urls.sql",
+    "0024_independent_escrow_resolution.sql",
   ]) {
     assert.ok(sql.includes(name), `missing migration ${name}`);
   }
