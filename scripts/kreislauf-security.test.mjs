@@ -59,6 +59,7 @@ test("moderator activity is refreshed while the signed-in app is visible", () =>
   const touch = serverFunction("touchActivity");
   assert.match(touch, /\.middleware\(\[authMiddleware\]\)/);
   assert.match(touch, /update profiles set last_active_at = now\(\) where user_id = \$1/);
+  assert.match(touch, /last_active_at is null or last_active_at < now\(\) - interval '5 minutes'/);
   assert.match(touch, /\[context\.userId\]/);
   assert.doesNotMatch(touch, /data\.|source\./);
   assert.match(kreislaufContext, /touchActivity\(\)/);
