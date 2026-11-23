@@ -13,8 +13,8 @@ const {
 
 const PROJECT_REPOS = {
   KREISLAUF: process.env.PROJECT_REPO_KREISLAUF || "mouzzlii/Kreislauf",
-  TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway",
-  "SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "",
+  TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/Fuck",
+  "SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT",
   CHRONOS: process.env.PROJECT_REPO_CHRONOS || "mouzzlii/CHRONOS",
 };
 
