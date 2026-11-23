@@ -6,7 +6,7 @@ Regionales Kreislauf- und Tauschsystem für das Yspertal / die B36.
 
 Die aktuelle Vorschau ist eine gemeinsame Testversion, kein produktiver Mehrbenutzerbetrieb.
 
-**[Aktuelle KREISLAUF-Testvorschau öffnen](https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/)** – Preview-Deploy für Commit `adcb3a3f355d141206468ead9e26c735b8203f32`, Status `READY`; zentrale Seiten wurden mit HTTP 200 geprüft. Es bleibt eine gemeinsame Demo ohne persönliche Registrierung und ohne dauerhafte Mehrbenutzerdaten. Keine echten persönlichen oder vertraulichen Daten eingeben.
+**[Aktuelle KREISLAUF-Testvorschau öffnen](https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/)** – Preview-Deploy für Commit `ebea621eef596a72c1e20a9e628160e7fc115bbc`, Status `READY`; Startseite, Karte, Inserat-Erstellung, Konto und Beispiel-Inserat wurden auf dem aktuellen Alias mit HTTP 200 geprüft. Es bleibt eine gemeinsame Demo ohne persönliche Registrierung und ohne dauerhafte Mehrbenutzerdaten. Keine echten persönlichen oder vertraulichen Daten eingeben.
 
 **[Deutsche Anleitung zum Ausprobieren](DEMO-ANLEITUNG.md)**
 
