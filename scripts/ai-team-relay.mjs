@@ -230,6 +230,20 @@ async function main() {
     return;
   }
 
+  if (AI_TEAM_BUDGET_CONFIRMED !== "true") {
+    const message = [
+      marker,
+      "### KI-Team-Relay aus Sicherheitsgründen pausiert",
+      "Vor externen KI-API-Aufrufen muss der Kontoinhaber die Anbieterbudgets und Ausgabenlimits geprüft und in GitHub Actions die Variable `AI_TEAM_BUDGET_CONFIRMED=true` ausdrücklich gesetzt haben.",
+      "Bis dahin werden keine OpenAI-, Gemini- oder xAI-Aufrufe gestartet.",
+    ].join("\n\n");
+    await githubRequest(`issues/${issue.number}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ body: message }),
+    });
+    return;
+  }
+
   const missing = [
     !OPENAI_API_KEY && "OPENAI_API_KEY",
     !GEMINI_API_KEY && "GEMINI_API_KEY",
