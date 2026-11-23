@@ -137,7 +137,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     );
 
     const applied = await db.query("select name from _migrations order by name");
-    assert.equal(applied.rows.length, 21);
+    assert.equal(applied.rows.length, 22);
   } finally {
     await db.close();
   }
