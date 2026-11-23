@@ -58,6 +58,7 @@ const migrations = [
   "0023_freeze_high_value_escrow_ballots.sql",
   "0024_independent_escrow_resolution.sql",
   "0025_archive_legacy_conflicted_escrow_votes.sql",
+  "0026_complete_escrow_foreign_key_indexes.sql",
 ];
 const client = new pg.Client({
   connectionString,
