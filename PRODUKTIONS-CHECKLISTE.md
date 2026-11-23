@@ -96,3 +96,13 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - Auch die Rückgabe einer Sharing-Buchung braucht jetzt beide Bestätigungen. Das Inserat wird erst danach wieder öffentlich buchbar; Migration `0019_booking_bilateral_return.sql` ergänzt die Bestätigungsfelder und sichert historische Rückgaben ab.
 
 - Inserat-Unterhaltung und erste/weitere Nachricht werden atomar in einem SQL-Statement gespeichert; Regressionstest vorhanden.
+
+
+## Ergänzung – 23.11.2026: Treuhand-Mindestquorum
+
+- Migration `0020_escrow_moderator_quorum.sql` ergänzt einen Datenbank-Trigger: Neue Treuhandfälle werden nur gespeichert, wenn der Zuweisungstrigger mindestens vier aktive, verifizierte Moderationspersonen zugeordnet hat.
+- Wenn zwischen Vorabprüfung und tatsächlicher Eröffnung nicht mehr genügend Moderatoren verfügbar sind, löst die Datenbank einen Fehler aus. Das gesamte SQL-Statement der Reservierung bzw. Treuhanderöffnung wird dadurch zurückgerollt.
+- Das saubere Supabase-Installationsskript enthält dieselbe Funktion, den Trigger und den Migrationseintrag.
+- Ein Clean-Install-Test prüft sowohl den Abbruch mit nur drei Moderatoren als auch die erfolgreiche Eröffnung mit vier zugewiesenen Moderatoren.
+- GitHub Actions Lauf `45094441832` auf Commit `2d064231d7458bf45b8093d7834d7e55e5124381`: erfolgreich – Dependency-Audit, Produktions-Build, TypeScript, 257 automatisierte Tests und Lint.
+- Die Migration ist im Repository vorbereitet, wurde aber nicht auf dem verbundenen Supabase-Projekt ausgeführt. Der echte Supabase-Test, Android-Praxistest und vollständige hochwertige Übergabe-/Streitfallprozess bleiben offen.
