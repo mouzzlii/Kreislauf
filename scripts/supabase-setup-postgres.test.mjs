@@ -24,7 +24,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
       "regions", "profiles", "listings", "bookings", "reviews",
       "ledger_entries", "item_history", "escrow_cases",
       "listing_conversations", "listing_messages", "listing_message_rate_limits", "escrow_moderators",
-      "escrow_votes", "escrow_resolution_votes", "user", "session", "account", "verification",
+      "escrow_votes", "escrow_resolution_votes", "escrow_vote_conflict_archive", "user", "session", "account", "verification",
     ]) {
       assert.equal(tables.get(table), true, `RLS is not enabled for ${table}`);
     }
@@ -46,6 +46,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
         has_table_privilege('anon', 'public.listings', 'select') as anon_can_read_listings,
         has_table_privilege('authenticated', 'public.profiles', 'update') as member_can_update_profiles,
         has_table_privilege('anon', 'public.listing_messages', 'select') as anon_can_read_messages,
+        has_table_privilege('anon', 'public.escrow_vote_conflict_archive', 'select') as anon_can_read_conflict_archive,
         has_function_privilege('anon', 'public.apply_demurrage()', 'execute') as anon_can_run_demurrage,
         has_function_privilege('anon', 'public.kreislauf_system_message(text,text,text,text)', 'execute') as anon_can_send_system_messages,
         has_function_privilege('authenticated', 'public.kreislauf_booking_status_message()', 'execute') as member_can_call_booking_trigger,
@@ -55,6 +56,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     assert.equal(access.rows[0].anon_can_read_listings, false);
     assert.equal(access.rows[0].member_can_update_profiles, false);
     assert.equal(access.rows[0].anon_can_read_messages, false);
+    assert.equal(access.rows[0].anon_can_read_conflict_archive, false);
     assert.equal(access.rows[0].anon_can_run_demurrage, false);
     assert.equal(access.rows[0].anon_can_send_system_messages, false);
     assert.equal(access.rows[0].member_can_call_booking_trigger, false);
@@ -150,7 +152,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     );
 
     const applied = await db.query("select name from _migrations order by name");
-    assert.equal(applied.rows.length, 23);
+    assert.equal(applied.rows.length, 24);
   } finally {
     await db.close();
   }
