@@ -44,7 +44,7 @@ Die derzeitige Vorschau verwendet absichtlich einen gemeinsamen Demo-Zugang. **B
 3. Danach zuerst Konto anlegen, abmelden und wieder anmelden testen. E-Mail/Passwort ist in der Anmeldemaske vorgesehen.
 4. Google/X-Anmeldung benötigt zusätzlich eine eigene, für die KREISLAUF-Domain freigeschaltete Broker-Anwendung. Dafür sind `GROK_AUTH_ISSUER`, `GROK_AUTH_CLIENT_ID` und `GROK_AUTH_CLIENT_SECRET` erforderlich. Diese Werte müssen vom Betreiber des Auth-Brokers bereitgestellt werden; die Vorschau-Zugangsdaten sind keine Produktions-Zugangsdaten.
 
-Die SQL-Datei markiert die enthaltenen Migrationen `0001_auth.sql` bis `0007_harden_function_search_path.sql` sowie `0009` bis `0025` als angewendet. Die optionale Migration `0008_harden_legacy_function_search_path.sql` bleibt bei einer Neuinstallation absichtlich außen vor, weil sie nur eine Altbestandsfunktion absichert. Die Datenbankfunktionen erhalten einen festen `search_path`, damit sie keine fremden Objekte über eine manipulierte Namensauflösung verwenden. Die optionale Migration `0008_harden_legacy_function_search_path.sql` bleibt bei einer Neuinstallation absichtlich außen vor, weil sie nur eine Altbestandsfunktion absichert. Die Datenbankfunktionen erhalten einen festen `search_path`, damit sie keine fremden Objekte über eine manipulierte Namensauflösung verwenden.
+Die SQL-Datei markiert die enthaltenen Migrationen `0001_auth.sql` bis `0007_harden_function_search_path.sql` sowie `0009` bis `0025` als angewendet. Die optionale Migration `0008_harden_legacy_function_search_path.sql` bleibt bei einer Neuinstallation absichtlich außen vor, weil sie nur eine Altbestandsfunktion absichert. Die übrigen Datenbankfunktionen erhalten einen festen `search_path`, damit sie keine fremden Objekte über eine manipulierte Namensauflösung verwenden.
 
 
 ## 4. Sicherheitsprüfung vor dem öffentlichen Start
@@ -84,7 +84,7 @@ Für die spätere Freigabe müssen persönliche Anmeldung, `DATABASE_URL`, ein g
 
 ### Datenbankleistung
 
-Migration 0014 ergänzt Indizes für die Fremdschlüssel der aktuell verwendeten Tabellen. Auf dem verbundenen Supabase-Projekt wurden 19 Fremdschlüssel-Indizes angelegt; die Performance-Prüfung meldet keine unindizierten Fremdschlüssel mehr. Einige Indizes erscheinen derzeit als unbenutzt, weil die Plattform noch keinen echten Nutzerbetrieb mit entsprechender Datenlast hat.
+Migration 0014 ergänzt Indizes für Fremdschlüssel der verwendeten Tabellen. Die Indexdefinitionen werden durch die automatisierten PostgreSQL-kompatiblen Setup-Tests geprüft. **Wichtig:** Für das vorhandene Supabase-Projekt wurde keine Datenbankverbindung hergestellt und keine Migration ausgeführt; es gibt daher aktuell keinen bestätigten Live-Index- oder Performance-Befund.
 
 
 ## 5. Supabase-Testlauf – nur mit separatem Testprojekt
