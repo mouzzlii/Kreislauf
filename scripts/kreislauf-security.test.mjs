@@ -191,7 +191,7 @@ test("sharing handover is blocked until its escrow has been released", () => {
 
 test("cancelled escrow is represented separately in the API and user interface", () => {
   assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled" \| "refunded" \| null/);
-  assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled" \| "refunded" \| null;/);
+  assert.match(api, /status: "pending" \| "released" \| "disputed" \| "cancelled";/);
   assert.match(api, /as EscrowSummary\["status"\]/);
   assert.match(escrowPanel, /summary\.status === "cancelled"/);
   assert.doesNotMatch(escrowPanel, /summary\.status === "cancelled"[\s\S]*?Treuhand wurde abgelehnt/);
@@ -493,4 +493,6 @@ test("high-value escrow disputes are resolved by an independent moderator quorum
   assert.match(escrowSettlementSql, /'escrow_refund'/);
   assert.match(escrowSettlementSql, /status = 'refunded'/);
   assert.match(escrowSettlementSql, /status = 'active'/);
+  assert.match(escrowSettlementSql, /create trigger escrow_funds_message_created/);
+  assert.match(escrowSettlementSql, /kreislauf_system_message\(NEW\.listing_id, v_buyer, v_seller, v_body\)/);
 });
