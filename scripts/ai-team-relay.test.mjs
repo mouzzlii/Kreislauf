@@ -30,5 +30,9 @@ assert.ok(relaySource.includes('const GEMINI_MODEL = process.env.GEMINI_MODEL?.t
 assert.ok(relaySource.includes('const XAI_MODEL = process.env.XAI_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes("missingModels.length"));
 assert.equal((relaySource.match(/AI_TEAM_BUDGET_CONFIRMED !== "true"/g) || []).length, 1);
+assert.ok(relaySource.includes("const MAX_DAILY_DEBATES = 2;"));
+assert.ok(relaySource.includes("reserveDailyDebate(comment.id)"));
+assert.ok(relaySource.includes("Fehlerphase: ${phase}"));
+assert.ok(relaySource.includes("Tageskontingent bleibt verbraucht"));
 assert.doesNotMatch(relaySource, /gpt-6\.2-astra|gemini-3\.8-flash|grok-4\.7/);
 console.log("AI team routing, explicit-model, and budget-gate tests passed.");
