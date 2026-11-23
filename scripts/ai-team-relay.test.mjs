@@ -23,9 +23,9 @@ assert.equal(parseCommand("/ai-team debate TRAKUNA:   "), null);
 console.log("AI team command parser tests passed.");
 
 const relaySource = await readFile(new URL("./ai-team-relay.mjs", import.meta.url), "utf8");
-assert.match(relaySource, /TRAKUNA:\s*process\.env\.PROJECT_REPO_TRAKUNA\s*\|\|\s*"mouzzlii\/Fuck"/);
+assert.match(relaySource, /TRAKUNA:\s*process\.env\.PROJECT_REPO_TRAKUNA\s*\|\|\s*"mouzzlii\/multi-carrier-gateway"/);
 assert.match(relaySource, /AI_TEAM_BUDGET_CONFIRMED !== "true"/);
-assert.match(relaySource, /process\.env\.PROJECT_REPO_SCAN_PROFIT\s*\|\|\s*""/);
+assert.match(relaySource, /"SCAN-PROFIT":\s*process\.env\.PROJECT_REPO_SCAN_PROFIT\s*\|\|\s*""/);
 console.log("AI team routing and budget-gate tests passed.");
 
 assert.match(relaySource, /const OPENAI_MODEL = process\.env\.OPENAI_MODEL\?\.trim\(\) \|\| ""/);
