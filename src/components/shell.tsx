@@ -38,15 +38,18 @@ export function Shell({
     }
     let cancelled = false;
     const refresh = () => {
+      if (document.visibilityState !== "visible") return;
       getUnreadListingNotifications()
         .then((items) => { if (!cancelled) setNotifications(items); })
         .catch(() => { if (!cancelled) setNotifications([]); });
     };
     refresh();
     const interval = window.setInterval(refresh, 30_000);
+    document.addEventListener("visibilitychange", refresh);
     return () => {
       cancelled = true;
       window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refresh);
     };
   }, [userId, pathname]);
 
