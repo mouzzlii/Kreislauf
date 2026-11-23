@@ -252,3 +252,12 @@ Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt 
 - Der Test bestätigt den aktuellen Quellcode. Er entfernt kein früher veröffentlichtes Secret aus der Git-Historie und ersetzt nicht dessen Widerruf/Rotation beim Auth-Broker.
 - Für Commit `44e994b` liegt noch kein erfolgreicher Vercel-Preview-Build vor. Der letzte erfasste Deployment-Versuch bezog sich auf den älteren Zwischenstand `a855244` und schlug fehl; der korrigierte aktuelle Stand wurde noch nicht als Preview verifiziert.
 - PR #1 bleibt offen und Draft. Keine Zusammenführung, keine Live-Supabase-Migration und keine Produktionsfreigabe.
+
+
+## Nachprüfung – 23.11.2026: Demo-Auth und Videoregeln
+
+- Die lokale E-Mail-/Passwort-Registrierung ist für den öffentlichen Demo-Modus ausdrücklich deaktiviert. Ein Regressionstest verhindert, dass sie versehentlich wieder eingeschaltet wird.
+- Die drei vorgesehenen Videovarianten sind jetzt exakt abgebildet: 1 × 60 Sekunden, 2 × 30 Sekunden oder 4 × 20 Sekunden. Die vierteilige Variante darf daher bis zu 80 Sekunden Gesamtmaterial enthalten; eine zusätzliche 60-Sekunden-Gesamtgrenze war ein Implementierungsfehler und wurde entfernt.
+- Die UI-Fehlermeldung, die serverseitige Formatvalidierung und die deutsche Anleitung wurden an dieselben Grenzwerte angepasst. Video-Uploads bleiben trotzdem gesperrt (HTTP 503), bis echte serverseitige Dateiprüfung und Storage-Ende-zu-Ende-Tests fertig sind.
+- GitHub Actions Lauf `45169081364` auf Code-Commit `eb685817f0caf943e2211c87bbd510457134648b`: erfolgreich – Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- Der Lauf prüft den Code und die automatisierten Tests, nicht den Vercel-Preview, echte Video-Uploads, Live-Supabase oder Mehrbenutzerbetrieb. PR #1 bleibt offen und nicht zusammengeführt.
