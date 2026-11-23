@@ -7,6 +7,7 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [disputeReason, setDisputeReason] = useState("");
+  const [resolutionNote, setResolutionNote] = useState("");
   useEffect(() => {
     let cancelled = false;
     getEscrowSummary({ data: { id: listingId } }).then((value) => { if (!cancelled) setSummary(value); })
@@ -76,15 +77,19 @@ export function EscrowPanel({ listingId }: { listingId: string }) {
     {summary.status === "disputed" ? <>
       <p className="mt-2 text-sm text-copper">Streitfall offen: {summary.disputeReason || "Die Community-Abstimmung hat keine Freigabe ergeben."} Das Inserat bleibt gesperrt, bis die unabhängige Entscheidung abgeschlossen ist.</p>
       <p className="mt-1 text-sm text-muted">Unabhängige Moderationsentscheidung: {summary.resolutionVotes} Stimmen, {summary.resolutionReleases} für Freigabe und {summary.resolutionRefunds} für Erstattung.</p>
-      {summary.canResolve ? <div className="mt-3 flex flex-wrap gap-2">
-        <Button disabled={busy} onClick={() => void runAction(
-          () => voteEscrowResolution({ data: { id: listingId, decision: "release" } }),
-          "Entscheidung konnte nicht gespeichert werden."
-        )}>Freigabe empfehlen</Button>
-        <Button variant="ghost" disabled={busy} onClick={() => void runAction(
-          () => voteEscrowResolution({ data: { id: listingId, decision: "refund" } }),
-          "Entscheidung konnte nicht gespeichert werden."
-        )}>Erstattung empfehlen</Button>
+      {summary.canResolve ? <div className="mt-3 space-y-2">
+        <label className="block text-sm text-muted" htmlFor="escrow-resolution-note">Begründung deiner Moderationsentscheidung</label>
+        <textarea id="escrow-resolution-note" className="min-h-20 w-full rounded-xl border border-line bg-paper p-3 text-sm" value={resolutionNote} onChange={(event) => setResolutionNote(event.target.value)} placeholder="Begründe Freigabe oder Erstattung (mindestens 10 Zeichen)." />
+        <div className="flex flex-wrap gap-2">
+          <Button disabled={busy || resolutionNote.trim().length < 10} onClick={() => void runAction(
+            () => voteEscrowResolution({ data: { id: listingId, decision: "release", note: resolutionNote } }),
+            "Entscheidung konnte nicht gespeichert werden."
+          )}>Freigabe empfehlen</Button>
+          <Button variant="ghost" disabled={busy || resolutionNote.trim().length < 10} onClick={() => void runAction(
+            () => voteEscrowResolution({ data: { id: listingId, decision: "refund", note: resolutionNote } }),
+            "Entscheidung konnte nicht gespeichert werden."
+          )}>Erstattung empfehlen</Button>
+        </div>
       </div> : summary.hasResolutionVote ? <p className="mt-2 text-xs text-subtle">Deine Streitfallstimme ist bereits gespeichert.</p> : null}
       <p className="mt-2 text-xs text-subtle">{summary.assigned} zugeteilte Moderationspersonen · mindestens 4 Stimmen und Zweidrittelmehrheit.</p>
     </> : null}
