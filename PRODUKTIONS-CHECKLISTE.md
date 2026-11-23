@@ -261,3 +261,16 @@ Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt 
 - Die UI-Fehlermeldung, die serverseitige Formatvalidierung und die deutsche Anleitung wurden an dieselben Grenzwerte angepasst. Video-Uploads bleiben trotzdem gesperrt (HTTP 503), bis echte serverseitige Dateiprüfung und Storage-Ende-zu-Ende-Tests fertig sind.
 - GitHub Actions Lauf `45169081364` auf Code-Commit `eb685817f0caf943e2211c87bbd510457134648b`: erfolgreich – Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
 - Der Lauf prüft den Code und die automatisierten Tests, nicht den Vercel-Preview, echte Video-Uploads, Live-Supabase oder Mehrbenutzerbetrieb. PR #1 bleibt offen und nicht zusammengeführt.
+
+
+## Letzter Code-Prüfstand – 23.11.2026
+
+- Entwicklungszweig `demo/local-auth-off`, geprüfter Code-Commit `6c3e5063b3b02e740b367485d20020e9b28a72e3`.
+- GitHub Actions Lauf `45172901624`: vollständig erfolgreich – Dependency-Install/Lockfile, Security-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- Moderationsaktivität wird für angemeldete Nutzer serverseitig über die authentifizierte Identität aktualisiert, solange die App sichtbar ist (Heartbeat alle 15 Minuten). Das ist getrennt vom Karma-Demurrage-Zeitstempel.
+- Community-Treuhandstatus wird bei sichtbarer Inseratseite alle 15 Sekunden und beim Zurückkehren in die App aktualisiert.
+- Inserat-Chats aktualisieren sich im Vordergrund regelmäßig und unmittelbar beim Zurückkehren in die App. Beim Wechsel zwischen Gesprächspartnern werden Nachrichten der vorherigen Unterhaltung sofort aus der Ansicht entfernt.
+- Die Benachrichtigungsglocke aktualisiert sich alle 30 Sekunden und beim Zurückkehren in die App; Hintergrund-Tabs lösen keine unnötigen Abfragen aus.
+- Der QR-Scanner beendet Kamera-Stream und Scan-Schleife, sobald die App in den Hintergrund wechselt. Manuelle Eingabe bleibt als Alternative verfügbar.
+- Diese Prüfungen bestätigen den Quellcode im Entwicklungszweig. Sie belegen weder eine Live-Supabase-Migration noch dauerhafte Mehrbenutzerdaten, echte Authentifizierung, Video-Uploads oder einen aktuellen Vercel-Preview des geprüften Commits.
+- Vercel-Preview: der aktuell bekannte READY-Stand ist älter als Commit `6c3e5063`; kein produktiver Deploy, kein Merge von PR #1 und keine Änderung am ursprünglichen Supabase-Projekt.
