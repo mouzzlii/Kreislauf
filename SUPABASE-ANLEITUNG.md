@@ -80,3 +80,14 @@ Für die spätere Freigabe müssen persönliche Anmeldung, `DATABASE_URL`, ein g
 ### Datenbankleistung
 
 Migration 0014 ergänzt Indizes für die Fremdschlüssel der aktuell verwendeten Tabellen. Auf dem verbundenen Supabase-Projekt wurden 19 Fremdschlüssel-Indizes angelegt; die Performance-Prüfung meldet keine unindizierten Fremdschlüssel mehr. Einige Indizes erscheinen derzeit als unbenutzt, weil die Plattform noch keinen echten Nutzerbetrieb mit entsprechender Datenlast hat.
+
+
+## 5. Supabase-Testlauf – nur mit separatem Testprojekt
+
+Der automatisierte Datenbank-Smoke-Test führt jetzt die Migrationen **0002 bis 0019** (die optionale Altbestandsmigration 0008 ausgenommen) sowie Reservierung, Moderationsquorum und Nachrichtenabläufe aus.
+
+**Wichtig:** Dafür ist ein eigenes, isoliertes Supabase-Testprojekt erforderlich. Niemals die Produktionsdatenbank oder das bestehende Live-Projekt als Testziel verwenden. Der Test verwendet die öffentliche Standardschema-Struktur, weil mehrere Migrationen ausdrücklich `public.*` referenzieren. Er startet eine Transaktion und rollt am Ende alles zurück; trotzdem ist das separate Testprojekt die Sicherheitsgrenze.
+
+Für GitHub Actions muss die Verbindungs-URL des separaten Testprojekts als Secret `SUPABASE_TEST_DATABASE_URL` hinterlegt werden. Das Secret `SUPABASE_DATABASE_URL` wird vom Test nicht mehr verwendet. Die URL bleibt in GitHub Secrets und wird nicht in Chat, Quellcode oder Browser-Variablen kopiert.
+
+Der Test wurde im Quellcode vorbereitet, aber noch nicht gegen ein echtes Supabase-Testprojekt ausgeführt. Ohne dieses separate Projekt bleibt der Live-Datenbanktest offen.
