@@ -223,3 +223,10 @@ Zusätzliche Prüfung: Dieselbe Datenbankregel schützt auch die anfängliche Co
 - Der unmittelbar folgende Code-Commit `f2f8bf5` hat den veralteten Import und jede Verwendung des Quellcode-Secrets entfernt. Die aktuelle Branch-Datei `src/lib/auth/server.ts` liest das Secret ausschließlich aus `GROK_AUTH_CLIENT_SECRET`.
 - GitHub Actions Läufe `45166904197` (Commit `f2f8bf5`) und `45166947670` (Dokumentationsstand `3133f1f`) sind erfolgreich: Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
 - Der erfolgreiche CI-Lauf ist eine Codeprüfung. Ein erfolgreicher Vercel-Preview-Build des finalen Branch-Stands muss separat bestätigt werden; das fehlgeschlagene Zwischen-Deployment wird nicht als gültige Vorschau ausgegeben.
+
+
+## OAuth-Secret-Hygiene – Nachprüfung 23.11.2026
+
+Der aktuelle Branch-HEAD `44e994b4146eca187643c9a22832f7c300401ca1` enthält einen Regressionstest gegen die erneute Aufnahme des gemeinsam genutzten Preview-OAuth-Secrets in den Quellcode. Der Test kontrolliert die Preview-Konfiguration und den Server-Auth-Pfad: Das Secret darf nur aus `GROK_AUTH_CLIENT_SECRET` zur Laufzeit gelesen werden; ohne diesen Wert bleibt die Föderation deaktiviert.
+
+GitHub Actions Lauf `45167546406` war vollständig erfolgreich (Dependency-Audit, Produktions-Build, TypeScript, Tests und Lint). Das ist eine Codeprüfung. Die frühere Veröffentlichung des Secrets in der Git-Historie bleibt ein eigenständiger Vorfall: Widerruf/Rotation durch den Auth-Broker-Betreiber ist weiterhin erforderlich. Für den aktuellen HEAD ist noch kein erfolgreicher Vercel-Preview-Build nachgewiesen.
