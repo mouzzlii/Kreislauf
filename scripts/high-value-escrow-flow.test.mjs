@@ -158,6 +158,8 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     assert.equal(released.rows[0].listing_status,"completed");
     assert.equal(released.rows[0].funds_status,"released");
     assert.equal(released.rows[0].releases,1);
+    const releaseMessage = await db.query("select count(*)::int as count from listing_messages where body like $1 and message_kind = $2",["Treuhand abgeschlossen:%","system"]);
+    assert.equal(releaseMessage.rows[0].count,1,"the release must be announced in the listing conversation");
 
     await db.query("update profiles set karma_balance=karma_balance+100 where user_id='escrow-buyer'");
     await db.query(
@@ -191,6 +193,8 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     assert.equal(refunded.rows[0].listing_status,"active");
     assert.equal(refunded.rows[0].buyer_balance,100);
     assert.equal(refunded.rows[0].refunds,1);
+    const refundMessage = await db.query("select count(*)::int as count from listing_messages where body like $1 and message_kind = $2",["Treuhand abgeschlossen:%zurückerstattet.","system"]);
+    assert.equal(refundMessage.rows[0].count,1,"the refund must be announced in the listing conversation");
   } finally {
     await db.close();
   }
