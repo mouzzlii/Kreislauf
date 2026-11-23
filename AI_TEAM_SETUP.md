@@ -27,9 +27,7 @@ GitHub Actions reagiert nur auf einen ausdrücklich adressierten Kommentar. Der 
 Beispiel:
 
 ```text
-@ai-team debate [SCAN-PROFIT]
-Prüft den aktuellen Scan-Lock-Ansatz. Gemini soll einen Vorschlag machen,
-Grok soll ihn kritisch prüfen und Gemini soll auf die Kritik antworten.
+/ai-team debate SCAN-PROFIT: Prüft den aktuellen Scan-Lock-Ansatz.
 ```
 
 Geplanter Ablauf:
@@ -75,7 +73,7 @@ Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen an
 
 - `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf` (Standardwert bereits hinterlegt)
 - `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS` (Standardwert bereits hinterlegt)
-- `PROJECT_REPO_TRAKUNA` (erst nach Bestätigung des kanonischen Repositories setzen)
+- `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway-neu` (vom Nutzer bestätigt)
 - `PROJECT_REPO_SCAN_PROFIT` (erst nach Identifikation des kanonischen Repositories setzen)
 
 Der Relay lädt zu jeder Debatte das README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Daten werden ausdrücklich als nicht vertrauenswürdiger Kontext behandelt.
@@ -87,12 +85,12 @@ Der Relay lädt zu jeder Debatte das README und maximal 100 Dateipfade des zugeo
 - `PROJECT_REPO_TRAKUNA` (erst nach Bestätigung des kanonischen Repositories setzen)
 - `PROJECT_REPO_SCAN_PROFIT` (erst nach Identifikation des kanonischen Repositories setzen)
 
-Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt.
+Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Fehlender Lesezugriff verhindert die Debatte nicht, wird aber im Kontext vermerkt. Die TRAKUNA-Zuordnung ist bestätigt; für SCAN-PROFIT bleibt die Variable bis zur eindeutigen Repository-Identifikation leer.
 
 ## Noch offene Voraussetzungen
 
 - [ ] SCAN-PROFIT: kanonisches GitHub-Repository eindeutig identifizieren.
-- [ ] TRAKUNA: kanonisches Quell-Repository zwischen den vorhandenen Gateway-Repositories bestätigen.
+- [x] TRAKUNA: `mouzzlii/multi-carrier-gateway-neu` als maßgebliches Repository vom Nutzer bestätigt.
 - [ ] Kontoinhaber richtet die drei Provider-API-Schlüssel und `AI_TEAM_REPO_READ_TOKEN` als GitHub Actions Secrets ein.
 - [ ] Modellkennungen, Kostenlimit und maximale Gesprächsrunden festlegen.
 - [ ] Erst danach Workflow und Relay implementieren und mit Test-Issue Ende-zu-Ende prüfen.
