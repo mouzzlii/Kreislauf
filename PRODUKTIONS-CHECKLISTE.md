@@ -126,3 +126,18 @@ Diese Liste trennt eine vorzeigbare Testdemo von einem sicheren Mehrbenutzer-Pro
 - Regressionstests weisen verschachtelte/lookalike Hosts, Zugangsdaten in URLs, Sonderports und normalisierte Pfad-Traversal-Versuche zurück.
 - GitHub Actions Lauf `45097198523` auf Commit `fc8144441afd2cbb60182194b9f650ea241de515`: erfolgreich – Produktions-Build, TypeScript, 260 Skript-Tests, 83 zusätzliche Tests, Lint und Dependency-Audit mit 0 gemeldeten Schwachstellen.
 - Die Prüfung betrifft URL-Validierung und Quellcode. Ein realer Blob-Upload/-Löschtest ist weiterhin offen; Video-Uploads bleiben bewusst gesperrt, bis eine serverseitige Medienprüfung verfügbar ist.
+
+## Ergänzung – 23.11.2026: Unabhängige Treuhand-Abstimmungen
+
+- [x] Datenbankseitige Unabhängigkeitsprüfung für beide Abstimmungen: Käufer und Verkäufer dürfen weder bei der initialen Community-Freigabe (`escrow_votes`) noch bei der späteren Streitfallentscheidung (`escrow_resolution_votes`) über den eigenen Fall abstimmen. Die Trigger prüfen die gespeicherten Käufer-/Verkäuferkennungen direkt aus dem Treuhandfall; zusätzliche Moderatorenrechte oder eine fehlerhafte Zuordnung umgehen die Sperre nicht.
+- [x] Regressionstest: Ein Käufer mit Moderatorenrang und zusätzlicher Zuordnung wird bei beiden Abstimmungen abgewiesen.
+- [x] Supabase-Clean-Install-Skript und PostgreSQL-Setup-Test enthalten beide Trigger.
+- [x] GitHub Actions Lauf `45150174522` auf Commit `6e63a5d4df5c7f9cc3e60d9de2f77c8742545a13`: erfolgreich – Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- [x] Sicherheitsprüfungsstand anschließend in `SECURITY-AUDIT.md` dokumentiert (Commit `e73fe7cc30dc16b5c116ff36ada2d96dfed4a6a6`). Dieser letzte Commit ändert ausschließlich die Sicherheitsdokumentation; der oben genannte CI-Lauf prüfte den unmittelbar vorherigen Code-Stand.
+- [ ] Noch offen: Migrationen 0020–0024 auf einer isolierten Supabase-Testdatenbank ausführen und den vollständigen Ablauf dort mit echten getrennten Konten prüfen. Die vorhandenen PGlite-Tests sind keine Live-Supabase- oder Android-Ende-zu-Ende-Prüfung.
+
+## Aktueller Stand – 23.11.2026
+
+**Demo-Entwicklungszweig:** Build und automatisierte Code-Prüfungen erfolgreich auf Commit `6e63a5d4df5c7f9cc3e60d9de2f77c8742545a13`. Die Dokumentationsnachträge liegen auf `e73fe7cc30dc16b5c116ff36ada2d96dfed4a6a6`. PR #1 bleibt ein offener Entwurf und wurde nicht zusammengeführt.
+
+**Keine Produktionsfreigabe:** Die Live-Supabase-Migration wurde nicht ausgeführt. Echte Benutzerkonten, persistente Datenbankverbindung, echte ID-Austria-Anbindung, Medien- und Video-Upload, Mehrbenutzer-/Android-Tests sowie unabhängige Betriebs- und Datenschutzprüfung bleiben offen. Keine Produktionsdaten wurden verändert.
