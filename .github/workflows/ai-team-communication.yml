@@ -41,7 +41,12 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          AI_TEAM_REPO_READ_TOKEN: ${{ secrets.AI_TEAM_REPO_READ_TOKEN }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           XAI_MODEL: ${{ vars.XAI_MODEL }}
           AI_TEAM_ALLOWED_USERS: ${{ vars.AI_TEAM_ALLOWED_USERS }}
+          PROJECT_REPO_KREISLAUF: ${{ vars.PROJECT_REPO_KREISLAUF }}
+          PROJECT_REPO_TRAKUNA: ${{ vars.PROJECT_REPO_TRAKUNA }}
+          PROJECT_REPO_SCAN_PROFIT: ${{ vars.PROJECT_REPO_SCAN_PROFIT }}
+          PROJECT_REPO_CHRONOS: ${{ vars.PROJECT_REPO_CHRONOS }}
