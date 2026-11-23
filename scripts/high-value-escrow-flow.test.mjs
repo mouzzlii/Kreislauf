@@ -203,6 +203,42 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     assert.equal(refunded.rows[0].refunds,1);
     const refundMessage = await db.query("select count(*)::int as count from listing_messages where body like $1 and message_kind = $2",["Treuhand abgeschlossen:%zurückerstattet.","system"]);
     assert.equal(refundMessage.rows[0].count,1,"the refund must be announced in the listing conversation");
+
+    await checked("create third funded escrow", () => createHeldEscrow(db,"escrow-listing-3","escrow-case-3","escrow-buyer","escrow-seller","escrow-mod-1"));
+    await checked("open second participant dispute", () => db.query(
+      "select kreislauf_open_high_value_dispute($1,$2,$3)",
+      ["escrow-listing-3","escrow-seller","Lieferung wurde nicht wie vereinbart ausgeführt."],
+    ));
+    await assert.rejects(
+      db.query("select kreislauf_open_high_value_dispute($1,$2,$3)",
+        ["escrow-listing-3","escrow-mod-1","Moderator darf keinen fremden Streitfall eröffnen."]),
+      /Nur die Tauschparteien/,
+      "an assigned moderator cannot open a dispute on behalf of a party",
+    );
+    for (const [moderator,decision] of [
+      ["escrow-mod-1","release"],
+      ["escrow-mod-2","release"],
+      ["escrow-mod-3","release"],
+      ["escrow-mod-4","refund"],
+    ]) {
+      await checked("moderator release vote", () => db.query(
+        "select * from kreislauf_vote_escrow_resolution($1,$2,$3,$4)",
+        ["escrow-listing-3",moderator,decision,"Dokumentierte Prüfung abgeschlossen"],
+      ));
+    }
+    const moderatorReleased = await db.query(
+      `select
+        (select status from escrow_cases where id='escrow-case-3') as escrow_status,
+        (select funds_status from escrow_cases where id='escrow-case-3') as funds_status,
+        (select status from listings where id='escrow-listing-3') as listing_status,
+        (select karma_balance from profiles where user_id='escrow-seller') as seller_balance,
+        (select count(*)::int from ledger_entries where listing_id='escrow-listing-3' and entry_kind='escrow_release') as releases`,
+    );
+    assert.equal(moderatorReleased.rows[0].escrow_status,"released");
+    assert.equal(moderatorReleased.rows[0].funds_status,"released");
+    assert.equal(moderatorReleased.rows[0].listing_status,"completed");
+    assert.equal(moderatorReleased.rows[0].seller_balance,200);
+    assert.equal(moderatorReleased.rows[0].releases,1);
   } finally {
     await db.close();
   }
