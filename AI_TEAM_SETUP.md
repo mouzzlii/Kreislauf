@@ -66,7 +66,7 @@ Es sind bewusst keine Modellkennungen vorgegeben: Verfügbare IDs ändern sich j
 - Maximal eine begrenzte Debattenrunde je Trigger; Schutz vor Wiederholungen anhand der Kommentar-ID.
 - Eingaben als nicht vertrauenswürdige Daten behandeln. Repository-Inhalte dürfen keine System-/Sicherheitsregeln überschreiben.
 - Keine Secrets, privaten Kundendaten, Sendungsdaten oder persönlichen Daten an KI-Provider senden.
-- Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag; Reservierungen werden als Ledger-Kommentare in Issue #11 geführt und Workflow-Läufe global serialisiert. Das begrenzt die Anzahl der Provider-Aufrufe, ist aber keine USD-Kostenobergrenze.
+- Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag; Reservierungen werden als Ledger-Kommentare in Issue #11 geführt, der Ledger wird paginiert (bis 1.000 Kommentare, darüber fail-closed) und Workflow-Läufe global serialisiert. Das begrenzt die Anzahl der Provider-Aufrufe, ist aber keine USD-Kostenobergrenze.
 - Zusätzlich müssen echte Ausgabenlimits bei OpenAI, Google und xAI gesetzt werden; die manuelle Variable `AI_TEAM_BUDGET_CONFIRMED=true` ersetzt diese Limits nicht.
 - Eingabegröße, Kontextgröße und Ausgabe-Tokenzahl bleiben im Relay begrenzt.
 - Fehler und nicht verfügbare Provider sichtbar protokollieren; keine falschen Erfolgsbehauptungen.
@@ -85,7 +85,7 @@ Der Relay lädt README und maximal 100 Dateipfade des zugeordneten Repositories.
 - [x] SCAN-PROFIT: privates Repository `mouzzlii/SCAN-PROFIT` angelegt und in der Relay-Konfiguration als Standard zugeordnet. Das vollständige 2.0.64-Prüfarchiv wurde lokal geprüft (153/153 Tests, statischer Build und Smoke-Test erfolgreich), ist aber noch nicht vollständig in GitHub importiert. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; dies bleibt ein separater Quellcode-Migrationspunkt.
 - [x] TRAKUNA: `mouzzlii/Fuck` als maßgebliches TRAKUNA-Repository aus dem aktuellen Repository-Abgleich festgelegt; das Gateway-Experiment bleibt getrennt.
 - [ ] Kontoinhaber richtet die drei Provider-API-Schlüssel und `AI_TEAM_REPO_READ_TOKEN` als GitHub Actions Secrets ein.
-- [x] Technischer Tagesdeckel von maximal zwei Debatten pro UTC-Tag, mit zentralem Ledger in Issue #11 und global serialisierten Relay-Läufen. Der Ledger liest die neuesten Kommentare zuerst; dies begrenzt Aufrufzahlen, ist aber keine USD-Kostenobergrenze.
+- [x] Technischer Tagesdeckel von maximal zwei Debatten pro UTC-Tag, mit zentralem Ledger in Issue #11 und global serialisierten Relay-Läufen. Der Ledger liest die neuesten Kommentare zuerst und prüft bis zu 1.000 Einträge; bei Überschreitung blockiert er weitere Aufrufe fail-closed. Dies begrenzt Aufrufzahlen, ist aber keine USD-Kostenobergrenze.
 - [ ] Kontoinhaber setzt providerseitige Ausgabenlimits/Kostenkontrollen bei OpenAI, Google und xAI; erst danach `AI_TEAM_BUDGET_CONFIRMED=true` als bewusste manuelle Aktivierungsfreigabe setzen. Die Variable prüft Anbieterbudgets nicht automatisch.
 - [ ] Erst danach den bereits vorbereiteten Workflow kontrolliert aktivieren und mit einem synthetischen Test-Issue Ende-zu-Ende prüfen.
 
