@@ -1424,6 +1424,12 @@ create trigger escrow_resolution_vote_independent
 before insert on public.escrow_resolution_votes
 for each row execute function public.kreislauf_reject_party_escrow_resolution_vote();
 
+-- The same independence rule applies to the initial escrow approval ballot.
+drop trigger if exists escrow_approval_vote_independent on public.escrow_votes;
+create trigger escrow_approval_vote_independent
+before insert on public.escrow_votes
+for each row execute function public.kreislauf_reject_party_escrow_resolution_vote();
+
 revoke all on function public.kreislauf_reject_party_escrow_resolution_vote() from public;
 do $permissions$
 begin
