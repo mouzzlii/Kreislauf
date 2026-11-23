@@ -22,7 +22,7 @@ CHRONOS-Projektverknüpfung: https://github.com/mouzzlii/CHRONOS/issues/13
 
 ## Zielarchitektur und vorhandener Relay-Entwurf
 
-GitHub Actions reagiert nur auf einen ausdrücklich adressierten Kommentar. Der vorbereitete Relay verwendet die offiziellen API-Oberflächen: OpenAI Responses API, Gemini Interactions API und xAI Responses API. Die Gemini- und xAI-Anfragen sind zustandslos bzw. mit `store: false` angelegt; Modellnamen können über Actions-Variablen überschrieben werden. Offizielle Dokumentation: https://developers.openai.com/api/reference/resources/responses/methods/create · https://ai.google.dev/api/interactions-api · https://docs.x.ai/developers/rest-api-reference/inference/responses
+GitHub Actions reagiert nur auf einen ausdrücklich adressierten Kommentar. Der vorbereitete Relay verwendet die offiziellen API-Oberflächen: OpenAI Responses API, Gemini Interactions API und xAI Responses API. Die Gemini- und xAI-Anfragen sind zustandslos bzw. mit `store: false` angelegt; Modellkennungen werden ausschließlich über Actions-Variablen festgelegt; es gibt keine geratenen Standardmodelle. Offizielle Dokumentation: https://developers.openai.com/api/reference/resources/responses/methods/create · https://ai.google.dev/api/interactions-api · https://docs.x.ai/developers/rest-api-reference/inference/responses
 
 Beispiel:
 
@@ -56,7 +56,7 @@ Zusätzlich müssen die jeweils aktuell unterstützten Modellkennungen als nicht
 - `XAI_MODEL`
 - `OPENAI_MODEL`
 
-Der Relay hat Standardmodellkennungen hinterlegt, die über Actions-Variablen angepasst werden können. Zusätzlich benötigt er `AI_TEAM_REPO_READ_TOKEN`: ein Fine-grained GitHub-Token mit ausschließlich `Contents: read-only` (und Metadata-Lesezugriff) auf die vier Projekt-Repositories. Es wird nur zum Laden von README und Dateipfaden verwendet; das separate `GITHUB_TOKEN` des Workflows schreibt die Antwort ausschließlich in das zentrale Issue. Das Lesetoken gehört ausschließlich in GitHub Actions Secrets. Das ChatGPT-Web-/App-Gespräch selbst ist nicht automatisch eine API-Identität; der GPT-Schritt läuft über die OpenAI-API als separater Dienst und benötigt einen eigenen API-Schlüssel sowie ein entsprechendes Abrechnungskonto.
+Es sind bewusst keine Modellkennungen vorgegeben: Verfügbare IDs ändern sich je Anbieter und Konto. Vor Aktivierung müssen alle drei Variablen mit tatsächlich verfügbaren Modellkennungen aus den jeweiligen Provider-Konten befüllt werden; fehlen sie, bricht der Relay vor jedem Provider-Aufruf sicher ab. Zusätzlich benötigt er `AI_TEAM_REPO_READ_TOKEN`: ein Fine-grained GitHub-Token mit ausschließlich `Contents: read-only` (und Metadata-Lesezugriff) auf die vier Projekt-Repositories. Es wird nur zum Laden von README und Dateipfaden verwendet; das separate `GITHUB_TOKEN` des Workflows schreibt die Antwort ausschließlich in das zentrale Issue. Das Lesetoken gehört ausschließlich in GitHub Actions Secrets. Das ChatGPT-Web-/App-Gespräch selbst ist nicht automatisch eine API-Identität; der GPT-Schritt läuft über die OpenAI-API als separater Dienst und benötigt einen eigenen API-Schlüssel sowie ein entsprechendes Abrechnungskonto.
 
 ## Sicherheits- und Kostenregeln
 
