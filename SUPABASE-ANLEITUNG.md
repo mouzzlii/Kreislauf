@@ -75,7 +75,7 @@ Die Limits werden durch atomare Datenbankzähler pro Konto durchgesetzt: maximal
 
 ### Inseratvideos
 
-Die geplanten Varianten bleiben: 1 Video bis 60 Sekunden, 2 Videos bis je 30 Sekunden oder 4 Videos bis je 20 Sekunden; insgesamt höchstens 60 Sekunden. Pro Datei ist eine Größenbegrenzung von 50 MB vorgesehen.
+Die geplanten Varianten bleiben: 1 Video bis 60 Sekunden, 2 Videos bis je 30 Sekunden oder 4 Videos bis je 20 Sekunden. Die maximal mögliche Gesamtdauer hängt von der gewählten Variante ab: 60, 60 oder 80 Sekunden. Pro Datei ist eine Größenbegrenzung von 50 MB vorgesehen.
 
 **Derzeit sind Videoauswahl und Upload in allen Umgebungen deaktiviert.** Der Endpunkt antwortet absichtlich mit HTTP 503, bis eine unabhängige serverseitige Prüfung der tatsächlichen Videodauer und des Dateiformats implementiert und getestet ist. Die Prüfung im Browser allein ist manipulierbar und reicht nicht aus. Die Datenbankspalte für Video-URLs ist bereits vorhanden.
 
