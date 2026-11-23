@@ -232,3 +232,13 @@ Dieser Abschnitt ersetzt die weiter oben genannten älteren Angaben zum zuletzt 
 - [x] Letzte bestätigte Vercel-Preview: Deployment `dpl_346qJq9N3tod13b6bjEt56DVmFNM`, Commit `e43a49ca5d3a8090ed432c855b03f4504b5f1cd9`, Status `READY`.
 - [ ] Ein neuer Preview-Deploy für Commit `74c0833` wurde durch Vercel mit HTTP 402 abgelehnt: `api-deployments-free-per-day`, Limit von mehr als 100 API-Deployments pro Tag; erneuter Versuch erst nach 24 Stunden. Kein Upgrade und keine Abrechnungsänderung vorgenommen.
 - [ ] Die Produktionsblocker bleiben bestehen: keine Produktions-`DATABASE_URL`, persönliche Konten sind im Demo-Zweig ausgeschaltet, kein eigener OAuth-Broker, kein produktiver Medien-Storage/Video-Prüfer, keine echte ID-Austria-Anbindung und keine vollständigen Android-/Mehrbenutzer-/Datenschutzfreigaben.
+
+
+## Nachprüfung – 23.11.2026, 11:35 UTC
+
+- [x] Branch-HEAD `e9f350461d772564b457d6503680928b24875c4d`: GitHub Actions Lauf `45165838001` erfolgreich – Dependency-Audit, Produktions-Build, TypeScript, automatisierte Tests und Lint.
+- [x] Vercel-Preview `dpl_Fg8oFbhgRDNFrU5YidCyCmHqjMGG` für denselben Commit ist `READY`.
+- [x] Vercel-Runtime-Log-Abfrage für 30 Minuten nach Bereitstellung: keine Warnungen oder Fehler gefunden. Kein vollständiger Browser-/E2E-Test.
+- [x] Datenbank-CI-Lauf `45157497685` erfolgreich. Der optionale Remote-Verifier wurde mangels GitHub-Secret `SUPABASE_TEST_DATABASE_URL` übersprungen; das separate Testprojekt wurde über den Supabase-Connector manuell geprüft.
+- [ ] **Neuer Sicherheitsblocker:** Gemeinsam genutztes Preview-OAuth-Client-Secret ist als Quellcode-Konstante im Repository und damit in der Git-Historie enthalten. Auth-Broker-Rotation und Umstellung auf geschützte Umgebungsvariablen sind erforderlich. Siehe [GitHub Issue #2](https://github.com/mouzzlii/Kreislauf/issues/2). Der alte Wert darf nicht weiter als geheim betrachtet werden.
+- [ ] Kein Produktionsstart, keine PR-Zusammenführung und keine Änderung an der ursprünglichen Supabase-Datenbank.
