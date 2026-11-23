@@ -210,16 +210,16 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     assert.equal(refundMessage.rows[0].count,1,"the refund must be announced in the listing conversation");
 
     await checked("create third funded escrow", () => createHeldEscrow(db,"escrow-listing-3","escrow-case-3","escrow-buyer","escrow-seller","escrow-mod-1"));
-    await checked("open second participant dispute", () => db.query(
-      "select kreislauf_open_high_value_dispute($1,$2,$3)",
-      ["escrow-listing-3","escrow-seller","Lieferung wurde nicht wie vereinbart ausgeführt."],
-    ));
     await assert.rejects(
       db.query("select kreislauf_open_high_value_dispute($1,$2,$3)",
         ["escrow-listing-3","escrow-mod-1","Moderator darf keinen fremden Streitfall eröffnen."]),
       /Nur die Tauschparteien/,
       "an assigned moderator cannot open a dispute on behalf of a party",
     );
+    await checked("open second participant dispute", () => db.query(
+      "select kreislauf_open_high_value_dispute($1,$2,$3)",
+      ["escrow-listing-3","escrow-seller","Lieferung wurde nicht wie vereinbart ausgeführt."],
+    ));
     for (const [moderator,decision] of [
       ["escrow-mod-1","release"],
       ["escrow-mod-2","release"],
