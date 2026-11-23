@@ -4,6 +4,7 @@ import test from "node:test";
 
 const previewPath = new URL("../src/lib/auth/preview.ts", import.meta.url);
 const serverPath = new URL("../src/lib/auth/server.ts", import.meta.url);
+const emailPasswordPath = new URL("../src/lib/auth/email-password.ts", import.meta.url);
 
 test("preview OAuth client secret is never stored in source", async () => {
   const preview = await readFile(previewPath, "utf8");
@@ -17,4 +18,9 @@ test("OAuth federation requires a protected runtime secret", async () => {
   assert.doesNotMatch(server, /PREVIEW_CLIENT_SECRET/);
   assert.match(server, /Boolean\(grokClientId\s*&&\s*grokClientSecret\)/);
   assert.match(server, /const grokOAuthPlugin = authConfigured/);
+});
+
+test("personal email/password accounts remain disabled in the demo", async () => {
+  const config = await readFile(emailPasswordPath, "utf8");
+  assert.match(config, /export const emailAndPasswordEnabled = false;/);
 });
