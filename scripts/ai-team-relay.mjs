@@ -387,7 +387,7 @@ async function main() {
           `Fehlerphase: ${phase}`,
           `Fehler: ${detail}`,
           "Es wurde keine vollständige gemeinsame Synthese erstellt. Das reservierte Tageskontingent bleibt verbraucht, auch wenn der Provider-Aufruf teilweise fehlgeschlagen ist.",
-        ].join("\\n\\n"),
+        ].join("\n\n"),
       }),
     });
     throw error;
