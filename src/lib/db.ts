@@ -15,7 +15,7 @@ const databaseUrl =
  * Active backend: real PostgreSQL (currently Supabase) when `DATABASE_URL` is set (deployed / configured
  * sandbox), otherwise a local embedded **PGLite** (Postgres compiled to WASM) so
  * the app has a working database even with nothing configured — the live preview
- * included. Swap in Neon later by just setting `DATABASE_URL`; no code changes.
+ * included. A different PostgreSQL provider can be used by changing `DATABASE_URL`; no query-layer code changes are needed.
  */
 export const dbSource: DbSource = databaseUrl ? "neon" : "pglite";
 
