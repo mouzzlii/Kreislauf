@@ -1,0 +1,43 @@
+name: KI-Team-Kommunikation
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: ai-team-${{ github.event.issue.number }}-${{ github.event.comment.id }}
+  cancel-in-progress: false
+
+jobs:
+  debate:
+    if: >-
+      github.event.issue.pull_request == null &&
+      github.event.comment.user.type != 'Bot' &&
+      startsWith(github.event.comment.body, '/ai-team debate ')
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout coordination scripts
+        uses: actions/checkout@v4
+
+      - name: Run bounded multi-agent debate
+        uses: actions/github-script@v7
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          XAI_MODEL: ${{ vars.XAI_MODEL }}
+          AI_TEAM_ALLOWED_USERS: ${{ vars.AI_TEAM_ALLOWED_USERS }}
+        with:
+          script: |
+            const { execFileSync } = require("node:child_process");
+            execFileSync("node", ["scripts/ai-team-relay.mjs"], {
+              stdio: "inherit",
+              env: { ...process.env, GITHUB_EVENT_PATH: process.env.GITHUB_EVENT_PATH }
+            });
