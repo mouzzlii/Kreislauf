@@ -4,7 +4,7 @@ import { Shell } from "@/components/shell";
 import { Button, Field, fieldClass } from "@/components/ui";
 import { createListing, getItemTemplate } from "@/features/kreislauf/api";
 import { useKreislauf } from "@/features/kreislauf/context";
-import type { Category } from "@/features/kreislauf/types";
+import type { Category, OfferType } from "@/features/kreislauf/types";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/inserat/neu")({
@@ -20,7 +20,8 @@ function NewListing() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<Category>("goods");
-  const [offerType, setOfferType] = useState<"sell" | "search" | "gift">("sell");
+  const [offerType, setOfferType] = useState<OfferType>("sell");
+  const [exchangeTerms, setExchangeTerms] = useState("");
   const [what3words, setWhat3words] = useState("");
   const [price, setPrice] = useState("10");
   const [place, setPlace] = useState("");
@@ -81,6 +82,8 @@ function NewListing() {
                 what3wordsAddress: what3words,
                 itemUuid: reuse ?? null,
                 priceKarma: Number(price),
+                exchangeTerms,
+                karmaAdjustment: offerType === "combined" ? Number(price) : 0,
                 placeLabel: place,
                 imageDataUrl: image,
                 lat: profile?.lat ?? null,
@@ -89,7 +92,7 @@ function NewListing() {
             })
               .then((created) => {
                 bump();
-                void navigate({ to: "/inserat/$listingId", params: { listingId: created.id } });
+                void navigate({ to: "/inserat/$listingId", params: { listingId: created.id }, search: { conversation: undefined } });
               })
               .catch((err: unknown) => {
                 setError(err instanceof Error ? err.message : "Inserat nicht gespeichert");
@@ -114,8 +117,24 @@ function NewListing() {
               <option value="sell">Biete / Verkaufe</option>
               <option value="search">Suche nach</option>
               <option value="gift">Verschenke</option>
+              <option value="barter">Direkter Tausch</option>
+              <option value="combined">Kombinierter Tausch</option>
             </select>
           </Field>
+          {offerType === "barter" || offerType === "combined" ? (
+            <Field label="Was möchtest du im Gegenzug?">
+              <textarea
+                className={fieldClass + " h-24 py-3"}
+                value={exchangeTerms}
+                onChange={(event) => setExchangeTerms(event.target.value)}
+                required
+                minLength={8}
+                maxLength={400}
+                placeholder="Beschreibe die Ware oder Hilfe, die du dafür suchst."
+              />
+              <span className="mt-1 block text-xs text-subtle">Diese Gegenleistung wird auf deinem Inserat sichtbar angezeigt.</span>
+            </Field>
+          ) : null}
           <Field label="Art">
             <select
               className={fieldClass}
@@ -127,16 +146,22 @@ function NewListing() {
               <option value="sharing">Flotte</option>
             </select>
           </Field>
-          <Field label={category === "sharing" ? "Aktivitäts-Karma pro Tag" : "Aktivitäts-Karma"}>
+          <Field label={
+            offerType === "barter" ? "Karma-Ausgleich" :
+            offerType === "combined" ? "Zusätzlicher Karma-Ausgleich (wird von der anfragenden Person bezahlt)" :
+            category === "sharing" ? "Aktivitäts-Karma pro Tag" : "Aktivitäts-Karma"
+          }>
             <input
               className={fieldClass}
               inputMode="numeric"
-              value={offerType === "gift" ? "0" : price}
-              disabled={offerType === "gift"}
+              value={offerType === "gift" || offerType === "barter" ? "0" : price}
+              disabled={offerType === "gift" || offerType === "barter"}
               onChange={(event) => setPrice(event.target.value.replace(/[^\d]/g, ""))}
               required
             />
             {offerType === "gift" ? <span className="mt-1 block text-xs text-subtle">Verschenken ist kostenlos. Die empfangende Person kann beim erfolgreichen Abschluss Aktivitäts-Karma erhalten.</span> : null}
+            {offerType === "barter" ? <span className="mt-1 block text-xs text-subtle">Direkter Tausch: keine Karma-Bewegung.</span> : null}
+            {offerType === "combined" ? <span className="mt-1 block text-xs text-subtle">Der Karma-Ausgleich wird erst nach beidseitiger Abschlussbestätigung übertragen. 0 bedeutet reiner Tausch ohne Karma.</span> : null}
           </Field>
           <Field label="Ungefährer Ort (öffentlich)">
             <input className={fieldClass} value={place} onChange={(event) => setPlace(event.target.value)} placeholder="z. B. Yspertal, Altenmarkt, Pöggstall" />

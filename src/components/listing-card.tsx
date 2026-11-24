@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Bike, Package, Wrench } from "lucide-react";
 import { useState } from "react";
-import { CATEGORY_LABEL, OFFER_TYPE_LABEL, STATUS_LABEL, priceCaption } from "@/features/kreislauf/format";
+import { CATEGORY_LABEL, OFFER_TYPE_LABEL, STATUS_LABEL, formatKarma, priceCaption } from "@/features/kreislauf/format";
 import type { Category, Listing } from "@/features/kreislauf/types";
 
 const ICONS: Record<Category, typeof Package> = {
@@ -42,6 +42,7 @@ export function ListingCard({ listing, distance }: { listing: Listing; distance?
     <Link
       to="/inserat/$listingId"
       params={{ listingId: listing.id }}
+      search={{ conversation: undefined }}
       className="flex flex-col overflow-hidden rounded-3xl border border-line bg-elev p-3 transition-[transform,background-color] duration-150 hover:bg-elev-2"
     >
       <ListingVisual listing={listing} className="aspect-[4/3] w-full rounded-xl" />
@@ -54,7 +55,13 @@ export function ListingCard({ listing, distance }: { listing: Listing; distance?
           <h2 className="mt-1 font-display text-xl leading-tight text-fg">{listing.title}</h2>
         </div>
         <p className="shrink-0 text-right text-sm tabular-nums text-copper">
-          {listing.offerType === "search" ? "Gesuch" : priceCaption(listing.category, listing.priceKarma)}
+          {listing.offerType === "search"
+            ? "Gesuch"
+            : listing.offerType === "barter"
+              ? "Gegenleistung"
+              : listing.offerType === "combined"
+                ? (listing.karmaAdjustment > 0 ? formatKarma(listing.karmaAdjustment) + " Karma + Gegenleistung" : "Gegenleistung")
+                : priceCaption(listing.category, listing.priceKarma)}
         </p>
       </div>
       <p className="mt-2 px-1 text-sm text-muted">

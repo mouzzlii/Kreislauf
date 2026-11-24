@@ -16,7 +16,10 @@ import {
   type Profile,
   type Region,
   type Review,
+  type TradeRequest,
 } from "./types";
+import { normalizeExchangeListing, normalizeTradeOffer } from "./trade-rules";
+import { CREATE_TRADE_REQUEST_SQL, TRANSITION_TRADE_REQUEST_SQL, CONFIRM_TRADE_REQUEST_SQL } from "./trade-queries";
 
 type Row = Record<string, unknown>;
 
@@ -94,6 +97,8 @@ function mapListing(row: Row): Listing {
     handsCount: asNumber(row.handsCount),
     what3wordsAddress: row.what3wordsAddress == null ? null : asString(row.what3wordsAddress),
     priceKarma: asNumber(row.priceKarma),
+    exchangeTerms: row.exchangeTerms == null ? null : asString(row.exchangeTerms),
+    karmaAdjustment: asNumber(row.karmaAdjustment),
     status: asString(row.status, "active") as ListingStatus,
     images: asImages(row.images),
     lat: asNumber(row.lat),
@@ -133,7 +138,9 @@ const REGION_SQL = `
 const LISTING_SQL = `
   select l.id, l.user_id as "userId", l.region_id as "regionId", l.title, l.description,
     l.category, l.offer_type as "offerType", l.item_uuid as "itemUuid", l.hands_count as "handsCount",
-    l.price_karma as "priceKarma", l.status, l.images, round(l.lat::numeric, 2)::float8 as lat, round(l.lng::numeric, 2)::float8 as lng,
+    l.price_karma as "priceKarma", l.exchange_terms as "exchangeTerms",
+    l.karma_adjustment as "karmaAdjustment", l.status, l.images,
+    round(l.lat::numeric, 2)::float8 as lat, round(l.lng::numeric, 2)::float8 as lng,
     l.place_label as "placeLabel", l.asset_kind as "assetKind",
     to_char(l.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt",
     p.username as "ownerName",
@@ -449,8 +456,21 @@ export const createListing = createServerFn({ method: "POST" })
       throw new Error("Kategorie fehlt");
     }
     const offerType = source.offerType;
-    if (offerType !== "sell" && offerType !== "search" && offerType !== "gift") throw new Error("Bitte Inseratstyp wählen");
-    const priceKarma = offerType === "gift" ? 0 : typeof source.priceKarma === "number" ? Math.round(source.priceKarma) : -1;
+    if (
+      offerType !== "sell" && offerType !== "search" && offerType !== "gift" &&
+      offerType !== "barter" && offerType !== "combined"
+    ) throw new Error("Bitte Inseratstyp wählen");
+    const terms = normalizeExchangeListing(
+      offerType,
+      source.exchangeTerms,
+      source.karmaAdjustment,
+    );
+    if ((offerType === "barter" || offerType === "combined") && category === "sharing") {
+      throw new Error("Direkter und kombinierter Tausch sind derzeit für Güter und Hilfen vorgesehen, nicht für Leihgeräte.");
+    }
+    const priceKarma = offerType === "gift" || offerType === "barter" || offerType === "combined"
+      ? 0
+      : typeof source.priceKarma === "number" ? Math.round(source.priceKarma) : -1;
     if (priceKarma < (offerType === "gift" ? 0 : 1) || priceKarma > 500) throw new Error("Karma zwischen 1 und 500");
     const what3wordsAddress = typeof source.what3wordsAddress === "string" ? source.what3wordsAddress.trim().replace(/^\/+/, "").slice(0, 100) : "";
     if (what3wordsAddress && !/^[a-zäöüß]+\.[a-zäöüß]+\.[a-zäöüß]+$/i.test(what3wordsAddress)) throw new Error("what3words-Adresse bitte im Format wort.wort.wort eingeben");
@@ -471,7 +491,12 @@ export const createListing = createServerFn({ method: "POST" })
     const lat = typeof source.lat === "number" ? source.lat : null;
     const lng = typeof source.lng === "number" ? source.lng : null;
     const itemUuid = typeof source.itemUuid === "string" && /^item-[a-z0-9-]{8,80}$/.test(source.itemUuid) ? source.itemUuid : null;
-    return { regionId, title, description, category, offerType, priceKarma, placeLabel, imageDataUrl, lat, lng, what3wordsAddress, itemUuid };
+    return {
+      regionId, title, description, category, offerType, priceKarma,
+      exchangeTerms: terms.exchangeTerms,
+      karmaAdjustment: terms.karmaAdjustment,
+      placeLabel, imageDataUrl, lat, lng, what3wordsAddress, itemUuid,
+    };
   })
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
@@ -515,9 +540,10 @@ export const createListing = createServerFn({ method: "POST" })
     const assetKind = data.category === "sharing" ? "tool" : null;
     await sql.query(
       `insert into listings (
-         id, user_id, region_id, title, description, category, offer_type, price_karma, status,
-         images, lat, lng, place_label, asset_kind, item_uuid, what3words_address, hands_count
-       ) values ($1,$2,$3,$4,$5,$6,$7,$8,'active',$9::jsonb,$10,$11,$12,$13,$14,$15,$16)`,
+         id, user_id, region_id, title, description, category, offer_type, price_karma,
+         exchange_terms, karma_adjustment, status, images, lat, lng, place_label,
+         asset_kind, item_uuid, what3words_address, hands_count
+       ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'active',$11::jsonb,$12,$13,$14,$15,$16,$17,$18)`,
       [
         id,
         context.userId,
@@ -527,6 +553,8 @@ export const createListing = createServerFn({ method: "POST" })
         data.category,
         data.offerType,
         data.priceKarma,
+        data.exchangeTerms,
+        data.karmaAdjustment,
         JSON.stringify(images),
         lat,
         lng,
@@ -633,6 +661,468 @@ export const tradeListing = createServerFn({ method: "POST" })
       select item_uuid, id, $2, place_label, case when offer_type = 'gift' then 'gifted' else 'transferred' end
       from listings where id = $1`, [data.id, context.userId]);
     return { ok: true };
+  });
+
+
+function requestTradeDescription(value: unknown): string {
+  return normalizeTradeOffer(value);
+}
+
+export const createTradeRequest = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    const id = idOf(input, "id");
+    if (!input || typeof input !== "object") throw new Error("Ungültige Eingabe");
+    const offeredDescription = requestTradeDescription((input as Record<string, unknown>).offeredDescription);
+    return { id, offeredDescription };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    const sql = await getSql();
+    const verification = await sql.query<{ is_verified: boolean }>(
+      `select is_verified from profiles where user_id = $1`, [context.userId]);
+    if (!verification[0]?.is_verified) return fail("Bitte verifiziere zuerst dein Konto mit ID Austria.");
+
+    const tradeId = `trd-${crypto.randomUUID()}`;
+    try {
+      const rows = await sql.query<{ id: string }>(
+        CREATE_TRADE_REQUEST_SQL,
+        [data.id, context.userId, tradeId, data.offeredDescription],
+      );
+      if (!rows.length) {
+        return fail("Tauschvorschlag nicht möglich. Prüfe Region, Guthaben und Verfügbarkeit des Inserats.");
+      }
+      return { ok: true };
+    } catch (err) {
+      const code = err && typeof err === "object" && "code" in err ? String(err.code) : "";
+      if (code === "23505") return fail("Für dieses Inserat liegt bereits ein offener Tauschvorschlag vor.");
+      throw err;
+    }
+  });
+
+export const getTradeRequests = createServerFn({ method: "GET" })
+  .validator((input: unknown) => ({ id: idOf(input, "id") }))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<TradeRequest[]> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      `select tr.id, tr.listing_id as "listingId", tr.requester_id as "requesterId",
+         tr.owner_id as "ownerId", requester.username as "requesterName",
+         owner.username as "ownerName", tr.offered_description as "offeredDescription",
+         tr.karma_amount as "karmaAmount", tr.status,
+         tr.dispute_reason as "disputeReason",
+         tr.requester_confirmed as "requesterConfirmed",
+         tr.owner_confirmed as "ownerConfirmed",
+         to_char(tr.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt"
+       from trade_requests tr
+       join profiles requester on requester.user_id = tr.requester_id
+       join profiles owner on owner.user_id = tr.owner_id
+       where tr.listing_id = $1 and (tr.requester_id = $2 or tr.owner_id = $2)
+       order by tr.created_at desc
+       limit 10`,
+      [data.id, context.userId],
+    );
+    return rows.map((row) => ({
+      id: asString(row.id),
+      listingId: asString(row.listingId),
+      requesterId: asString(row.requesterId),
+      ownerId: asString(row.ownerId),
+      requesterName: asString(row.requesterName),
+      ownerName: asString(row.ownerName),
+      offeredDescription: asString(row.offeredDescription),
+      karmaAmount: asNumber(row.karmaAmount),
+      status: asString(row.status) as TradeRequest["status"],
+      disputeReason: row.disputeReason == null ? null : asString(row.disputeReason),
+      requesterConfirmed: row.requesterConfirmed === true || row.requesterConfirmed === "true",
+      ownerConfirmed: row.ownerConfirmed === true || row.ownerConfirmed === "true",
+      createdAt: asString(row.createdAt),
+    }));
+  });
+
+export const transitionTradeRequest = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    const id = idOf(input, "id");
+    const source = input && typeof input === "object" ? input as Record<string, unknown> : {};
+    const action = source.action;
+    if (action !== "accept" && action !== "reject" && action !== "cancel" && action !== "dispute") {
+      throw new Error("Unbekannter Tauschschritt");
+    }
+    const reason = typeof source.reason === "string" ? source.reason.trim() : "";
+    if (action === "dispute" && (reason.length < 10 || reason.length > 1000)) {
+      throw new Error("Bitte beschreibe den Streitfall mit 10 bis 1.000 Zeichen.");
+    }
+    return { id, action, reason };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    try {
+      const sql = await getSql();
+      const rows = await sql.query<{ status: string }>(
+        TRANSITION_TRADE_REQUEST_SQL,
+      [data.id, context.userId, data.action, data.reason],
+    );
+    if (!rows.length) return fail("Dieser Tauschschritt ist nicht mehr möglich oder du bist nicht beteiligt.");
+    return { ok: true };
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+    if (code === "P0001") return fail(error instanceof Error ? error.message : "Sieben Moderationspersonen sind derzeit nicht verfügbar.");
+    throw error;
+  }
+  });
+
+export const confirmTradeRequest = createServerFn({ method: "POST" })
+  .validator((input: unknown) => ({ id: idOf(input, "id") }))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      CONFIRM_TRADE_REQUEST_SQL,
+      [data.id, context.userId],
+    );
+    if (!rows.length) {
+      return fail("Bestätigung nicht möglich. Prüfe Beteiligung, Status und verfügbares Karma.");
+    }
+    return { ok: true };
+  });
+
+
+export type TradeDisputeCase = {
+  id: string;
+  listingId: string;
+  listingTitle: string;
+  requesterName: string;
+  ownerName: string;
+  offeredDescription: string;
+  karmaAmount: number;
+  reason: string;
+  votes: number;
+  completeVotes: number;
+  cancelVotes: number;
+  assigned: number;
+  myVote: "complete" | "cancel" | null;
+  createdAt: string;
+};
+
+export type TradeDisputeVoteResult = {
+  status: "disputed" | "completed" | "cancelled";
+  votes: number;
+  completeVotes: number;
+  cancelVotes: number;
+  assigned: number;
+  required: number;
+};
+
+/** Nur offen zugeteilte Streitfälle der angemeldeten Moderationsperson. */
+export const getMyTradeDisputes = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }): Promise<TradeDisputeCase[]> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      `select tr.id, tr.listing_id as "listingId", l.title as "listingTitle",
+         requester.username as "requesterName", owner.username as "ownerName",
+         tr.offered_description as "offeredDescription",
+         tr.karma_amount as "karmaAmount",
+         coalesce(tr.dispute_reason, '') as reason,
+         count(v.moderator_id)::int as votes,
+         count(v.moderator_id) filter (where v.decision = 'complete')::int as "completeVotes",
+         count(v.moderator_id) filter (where v.decision = 'cancel')::int as "cancelVotes",
+         7::int as assigned,
+         max(mine.decision) as "myVote",
+         to_char(tr.updated_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt"
+       from trade_dispute_moderators assignment
+       join trade_requests tr on tr.id = assignment.trade_request_id and tr.status = 'disputed'
+       join listings l on l.id = tr.listing_id
+       join profiles requester on requester.user_id = tr.requester_id
+       join profiles owner on owner.user_id = tr.owner_id
+       left join trade_dispute_votes v on v.trade_request_id = tr.id
+       left join trade_dispute_votes mine
+         on mine.trade_request_id = tr.id and mine.moderator_id = $1
+       join profiles moderator on moderator.user_id = assignment.moderator_id
+       where assignment.moderator_id = $1
+         and moderator.region_id = tr.region_id
+         and moderator.is_verified = true
+         and moderator.moderator_rank > 0
+         and moderator.last_active_at >= now() - interval '30 days'
+       group by tr.id, l.title, requester.username, owner.username
+       order by tr.created_at asc
+       limit 100`,
+      [context.userId],
+    );
+    return rows.map((row) => ({
+      id: asString(row.id),
+      listingId: asString(row.listingId),
+      listingTitle: asString(row.listingTitle),
+      requesterName: asString(row.requesterName),
+      ownerName: asString(row.ownerName),
+      offeredDescription: asString(row.offeredDescription),
+      karmaAmount: asNumber(row.karmaAmount),
+      reason: asString(row.reason),
+      votes: asNumber(row.votes),
+      completeVotes: asNumber(row.completeVotes),
+      cancelVotes: asNumber(row.cancelVotes),
+      assigned: asNumber(row.assigned),
+      myVote: row.myVote === "complete" || row.myVote === "cancel" ? row.myVote : null,
+      createdAt: asString(row.createdAt),
+    }));
+  });
+
+export const voteTradeDispute = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    if (!input || typeof input !== "object") throw new Error("Ungültige Abstimmung");
+    const source = input as Record<string, unknown>;
+    const id = idOf(source, "id");
+    const decision = source.decision === "complete" || source.decision === "cancel" ? source.decision : null;
+    const note = typeof source.note === "string" ? source.note.trim() : "";
+    if (!decision) throw new Error("Entscheidung muss Tauschabschluss oder Abbruch sein.");
+    if (note.length < 10 || note.length > 500) throw new Error("Bitte begründe deine Entscheidung mit 10 bis 500 Zeichen.");
+    return { id, decision, note };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<TradeDisputeVoteResult | ActionResult> => {
+    const sql = await getSql();
+    try {
+      const rows = await sql.query<Row>(
+        "select * from kreislauf_vote_trade_dispute($1, $2, $3, $4)",
+        [data.id, context.userId, data.decision, data.note],
+      );
+      const row = rows[0];
+      if (!row) return fail("Die Abstimmung lieferte kein Ergebnis.");
+      return {
+        status: asString(row.status) as TradeDisputeVoteResult["status"],
+        votes: asNumber(row.votes),
+        completeVotes: asNumber(row.complete_votes),
+        cancelVotes: asNumber(row.cancel_votes),
+        assigned: asNumber(row.assigned),
+        required: asNumber(row.required),
+      };
+    } catch (error) {
+      const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+      if (code === "23505") return fail("Du hast in diesem Fall bereits abgestimmt. Eine Stimme kann nicht geändert werden.");
+      if (code === "42501" || code === "P0002" || code === "23514") {
+        return fail(error instanceof Error ? error.message : "Abstimmung nicht möglich.");
+      }
+      throw error;
+    }
+  });
+
+export type ListingThread = {
+  requesterId: string;
+  requesterName: string;
+  lastMessage: string;
+  updatedAt: string;
+};
+
+export type ListingMessage = {
+  id: number;
+  senderId: string | null;
+  senderName: string;
+  body: string;
+  kind: "user" | "system";
+  createdAt: string;
+  isMine: boolean;
+};
+
+export type ListingConversationSummary = {
+  listingId: string;
+  requesterId: string;
+  listingTitle: string;
+  otherName: string;
+  lastMessage: string;
+  unreadCount: number;
+  updatedAt: string;
+};
+
+/** Alle Inserat-Unterhaltungen des angemeldeten Mitglieds. */
+export const getMyListingConversations = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }): Promise<ListingConversationSummary[]> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      `select c.listing_id as "listingId", c.requester_id as "requesterId",
+        l.title as "listingTitle",
+        coalesce(p.username, 'Mitglied') as "otherName",
+        count(m.id) filter (
+          where m.read_at is null and m.sender_id is distinct from $1
+        )::int as "unreadCount",
+        coalesce((select lm.body from listing_messages lm
+          where lm.conversation_id = c.id order by lm.id desc limit 1), '') as "lastMessage",
+        to_char(c.updated_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "updatedAt"
+       from listing_conversations c
+       join listings l on l.id = c.listing_id
+       left join profiles p on p.user_id = case
+         when c.owner_id = $1 then c.requester_id else c.owner_id end
+       left join listing_messages m on m.conversation_id = c.id
+       where c.owner_id = $1 or c.requester_id = $1
+       group by c.id, l.title, p.username
+       order by c.updated_at desc
+       limit 100`,
+      [context.userId],
+    );
+    return rows.map((row) => ({
+      listingId: asString(row.listingId),
+      requesterId: asString(row.requesterId),
+      listingTitle: asString(row.listingTitle),
+      otherName: asString(row.otherName),
+      lastMessage: asString(row.lastMessage),
+      unreadCount: asNumber(row.unreadCount),
+      updatedAt: asString(row.updatedAt),
+    }));
+  });
+
+export const getListingThreads = createServerFn({ method: "GET" })
+  .validator((input: unknown) => ({ id: idOf(input, "id") }))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ListingThread[]> => {
+    const sql = await getSql();
+    const allowed = await sql.query<{ user_id: string }>(
+      "select user_id from listings where id = $1", [data.id],
+    );
+    if (!allowed.length) return [];
+    const rows = await sql.query<Row>(
+      `select c.requester_id as "requesterId", p.username as "requesterName",
+        coalesce((select m.body from listing_messages m
+          where m.conversation_id = c.id order by m.id desc limit 1), '') as "lastMessage",
+        to_char(c.updated_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "updatedAt"
+       from listing_conversations c join profiles p on p.user_id = c.requester_id
+       where c.listing_id = $1 and (c.owner_id = $2 or c.requester_id = $2)
+       order by c.updated_at desc`,
+      [data.id, context.userId],
+    );
+    if (allowed[0].user_id !== context.userId &&
+        !rows.some((row) => asString(row.requesterId) === context.userId)) return [];
+    return rows.map((row) => ({
+      requesterId: asString(row.requesterId),
+      requesterName: asString(row.requesterName, "Mitglied"),
+      lastMessage: asString(row.lastMessage),
+      updatedAt: asString(row.updatedAt),
+    }));
+  });
+
+export const getListingMessages = createServerFn({ method: "GET" })
+  .validator((input: unknown) => {
+    const id = idOf(input, "id");
+    const requesterId = input && typeof input === "object" && "requesterId" in input
+      ? String((input as Record<string, unknown>).requesterId ?? "") : "";
+    if (requesterId && !/^[a-zA-Z0-9_-]{2,128}$/.test(requesterId)) {
+      throw new Error("Ungültige Unterhaltung");
+    }
+    return { id, requesterId };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ListingMessage[]> => {
+    const sql = await getSql();
+    const listing = await sql.query<{ user_id: string }>(
+      "select user_id from listings where id = $1", [data.id],
+    );
+    if (!listing.length) return [];
+    const ownerId = listing[0].user_id;
+    const requesterId = ownerId === context.userId ? data.requesterId : context.userId;
+    if (!requesterId || requesterId === ownerId) return [];
+    const rows = await sql.query<Row>(
+      `select m.id, m.sender_id as "senderId",
+        coalesce(p.username, 'KREISLAUF') as "senderName",
+        m.body, m.message_kind as kind,
+        to_char(m.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt"
+       from listing_conversations c
+       join listing_messages m on m.conversation_id = c.id
+       left join profiles p on p.user_id = m.sender_id
+       where c.listing_id = $1 and c.requester_id = $2 and c.owner_id = $3
+         and (c.requester_id = $4 or c.owner_id = $4)
+       order by m.id asc limit 200`,
+      [data.id, requesterId, ownerId, context.userId],
+    );
+    await sql.query(
+      `update listing_messages set read_at = now()
+       where conversation_id in (
+         select id from listing_conversations
+         where listing_id = $1 and requester_id = $2 and owner_id = $3
+           and (requester_id = $4 or owner_id = $4)
+       )
+         and sender_id is distinct from $4 and read_at is null`,
+      [data.id, requesterId, ownerId, context.userId],
+    );
+    return rows.map((row) => ({
+      id: asNumber(row.id),
+      senderId: row.senderId == null ? null : asString(row.senderId),
+      senderName: asString(row.senderName),
+      body: asString(row.body),
+      kind: asString(row.kind, "user") as "user" | "system",
+      createdAt: asString(row.createdAt),
+      isMine: row.senderId === context.userId,
+    }));
+  });
+
+export const sendListingMessage = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    if (!input || typeof input !== "object") throw new Error("Ungültige Nachricht");
+    const source = input as Record<string, unknown>;
+    const id = idOf(source, "id");
+    const body = typeof source.body === "string" ? source.body.trim() : "";
+    if (!body || body.length > 2000) throw new Error("Nachricht muss 1 bis 2000 Zeichen haben");
+    const requesterId = typeof source.requesterId === "string" ? source.requesterId : "";
+    if (requesterId && !/^[a-zA-Z0-9_-]{2,128}$/.test(requesterId)) {
+      throw new Error("Ungültige Unterhaltung");
+    }
+    return { id, body, requesterId };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    const sql = await getSql();
+    const listing = await sql.query<{ user_id: string; status: string }>(
+      "select user_id, status from listings where id = $1", [data.id],
+    );
+    if (!listing.length) return fail("Inserat nicht gefunden.");
+    const ownerId = listing[0].user_id;
+    const requesterId = context.userId === ownerId ? data.requesterId : context.userId;
+    if (!requesterId || requesterId === ownerId) return fail("Unterhaltung nicht ausgewählt.");
+
+    if (context.userId === ownerId) {
+      const existing = await sql.query(
+        "select id from listing_conversations where listing_id = $1 and requester_id = $2 and owner_id = $3",
+        [data.id, requesterId, ownerId],
+      );
+      if (!existing.length) return fail("Du kannst erst antworten, wenn das andere Mitglied eine Unterhaltung begonnen hat.");
+    }
+    const member = await sql.query(
+      "select user_id from profiles where user_id = $1", [requesterId],
+    );
+    if (!member.length) return fail("Mitglied nicht gefunden.");
+
+    try {
+      const inserted = await sql.query<{ id: number }>(
+        `with conversation as (
+           insert into listing_conversations(id, listing_id, requester_id, owner_id)
+           select 'conv-' || md5(l.id || ':' || $2), l.id, $2, l.user_id
+           from listings l
+           where l.id = $1 and l.user_id = $3
+             and (
+               l.status = 'active'
+               or exists (
+                 select 1 from listing_conversations existing
+                 where existing.listing_id = l.id
+                   and existing.requester_id = $3
+                   and existing.owner_id = l.user_id
+               )
+             )
+           on conflict (listing_id, requester_id)
+           do update set updated_at = now()
+           returning id
+         ),
+         message as (
+           insert into listing_messages(conversation_id, sender_id, body, message_kind)
+           select conversation.id, $4, $5, 'user'
+           from conversation
+           returning id
+         )
+         select id from message`,
+        [data.id, requesterId, ownerId, context.userId, data.body],
+      );
+      if (!inserted.length) return fail("Nachricht konnte nicht gespeichert werden.");
+      return { ok: true };
+    } catch (error) {
+      const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+      if (code === "P0001") return fail("Nachrichtenlimit erreicht. Bitte warte und versuche es später erneut.");
+      throw error;
+    }
   });
 
 export const reserveListing = createServerFn({ method: "POST" })

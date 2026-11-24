@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as KarteRouteImport } from './routes/karte'
 import { Route as KontoRouteImport } from './routes/konto'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as NachrichtenRouteImport } from './routes/nachrichten'
+import { Route as ModerationRouteImport } from './routes/moderation'
 import { Route as InseratListingIdRouteImport } from './routes/inserat/$listingId'
 import { Route as InseratNeuRouteImport } from './routes/inserat/neu'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -37,6 +39,16 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NachrichtenRoute = NachrichtenRouteImport.update({
+  id: '/nachrichten',
+  path: '/nachrichten',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModerationRoute = ModerationRouteImport.update({
+  id: '/moderation',
+  path: '/moderation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InseratListingIdRoute = InseratListingIdRouteImport.update({
   id: '/inserat/$listingId',
   path: '/inserat/$listingId',
@@ -58,6 +70,8 @@ export interface FileRoutesByFullPath {
   '/karte': typeof KarteRoute
   '/konto': typeof KontoRoute
   '/login': typeof LoginRoute
+  '/nachrichten': typeof NachrichtenRoute
+  '/moderation': typeof ModerationRoute
   '/inserat/$listingId': typeof InseratListingIdRoute
   '/inserat/neu': typeof InseratNeuRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -67,6 +81,8 @@ export interface FileRoutesByTo {
   '/karte': typeof KarteRoute
   '/konto': typeof KontoRoute
   '/login': typeof LoginRoute
+  '/nachrichten': typeof NachrichtenRoute
+  '/moderation': typeof ModerationRoute
   '/inserat/$listingId': typeof InseratListingIdRoute
   '/inserat/neu': typeof InseratNeuRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -77,6 +93,8 @@ export interface FileRoutesById {
   '/karte': typeof KarteRoute
   '/konto': typeof KontoRoute
   '/login': typeof LoginRoute
+  '/nachrichten': typeof NachrichtenRoute
+  '/moderation': typeof ModerationRoute
   '/inserat/$listingId': typeof InseratListingIdRoute
   '/inserat/neu': typeof InseratNeuRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -88,6 +106,8 @@ export interface FileRouteTypes {
     | '/karte'
     | '/konto'
     | '/login'
+    | '/nachrichten'
+    | '/moderation'
     | '/inserat/$listingId'
     | '/inserat/neu'
     | '/api/auth/$'
@@ -97,6 +117,8 @@ export interface FileRouteTypes {
     | '/karte'
     | '/konto'
     | '/login'
+    | '/nachrichten'
+    | '/moderation'
     | '/inserat/$listingId'
     | '/inserat/neu'
     | '/api/auth/$'
@@ -106,6 +128,8 @@ export interface FileRouteTypes {
     | '/karte'
     | '/konto'
     | '/login'
+    | '/nachrichten'
+    | '/moderation'
     | '/inserat/$listingId'
     | '/inserat/neu'
     | '/api/auth/$'
@@ -116,6 +140,8 @@ export interface RootRouteChildren {
   KarteRoute: typeof KarteRoute
   KontoRoute: typeof KontoRoute
   LoginRoute: typeof LoginRoute
+  NachrichtenRoute: typeof NachrichtenRoute
+  ModerationRoute: typeof ModerationRoute
   InseratListingIdRoute: typeof InseratListingIdRoute
   InseratNeuRoute: typeof InseratNeuRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -151,6 +177,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/nachrichten': {
+      id: '/nachrichten'
+      path: '/nachrichten'
+      fullPath: '/nachrichten'
+      preLoaderRoute: typeof NachrichtenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moderation': {
+      id: '/moderation'
+      path: '/moderation'
+      fullPath: '/moderation'
+      preLoaderRoute: typeof ModerationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inserat/$listingId': {
       id: '/inserat/$listingId'
       path: '/inserat/$listingId'
@@ -180,6 +220,8 @@ const rootRouteChildren: RootRouteChildren = {
   KarteRoute: KarteRoute,
   KontoRoute: KontoRoute,
   LoginRoute: LoginRoute,
+  NachrichtenRoute: NachrichtenRoute,
+  ModerationRoute: ModerationRoute,
   InseratListingIdRoute: InseratListingIdRoute,
   InseratNeuRoute: InseratNeuRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

@@ -1,5 +1,5 @@
 export type Category = "goods" | "service" | "sharing";
-export type OfferType = "sell" | "search" | "gift";
+export type OfferType = "sell" | "search" | "gift" | "barter" | "combined";
 export type ListingStatus = "active" | "booked" | "completed" | "maintenance";
 export type BookingStatus = "reserved" | "handed_over" | "returned" | "cancelled";
 
@@ -27,6 +27,8 @@ export type Listing = {
   handsCount: number;
   what3wordsAddress?: string | null;
   priceKarma: number;
+  exchangeTerms: string | null;
+  karmaAdjustment: number;
   status: ListingStatus;
   images: string[];
   lat: number;
@@ -60,6 +62,22 @@ export type Booking = {
   endsAt: string;
   status: BookingStatus;
   amountKarma: number;
+};
+
+export type TradeRequest = {
+  id: string;
+  listingId: string;
+  requesterId: string;
+  ownerId: string;
+  requesterName: string;
+  ownerName: string;
+  offeredDescription: string;
+  karmaAmount: number;
+  status: "requested" | "accepted" | "rejected" | "cancelled" | "completed" | "disputed";
+  disputeReason: string | null;
+  requesterConfirmed: boolean;
+  ownerConfirmed: boolean;
+  createdAt: string;
 };
 
 export type LedgerEntry = {

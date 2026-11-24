@@ -2,30 +2,39 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ListingVisual } from "@/components/listing-card";
 import { Shell } from "@/components/shell";
+import { ListingConversation } from "@/components/listing-conversation";
 import { Button, fieldClass } from "@/components/ui";
 import {
   addReview,
+  confirmTradeRequest,
+  createTradeRequest,
   getListing,
   getMeetingPoint,
+  getTradeRequests,
   releaseEscrow,
   reserveListing,
   tradeListing,
   transitionBooking,
+  transitionTradeRequest,
 } from "@/features/kreislauf/api";
 import { useKreislauf } from "@/features/kreislauf/context";
 import {
   BOOKING_LABEL,
   CATEGORY_LABEL,
+  OFFER_TYPE_LABEL,
   STATUS_LABEL,
   formatKarma,
   formatTrust,
   formatWhen,
   priceCaption,
 } from "@/features/kreislauf/format";
-import type { ListingDetail } from "@/features/kreislauf/types";
+import type { ListingDetail, TradeRequest } from "@/features/kreislauf/types";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/inserat/$listingId")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    conversation: typeof search.conversation === "string" ? search.conversation : undefined,
+  }),
   loader: ({ params }) => getListing({ data: { id: params.listingId } }),
   component: ListingPage,
 });
@@ -33,6 +42,7 @@ export const Route = createFileRoute("/inserat/$listingId")({
 function ListingPage() {
   const initial = Route.useLoaderData();
   const { listingId } = Route.useParams();
+  const { conversation } = Route.useSearch();
   const navigate = useNavigate();
   const { version, bump, refreshProfile, profile } = useKreislauf();
   const { user, isPending } = useCurrentUserState();
@@ -44,6 +54,9 @@ function ListingPage() {
   const [startsAt, setStartsAt] = useState("");
   const [endsAt, setEndsAt] = useState("");
   const [scores, setScores] = useState({ punctuality: 5, itemCondition: 5, reliability: 5, note: "" });
+  const [tradeRequests, setTradeRequests] = useState<TradeRequest[]>([]);
+  const [offeredDescription, setOfferedDescription] = useState("");
+  const [disputeReason, setDisputeReason] = useState("");
 
   useEffect(() => {
     if (version === 0) return;
@@ -55,6 +68,18 @@ function ListingPage() {
       cancel = true;
     };
   }, [listingId, version]);
+
+  useEffect(() => {
+    if (!user) {
+      setTradeRequests([]);
+      return;
+    }
+    let cancel = false;
+    getTradeRequests({ data: { id: listingId } })
+      .then((next) => { if (!cancel) setTradeRequests(next); })
+      .catch(() => { if (!cancel) setTradeRequests([]); });
+    return () => { cancel = true; };
+  }, [listingId, user?.id, version]);
 
   useEffect(() => {
     setQrTarget(`${window.location.origin}/inserat/${listingId}`);
@@ -83,19 +108,31 @@ function ListingPage() {
   const { listing, booking, reviews } = detail;
   const mine = user?.id === listing.userId;
   const party = user && booking && (user.id === booking.renterId || user.id === booking.ownerId);
+  const exchangeListing = listing.offerType === "barter" || listing.offerType === "combined";
+  const priceText =
+    listing.offerType === "search" ? "Suchanzeige" :
+    listing.offerType === "barter" ? "Direkter Tausch ohne Karma" :
+    listing.offerType === "combined"
+      ? (listing.karmaAdjustment > 0
+          ? formatKarma(listing.karmaAdjustment) + " Karma-Ausgleich + Gegenleistung"
+          : "Gegenleistung ohne Karma-Ausgleich")
+      : priceCaption(listing.category, listing.priceKarma);
 
-  async function run(action: () => Promise<{ ok: boolean; error?: string }>) {
+  async function run(action: () => Promise<{ ok: boolean; error?: string }>): Promise<boolean> {
     setBusy(true);
     setError(null);
     try {
       const result = await action();
-      if (!result.ok) setError(result.error ?? "Nicht möglich");
-      else {
-        bump();
-        await refreshProfile();
+      if (!result.ok) {
+        setError(result.error ?? "Nicht möglich");
+        return false;
       }
+      bump();
+      await refreshProfile();
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Nicht möglich");
+      return false;
     } finally {
       setBusy(false);
     }
@@ -110,7 +147,7 @@ function ListingPage() {
         <ListingVisual listing={listing} className="aspect-[4/3] w-full rounded-3xl" />
         <div>
           <p className="text-sm text-copper">
-            {listing.offerType === "sell" ? "Biete / Verkaufe" : listing.offerType === "search" ? "Suche nach" : "Verschenke"} · {CATEGORY_LABEL[listing.category]} · {STATUS_LABEL[listing.status]}
+            {OFFER_TYPE_LABEL[listing.offerType]} · {CATEGORY_LABEL[listing.category]} · {STATUS_LABEL[listing.status]}
           </p>
           <h1 className="mt-2 font-display text-4xl leading-tight text-fg">{listing.title}</h1>
           <p className="mt-3 text-muted">{listing.description}</p>
@@ -118,12 +155,18 @@ function ListingPage() {
             {listing.placeLabel} · {listing.ownerName}
             {listing.trust != null ? ` · Vertrauen ${formatTrust(listing.trust)}` : ""}
           </p>
-          <p className="mt-4 font-display text-3xl tabular-nums text-copper">
-            {listing.offerType === "search" ? "Suchanzeige" : priceCaption(listing.category, listing.priceKarma)}
+          <p className="mt-4 font-display text-2xl tabular-nums text-copper">
+            {priceText}
           </p>
+          {listing.exchangeTerms ? (
+            <div className="mt-3 rounded-2xl border border-line bg-elev p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-subtle">Gesuchte Gegenleistung</p>
+              <p className="mt-1 text-sm text-fg">{listing.exchangeTerms}</p>
+            </div>
+          ) : null}
           {listing.handsCount > 0 ? <p className="mt-3 inline-flex rounded-full bg-forest/15 px-3 py-1 text-sm text-forest">Bereits durch {listing.handsCount} {listing.handsCount === 1 ? "Hand" : "Hände"} gegangen</p> : null}
 
-          {listing.offerType !== "search" && listing.category !== "sharing" && listing.status === "active" && !mine ? (
+          {(listing.offerType === "sell" || listing.offerType === "gift") && listing.category !== "sharing" && listing.status === "active" && !mine ? (
             <div className="mt-5">
               {isPending ? (
                 <div className="h-11 w-40 animate-pulse rounded-lg bg-elev-2" />
@@ -140,6 +183,153 @@ function ListingPage() {
               )}
               <p className="mt-2 text-sm text-subtle">Karma geht sofort an {listing.ownerName}.</p>
             </div>
+          ) : null}
+
+
+          {exchangeListing ? (
+            <section className="mt-5 space-y-4 rounded-3xl border border-line bg-elev p-4">
+              <div>
+                <h2 className="font-display text-xl">Tauschvorschläge</h2>
+                <p className="mt-1 text-sm text-subtle">
+                  Kein Geldtransfer. {listing.offerType === "combined"
+                    ? "Der Karma-Ausgleich geht nur bei beidseitiger Abschlussbestätigung vom anfragenden Mitglied an den Anbieter."
+                    : "Beim direkten Tausch wird kein Karma bewegt."}
+                </p>
+              </div>
+
+              {!mine && listing.status === "active" ? (
+                !user ? (
+                  <Link to="/login" className="inline-flex h-11 items-center rounded-lg bg-forest px-4 text-sm font-medium text-paper">
+                    Anmelden zum Tauschen
+                  </Link>
+                ) : !profile?.isVerified ? (
+                  <Link to="/konto" className="inline-flex h-11 items-center rounded-lg bg-forest px-4 text-sm font-medium text-paper">
+                    Zuerst ID Austria bestätigen
+                  </Link>
+                ) : (
+                  <form
+                    className="space-y-3"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      void run(() => createTradeRequest({
+                        data: { id: listing.id, offeredDescription },
+                      })).then((success) => { if (success) setOfferedDescription(""); });
+                    }}
+                  >
+                    <label className="block text-sm text-muted">
+                      Was bietest du konkret als Gegenleistung?
+                      <textarea
+                        className={fieldClass + " mt-2 h-24 py-3"}
+                        value={offeredDescription}
+                        onChange={(event) => setOfferedDescription(event.target.value)}
+                        minLength={8}
+                        maxLength={400}
+                        required
+                        placeholder="Beschreibe deine Ware oder Hilfe."
+                      />
+                    </label>
+                    <Button type="submit" disabled={busy}>Tauschvorschlag senden</Button>
+                  </form>
+                )
+              ) : null}
+
+              {tradeRequests.length ? (
+                <div className="space-y-3">
+                  {tradeRequests.map((request) => {
+                    const isOwner = user?.id === request.ownerId;
+                    const isRequester = user?.id === request.requesterId;
+                    const involved = isOwner || isRequester;
+                    const confirmedByMe = isOwner ? request.ownerConfirmed : request.requesterConfirmed;
+                    const otherConfirmed = isOwner ? request.requesterConfirmed : request.ownerConfirmed;
+                    if (!involved) return null;
+                    return (
+                      <article key={request.id} className="rounded-2xl border border-line bg-paper/30 p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-fg">
+                            {request.requesterName} bietet
+                          </p>
+                          <span className="rounded-full bg-elev-2 px-2 py-1 text-xs text-muted">
+                            {request.status === "requested" ? "Offen" :
+                              request.status === "accepted" ? "Angenommen" :
+                              request.status === "rejected" ? "Abgelehnt" :
+                              request.status === "cancelled" ? "Zurückgezogen" :
+                              request.status === "completed" ? "Abgeschlossen" : "Streitfall"}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-sm text-fg">{request.offeredDescription}</p>
+                        {request.karmaAmount > 0 ? (
+                          <p className="mt-2 text-sm text-copper">{formatKarma(request.karmaAmount)} Karma zusätzlich vom Anfragenden an den Anbieter</p>
+                        ) : null}
+                        {request.status === "accepted" ? (
+                          <p className="mt-2 text-xs text-subtle">
+                            Bestätigungen: Anbieter {request.ownerConfirmed ? "✓" : "offen"} · Anfragender {request.requesterConfirmed ? "✓" : "offen"}
+                            {confirmedByMe
+                              ? (otherConfirmed ? " · Beide Seiten haben bestätigt." : " · Du hast bereits bestätigt. Warte auf die Gegenseite.")
+                              : ""}
+                          </p>
+                        ) : null}
+                        {request.status === "disputed" ? (
+                          <div className="mt-3 rounded-xl border border-copper/30 bg-elev p-3">
+                            <p className="text-sm font-semibold text-copper">Unabhängige Schlichtung läuft</p>
+                            {request.disputeReason ? <p className="mt-1 text-sm text-fg">{request.disputeReason}</p> : null}
+                            <p className="mt-2 text-xs text-subtle">Sieben aktive, verifizierte Moderationspersonen aus der Region prüfen den Fall unabhängig. Eine Entscheidung ist frühestens mit vier Stimmen und mindestens zwei Dritteln Mehrheit möglich. Bis dahin bleiben Inserat und Karma gesperrt.</p>
+                          </div>
+                        ) : null}
+                        {request.status === "completed" ? (
+                          <p className="mt-2 text-sm text-forest">Beide Seiten haben bestätigt. Der Tausch ist abgeschlossen.</p>
+                        ) : null}
+                        {request.status === "requested" && isOwner ? (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <Button disabled={busy} onClick={() => void run(() => transitionTradeRequest({ data: { id: request.id, action: "accept" } }))}>Annehmen</Button>
+                            <Button variant="ghost" disabled={busy} onClick={() => void run(() => transitionTradeRequest({ data: { id: request.id, action: "reject" } }))}>Ablehnen</Button>
+                          </div>
+                        ) : null}
+                        {request.status === "requested" && isRequester ? (
+                          <Button className="mt-3" variant="ghost" disabled={busy} onClick={() => void run(() => transitionTradeRequest({ data: { id: request.id, action: "cancel" } }))}>Vorschlag zurückziehen</Button>
+                        ) : null}
+                        {request.status === "accepted" && involved ? (
+                          <div className="mt-3 space-y-3">
+                            <div className="flex flex-wrap gap-2">
+                              {!confirmedByMe ? (
+                                <Button disabled={busy} onClick={() => void run(() => confirmTradeRequest({ data: { id: request.id } }))}>Abschluss bestätigen</Button>
+                              ) : null}
+                            </div>
+                            <form
+                              className="space-y-2 rounded-xl border border-line p-3"
+                              onSubmit={(event) => {
+                                event.preventDefault();
+                                void run(() => transitionTradeRequest({
+                                  data: { id: request.id, action: "dispute", reason: disputeReason },
+                                })).then((success) => { if (success) setDisputeReason(""); });
+                              }}
+                            >
+                              <label className="block text-sm text-muted">
+                                Problem melden – bitte konkret beschreiben
+                                <textarea
+                                  className={fieldClass + " mt-2 h-24 py-3"}
+                                  value={disputeReason}
+                                  onChange={(event) => setDisputeReason(event.target.value)}
+                                  minLength={10}
+                                  maxLength={1000}
+                                  required
+                                  placeholder="Was ist bei der Übergabe oder Vereinbarung schiefgelaufen?"
+                                />
+                              </label>
+                              <p className="text-xs text-subtle">Die Begründung wird dem Schlichtungsfall und dem Inserat-Chat beigefügt. Eine Entscheidung braucht mindestens vier Stimmen und eine Zweidrittelmehrheit.</p>
+                              <Button variant="ghost" type="submit" disabled={busy || disputeReason.trim().length < 10}>Streitfall eröffnen</Button>
+                            </form>
+                          </div>
+                        ) : null}
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : mine ? (
+                <p className="text-sm text-muted">Noch keine Tauschvorschläge eingegangen.</p>
+              ) : listing.status !== "active" ? (
+                <p className="text-sm text-muted">Dieses Angebot ist derzeit nicht verfügbar.</p>
+              ) : null}
+            </section>
           ) : null}
 
           {listing.offerType !== "search" && listing.category === "sharing" && listing.status === "active" && !mine ? (
@@ -248,6 +438,13 @@ function ListingPage() {
           {detail.history.length ? <ol className="mt-3 space-y-3">{detail.history.map((entry, index) => <li key={`${entry.createdAt}-${index}`} className="border-l-2 border-forest/40 pl-3"><p className="text-sm text-fg">{entry.placeLabel}</p><p className="text-xs text-subtle">{formatWhen(entry.createdAt)} · {entry.eventKind === "listed" ? "Eingestellt" : entry.eventKind === "gifted" ? "Verschenkt" : entry.eventKind === "loaned" ? "Verliehen" : "Weitergegeben"}</p></li>)}</ol> : <p className="mt-2 text-sm text-muted">Noch keine Stationen dokumentiert.</p>}
         </div>
       </section>
+
+      <ListingConversation
+        listingId={listing.id}
+        ownerId={listing.userId}
+        currentUserId={user?.id ?? null}
+        initialRequesterId={conversation}
+      />
 
       <section className="mt-8">
         <h2 className="font-display text-2xl">Bewertungen</h2>

@@ -10,6 +10,8 @@ export const OFFER_TYPE_LABEL: Record<OfferType, string> = {
   sell: "Biete",
   search: "Suche",
   gift: "Verschenke",
+  barter: "Direkter Tausch",
+  combined: "Kombinierter Tausch",
 };
 
 export const STATUS_LABEL: Record<ListingStatus, string> = {
