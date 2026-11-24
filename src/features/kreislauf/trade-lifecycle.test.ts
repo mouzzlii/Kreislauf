@@ -216,7 +216,7 @@ test("insufficient Karma at second confirmation blocks settlement and preserves 
     const failure=await confirm(db,"req-1","requester");
     assert.equal(failure.rows.length,0);
     assert.equal((await requestRow(db,"req-1")).status,"accepted");
-    assert.deepEqual(await balances(db),{owner:100,requester:10,other:100,outsider:100});
+    assert.deepEqual(await balances(db),{owner:100,requester:10,other:100,outsider:100,"mod-01":100,"mod-02":100,"mod-03":100,"mod-04":100,"mod-05":100,"mod-06":100,"mod-07":100});
     await db.exec("update profiles set karma_balance=30 where user_id='requester'");
     await confirm(db,"req-1","requester");
     assert.equal((await requestRow(db,"req-1")).status,"completed");
@@ -349,7 +349,7 @@ test("seven votes without a two-thirds majority leave the trade locked and walle
     await create(db,"combined");
     await transition(db,"req-1","owner","accept");
     await transition(db,"req-1","requester","dispute","Die vereinbarte Gegenleistung wurde nicht übergeben.");
-    const decisions=["complete","complete","complete","complete","cancel","cancel","cancel"] as const;
+    const decisions=["complete","complete","cancel","cancel","cancel","complete","complete"] as const;
     let result: Awaited<ReturnType<typeof voteDispute>> | undefined;
     for(let i=0;i<decisions.length;i++){
       result=await voteDispute(db,"req-1",`mod-0${i+1}`,decisions[i]);
