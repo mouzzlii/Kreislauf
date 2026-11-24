@@ -12,89 +12,100 @@ Zentrale Koordination: https://github.com/mouzzlii/Kreislauf/issues/11
 
 CHRONOS-Projektverknüpfung: https://github.com/mouzzlii/CHRONOS/issues/13
 
-## Was bereits eingerichtet ist
+## Gewünschter Agentenablauf
 
-- Zentrales GitHub-Issue als gemeinsamer Kommunikationskanal.
-- Projektregister und Arbeitsregeln im zentralen Issue.
-- CHRONOS-Issue verweist auf die Zentrale.
-- Die sichere Relay-Implementierung ist nach erfolgreicher CI in `main` integriert.
-- GitHub-Actions-Workflow und Node.js-Relay für einen ausdrücklich ausgelösten Drei-Anbieter-Austausch (GPT → Gemini → Grok → GPT) sind in `main` integriert. Der Workflow prüft den Kommentar-Absender, begrenzt Eingabe/Ausgabe, vermeidet Bot-Schleifen und schreibt eine nachvollziehbare Debatte als Issue-Kommentar zurück.
+Das KI-Team besteht aus drei unabhängigen Modellen mit klaren Rollen:
+1. **OpenAI / GPT** erstellt die erste Analyse und moderiert danach die Synthese.
+2. **Anthropic / Claude** prüft den Auftrag und die GPT-Analyse unabhängig, widerspricht bei Bedarf und sucht fehlende Belege.
+3. **Meta Llama** prüft die beiden bisherigen Positionen unabhängig. Dafür wird ein echtes Llama-Modell über einen OpenAI-kompatiblen Inference-Endpunkt eingebunden.
 
-## Zielarchitektur und vorhandener Relay-Entwurf
+Der Ablauf ist GPT-Erstanalyse → Claude-Gegenprüfung → Llama-Gegenprüfung → GPT-Synthese. Jede Rolle erhält denselben begrenzten Projektkontext und die vorherigen Antworten. Der Relay führt keine Codeänderungen, Merges, Deployments oder produktiven Aktionen aus.
 
-GitHub Actions reagiert nur auf einen ausdrücklich adressierten Kommentar. Der vorbereitete Relay verwendet die offiziellen API-Oberflächen: OpenAI Responses API, Gemini Interactions API und xAI Responses API. Die Gemini- und xAI-Anfragen sind zustandslos bzw. mit `store: false` angelegt; Modellkennungen werden ausschließlich über Actions-Variablen festgelegt; es gibt keine geratenen Standardmodelle. Offizielle Dokumentation: https://developers.openai.com/api/reference/resources/responses/methods/create · https://ai.google.dev/api/interactions-api · https://docs.x.ai/developers/rest-api-reference/inference/responses
+## Technische Schnittstellen
 
-Beispiel:
+- **OpenAI:** Responses API, `POST https://api.openai.com/v1/responses`.
+- **Claude:** Anthropic Messages API, `POST https://api.anthropic.com/v1/messages`, mit `anthropic-version: 2026-10-21`.
+- **Llama:** OpenAI-kompatible Chat Completions API, konfigurierbare HTTPS-Adresse mit dem vollständigen Pfad `/v1/chat/completions`. Die Llama-API muss von GitHub Actions aus erreichbar sein und ein Bearer-Token akzeptieren.
+
+Die Anthropic Messages API verwendet eine Systemanweisung und eine Nutzernachricht; der Antworttext wird nur aus Textblöcken übernommen. Der Llama-Adapter sendet eine System- und eine Nutzernachricht, begrenzt die Ausgabe und verwendet kein Streaming. Die Schnittstellen werden durch lokale Vertragstests ohne Provider-Aufrufe geprüft.
+
+### Wichtige Unterscheidung bei Meta und Llama
+
+Meta bietet inzwischen eine gehostete **Meta Model API** an, die Muse-Modelle wie Muse Spark bereitstellt. Diese gehostete API führt laut Meta selbst keine Llama-Modelle aus. Die Llama-Modellgewichte sind Open-Weight-Modelle und müssen über einen Inference-Anbieter oder eine eigene Infrastruktur bereitgestellt werden. Dieser Relay verwendet daher absichtlich einen explizit konfigurierten Llama-Endpunkt und behauptet nicht, die Meta Model API sei eine Llama-API.
+
+Offizielle Dokumentation:
+- Anthropic Messages API: https://platform.claude.com/docs/en/api/messages/create
+- Anthropic API-Authentifizierung: https://platform.claude.com/docs/en/manage-claude/authentication
+- Meta Model API: https://dev.meta.ai/docs/overview
+- Meta-Erklärung zu Llama und Model API: https://dev.meta.ai/help/about-model-api/llama-and-model-api
+- Offizielle Meta-Llama-Modelle: https://www.llama.com/
+
+## Beispiel zum Starten einer Debatte
+
+Nur ein ausdrücklich markierter Kommentar im zentralen Issue #11 startet einen Lauf:
 
 ```text
 /ai-team debate SCAN-PROFIT: Prüft den aktuellen Scan-Lock-Ansatz.
 ```
 
-Geplanter Ablauf:
-1. Trigger und Projektkennung validieren.
-2. Nur freigegebene GitHub-Repositories und Issues akzeptieren.
-3. GPT, Gemini und Grok nacheinander über ihre offiziellen APIs aufrufen (GPT-Erstanalyse → Gemini-Gegenprüfung → Grok-Gegenprüfung → GPT-Synthese).
-4. Antworten mit Agentenkennung und Referenzen als GitHub-Kommentare protokollieren.
-5. Eine begrenzte Zahl von Gesprächsrunden und Token-/Kostenlimits erzwingen.
-6. Bot-eigene Kommentare ignorieren, um Endlosschleifen zu verhindern.
-7. Keine Codeänderung, kein Merge und keine Veröffentlichung durch den Kommunikationsdienst.
+Zulässige Projektnamen: `KREISLAUF`, `TRAKUNA`, `SCAN-PROFIT`, `CHRONOS`.
 
 ## Erforderliche Einrichtung durch den Kontoinhaber
 
-Die API-Schlüssel sind nicht in dieser Sitzung vorhanden und dürfen nicht im Chat oder Repository hinterlegt werden. Vor Aktivierung müssen in GitHub unter:
+Die API-Schlüssel sind nicht in dieser Sitzung vorhanden und dürfen niemals im Chat oder Repository hinterlegt werden. In GitHub unter:
 
 `Settings → Secrets and variables → Actions`
 
-geeignete Secrets eingerichtet werden:
+müssen folgende **Secrets** eingerichtet werden:
 - `OPENAI_API_KEY`
-- `GEMINI_API_KEY`
-- `XAI_API_KEY`
+- `ANTHROPIC_API_KEY`
+- `LLAMA_API_KEY`
 - `AI_TEAM_REPO_READ_TOKEN`
 
-Zusätzlich müssen die jeweils aktuell unterstützten Modellkennungen als nicht geheime Variablen konfiguriert werden, zum Beispiel:
-- `GEMINI_MODEL`
-- `XAI_MODEL`
-- `OPENAI_MODEL`
+Zusätzlich müssen folgende **Variablen** eingerichtet werden:
+- `OPENAI_MODEL` – ein für das Konto freigegebenes OpenAI-Modell.
+- `CLAUDE_MODEL` – eine für das Anthropic-Konto freigegebene Claude-Modellkennung.
+- `LLAMA_MODEL` – die Modellkennung, die der gewählte Llama-Inference-Endpunkt bereitstellt.
+- `LLAMA_API_BASE_URL` – vollständige HTTPS-Adresse, z. B. `https://<dein-inference-host>/v1/chat/completions`.
+- `AI_TEAM_ALLOWED_USERS` – erlaubte GitHub-Benutzernamen, standardmäßig nur der Repository-Eigentümer.
+- `AI_TEAM_BUDGET_CONFIRMED` – bleibt zunächst leer oder `false`; erst nach bestätigten Anbieter-Ausgabenlimits ausdrücklich auf `true` setzen.
 
-Es sind bewusst keine Modellkennungen vorgegeben: Verfügbare IDs ändern sich je Anbieter und Konto. Vor Aktivierung müssen alle drei Variablen mit tatsächlich verfügbaren Modellkennungen aus den jeweiligen Provider-Konten befüllt werden; fehlen sie, bricht der Relay vor jedem Provider-Aufruf sicher ab. Zusätzlich benötigt er `AI_TEAM_REPO_READ_TOKEN`: ein Fine-grained GitHub-Token mit ausschließlich `Contents: read-only` (und Metadata-Lesezugriff) auf die vier Projekt-Repositories. Es wird nur zum Laden des README, einer begrenzten Dateiliste und ausgewählter Quelltextauszüge aus einer festen Allowlist verwendet; das separate `GITHUB_TOKEN` des Workflows schreibt die Antwort ausschließlich in das zentrale Issue. Das Lesetoken gehört ausschließlich in GitHub Actions Secrets. Das ChatGPT-Web-/App-Gespräch selbst ist nicht automatisch eine API-Identität; der GPT-Schritt läuft über die OpenAI-API als separater Dienst und benötigt einen eigenen API-Schlüssel sowie ein entsprechendes Abrechnungskonto.
+Die Platzhalter in der Beispiel-URL müssen durch die echte Adresse des ausgewählten Llama-Hosting-Anbieters oder der eigenen gesicherten Inference-Infrastruktur ersetzt werden. Ein lokaler PC-Endpunkt wie `localhost` ist von GitHub-hosted Runnern nicht erreichbar. Eine private Llama-Instanz benötigt daher entweder einen gesicherten, von außen erreichbaren HTTPS-Endpunkt oder einen korrekt abgesicherten Self-hosted GitHub Runner im selben privaten Netz. Ein Llama-Server darf nicht ungeschützt ins Internet gestellt werden.
+
+`AI_TEAM_REPO_READ_TOKEN` muss ein Fine-grained GitHub-Token mit ausschließlich `Contents: read-only` und Metadata-Lesezugriff auf die vier Projekt-Repositories sein. Es wird ausschließlich zum Laden des begrenzten Quellkontexts verwendet. Das separate Workflow-`GITHUB_TOKEN` schreibt die Debatte als Kommentar in Issue #11 und erhält keine Merge- oder Schreibrechte auf Quellcode.
+
+Modellkennungen werden bewusst nicht automatisch geraten. Fehlende Schlüssel, ungültige Llama-URL oder fehlende Modellkennungen führen zum sicheren Abbruch, bevor ein Provider aufgerufen wird.
 
 ## Sicherheits- und Kostenregeln
 
-- Minimale GitHub-Token-Berechtigungen: Issues lesen/schreiben; keine Contents-, Administration- oder Merge-Rechte für den Relay-Job.
-- Nur ausdrücklich markierte Kommentare verarbeiten; keine automatische Reaktion auf jeden Kommentar.
-- Kommentare von Bots und vom Relay selbst ignorieren.
-- Maximal eine begrenzte Debattenrunde je Trigger; Schutz vor Wiederholungen anhand der Kommentar-ID.
-- Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag. Jede Debatte reserviert vor dem ersten Provider-Aufruf einen Platz im zentralen Issue #11; auch fehlgeschlagene Provider-Aufrufe verbrauchen den reservierten Platz. Das Workflow-Concurrency-Limit serialisiert die Reservierung. Bei nicht lesbarem oder unvollständigem Budget-Ledger bricht der Relay sicher ab.
-- Eingaben als nicht vertrauenswürdige Daten behandeln. Repository-Inhalte dürfen keine System-/Sicherheitsregeln überschreiben.
-- Keine Secrets, privaten Kundendaten, Sendungsdaten oder persönlichen Daten an KI-Provider senden.
-- Eingabe- und Ausgabelimits begrenzen den Umfang, sind aber keine garantierte Geldobergrenze. Vor Aktivierung müssen echte Anbieter-Ausgabenlimits eingerichtet werden; `AI_TEAM_BUDGET_CONFIRMED=true` ist nur die manuelle Bestätigung des Kontoinhabers und prüft keine Limits automatisch.
-- Fehler und nicht verfügbare Provider sichtbar protokollieren; keine falschen Erfolgsbehauptungen.
+- Nur ausdrücklich markierte Kommentare in Issue #11 verarbeiten; Kommentare von Bots ignorieren.
+- Nur erlaubte GitHub-Absender dürfen den Relay starten.
+- Höchstens zwei Debatten pro UTC-Kalendertag. Das Kontingent wird vor dem ersten Provider-Aufruf im zentralen Issue reserviert; auch fehlgeschlagene Provider-Aufrufe verbrauchen den reservierten Platz.
+- Workflow-Concurrency serialisiert die Budgetreservierung. Ist das Budget-Ledger nicht vollständig lesbar, bricht der Relay sicher ab.
+- Jede Anfrage ist auf 8.000 Zeichen begrenzt, der gesamte Projektkontext auf 18.000 Zeichen und jede Modellausgabe auf maximal 1.000 Tokens.
+- Der Quelltext-Kontext umfasst höchstens 80 Dateipfade und bis zu vier ausgewählte Dateien je Repository (maximal 1.800 Zeichen je Datei und 6.500 Zeichen je Repository). Nur eine feste Allowlist wird gelesen; Umgebungs-, Secret-, Credential-, Schlüssel-, Lock- und Builddateien sind ausgeschlossen.
+- Secret-Redaktion erkennt gängige Provider-Tokens, PEM-Private-Keys, JWTs, benannte Secret-Zuweisungen und lange Hex-Werte. Das ist eine zusätzliche Schutzschicht, keine Garantie, dass jedes Geheimnis erkannt wird.
+- Die ausgewählten Quelltextauszüge und die Nutzeranfrage werden an OpenAI, Anthropic und den gewählten Llama-Inference-Anbieter übertragen. In den ausgewählten Dateien dürfen daher keine echten Kundendaten, Sendungsdaten, personenbezogenen Daten oder Geheimnisse stehen.
+- Eingabe-/Ausgabelimits sind keine garantierte Geldobergrenze. Vor Aktivierung müssen bei allen drei Anbietern echte Ausgabenlimits bzw. Kostenkontrollen gesetzt werden.
+- `AI_TEAM_BUDGET_CONFIRMED=true` ist ausschließlich die manuelle Bestätigung des Kontoinhabers. Die Variable prüft oder erzwingt keine Anbieterbudgets automatisch.
+- Keine Secrets ausgeben oder anfordern; niemals Produktivdatenbanken, Carrier-Systeme oder produktive Buchungen ändern.
 
 ## Verbindliche Repository-Zuordnung
 
 - `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf`
-- `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway` (Architektur/Koordination) sowie `PROJECT_REPO_TRAKUNA_ANDROID=mouzzlii/Fuck` (aktuelle Android-Implementierung). Beide Quellen werden gemeinsam gelesen; `multi-carrier-gateway-neu` bleibt ein separates Experiment.
+- `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway` (Architektur/Koordination) sowie `PROJECT_REPO_TRAKUNA_ANDROID=mouzzlii/Fuck` (aktuelle Android-Implementierung).
 - `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS`
-- `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT` – privates Repository für den aktuellen 2.0.66-Projektstand. Der eigenständige 2.0.66-App-Einstieg, PWA-Manifest, Service Worker, App-Symbole und CI-Prüfworkflow sind eingespielt. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; bis dahin darf die Relay-Kontextanalyse nicht als vollständige Quellcodeprüfung ausgegeben werden.
+- `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT`
 
-Der Relay lädt README, maximal 80 Dateipfade und bis zu vier ausgewählte Quelltextauszüge je zugeordnetem Repository (jeweils maximal 1.800 Zeichen, insgesamt maximal 6.500 Zeichen pro Repository). Die feste Allowlist priorisiert Koordinations-/Sicherheitsdokumente, Datenbank-/API-Einstiegspunkte und ausgewählte App-Manifest-/Builddateien. Umgebungs-, Secret-, Credential-, Schlüssel-, Lock- und Builddateien werden nicht geladen. Für TRAKUNA werden Koordinations- und Android-Quellrepository gemeinsam geladen. Für SCAN-PROFIT ist das Repository zwar zugeordnet, aber die vollständige 2.0.66-Anwendung muss noch importiert werden; bis dahin darf die Kontextanalyse nicht als vollständige Quellcodeprüfung gelten. Diese Inhalte gelten als nicht vertrauenswürdiger Kontext. Wenn der Relay aktiviert wird, werden die ausgewählten Quelltextauszüge zusammen mit der Anfrage an die drei externen KI-Provider übermittelt; deshalb dürfen keine privaten Kundendaten, personenbezogenen Daten, echten Sendungsdaten oder Geheimnisse in den ausgewählten Dateien stehen. Fehlt AI_TEAM_REPO_READ_TOKEN, bricht der Relay vor jedem Provider-Aufruf fail-closed ab. Damit wird verhindert, dass eine angeblich projektbezogene Debatte ohne den freigegebenen Repository-Kontext startet.
-
-## Noch offene Voraussetzungen
-
-- [x] SCAN-PROFIT: privates Repository `mouzzlii/SCAN-PROFIT` angelegt und in der Relay-Konfiguration als Standard zugeordnet. Der eigenständige 2.0.66-App-Einstieg, PWA-Manifest, Service Worker, PNG-App-Symbole und CI-Prüfworkflow sind eingespielt; die statische Release-Prüfung ist grün. Der vollständige Next.js-/Test-Quellbaum aus dem lokalen Prüfpaket ist noch nicht vollständig in GitHub importiert. Der vollständige Next.js-Quellbaum aus dem Prüfarchiv ist noch nicht importiert; dies bleibt ein separater Quellcode-Migrationspunkt.
-- [x] TRAKUNA: `mouzzlii/multi-carrier-gateway` (Architektur/Koordination) und `mouzzlii/Fuck` (aktuelle Android-Implementierung) als maßgebliches TRAKUNA-Repository aus dem aktuellen Repository-Abgleich festgelegt; das Gateway-Experiment bleibt getrennt.
-- [ ] Kontoinhaber richtet die drei Provider-API-Schlüssel und `AI_TEAM_REPO_READ_TOKEN` als GitHub Actions Secrets ein.
-- [x] Technischer Tagesdeckel von zwei Debatten pro UTC-Kalendertag; Reservierung vor Provider-Aufrufen im zentralen Issue #11, fehlgeschlagene Läufe verbrauchen das Kontingent.
-- [ ] Providerseitige Ausgabenlimits/Kostenkontrollen und maximale Gesprächsrunden festlegen; danach `AI_TEAM_BUDGET_CONFIRMED=true` als bewusste manuelle Aktivierungsfreigabe setzen. Die Variable prüft Anbieterbudgets nicht automatisch.
-- [ ] Erst danach den bereits vorbereiteten Workflow kontrolliert aktivieren und mit einem synthetischen Test-Issue Ende-zu-Ende prüfen.
+Für TRAKUNA werden Architektur- und Android-Quellrepository gemeinsam gelesen; `multi-carrier-gateway-neu` bleibt ein separates Experiment. Für SCAN-PROFIT ist der vollständige Next.js-/Test-Quellbaum noch nicht vollständig in GitHub importiert; die Relay-Kontextanalyse darf deshalb nicht als vollständige Quellcodeprüfung ausgegeben werden.
 
 ## Freigabekriterium
 
-Automatische KI-Kommunikation gilt erst als aktiv, wenn ein echter Test nachweist:
+Automatische KI-Kommunikation gilt erst als aktiv, wenn ein echter synthetischer Test nachweist:
 1. Ein markierter GitHub-Kommentar startet den Workflow.
-2. Mindestens zwei konfigurierte Provider erhalten denselben Projektkontext.
-3. Die Antworten werden korrekt als getrennte Agentenbeiträge zurückgeschrieben.
-4. Bot-Schleifen werden verhindert.
-5. Nicht konfigurierte Provider, API-Fehler und Budgetgrenzen werden korrekt behandelt.
+2. GPT, Claude und Llama erhalten denselben abgegrenzten Projektkontext.
+3. Antworten werden korrekt als getrennte Agentenbeiträge zurückgeschrieben.
+4. Bot-Schleifen und doppelte Trigger werden verhindert.
+5. Nicht konfigurierte Provider, API-Fehler, unsichere Endpunkte und Tages-/Kostenlimits werden korrekt behandelt.
 
-Der Relay-Code ist in `main` integriert, aber noch nicht für Live-Aufrufe freigegeben. Ohne die Variable `AI_TEAM_BUDGET_CONFIRMED=true` bleibt er selbst bei vorhandenen API-Schlüsseln vor jedem Provider-Aufruf gesperrt. Für den Livebetrieb fehlen weiterhin die Provider-Secrets, explizit gewählte Modellkennungen, echte Anbieter-Ausgabenlimits und ein erfolgreicher synthetischer Ende-zu-Ende-Test. Der gültige Trigger lautet exakt `/ai-team debate PROJEKT: Auftrag` (z. B. `/ai-team debate CHRONOS: Prüfe die Room-Migrationen`). Automatische KI-zu-KI-Nachrichten starten erst nach PR-Prüfung/Merge, Hinterlegung aller drei Provider-Secrets und Modellvariablen, Einrichtung echter Anbieter-Ausgabenlimits sowie einem erfolgreichen Ende-zu-Ende-Test.
+Der Relay-Code ist in einem Entwicklungs-PR vorbereitet, aber noch nicht für Live-Aufrufe freigegeben. Provider-Keys, Modellkennungen, Llama-Hosting-Adresse, read-only GitHub-Token, reale Anbieter-Ausgabenlimits und ein erfolgreicher Ende-zu-Ende-Test fehlen noch. Es wurden durch diese Entwicklung keine externen KI-Provider aufgerufen.
