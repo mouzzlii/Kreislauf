@@ -74,6 +74,7 @@ export interface FileRoutesByTo {
   '/karte': typeof KarteRoute
   '/konto': typeof KontoRoute
   '/login': typeof LoginRoute
+  '/nachrichten': typeof NachrichtenRoute
   '/inserat/$listingId': typeof InseratListingIdRoute
   '/inserat/neu': typeof InseratNeuRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -84,6 +85,7 @@ export interface FileRoutesById {
   '/karte': typeof KarteRoute
   '/konto': typeof KontoRoute
   '/login': typeof LoginRoute
+  '/nachrichten': typeof NachrichtenRoute
   '/inserat/$listingId': typeof InseratListingIdRoute
   '/inserat/neu': typeof InseratNeuRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -105,6 +107,7 @@ export interface FileRouteTypes {
     | '/karte'
     | '/konto'
     | '/login'
+    | '/nachrichten'
     | '/inserat/$listingId'
     | '/inserat/neu'
     | '/api/auth/$'
@@ -114,6 +117,7 @@ export interface FileRouteTypes {
     | '/karte'
     | '/konto'
     | '/login'
+    | '/nachrichten'
     | '/inserat/$listingId'
     | '/inserat/neu'
     | '/api/auth/$'
