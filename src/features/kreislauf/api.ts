@@ -1406,6 +1406,53 @@ export type ListingNotification = {
   updatedAt: string;
 };
 
+export type ListingConversationSummary = {
+  listingId: string;
+  requesterId: string;
+  listingTitle: string;
+  otherName: string;
+  lastMessage: string;
+  unreadCount: number;
+  updatedAt: string;
+};
+
+/** All conversations for the signed-in member, including read threads. */
+export const getMyListingConversations = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }): Promise<ListingConversationSummary[]> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      `select c.listing_id as "listingId", c.requester_id as "requesterId",
+        l.title as "listingTitle",
+        coalesce(p.username, 'Mitglied') as "otherName",
+        count(m.id) filter (
+          where m.read_at is null and m.sender_id is distinct from $1
+        )::int as "unreadCount",
+        coalesce((select lm.body from listing_messages lm
+          where lm.conversation_id = c.id order by lm.id desc limit 1), '') as "lastMessage",
+        to_char(c.updated_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "updatedAt"
+       from listing_conversations c
+       join listings l on l.id = c.listing_id
+       join profiles p on p.user_id = case
+         when c.owner_id = $1 then c.requester_id else c.owner_id end
+       left join listing_messages m on m.conversation_id = c.id
+       where c.owner_id = $1 or c.requester_id = $1
+       group by c.id, l.title, p.username
+       order by c.updated_at desc
+       limit 100`,
+      [context.userId],
+    );
+    return rows.map((row) => ({
+      listingId: asString(row.listingId),
+      requesterId: asString(row.requesterId),
+      listingTitle: asString(row.listingTitle),
+      otherName: asString(row.otherName),
+      lastMessage: asString(row.lastMessage),
+      unreadCount: asNumber(row.unreadCount),
+      updatedAt: asString(row.updatedAt),
+    }));
+  });
+
 export const getUnreadListingNotifications = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }): Promise<ListingNotification[]> => {
