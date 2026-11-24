@@ -4,7 +4,7 @@ const SECRET_PATTERNS = [
   [/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, "[REDACTED SECRET]"],
   [/((?:[A-Z0-9_]*(?:SECRET|TOKEN|KEY|PASSWORD|PRIVATE_KEY)[A-Z0-9_]*|clientSecret|apiKey|accessToken|refreshToken)\s*[:=]\s*)(["'\x60])[^"'\x60\r\n]{8,}\2/gi, "$1[REDACTED]"],
   [/(Authorization\s*[:=]\s*)(["'\x60])Bearer\s+[^"'\x60]+\2/gi, "$1[REDACTED]"],
-  [/([?&](?:key|token|access_token|client_secret)=)[^&\s]+/gi, "$1[REDACTED]"],
+  [/([?&](?:key|token|access_token|client_secret)=)[^&\s\\]+/gi, "$1[REDACTED]"],
 ];
 
 export function redactSensitiveText(value) {
