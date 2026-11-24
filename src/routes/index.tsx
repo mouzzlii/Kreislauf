@@ -6,7 +6,7 @@ import { Button } from "@/components/ui";
 import { getBoard, runDemurrage, type DemurrageCut } from "@/features/kreislauf/api";
 import { useKreislauf } from "@/features/kreislauf/context";
 import { CATEGORY_LABEL, formatKarma, haversineKm } from "@/features/kreislauf/format";
-import { DEFAULT_REGION, type Board, type Category } from "@/features/kreislauf/types";
+import { DEFAULT_REGION, type Board, type Category, type OfferType } from "@/features/kreislauf/types";
 
 export const Route = createFileRoute("/")({
   loader: () => getBoard({ data: { regionId: DEFAULT_REGION } }),
@@ -25,7 +25,7 @@ function Home() {
   const { board } = useLiveBoard(initial);
   const { profile, bump, refreshProfile } = useKreislauf();
   const [filter, setFilter] = useState<"all" | Category>("all");
-  const [offerFilter, setOfferFilter] = useState<"all" | "sell" | "search" | "gift">("all");
+  const [offerFilter, setOfferFilter] = useState<"all" | OfferType>("all");
   const [near, setNear] = useState(false);
   const [showDone, setShowDone] = useState(false);
   const [cuts, setCuts] = useState<DemurrageCut[] | null>(null);
@@ -88,7 +88,14 @@ function Home() {
       ) : null}
 
       <div className="mt-8 flex flex-wrap gap-2" aria-label="Inseratstyp">
-        {[{ id: "all", label: "Alle Inserate" }, { id: "sell", label: "Biete" }, { id: "search", label: "Suche" }, { id: "gift", label: "Verschenke" }].map((item) => (
+        {[
+          { id: "all", label: "Alle Inserate" },
+          { id: "sell", label: "Biete" },
+          { id: "search", label: "Suche" },
+          { id: "gift", label: "Verschenke" },
+          { id: "barter", label: "Direkter Tausch" },
+          { id: "combined", label: "Kombiniert" },
+        ].map((item) => (
           <button key={item.id} type="button" aria-pressed={offerFilter === item.id}
             onClick={() => setOfferFilter(item.id as typeof offerFilter)}
             className={`h-10 rounded-full px-4 text-sm ${offerFilter === item.id ? "bg-forest text-paper" : "border border-line bg-elev text-fg"}`}>
