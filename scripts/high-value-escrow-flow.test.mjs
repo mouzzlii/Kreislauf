@@ -178,7 +178,7 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     await assert.rejects(
       db.query("select * from kreislauf_cast_escrow_vote($1,$2,$3,$4)",
         ["escrow-listing-1","escrow-buyer","approve","Eigene Treuhandfreigabe"]),
-      /Tauschparteien dürfen nicht über ihren eigenen Streitfall abstimmen/,
+      /Tauschparteien dürfen nicht über ihren eigenen Treuhand- oder Streitfall abstimmen/,
       "a buyer who also has moderator privileges must not vote on the initial escrow approval ballot",
     );
 
