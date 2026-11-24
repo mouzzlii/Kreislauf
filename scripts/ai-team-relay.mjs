@@ -1,5 +1,5 @@
 import process from "node:process";
-import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasUsablePrimaryContext, selectSourcePaths } from "./ai-team-source-context.mjs";
+import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasUsablePrimaryContext, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { ANTHROPIC_API_VERSION, buildClaudeMessage, buildMetaChatCompletion, buildLlamaChatCompletion, extractClaudeText, extractMetaText, extractLlamaText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 
 const {
@@ -198,9 +198,10 @@ async function fetchProjectContext(project) {
   const contexts = await Promise.all(repositories.map(async (repo) => {
     try {
       const meta = await api(`https://api.github.com/repos/${repo}`, { headers });
-      const branch = meta.default_branch || "main";
+      const configuredBranch = project === "KI-ARBEITSPLATZ" ? process.env.PROJECT_REPO_KI_ARBEITSPLATZ_REF : "";
+      const branch = resolveProjectBranch(meta.default_branch || "main", configuredBranch);
       const [readmeResult, treeResult] = await Promise.all([
-        api(`https://api.github.com/repos/${repo}/readme`, { headers }),
+        api(`https://api.github.com/repos/${repo}/readme?ref=${encodeURIComponent(branch)}`, { headers }),
         api(`https://api.github.com/repos/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`, { headers }),
       ]);
       const allPaths = (treeResult.tree || [])
