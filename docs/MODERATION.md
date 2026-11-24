@@ -27,7 +27,7 @@ where user_id = '<GEPRUEFTE_USER_ID>'
 Die bestehende Sharing-Übergabe bleibt zusätzlich durch die beteiligten Parteien bestätigungspflichtig.
 
 
-## Zusätzliche Unabhängigkeitsprüfung (Migration 0027)
+## Zusätzliche Unabhängigkeitsprüfung (Migration 0028)
 
 Die Datenbank blockiert Stimmen von **allen** Beteiligten, nicht nur von buyer/seller eines hochwertigen Tauschs: sowohl Anfragende (requester_id) als auch Inseratseigentümer (listings.user_id) dürfen bei Standard-Sharing-Treuhand nicht abstimmen. Diese Regel gilt auch dann, wenn versehentlich eine Moderatorenzuordnung existiert. Die Moderationsübersicht und die Escrow-Zusammenfassung prüfen dieselben Parteigrenzen serverseitig.
 
