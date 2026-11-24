@@ -230,3 +230,23 @@ test("user messages share the listing conversation and are atomically rate limit
     assert.equal(stored.rows[0].n,12);
   } finally { await db.close(); }
 });
+
+test("every user and system message advances inbox conversation activity", async () => {
+  const db=await fixture();
+  try {
+    await create(db,"direct");
+    const conversation=await db.query<{id:string}>(
+      "select id from listing_conversations where listing_id='direct' and requester_id='requester'",
+    );
+    await db.exec("update listing_conversations set updated_at='2000-01-01T00:00:00Z' where id='conv-' || md5('direct:requester')");
+    await db.query(
+      "insert into listing_messages(conversation_id,sender_id,body,message_kind) values($1,'requester','Neue Nachricht im Chat','user')",
+      [conversation.rows[0].id],
+    );
+    const updated=await db.query<{updated_at:string}>(
+      "select updated_at::text as updated_at from listing_conversations where id=$1",
+      [conversation.rows[0].id],
+    );
+    assert.ok(new Date(updated.rows[0].updated_at).getTime() > new Date("2000-01-01T00:00:00Z").getTime());
+  } finally { await db.close(); }
+});
