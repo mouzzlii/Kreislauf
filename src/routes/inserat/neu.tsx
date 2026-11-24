@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Shell } from "@/components/shell";
 import { Button, Field, fieldClass } from "@/components/ui";
 import { createListing, getItemTemplate } from "@/features/kreislauf/api";
+import { MAX_IMAGE_DATA_URL_CHARS, MAX_LISTING_IMAGES, MAX_RAW_IMAGE_BYTES, MAX_TOTAL_IMAGE_DATA_URL_CHARS } from "@/features/kreislauf/media-limits";
 import { useKreislauf } from "@/features/kreislauf/context";
 import type { Category, OfferType } from "@/features/kreislauf/types";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
@@ -180,8 +181,15 @@ function NewListing() {
               onChange={(event) => {
                 const files = Array.from(event.currentTarget.files ?? []);
                 const selection = ++imageSelection.current;
-                if (files.length > 4) {
+                if (files.length > MAX_LISTING_IMAGES) {
+                  setImages([]);
                   setError("Bitte höchstens 4 Fotos auswählen.");
+                  event.currentTarget.value = "";
+                  return;
+                }
+                if (files.some((file) => !["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > MAX_RAW_IMAGE_BYTES)) {
+                  setImages([]);
+                  setError("Bitte nur JPG-, PNG- oder WebP-Fotos bis maximal 10 MB pro Bild auswählen.");
                   event.currentTarget.value = "";
                   return;
                 }
@@ -189,9 +197,16 @@ function NewListing() {
                   setImages([]);
                   return;
                 }
+                setImages([]);
                 setError(null);
                 void Promise.all(files.map(compressImage)).then((next) => {
-                  if (selection === imageSelection.current) setImages(next);
+                  if (selection !== imageSelection.current) return;
+                  const totalChars = next.reduce((total, image) => total + image.length, 0);
+                  if (next.some((image) => image.length > MAX_IMAGE_DATA_URL_CHARS) || totalChars > MAX_TOTAL_IMAGE_DATA_URL_CHARS) {
+                    setError("Die Fotos sind zusammen zu groß. Bitte weniger oder kleinere Fotos auswählen.");
+                    return;
+                  }
+                  setImages(next);
                 }).catch(() => {
                   if (selection === imageSelection.current) setError("Mindestens ein Foto ließ sich nicht lesen.");
                 });
@@ -245,7 +260,14 @@ function compressImage(file: File): Promise<string> {
           return;
         }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.72));
+        const qualitySteps = [0.72, 0.62, 0.52, 0.42];
+        const compressed = qualitySteps.map((quality) => canvas.toDataURL("image/jpeg", quality))
+          .find((dataUrl) => dataUrl.length <= MAX_IMAGE_DATA_URL_CHARS);
+        if (!compressed) {
+          reject(new Error("compressed image too large"));
+          return;
+        }
+        resolve(compressed);
       };
       img.onerror = () => reject(new Error("image"));
       img.src = String(reader.result);
