@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Bike, Package, Wrench } from "lucide-react";
+import { Bike, ChevronLeft, ChevronRight, Package, Wrench } from "lucide-react";
 import { useState } from "react";
 import { CATEGORY_LABEL, OFFER_TYPE_LABEL, STATUS_LABEL, formatKarma, priceCaption } from "@/features/kreislauf/format";
 import type { Category, Listing } from "@/features/kreislauf/types";
@@ -34,6 +34,46 @@ export function ListingVisual({
       className={`object-cover ${className}`}
       onError={() => setFailed(true)}
     />
+  );
+}
+
+export function ListingGallery({
+  listing,
+  className = "",
+}: {
+  listing: Pick<Listing, "images" | "category" | "title">;
+  className?: string;
+}) {
+  const [index, setIndex] = useState(0);
+  const images = listing.images.slice(0, 4);
+  const src = images[index];
+  const Icon = ICONS[listing.category];
+  if (!src) {
+    return (
+      <div className={`grid place-items-center bg-elev-2 text-copper ${className}`}>
+        <Icon className="h-8 w-8" aria-hidden="true" />
+      </div>
+    );
+  }
+  return (
+    <div className={`relative overflow-hidden ${className}`}>
+      <img src={src} alt={listing.title} className="h-full w-full object-cover" />
+      {images.length > 1 ? (
+        <>
+          <button type="button" aria-label="Vorheriges Foto" onClick={() => setIndex((current) => (current + images.length - 1) % images.length)}
+            className="absolute left-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/60 text-white">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button type="button" aria-label="Nächstes Foto" onClick={() => setIndex((current) => (current + 1) % images.length)}
+            className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/60 text-white">
+            <ChevronRight className="h-5 w-5" />
+          </button>
+          <span className="absolute bottom-2 right-2 rounded-full bg-black/65 px-2 py-1 text-xs text-white">
+            {index + 1} / {images.length}
+          </span>
+        </>
+      ) : null}
+    </div>
   );
 }
 
