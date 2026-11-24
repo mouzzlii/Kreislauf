@@ -1,8 +1,9 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Map, MessageCircle, Moon, Plus, Scale, Store, Sun, Wallet } from "lucide-react";
-import type { ReactNode } from "react";
+import { Bell, Map, MessageCircle, Moon, Plus, Scale, Store, Sun, Wallet } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 import { SignedIn, SignedOut } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { getMyListingConversations } from "@/features/kreislauf/api";
 import { useKreislauf } from "@/features/kreislauf/context";
 import { formatKarma } from "@/features/kreislauf/format";
 import type { Region } from "@/features/kreislauf/types";
@@ -27,8 +28,38 @@ export function Shell({
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { user, isPending } = useCurrentUserState();
   const { regionId, setRegion, profile, theme, toggleTheme } = useKreislauf();
+  const [unreadMessages, setUnreadMessages] = useState(0);
   const moderatorAccess = Boolean(profile?.isVerified && profile.moderatorRank > 0);
   const navItems = moderatorAccess ? [...NAV, MODERATION_NAV] : NAV;
+
+  useEffect(() => {
+    if (!user?.id) {
+      setUnreadMessages(0);
+      return;
+    }
+
+    let cancelled = false;
+    const refreshUnread = async () => {
+      if (document.visibilityState !== "visible") return;
+      try {
+        const conversations = await getMyListingConversations();
+        if (!cancelled) {
+          setUnreadMessages(conversations.reduce((total, conversation) => total + conversation.unreadCount, 0));
+        }
+      } catch {
+        // Keep the last known count when a temporary request fails.
+      }
+    };
+
+    void refreshUnread();
+    const interval = window.setInterval(() => void refreshUnread(), 30_000);
+    document.addEventListener("visibilitychange", refreshUnread);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refreshUnread);
+    };
+  }, [user?.id]);
 
   return (
     <div className="min-h-dvh bg-bg text-fg">
@@ -56,6 +87,24 @@ export function Shell({
             })}
           </nav>
           <div className="ml-auto flex items-center gap-2 md:ml-0">
+            {user ? (
+              <Link
+                to="/nachrichten"
+                aria-label={unreadMessages > 0 ? unreadMessages + " ungelesene Nachrichten" : "Nachrichten"}
+                title={unreadMessages > 0 ? unreadMessages + " ungelesene Nachrichten" : "Nachrichten"}
+                className="relative grid h-11 w-11 place-items-center rounded-lg text-muted hover:bg-elev"
+              >
+                <Bell className="h-4 w-4" aria-hidden="true" />
+                {unreadMessages > 0 ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute right-1 top-1 min-w-4 rounded-full bg-forest px-1 text-center text-[10px] font-semibold leading-4 text-paper"
+                  >
+                    {unreadMessages > 99 ? "99+" : unreadMessages}
+                  </span>
+                ) : null}
+              </Link>
+            ) : null}
             {isPending ? (
               <span className="h-9 w-16 animate-pulse rounded-lg bg-elev-2" />
             ) : profile && user ? (
