@@ -108,4 +108,4 @@ Automatische KI-Kommunikation gilt erst als aktiv, wenn ein echter synthetischer
 4. Bot-Schleifen und doppelte Trigger werden verhindert.
 5. Nicht konfigurierte Provider, API-Fehler, unsichere Endpunkte und Tages-/Kostenlimits werden korrekt behandelt.
 
-Der Relay-Code ist in einem Entwicklungs-PR vorbereitet, aber noch nicht für Live-Aufrufe freigegeben. Provider-Keys, Modellkennungen, Llama-Hosting-Adresse, read-only GitHub-Token, reale Anbieter-Ausgabenlimits und ein erfolgreicher Ende-zu-Ende-Test fehlen noch. Es wurden durch diese Entwicklung keine externen KI-Provider aufgerufen.
+Der Relay-Code ist in `main` integriert, aber noch nicht für Live-Aufrufe freigegeben. Provider-Keys, Modellkennungen, Llama-Hosting-Adresse, read-only GitHub-Token, reale Anbieter-Ausgabenlimits und ein erfolgreicher synthetischer Ende-zu-Ende-Test fehlen noch. Es wurden durch diese Entwicklung keine externen KI-Provider aufgerufen.
