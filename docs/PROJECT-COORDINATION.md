@@ -2,7 +2,7 @@
 
 Stand: 2026-11-24
 
-Dieses Dokument koordiniert die vier Entwicklungsprojekte. Es ersetzt keine projektspezifischen Anforderungen, Tests oder Betreiberfreigaben. Statusangaben unterscheiden strikt zwischen vorhandenem Code, automatisierten Prüfungen, externen Tests und Produktionsfreigabe.
+Dieses Dokument koordiniert die verifizierten Entwicklungsprojekte und kennzeichnet historische bzw. unklassifizierte Repositories getrennt. Es ersetzt keine projektspezifischen Anforderungen, Tests oder Betreiberfreigaben. Statusangaben unterscheiden strikt zwischen vorhandenem Code, automatisierten Prüfungen, externen Tests und Produktionsfreigabe.
 
 ## Gemeinsame Regeln
 
@@ -25,6 +25,10 @@ Dieses Dokument koordiniert die vier Entwicklungsprojekte. Es ersetzt keine proj
 | **KREISLAUF** | [mouzzlii/Kreislauf](https://github.com/mouzzlii/Kreislauf) | Sicherheits-PR #22 gemergt (Commit `a92e5ab`); das zuvor eingebettete Preview-OAuth-Secret ist aus Main entfernt, der Broker-Schlüssel muss separat durch den Broker-Betreiber widerrufen/rotiert werden. PR #29 gemergt (Commit `7ff64cb`): begrenzte Quelltext-Allowlist und Secret-Redaktion. PR #31 für direkten und kombinierten Tausch gemergt (Commit `bd749a9`): konkrete Gegenleistung, beidseitige Abschlussbestätigung, Karma-Ausgleich erst danach und inseratgebundene Nachrichten. PR #30 ergänzt im getrennten Demo-Zweig einen Datenbank-Guard gegen Stimmen von Transaktionsparteien bei beiden Treuhand-Abstimmungen; gemergt in `demo/local-auth-off` (Commit `c46c5f2`), CI Run 45305494236 grün. PR #32 gemergt (Commit `f1bd274`): GPT → Claude → Llama Basis. PR #33 gemergt (Commit `e559f68`): der dritte Agent ist ausdrücklich wählbar – Meta Muse über Meta Model API oder echtes Llama über einen separat gehosteten HTTPS-Inference-Endpunkt. Relay-CI Run 45308167302 und vollständige PR-Build-CI Run 45308167341 erfolgreich; Main-Push-CI nach letztem Merge 45308317170 läuft noch. Keine Provider-Aufrufe, keine Schlüssel oder Modellvariablen eingerichtet, Live-Relay bleibt bis zu Kostenlimits und Budgetfreigabe gesperrt. Runtime-DB bleibt PGlite oder Neon/Postgres über `DATABASE_URL`, nicht automatisch Supabase. Öffentliche Auth-/Moderations-/Mehrbenutzerabnahme offen. |
 | **CHRONOS** | [mouzzlii/CHRONOS](https://github.com/mouzzlii/CHRONOS) | Main bleibt lokaler Fotoarchiv-Prototyp Milestone 0.5. Python-/Android-CI einschließlich Robolectric-SQLite-Tests ist dokumentiert erfolgreich. Das separate Face-Hardening-Paket 0.2.0 besteht lokal 11/11 Tests (inkl. Multi-Prozess-Lock und lokaler API-Prüfung), ist aber nicht in den Hauptquellbaum integriert und darf wegen abweichendem Datenbankschema, fehlender Benutzer-Authentifizierung und biometrischer Datenschutzanforderungen nicht öffentlich bereitgestellt werden. Echte Android-Geräte-, Backup/Restore-, Verschlüsselungs- und Großbibliothekstests bleiben offen. |
 
+| **INSERAT-PROFI AI** | [mouzzlii/INSERAT-PROFI-AI](https://github.com/mouzzlii/INSERAT-PROFI-AI) | Eigenständige App mit eigener Oberfläche und Datenhaltung; darf Erkenntnisse/Komponenten aus SCAN-PROFIT wiederverwenden, aber SCAN-PROFIT nicht verändern. PR #2 zur kontrollierten KI-Fotoerkennung/-Gruppierung ist separat zu prüfen. Automatische Willhaben-Veröffentlichung und verifizierter Willhaben-CSV-Import sind nicht belegt. |
+| **BOOK YOUR COOK** | [mouzzlii/book-your-cook](https://github.com/mouzzlii/book-your-cook) | Eigenständiges Produkt. Issue #1 dokumentiert offenen Steuer-/Brutto-Netto-Blocker; PR #2 zur monotonen Stripe-Refund-Statusbehandlung ist separat zu prüfen. Steuerliche Preislogik nicht ohne fachliche/gesetzliche Klärung verändern. |
+| **LARA QUIZ** | [mouzzlii/Lara_Quiz](https://github.com/mouzzlii/Lara_Quiz) | Eigenständiges Offline-HTML-Quiz mit lokalem Speicher und JSON-Import; keine Server-/Cloud-Synchronisierung unterstellen. Importgrenzen und Validator sind Teil der begrenzten Prüfung. |
+
 ## KI-Team-Zusammenarbeit
 
 - Die sichere GitHub-Relay-Basis ist in KREISLAUF `main` integriert. PR #29 erweiterte sie um begrenzte Quelltextauszüge und Secret-Redaktion. Der Relay reagiert nur auf einen ausdrücklich markierten Kommentar in Issue #11 und ändert selbst keinen Quellcode.
@@ -35,6 +39,13 @@ Dieses Dokument koordiniert die vier Entwicklungsprojekte. Es ersetzt keine proj
 - Bei Aktivierung werden ausgewählte Quelltextauszüge zusammen mit der Anfrage an OpenAI, Anthropic und den ausgewählten Llama-Inference-Anbieter übertragen. Es wurden keine Provider aufgerufen und keine Schlüssel eingerichtet.
 - Ein täglicher Deckel von zwei Debatten reserviert vor Provider-Aufrufen ein Kontingent im zentralen Issue #11. Das Gespräch verwendet maximal 1.000 Ausgabetokens je Modellschritt.
 - Live-Freigabe bleibt ausstehend: Provider-Secrets, tatsächlich unterstützte Modellkennungen, sichere Llama-HTTPS-Adresse, read-only GitHub-Token, echte Anbieter-Ausgabenlimits und `AI_TEAM_BUDGET_CONFIRMED=true` müssen durch den Kontoinhaber eingerichtet und geprüft werden. Die Variable ist eine manuelle Bestätigung und prüft Anbieterbudgets nicht automatisch.
+
+## Historische und noch nicht klassifizierte Ablagen
+
+- `mouzzlii/Pakete` ist ein historischer Paket-Prototyp; TRAKUNA ist der kanonische Entwicklungsstrang.
+- `mouzzlii/multi-carrier-gateway-neu`, `Pakete-neu`, `Paketescanner`, `Pakete-Scanner` und `ShopScannerNeu` bleiben Experimente bzw. unklassifizierte Kandidaten, bis README, Commitstand und Abhängigkeiten fachlich zugeordnet sind.
+- `mouzzlii/Gemeinwohl` und `mouzzlii/KI-Arbeitsplatz` enthalten derzeit vor allem Archiv-/ZIP-Artefakte; sie gelten nicht als bestätigte eigenständige aktive Produktquellcodes.
+- „Menschheitsfamilie“ bleibt ein verwandter Konzept-/Projektbereich; ein kanonisches eigenständiges Repository ist hier noch nicht bestätigt.
 
 ## Abnahme-Gates je Projekt
 
