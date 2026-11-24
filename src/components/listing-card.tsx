@@ -42,6 +42,7 @@ export function ListingCard({ listing, distance }: { listing: Listing; distance?
     <Link
       to="/inserat/$listingId"
       params={{ listingId: listing.id }}
+      search={{}}
       className="flex flex-col overflow-hidden rounded-3xl border border-line bg-elev p-3 transition-[transform,background-color] duration-150 hover:bg-elev-2"
     >
       <ListingVisual listing={listing} className="aspect-[4/3] w-full rounded-xl" />
