@@ -172,6 +172,14 @@ function AccountBody({
           </span>
         </div>
         {!profile.isVerified ? <IdAustriaVerification refreshProfile={refreshProfile} /> : null}
+        {profile.isVerified && profile.moderatorRank > 0 ? (
+          <Link
+            to="/moderation"
+            className="mt-4 inline-flex min-h-11 items-center rounded-xl border border-forest/25 bg-forest/10 px-4 text-sm font-semibold text-forest"
+          >
+            Treuhand-Posteingang öffnen
+          </Link>
+        ) : null}
       </section>
       <form
         className="space-y-4 rounded-3xl border border-line bg-elev p-5"
