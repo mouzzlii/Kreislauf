@@ -128,6 +128,7 @@ export function KreislaufProvider({ children }: { children: ReactNode }) {
   return <KreislaufContext.Provider value={value}>{children}</KreislaufContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- context hook is intentionally colocated with its provider.
 export function useKreislauf(): KreislaufContextValue {
   const value = useContext(KreislaufContext);
   if (!value) throw new Error("KreislaufProvider fehlt");
