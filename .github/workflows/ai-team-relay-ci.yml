@@ -10,6 +10,8 @@ on:
       - "scripts/ai-team-relay.test.mjs"
       - "scripts/ai-team-source-context.mjs"
       - "scripts/ai-team-source-context.test.mjs"
+      - "scripts/ai-team-providers.mjs"
+      - "scripts/ai-team-providers.test.mjs"
       - ".github/workflows/ai-team-communication.yml"
       - ".github/workflows/ai-team-relay-ci.yml"
       - "AI_TEAM_SETUP.md"
@@ -38,8 +40,11 @@ jobs:
         run: |
           node --check scripts/ai-team-relay.mjs
           node --check scripts/ai-team-source-context.mjs
+          node --check scripts/ai-team-providers.mjs
       - name: Test bounded source context
         run: node --test scripts/ai-team-source-context.test.mjs
+      - name: Test Claude and Llama provider contracts
+        run: node --test scripts/ai-team-providers.test.mjs
       - name: Test command parser
         run: node scripts/ai-team-relay.test.mjs
       - name: Verify safe project mapping and daily cap
@@ -61,5 +66,8 @@ jobs:
           assert.ok(source.includes("issues/11/comments?per_page=100&sort=created&direction=desc"));
           assert.ok(workflow.includes("group: ai-team-global-budget"));
           assert.ok(setup.includes("Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag"));
+          assert.ok(workflow.includes("ANTHROPIC_API_KEY"));
+          assert.ok(workflow.includes("LLAMA_API_BASE_URL"));
+          assert.ok(workflow.includes("LLAMA_API_KEY"));
           console.log("Project mapping and daily invocation cap verified.");
           NODE
