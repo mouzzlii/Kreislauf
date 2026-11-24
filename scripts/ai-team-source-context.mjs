@@ -43,10 +43,12 @@ export function buildSourceContext(repository, files) {
   let remaining = MAX_SOURCE_CONTEXT_CHARS;
   for (const file of files) {
     if (!file || typeof file.path !== "string" || typeof file.content !== "string" || remaining <= 0) continue;
-    const excerpt = file.content.slice(0, Math.min(MAX_SOURCE_FILE_CHARS, remaining));
-    if (!excerpt) continue;
-    sections.push(`#### ${repository}/${file.path}\n${excerpt}`);
-    remaining -= excerpt.length;
+    const heading = `#### ${repository}/${file.path}\n`;
+    const excerptLength = Math.min(MAX_SOURCE_FILE_CHARS, Math.max(0, remaining - heading.length));
+    if (excerptLength <= 0) break;
+    const excerpt = file.content.slice(0, excerptLength);
+    sections.push(heading + excerpt);
+    remaining -= heading.length + excerpt.length;
   }
   return sections.join("\n\n");
 }
