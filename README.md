@@ -17,7 +17,9 @@ KREISLAUF ist eine funktionsfähige Entwicklungsbasis, aber noch keine öffentli
 - Karma-Guthaben mit unveränderlichem Ledger
 - Gemeinschaftsmechanik gegen dauerhaftes Stillliegen: derzeit 0,5 % pro stillen Monat; Karma wird dabei nicht an andere Personen übertragen
 - Profile, Bewertungen und Vertrauensanzeige
-- Treuhand- und Übergabestatusmodell; der vollständige Nachrichten-/Treuhand-Demofluss ist derzeit separat im Preview-Branch verfügbar
+- Inseratgebundene Nachrichten mit zentralem Posteingang unter `/nachrichten`; jedes Gespräch öffnet direkt den passenden Inserat-Chat
+- Moderations-Posteingang unter `/moderation` für serverseitig zugewiesene Treuhand- und Streitfälle
+- Treuhand- und Übergabestatusmodell mit Community-Abstimmungen im Demo-Preview-Branch
 - Responsive Oberfläche mit Waldgrün-/Naturfarbwelt
 - Lokale PGlite-Datenbank als Entwicklungsstandard; Neon kann über `DATABASE_URL` angebunden werden
 - **Datenbankhinweis:** Der aktuelle App-Code nutzt PGlite oder Neon/Postgres über `DATABASE_URL`. Die vorhandenen Supabase-Projekte sind aktuell nicht automatisch mit der Anwendung verbunden. Vor einer Supabase-Nutzung müssen Verbindung, Migration-Drift und Auth-Schema ausdrücklich eingerichtet und geprüft werden.
@@ -37,7 +39,7 @@ Danach im Browser `http://localhost:8080` öffnen.
 
 [**KREISLAUF-Demo im Browser öffnen**](https://grok-workspace-git-demo-local-auth-off-kreislauf.vercel.app/)
 
-Diese Vorschau basiert auf dem nicht gemergten Branch `demo/local-auth-off`. Sie enthält den erweiterten Demo-Ablauf für inseratgebundene Nachrichten und Community-Treuhand. Vercel meldet die Vorschau als **READY**; wegen aktivierter Vercel-SSO-Schutzfunktion kann eine Anmeldung beim Vercel-Konto erforderlich sein. Sie verwendet einen gemeinsamen Demo-Nutzer und eine flüchtige Entwicklungsdatenbank; Daten können zurückgesetzt werden. Keine echten persönlichen Daten, echten Nutzerkonten oder verbindlichen Tauschvorgänge verwenden. Direkter Tausch und kombinierte Angebote sind in dieser Vorschau noch nicht vollständig umgesetzt.
+Diese Vorschau basiert auf dem nicht gemergten Branch `demo/local-auth-off`. Sie enthält den zentralen Nachrichten-Posteingang (`/nachrichten`), inseratgebundene Chats, den Moderations-Posteingang (`/moderation`) und Community-Treuhand. Vercel meldet die Vorschau als **READY**; wegen aktivierter Vercel-SSO-Schutzfunktion kann eine Anmeldung beim Vercel-Konto erforderlich sein. Sie verwendet einen gemeinsamen Demo-Nutzer und eine flüchtige Entwicklungsdatenbank; Daten können zurückgesetzt werden. Keine echten persönlichen Daten, echten Nutzerkonten oder verbindlichen Tauschvorgänge verwenden. Direkter Tausch und kombinierte Angebote sind in dieser Vorschau noch nicht vollständig umgesetzt.
 
 
 Die Workspace-Konfiguration `.grok/app-env.json` setzt `VITE_AUTH_ENABLED=false`. Damit läuft die lokale Demo mit einem gemeinsamen Entwicklungsnutzer statt mit echten Konten. Das ist ausschließlich für Entwicklung und Tests gedacht. Für einen Test am Android-Handy können Handy und Entwicklungscomputer im selben WLAN sein; die Adresse des Computers muss dann statt `localhost` verwendet werden. Den Entwicklungsserver nicht öffentlich ins Internet stellen.
