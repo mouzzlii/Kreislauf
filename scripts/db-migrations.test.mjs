@@ -14,6 +14,10 @@ assert.ok(moderationInboxStart >= 0, "a dedicated moderator inbox server functio
 assert.match(moderationInboxSource, /join escrow_moderators a on a\.escrow_id = e\.id and a\.moderator_id = \$1/);
 assert.match(moderationInboxSource, /p\.is_verified = true/);
 assert.match(moderationInboxSource, /p\.moderator_rank > 0/);
+assert.ok(moderationInboxSource.includes("e.requester_id is distinct from $1"));
+assert.ok(moderationInboxSource.includes("l.user_id is distinct from $1"));
+assert.ok(moderationInboxSource.includes("e.buyer_id is distinct from $1"));
+assert.ok(moderationInboxSource.includes("e.seller_id is distinct from $1"));
 assert.match(moderationInboxSource, /e\.status in \('pending', 'disputed'\)/);
 
 const migrations = [
@@ -263,6 +267,8 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
          and p.moderator_rank > 0 and p.last_active_at >= now() - interval '30 days'
        join listings l on l.id = e.listing_id
        where e.status in ('pending', 'disputed')
+         and e.requester_id is distinct from $1
+         and l.user_id is distinct from $1
          and e.buyer_id is distinct from $1
          and e.seller_id is distinct from $1`,
       [assignedModerator.rows[0].moderator_id],
