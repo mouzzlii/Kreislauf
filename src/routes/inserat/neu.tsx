@@ -92,7 +92,7 @@ function NewListing() {
             })
               .then((created) => {
                 bump();
-                void navigate({ to: "/inserat/$listingId", params: { listingId: created.id }, search: {} });
+                void navigate({ to: "/inserat/$listingId", params: { listingId: created.id }, search: { conversation: undefined } });
               })
               .catch((err: unknown) => {
                 setError(err instanceof Error ? err.message : "Inserat nicht gespeichert");
