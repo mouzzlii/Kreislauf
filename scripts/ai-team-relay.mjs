@@ -1,5 +1,5 @@
 import process from "node:process";
-import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, selectSourcePaths } from "./ai-team-source-context.mjs";
+import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasUsablePrimaryContext, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { ANTHROPIC_API_VERSION, buildClaudeMessage, buildMetaChatCompletion, buildLlamaChatCompletion, extractClaudeText, extractMetaText, extractLlamaText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 
 const {
@@ -428,13 +428,7 @@ async function main() {
     maxChars: MAX_CONTEXT_CHARS,
   });
 
-  const primaryContextLoaded = projectContext.repositories.some((context) =>
-    context.repository === projectContext.repository && Boolean(context.branch)
-  );
-  const hasSourceExcerpt = projectContext.source
-    .replace(/^#### [^\n]+\n/gm, "")
-    .trim().length > 0;
-  if (!primaryContextLoaded || !hasSourceExcerpt) {
+  if (!hasUsablePrimaryContext(projectContext)) {
     await githubRequest(`issues/${issue.number}/comments`, {
       method: "POST",
       body: JSON.stringify({
