@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { MessageCircle, RefreshCw } from "lucide-react";
+import { MessageCircle, RefreshCw, Search } from "lucide-react";
 import { Shell } from "@/components/shell";
 import {
   getMyListingConversations,
@@ -8,6 +8,7 @@ import {
 } from "@/features/kreislauf/api";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { authEnabled } from "@/lib/auth/client";
+import { filterListingConversations, type ConversationFilter } from "@/features/kreislauf/conversation-filter";
 
 export const Route = createFileRoute("/nachrichten")({
   component: MessagesPage,
@@ -20,6 +21,8 @@ function MessagesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<ConversationFilter>("all");
 
   useEffect(() => {
     if (!userId) {
@@ -57,6 +60,7 @@ function MessagesPage() {
   }, [userId]);
 
   const unread = threads.reduce((total, item) => total + item.unreadCount, 0);
+  const visibleThreads = filterListingConversations(threads, query, filter);
 
   return (
     <Shell>
@@ -115,8 +119,30 @@ function MessagesPage() {
             <span className="rounded-full border border-line bg-elev px-3 py-1.5">{threads.length} Gespräche</span>
             <span className="rounded-full border border-line bg-elev px-3 py-1.5">{unread} ungelesen</span>
           </div>
+          <div className="mt-4 space-y-3">
+            <label className="relative block">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" aria-hidden="true" />
+              <span className="sr-only">Unterhaltungen durchsuchen</span>
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Person, Inserat oder Nachricht suchen …"
+                className="h-12 w-full rounded-xl border border-line bg-elev pl-10 pr-3 text-sm text-fg outline-none placeholder:text-subtle focus:border-forest focus:ring-2 focus:ring-forest/20"
+              />
+            </label>
+            <div className="flex flex-wrap gap-2" aria-label="Unterhaltungen filtern">
+              <button type="button" aria-pressed={filter === "all"} onClick={() => setFilter("all")} className={filter === "all" ? "rounded-full bg-forest px-4 py-2 text-xs font-semibold text-paper" : "rounded-full border border-line bg-elev px-4 py-2 text-xs text-muted"}>Alle ({threads.length})</button>
+              <button type="button" aria-pressed={filter === "unread"} onClick={() => setFilter("unread")} className={filter === "unread" ? "rounded-full bg-forest px-4 py-2 text-xs font-semibold text-paper" : "rounded-full border border-line bg-elev px-4 py-2 text-xs text-muted"}>Ungelesen ({unread})</button>
+            </div>
+          </div>
+          {visibleThreads.length === 0 ? (
+            <p className="mt-4 rounded-xl border border-line bg-elev p-5 text-sm text-muted" role="status">
+              {filter === "unread" && unread === 0 ? "Du hast keine ungelesenen Nachrichten." : "Keine Unterhaltung passt zu deiner Suche."}
+            </p>
+          ) : (
           <ul className="mt-4 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-elev">
-            {threads.map((thread) => (
+            {visibleThreads.map((thread) => (
               <li key={`${thread.listingId}:${thread.requesterId}`}>
                 <Link
                   to="/inserat/$listingId"
@@ -139,6 +165,7 @@ function MessagesPage() {
               </li>
             ))}
           </ul>
+          )}
         </>
       )}
     </Shell>
