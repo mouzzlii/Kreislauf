@@ -1530,6 +1530,36 @@ create index if not exists escrow_cases_seller_id_fk_idx
 create index if not exists escrow_resolution_votes_moderator_id_fk_idx
   on public.escrow_resolution_votes(moderator_id);
 
+-- 0027_fix_transfer_message_thread_owner_direction.sql: keep both transfer directions in the canonical listing conversation.
+create or replace function kreislauf_transfer_message() returns trigger language plpgsql as $fn$
+declare
+  v_owner_id text;
+  v_requester_id text;
+begin
+  if NEW.entry_kind <> 'transfer' or NEW.listing_id is null or NEW.sender_id is null or NEW.receiver_id is null then
+    return NEW;
+  end if;
+
+  select l.user_id into v_owner_id from listings l where l.id = NEW.listing_id;
+  if v_owner_id is null then return NEW; end if;
+
+  if NEW.sender_id = v_owner_id then
+    v_requester_id := NEW.receiver_id;
+  elsif NEW.receiver_id = v_owner_id then
+    v_requester_id := NEW.sender_id;
+  else
+    return NEW;
+  end if;
+
+  perform kreislauf_system_message(NEW.listing_id, v_requester_id, v_owner_id,
+    'Tauschvorgang aktualisiert: Die Karma-Buchung wurde erfasst.');
+  return NEW;
+end;
+$fn$;
+drop trigger if exists ledger_transfer_message on ledger_entries;
+create trigger ledger_transfer_message after insert on ledger_entries
+for each row execute function kreislauf_transfer_message();
+
 -- Mark the bundled migrations as applied so the app does not rerun them at deploy.
 insert into _migrations(name) values
   ('0001_auth.sql'),
@@ -1556,7 +1586,8 @@ insert into _migrations(name) values
   ('0023_freeze_high_value_escrow_ballots.sql'),
   ('0024_independent_escrow_resolution.sql'),
   ('0025_archive_legacy_conflicted_escrow_votes.sql'),
-  ('0026_complete_escrow_foreign_key_indexes.sql')
+  ('0026_complete_escrow_foreign_key_indexes.sql'),
+  ('0027_fix_transfer_message_thread_owner_direction.sql')
 on conflict (name) do nothing;
 
 commit;
