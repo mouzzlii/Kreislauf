@@ -74,6 +74,7 @@ export type TradeRequest = {
   offeredDescription: string;
   karmaAmount: number;
   status: "requested" | "accepted" | "rejected" | "cancelled" | "completed" | "disputed";
+  disputeReason: string | null;
   requesterConfirmed: boolean;
   ownerConfirmed: boolean;
   createdAt: string;
