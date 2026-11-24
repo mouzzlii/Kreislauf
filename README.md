@@ -70,3 +70,9 @@ npm run build
 ## Gemeinsame Projektkoordination
 
 Die KI-Team-Koordination für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS läuft über das zentrale [Koordinations-Issue](https://github.com/mouzzlii/Kreislauf/issues/11). Der sichere Relay ist in `main` integriert: GPT → Claude → dritter Agent (Meta Muse über Meta Model API oder echtes Llama über einen eigenen HTTPS-Inference-Host) → GPT. Er bleibt bis zur Einrichtung der passenden Provider-Secrets, Modellkennungen, Llama-Endpoint bei Bedarf, Anbieter-Ausgabenlimits und ausdrücklichen Budgetfreigabe gesperrt.
+
+---
+
+## Rights and confidentiality
+
+See [PROPRIETARY-NOTICE.md](PROPRIETARY-NOTICE.md) for the bilingual rights notice, third-party materials disclaimer, and rules for confidential information. Do not place unpublished invention details, customer data, passwords, API keys, or private signing keys in this repository.
