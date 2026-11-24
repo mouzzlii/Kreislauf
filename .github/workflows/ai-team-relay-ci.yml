@@ -45,7 +45,7 @@ jobs:
           node --check scripts/ai-team-providers.mjs
       - name: Test bounded source context
         run: node --test scripts/ai-team-source-context.test.mjs
-      - name: Test Claude and Llama provider contracts
+      - name: Test Claude, Meta and Llama provider contracts
         run: node --test scripts/ai-team-providers.test.mjs
       - name: Test command parser
         run: node scripts/ai-team-relay.test.mjs
@@ -63,12 +63,12 @@ jobs:
           assert.ok(source.includes("getMissingProviderConfiguration({"));
           const incomplete = getMissingProviderConfiguration({});
           assert.ok(incomplete.missingSecrets.includes("AI_TEAM_REPO_READ_TOKEN"));
-          assert.ok(incomplete.missingSecrets.includes("LLAMA_API_BASE_URL"));
+          assert.ok(incomplete.missingSecrets.includes("AI_TEAM_THIRD_PROVIDER (muss meta oder llama sein)"));
           assert.ok(incomplete.missingModels.includes("CLAUDE_MODEL"));
-          assert.ok(incomplete.missingModels.includes("LLAMA_MODEL"));
           const complete = getMissingProviderConfiguration({
             OPENAI_API_KEY: "test-openai",
             ANTHROPIC_API_KEY: "test-anthropic",
+            AI_TEAM_THIRD_PROVIDER: "llama",
             LLAMA_API_KEY: "test-llama",
             LLAMA_API_BASE_URL: "https://inference.example.test/v1/chat/completions",
             AI_TEAM_REPO_READ_TOKEN: "test-readonly",
@@ -86,7 +86,11 @@ jobs:
           assert.ok(workflow.includes("group: ai-team-global-budget"));
           assert.ok(setup.includes("Höchstens zwei Debatten pro UTC-Kalendertag"));
           assert.ok(workflow.includes("ANTHROPIC_API_KEY"));
+          assert.ok(workflow.includes("AI_TEAM_THIRD_PROVIDER"));
+          assert.ok(workflow.includes("META_MODEL_API_KEY"));
           assert.ok(workflow.includes("LLAMA_API_BASE_URL"));
           assert.ok(workflow.includes("LLAMA_API_KEY"));
+          assert.ok(setup.includes("Meta Muse"));
+          assert.ok(setup.includes("Muse Model API"));
           console.log("Project mapping and daily invocation cap verified.");
           NODE
