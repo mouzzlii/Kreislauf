@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  buildSafeProjectContext,
   buildSourceContext,
   decodeSourceFile,
   MAX_SOURCE_CONTEXT_CHARS,
@@ -55,4 +56,22 @@ test("source excerpts are bounded per file and per repository", () => {
   assert.ok(context.includes("example/repo/c.ts"));
   assert.ok(context.includes("example/repo/d.ts"));
   assert.ok(!context.includes("example/repo/e.ts"));
+});
+
+test("issue and user request remain present when repository context is oversized", () => {
+  const context = buildSafeProjectContext({
+    project: "KREISLAUF",
+    repository: "mouzzlii/Kreislauf",
+    branch: "main",
+    issueNumber: 42,
+    issueTitle: "Important task title",
+    request: "USER_REQUEST_MUST_REMAIN",
+    readme: "R".repeat(20_000),
+    source: "S".repeat(20_000),
+    paths: ["path-a", "path-b"],
+  });
+  assert.ok(context.length <= 18_000);
+  assert.ok(context.includes("Important task title"));
+  assert.ok(context.includes("USER_REQUEST_MUST_REMAIN"));
+  assert.ok(context.includes("README-Auszüge"));
 });
