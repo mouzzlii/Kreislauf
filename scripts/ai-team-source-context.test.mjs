@@ -103,4 +103,13 @@ test("issue and user request remain present when repository context is oversized
   assert.ok(context.includes("Important task title"));
   assert.ok(context.includes("USER_REQUEST_MUST_REMAIN"));
   assert.ok(context.includes("README-Auszüge"));
+  const withSecret = buildSafeProjectContext({
+    project: "KREISLAUF",
+    repository: "mouzzlii/Kreislauf",
+    branch: "main",
+    issueNumber: 43,
+    issueTitle: "No sensitive title",
+    request: "Check this key sk-abcdefghijklmnopqrstuvwxyz123456",
+  });
+  assert.equal(withSecret.includes("sk-abcdefghijklmnopqrstuvwxyz123456"), false);
 });
