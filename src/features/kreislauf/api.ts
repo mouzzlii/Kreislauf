@@ -1847,14 +1847,22 @@ export const getEscrowSummary = createServerFn({ method: "GET" })
     const sql = await getSql();
     const cases = await sql.query<Row>(
       `select e.id, e.status, e.buyer_id as "buyerId", e.seller_id as "sellerId",
+         e.requester_id as "requesterId", l.user_id as "listingOwnerId",
          e.amount_karma as "amountKarma", e.funds_status as "fundsStatus",
          e.buyer_confirmed_at as "buyerConfirmedAt", e.seller_confirmed_at as "sellerConfirmedAt",
          e.dispute_reason as "disputeReason", e.reason
        from escrow_cases e
+       join listings l on l.id = e.listing_id
        where e.listing_id = $1
          and (
-           exists (select 1 from listings l where l.id = e.listing_id and (l.user_id = $2 or e.requester_id = $2))
-           or exists (select 1 from escrow_moderators a where a.escrow_id = e.id and a.moderator_id = $2)
+           l.user_id = $2 or e.requester_id = $2
+           or exists (
+             select 1 from escrow_moderators a
+             join profiles mp on mp.user_id = a.moderator_id
+             where a.escrow_id = e.id and a.moderator_id = $2
+               and mp.is_verified = true and mp.moderator_rank > 0
+               and mp.last_active_at >= now() - interval '30 days'
+           )
          )
        order by e.created_at desc limit 1`,
       [data.id, context.userId],
@@ -1897,11 +1905,14 @@ export const getEscrowSummary = createServerFn({ method: "GET" })
     const assigned = asNumber(row.assigned);
     const isBuyer = current.buyerId === context.userId;
     const isSeller = current.sellerId === context.userId;
+    const isParty = isBuyer || isSeller
+      || current.requesterId === context.userId
+      || current.listingOwnerId === context.userId;
     const approved = votes >= 4 && approvals >= Math.ceil(votes * 2 / 3);
     return {
       status: asString(current.status, "pending") as EscrowSummary["status"],
       votes, approvals, rejections, assigned,
-      canVote: !isBuyer && !isSeller && assignment.length > 0 && ownVote.length === 0 && current.status === "pending"
+      canVote: !isParty && assignment.length > 0 && ownVote.length === 0 && current.status === "pending"
         && !(votes >= 4 && (approvals >= Math.ceil(votes * 2 / 3) || rejections >= Math.ceil(votes * 2 / 3))),
       hasVoted: ownVote.length > 0,
       buyerId: current.buyerId == null ? null : asString(current.buyerId),
@@ -1919,7 +1930,7 @@ export const getEscrowSummary = createServerFn({ method: "GET" })
       resolutionVotes: asNumber(resolution.votes),
       resolutionReleases: asNumber(resolution.releases),
       resolutionRefunds: asNumber(resolution.refunds),
-      canResolve: !isBuyer && !isSeller && assignment.length > 0 && ownResolutionVote.length === 0 && current.status === "disputed"
+      canResolve: !isParty && assignment.length > 0 && ownResolutionVote.length === 0 && current.status === "disputed"
         && current.fundsStatus === "held",
       hasResolutionVote: ownResolutionVote.length > 0,
     };

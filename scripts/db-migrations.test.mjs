@@ -47,6 +47,7 @@ const migrations = [
   "0025_archive_legacy_conflicted_escrow_votes.sql",
   "0026_complete_escrow_foreign_key_indexes.sql",
   "0027_fix_transfer_message_thread_owner_direction.sql",
+  "0028_independent_all_escrow_parties.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {

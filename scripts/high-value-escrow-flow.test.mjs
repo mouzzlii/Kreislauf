@@ -31,6 +31,9 @@ const migrations = [
   "0023_freeze_high_value_escrow_ballots.sql",
   "0024_independent_escrow_resolution.sql",
   "0025_archive_legacy_conflicted_escrow_votes.sql",
+  "0026_complete_escrow_foreign_key_indexes.sql",
+  "0027_fix_transfer_message_thread_owner_direction.sql",
+  "0028_independent_all_escrow_parties.sql",
 ];
 
 async function checked(label, operation) {
@@ -128,12 +131,54 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     assert.equal(held.rows[0].holds,1,"the reserve is written to the immutable ledger");
     assert.ok(held.rows[0].assigned>=4,"four independent moderators must be assigned");
 
+    // Sharing escrow has no buyer_id/seller_id columns. The requester and
+    // listing owner must still be barred from voting even if an assignment row
+    // is inserted accidentally or by a future administrative workflow.
+    await db.query(
+      `insert into listings
+         (id,user_id,region_id,title,description,category,price_karma,status,images,lat,lng,place_label,offer_type,item_uuid)
+       values ('sharing-listing-party-guard','escrow-seller','yspertal-b36','Sharing Guard','Test','sharing',0,'active','[]'::jsonb,48.3,15.06,'Testort','sell','sharing-item-party-guard')`,
+    );
+    await db.query(
+      `insert into escrow_cases(id,listing_id,requester_id,moderator_id,reason,status)
+       values ('sharing-case-party-guard','sharing-listing-party-guard','escrow-buyer','escrow-mod-1','Sharing-Reservierung','pending')`,
+    );
+    // Also cover the independent resolution ballot for standard sharing escrow.
+    await assert.rejects(
+      db.query("insert into escrow_resolution_votes(escrow_id,moderator_id,decision,note) values ('sharing-case-party-guard','escrow-buyer','release','Eigene Sharing-Entscheidung')"),
+      /Tauschparteien dürfen nicht über ihren eigenen Treuhand- oder Streitfall abstimmen/,
+      "the requester must never vote on a standard sharing escrow resolution ballot",
+    );
+    await assert.rejects(
+      db.query("insert into escrow_resolution_votes(escrow_id,moderator_id,decision,note) values ('sharing-case-party-guard','escrow-seller','refund','Eigene Anbieter-Entscheidung')"),
+      /Tauschparteien dürfen nicht über ihren eigenen Treuhand- oder Streitfall abstimmen/,
+      "the listing owner must never vote on a standard sharing escrow resolution ballot",
+    );
+    assert.equal((await db.query("select count(*)::int as n from escrow_resolution_votes where escrow_id='sharing-case-party-guard'")).rows[0].n,0,
+      "party resolution votes must not be persisted");
+    await db.query("update profiles set moderator_rank=1 where user_id='escrow-buyer'");
+    await db.query("insert into escrow_moderators(escrow_id,moderator_id) values ('sharing-case-party-guard','escrow-buyer')");
+    await db.query("update profiles set moderator_rank=1 where user_id='escrow-seller'");
+    await db.query("insert into escrow_moderators(escrow_id,moderator_id) values ('sharing-case-party-guard','escrow-seller')");
+    await assert.rejects(
+      db.query("select * from kreislauf_cast_escrow_vote($1,$2,$3,$4)",
+        ["sharing-listing-party-guard","escrow-buyer","approve","Eigene Sharing-Freigabe"]),
+      /Tauschparteien dürfen nicht über ihren eigenen Treuhand- oder Streitfall abstimmen/,
+      "the requester must never vote on a standard sharing escrow, even with an accidental assignment",
+    );
+    await assert.rejects(
+      db.query("select * from kreislauf_cast_escrow_vote($1,$2,$3,$4)",
+        ["sharing-listing-party-guard","escrow-seller","approve","Eigene Anbieter-Freigabe"]),
+      /Tauschparteien dürfen nicht über ihren eigenen Treuhand- oder Streitfall abstimmen/,
+      "the listing owner must never vote on a standard sharing escrow",
+    );
+
     await db.query("update profiles set moderator_rank=1 where user_id='escrow-buyer'");
     await db.query("insert into escrow_moderators(escrow_id,moderator_id) values ('escrow-case-1','escrow-buyer')");
     await assert.rejects(
       db.query("select * from kreislauf_cast_escrow_vote($1,$2,$3,$4)",
         ["escrow-listing-1","escrow-buyer","approve","Eigene Treuhandfreigabe"]),
-      /Tauschparteien dürfen nicht über ihren eigenen Streitfall abstimmen/,
+      /Tauschparteien dürfen nicht über ihren eigenen Treuhand- oder Streitfall abstimmen/,
       "a buyer who also has moderator privileges must not vote on the initial escrow approval ballot",
     );
 
@@ -284,7 +329,7 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     await assert.rejects(
       db.query("select * from kreislauf_vote_escrow_resolution($1,$2,$3,$4)",
         ["escrow-listing-3","escrow-buyer","refund","Eigene Streitfallentscheidung"]),
-      /Tauschparteien dürfen nicht über ihren eigenen Streitfall abstimmen/,
+      /Tauschparteien dürfen nicht über ihren eigenen Treuhand- oder Streitfall abstimmen/,
       "a buyer who also has moderator privileges must not vote on their own dispute",
     );
     for (const [moderator,decision] of [

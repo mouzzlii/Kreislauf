@@ -25,3 +25,10 @@ where user_id = '<GEPRUEFTE_USER_ID>'
 - Ist keine aktive verifizierte Moderation verfügbar, wird ein hochwertiger Tausch nicht gestartet.
 
 Die bestehende Sharing-Übergabe bleibt zusätzlich durch die beteiligten Parteien bestätigungspflichtig.
+
+
+## Zusätzliche Unabhängigkeitsprüfung (Migration 0028)
+
+Die Datenbank blockiert Stimmen von **allen** Beteiligten, nicht nur von buyer/seller eines hochwertigen Tauschs: sowohl Anfragende (requester_id) als auch Inseratseigentümer (listings.user_id) dürfen bei Standard-Sharing-Treuhand nicht abstimmen. Diese Regel gilt auch dann, wenn versehentlich eine Moderatorenzuordnung existiert. Die Moderationsübersicht und die Escrow-Zusammenfassung prüfen dieselben Parteigrenzen serverseitig.
+
+Die Zuweisung erfolgt bei Fallanlage mit bis zu sieben aktiven, verifizierten Moderationspersonen. Mindestens vier Stimmen sind erforderlich; eine Zwei-Drittel-Mehrheit wird mit Aufrundung berechnet. Eine Admin-Oberfläche zur Rangvergabe und ein dokumentierter Notfall-Neuzuweisungsablauf sind weiterhin offene Produktionsanforderungen.

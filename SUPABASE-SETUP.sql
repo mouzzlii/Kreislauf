@@ -1560,6 +1560,48 @@ drop trigger if exists ledger_transfer_message on ledger_entries;
 create trigger ledger_transfer_message after insert on ledger_entries
 for each row execute function kreislauf_transfer_message();
 
+-- 0028_independent_all_escrow_parties.sql: prevent every transaction party from voting.
+create or replace function public.kreislauf_reject_party_escrow_resolution_vote()
+returns trigger
+language plpgsql
+set search_path = public, pg_temp
+as $fn$
+declare
+  v_buyer_id text;
+  v_seller_id text;
+  v_requester_id text;
+  v_listing_owner_id text;
+begin
+  select e.buyer_id, e.seller_id, e.requester_id, l.user_id
+    into v_buyer_id, v_seller_id, v_requester_id, v_listing_owner_id
+  from public.escrow_cases e
+  join public.listings l on l.id = e.listing_id
+  where e.id = new.escrow_id;
+
+  if new.moderator_id = v_buyer_id
+    or new.moderator_id = v_seller_id
+    or new.moderator_id = v_requester_id
+    or new.moderator_id = v_listing_owner_id then
+    raise exception 'Tauschparteien dürfen nicht über ihren eigenen Treuhand- oder Streitfall abstimmen.'
+      using errcode = '42501';
+  end if;
+
+  return new;
+end;
+$fn$;
+
+revoke all on function public.kreislauf_reject_party_escrow_resolution_vote() from public;
+do $permissions$
+begin
+  if exists (select 1 from pg_roles where rolname = 'anon') then
+    execute 'revoke all on function public.kreislauf_reject_party_escrow_resolution_vote() from anon';
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'authenticated') then
+    execute 'revoke all on function public.kreislauf_reject_party_escrow_resolution_vote() from authenticated';
+  end if;
+end;
+$permissions$;
+
 -- Mark the bundled migrations as applied so the app does not rerun them at deploy.
 insert into _migrations(name) values
   ('0001_auth.sql'),
@@ -1587,7 +1629,8 @@ insert into _migrations(name) values
   ('0024_independent_escrow_resolution.sql'),
   ('0025_archive_legacy_conflicted_escrow_votes.sql'),
   ('0026_complete_escrow_foreign_key_indexes.sql'),
-  ('0027_fix_transfer_message_thread_owner_direction.sql')
+  ('0027_fix_transfer_message_thread_owner_direction.sql'),
+  ('0028_independent_all_escrow_parties.sql')
 on conflict (name) do nothing;
 
 commit;
