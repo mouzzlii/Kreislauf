@@ -154,6 +154,7 @@ begin
     join public.profiles p on p.user_id = a.moderator_id
     where a.trade_request_id = v_trade.id
       and a.moderator_id = p_moderator_id
+      and p.region_id = v_trade.region_id
       and p.is_verified = true
       and p.moderator_rank > 0
       and p.last_active_at >= now() - interval '30 days'
