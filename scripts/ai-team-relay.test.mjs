@@ -7,7 +7,7 @@ import {
 } from "./ai-team-providers.mjs";
 
 const parseCommand = (body) => {
-  const match = body.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS)\s*:\s*([\s\S]+)$/i);
+  const match = body.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS|KI-ARBEITSPLATZ)\s*:\s*([\s\S]+)$/i);
   if (!match) return null;
   const request = match[2].trim();
   if (!request) return null;
@@ -22,6 +22,10 @@ assert.deepEqual(parseCommand("/ai-team debate chronos: Prüfe Room-Migrationen"
   project: "CHRONOS",
   request: "Prüfe Room-Migrationen",
 });
+assert.deepEqual(parseCommand("/ai-team debate KI-ARBEITSPLATZ: Prüfe den Offline-Worker"), {
+  project: "KI-ARBEITSPLATZ",
+  request: "Prüfe den Offline-Worker",
+});
 assert.equal(parseCommand("@ai-team debate [CHRONOS]"), null);
 assert.equal(parseCommand("/ai-team debate UNKNOWN: Test"), null);
 assert.equal(parseCommand("/ai-team debate TRAKUNA:   "), null);
@@ -35,6 +39,7 @@ assert.ok(relaySource.includes('TRAKUNA: [process.env.PROJECT_REPO_TRAKUNA_ANDRO
 assert.ok(relaySource.includes("repositories: contexts.map"));
 assert.ok(relaySource.includes("contexts.flatMap"));
 assert.ok(relaySource.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
+assert.ok(relaySource.includes('"KI-ARBEITSPLATZ": process.env.PROJECT_REPO_KI_ARBEITSPLATZ || "mouzzlii/KI-Arbeitsplatz"'));
 assert.ok(relaySource.includes('const OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes('const CLAUDE_MODEL = process.env.CLAUDE_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes('const META_MODEL = process.env.META_MODEL?.trim() || ""'));
@@ -49,15 +54,24 @@ assert.doesNotMatch(relaySource, /GEMINI_API_KEY|XAI_API_KEY|GEMINI_MODEL|XAI_MO
 assert.ok(workflowSource.includes("ANTHROPIC_API_KEY"));
 assert.ok(workflowSource.includes("LLAMA_API_KEY"));
 assert.ok(workflowSource.includes("LLAMA_API_BASE_URL"));
+assert.ok(workflowSource.includes("PROJECT_REPO_KI_ARBEITSPLATZ"));
 assert.ok(setup.includes("Claude"));
 assert.ok(setup.includes("Llama"));
 assert.ok(setup.includes("Meta Model API"));
 assert.ok(setup.includes("Meta Muse"));
 assert.ok(setup.includes("AI_TEAM_THIRD_PROVIDER"));
 assert.ok(setup.includes("AI_TEAM_REPO_READ_TOKEN"));
+assert.ok(setup.includes("KI-ARBEITSPLATZ"));
 assert.equal((relaySource.match(/AI_TEAM_BUDGET_CONFIRMED !== "true"/g) || []).length, 1);
 assert.ok(relaySource.includes("const MAX_DAILY_DEBATES = 2;"));
 assert.ok(relaySource.includes("reserveDailyDebate(comment.id)"));
+const contextLoadIndex = relaySource.indexOf("const projectContext = await fetchProjectContext(project);")
+const contextGuardIndex = relaySource.indexOf("const primaryContextLoaded", contextLoadIndex)
+const reservationIndex = relaySource.indexOf("const reservation = await reserveDailyDebate(comment.id);")
+const firstProviderIndex = relaySource.indexOf("const initial = await runPhase", reservationIndex)
+assert.ok(contextLoadIndex >= 0 && contextGuardIndex > contextLoadIndex)
+assert.ok(reservationIndex > contextGuardIndex && firstProviderIndex > reservationIndex)
+assert.ok(relaySource.includes("Es wurden keine Provider aufgerufen und kein Tageskontingent reserviert."))
 assert.ok(relaySource.includes("Fehlerphase: ${phase}"));
 assert.ok(relaySource.includes("Tageskontingent bleibt verbraucht"));
 assert.equal(isSecureLlamaEndpoint("https://llama.example.com/v1/chat/completions"), true);
