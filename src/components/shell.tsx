@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Map, MessageCircle, Moon, Plus, Store, Sun, Wallet } from "lucide-react";
+import { Map, MessageCircle, Moon, Plus, Scale, Store, Sun, Wallet } from "lucide-react";
 import type { ReactNode } from "react";
 import { SignedIn, SignedOut } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
@@ -15,6 +15,8 @@ const NAV = [
   { to: "/konto", label: "Konto", icon: Wallet },
 ] as const;
 
+const MODERATION_NAV = { to: "/moderation", label: "Moderation", icon: Scale } as const;
+
 export function Shell({
   children,
   regions,
@@ -25,6 +27,8 @@ export function Shell({
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { user, isPending } = useCurrentUserState();
   const { regionId, setRegion, profile, theme, toggleTheme } = useKreislauf();
+  const moderatorAccess = Boolean(profile?.isVerified && profile.moderatorRank > 0);
+  const navItems = moderatorAccess ? [...NAV, MODERATION_NAV] : NAV;
 
   return (
     <div className="min-h-dvh bg-bg text-fg">
@@ -35,7 +39,7 @@ export function Shell({
             <span className="truncate font-display text-xl leading-none tracking-tight">Kreislauf</span>
           </Link>
           <nav className="ml-auto hidden items-center gap-1 md:flex">
-            {NAV.map((item) => {
+            {navItems.map((item) => {
               const active = item.to === "/" ? pathname === "/" : pathname === item.to;
               const Icon = item.icon;
               return (
@@ -93,8 +97,8 @@ export function Shell({
       </header>
       <main className="mx-auto w-full max-w-5xl px-4 pt-5 pb-28 md:pb-16">{children}</main>
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] md:hidden">
-        <ul className="grid grid-cols-5">
-          {NAV.map((item) => {
+        <ul className={moderatorAccess ? "grid grid-cols-6" : "grid grid-cols-5"}>
+          {navItems.map((item) => {
             const active = item.to === "/" ? pathname === "/" : pathname === item.to;
             const Icon = item.icon;
             return (
