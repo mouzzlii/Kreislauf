@@ -5,6 +5,7 @@ import {
   buildSourceContext,
   decodeSourceFile,
   hasUsablePrimaryContext,
+  resolveProjectBranch,
   MAX_SOURCE_CONTEXT_CHARS,
   MAX_SOURCE_FILE_CHARS,
   selectSourcePaths,
@@ -49,6 +50,14 @@ test("KI-Arbeitsplatz selects only its bounded roadmap and offline worker source
     "Offline-Modus/Worker.ps1",
   ]);
   assert.equal(selected.length, 4);
+});
+
+test("project branch override is validated and defaults to the repository branch", () => {
+  assert.equal(resolveProjectBranch("main", ""), "main");
+  assert.equal(resolveProjectBranch("main", "release/offline-masterwerk-v0.2.1"), "release/offline-masterwerk-v0.2.1");
+  assert.throws(() => resolveProjectBranch("main", "../main"), /Unsafe project branch/);
+  assert.throws(() => resolveProjectBranch("main", "bad branch"), /Unsafe project branch/);
+  assert.throws(() => resolveProjectBranch("main", "release//main"), /Unsafe project branch/);
 });
 
 test("primary repository and a real source excerpt are required before Council calls", () => {
