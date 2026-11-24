@@ -16,14 +16,24 @@ function ModerationInboxPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    if (isPending) return;
+    if (isPending) {
+      setInbox(null);
+      setLoading(true);
+      setError("");
+      return;
+    }
     if (!user) {
       setInbox(null);
       setLoading(false);
+      setError("");
       return;
     }
+    setInbox(null);
+    setLoading(true);
+    setError("");
     let cancelled = false;
     let requestActive = false;
     let hasLoaded = false;
@@ -56,7 +66,7 @@ function ModerationInboxPage() {
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", refresh);
     };
-  }, [user?.id, isPending]);
+  }, [user?.id, isPending, refreshKey]);
 
   return (
     <Shell>
@@ -70,7 +80,7 @@ function ModerationInboxPage() {
               Abstimmungen und Streitfallentscheidungen bleiben an das jeweilige Inserat gebunden.
             </p>
           </div>
-          <Button variant="ghost" disabled={refreshing || loading} onClick={() => window.location.reload()}>
+          <Button variant="ghost" disabled={refreshing || loading} onClick={() => setRefreshKey((value) => value + 1)}>
             Aktualisieren
           </Button>
         </div>
