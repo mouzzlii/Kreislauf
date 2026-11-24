@@ -7,6 +7,7 @@ import { readFile } from "node:fs/promises";
 type TestDatabase = InstanceType<typeof PGlite>;
 
 const migration = await readFile(new URL("../../../migrations/0004_direct_combined_trade.sql", import.meta.url), "utf8");
+const messagingMigration = await readFile(new URL("../../../migrations/0005_listing_conversations_messages.sql", import.meta.url), "utf8");
 
 async function fixture(): Promise<TestDatabase> {
   const db = new PGlite();
@@ -38,6 +39,7 @@ async function fixture(): Promise<TestDatabase> {
       ('outsider','donautal-sued',100);
   `);
   await db.exec(migration);
+  await db.exec(messagingMigration);
   await db.exec(`
     insert into listings (
       id,user_id,region_id,category,offer_type,item_uuid,place_label,exchange_terms,karma_adjustment
@@ -92,6 +94,16 @@ test("combined trade requires both confirmations before one directional Karma tr
     const before=await balances(db);
     const made=await create(db,"combined");
     assert.equal(made.rows[0].id,"req-1");
+    const conversation = await db.query<{ id: string }>(
+      "select id from listing_conversations where listing_id='combined' and requester_id='requester'",
+    );
+    assert.equal(conversation.rows.length, 1);
+    const initialMessage = await db.query<{ body: string; message_kind: string }>(
+      "select body,message_kind from listing_messages where conversation_id=$1 order by id limit 1",
+      [conversation.rows[0].id],
+    );
+    assert.equal(initialMessage.rows[0].message_kind, "system");
+    assert.match(initialMessage.rows[0].body, /Neuer Tauschvorschlag/);
     assert.equal((await db.query<{ status: string }>("select status from listings where id='combined'")).rows[0].status,"booked");
     await transition(db,"req-1","owner","accept");
 
@@ -117,6 +129,10 @@ test("combined trade requires both confirmations before one directional Karma tr
     const repeated=await confirm(db,"req-1","requester");
     assert.equal(repeated.rows.length,0);
     assert.equal((await db.query<{ n: number }>("select count(*)::int as n from ledger_entries")).rows[0].n,1);
+    assert.equal((await db.query<{ n: number }>(
+      "select count(*)::int as n from listing_messages where conversation_id=$1 and message_kind='system'",
+      [conversation.rows[0].id],
+    )).rows[0].n,4);
   } finally { await db.close(); }
 });
 
@@ -184,5 +200,33 @@ test("insufficient Karma at second confirmation blocks settlement and preserves 
     await confirm(db,"req-1","requester");
     assert.equal((await requestRow(db,"req-1")).status,"completed");
     assert.equal((await balances(db)).requester,5);
+  } finally { await db.close(); }
+});
+
+test("user messages share the listing conversation and are atomically rate limited", async () => {
+  const db=await fixture();
+  try {
+    await create(db,"direct");
+    const conversation=await db.query<{id:string}>(
+      "select id from listing_conversations where listing_id='direct' and requester_id='requester'",
+    );
+    for(let i=0;i<12;i++){
+      await db.query(
+        "insert into listing_messages(conversation_id,sender_id,body,message_kind) values($1,'requester',$2,'user')",
+        [conversation.rows[0].id,`Nachricht ${i+1}`],
+      );
+    }
+    await assert.rejects(
+      db.query(
+        "insert into listing_messages(conversation_id,sender_id,body,message_kind) values($1,'requester','Zu viele Nachrichten','user')",
+        [conversation.rows[0].id],
+      ),
+      /Nachrichtenlimit/,
+    );
+    const stored=await db.query<{n:number}>(
+      "select count(*)::int as n from listing_messages where conversation_id=$1 and message_kind='user'",
+      [conversation.rows[0].id],
+    );
+    assert.equal(stored.rows[0].n,12);
   } finally { await db.close(); }
 });
