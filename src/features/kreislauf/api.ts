@@ -1776,6 +1776,8 @@ export const getMyModerationCases = createServerFn({ method: "GET" })
          and p.moderator_rank > 0 and p.last_active_at >= now() - interval '30 days'
        join listings l on l.id = e.listing_id
        where e.status in ('pending', 'disputed')
+         and e.requester_id is distinct from $1
+         and l.user_id is distinct from $1
          and e.buyer_id is distinct from $1
          and e.seller_id is distinct from $1
        order by e.created_at desc
