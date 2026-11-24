@@ -25,7 +25,7 @@ function CoordinatorPage() {
     return () => { cancelled = true; };
   }, [hydrated, initial.region.id, regionId, version]);
 
-  const active = board.listings.filter((listing) => listing.status !== "completed");
+  const active = board.listings.filter((listing) => listing.status === "active");
   const requests = active.filter((listing) => listing.offerType === "search");
   const offers = active.filter((listing) => listing.offerType !== "search");
   const recent = active.slice(0, 5);
