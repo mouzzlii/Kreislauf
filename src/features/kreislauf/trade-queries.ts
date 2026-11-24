@@ -96,7 +96,7 @@ with target as materialized (
            count(w.user_id) = 2
              and coalesce(max(w.karma_balance) filter (where w.user_id = t.requester_id), 0) >= t.karma_amount as ok
          from target t left join wallet_rows w on true
-         group by t.id
+         group by t.id, t.karma_amount, t.requester_id
        ),
        confirmed as (
          update trade_requests tr
