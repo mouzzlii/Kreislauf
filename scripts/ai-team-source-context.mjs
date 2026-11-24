@@ -1,3 +1,20 @@
+const SECRET_PATTERNS = [
+  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\\s\\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g,
+  /\\b(?:sk-[A-Za-z0-9_-]{20,}|xai-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{20,})\\b/g,
+  /\\beyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\b/g,
+  /((?:[A-Z0-9_]*(?:SECRET|TOKEN|API_KEY|PASSWORD|PRIVATE_KEY)[A-Z0-9_]*|clientSecret|apiKey|accessToken|refreshToken)\\s*[:=]\\s*)(["'`])[^"'`\\r\\n]{8,}\\2/gi,
+  /(Authorization\\s*[:=]\\s*)(["'`])Bearer\\s+[^"'`]+\\2/gi,
+  /([?&](?:key|token|access_token|client_secret)=)[^&\\s]+/gi,
+];
+
+export function redactSensitiveText(value) {
+  let text = typeof value === "string" ? value : "";
+  for (const pattern of SECRET_PATTERNS) {
+    text = text.replace(pattern, (match, prefix) => prefix ? `${prefix}[REDACTED]` : "[REDACTED SECRET]");
+  }
+  return text;
+}
+
 const PRIORITY_PATHS = [
   "docs/PROJECT-COORDINATION.md",
   ".github/AI-COLLABORATION.md",
@@ -47,7 +64,7 @@ export function buildSourceContext(repository, files) {
     const heading = `#### ${repository}/${file.path}\n`;
     const excerptLength = Math.min(MAX_SOURCE_FILE_CHARS, Math.max(0, remaining - separator.length - heading.length));
     if (excerptLength <= 0) break;
-    const excerpt = file.content.slice(0, excerptLength);
+    const excerpt = redactSensitiveText(file.content).slice(0, excerptLength);
     sections.push(separator + heading + excerpt);
     remaining -= separator.length + heading.length + excerpt.length;
   }
@@ -83,8 +100,8 @@ export function buildSafeProjectContext({
   const parts = [metadata, trustBoundary, task];
   let remaining = maxChars - parts.join("\n\n").length;
   const sections = [
-    ["README-Auszüge", readme || ""],
-    ["Ausgewählte Quelltextauszüge (feste Allowlist, begrenzte Größe)", source || ""],
+    ["README-Auszüge", redactSensitiveText(readme || "")],
+    ["Ausgewählte Quelltextauszüge (feste Allowlist, begrenzte Größe)", redactSensitiveText(source || "")],
     ["Dateipfade", Array.isArray(paths) ? paths.join("\n") : ""],
   ];
   for (const [label, value] of sections) {
