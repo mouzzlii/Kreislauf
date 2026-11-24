@@ -76,7 +76,8 @@ with target as materialized (
 export const CONFIRM_TRADE_REQUEST_SQL = `
 with target as materialized (
          select tr.id, tr.listing_id, tr.region_id, tr.requester_id, tr.owner_id,
-           tr.karma_amount, l.item_uuid, l.place_label, tr.status
+           tr.karma_amount, l.item_uuid, l.place_label, tr.status,
+           tr.requester_confirmed, tr.owner_confirmed
          from trade_requests tr
          join listings l on l.id = tr.listing_id
          where tr.id = $1 and tr.status = 'accepted'
@@ -99,17 +100,27 @@ with target as materialized (
        ),
        confirmed as (
          update trade_requests tr
-         set requester_confirmed = tr.requester_confirmed or tr.requester_id = $2,
-             owner_confirmed = tr.owner_confirmed or tr.owner_id = $2,
+         set requester_confirmed = t.requester_confirmed or t.requester_id = $2,
+             owner_confirmed = t.owner_confirmed or t.owner_id = $2,
+             status = case
+               when (t.requester_confirmed or t.requester_id = $2)
+                 and (t.owner_confirmed or t.owner_id = $2) then 'completed'
+               else 'accepted'
+             end,
+             resolved_at = case
+               when (t.requester_confirmed or t.requester_id = $2)
+                 and (t.owner_confirmed or t.owner_id = $2) then now()
+               else null
+             end,
              updated_at = now()
          from target t join wallet_check wc on wc.id = t.id
          where tr.id = t.id and wc.ok
          returning tr.id, tr.listing_id, tr.region_id, tr.requester_id, tr.owner_id,
            tr.karma_amount, tr.requester_confirmed, tr.owner_confirmed,
-           t.item_uuid, t.place_label
+           tr.status, t.item_uuid, t.place_label
        ),
        ready as materialized (
-         select * from confirmed where requester_confirmed and owner_confirmed
+         select * from confirmed where status = 'completed'
        ),
        wallet_move as (
          update profiles p
@@ -122,36 +133,26 @@ with target as materialized (
          where r.karma_amount > 0 and p.user_id in (r.requester_id, r.owner_id)
          returning p.user_id
        ),
-       completed as (
-         update trade_requests tr
-         set status = 'completed', resolved_at = now(), updated_at = now()
-         from ready r
-         where tr.id = r.id
-           and (r.karma_amount = 0 or (select count(*) from wallet_move) = 2)
-         returning tr.id, tr.listing_id, tr.region_id, tr.requester_id, tr.owner_id,
-           tr.karma_amount, r.item_uuid, r.place_label
-       ),
        ledger as (
          insert into ledger_entries (
            region_id, sender_id, receiver_id, listing_id, amount_karma, entry_kind, message
          )
          select c.region_id, c.requester_id, c.owner_id, c.listing_id,
            c.karma_amount, 'transfer', 'Kreislauf-Tausch mit Karma-Ausgleich'
-         from completed c where c.karma_amount > 0
+         from ready c where c.karma_amount > 0
          returning id
        ),
        history as (
          insert into item_history (item_uuid, listing_id, owner_id, place_label, event_kind)
          select c.item_uuid, c.listing_id, c.requester_id, c.place_label, 'transferred'
-         from completed c
+         from ready c
          returning id
        ),
        listing_done as (
          update listings l set status = 'completed', hands_count = hands_count + 1
-         from completed c where l.id = c.listing_id
+         from ready c where l.id = c.listing_id
          returning l.id
        )
        select c.id, c.status
        from confirmed c
-       left join completed done on done.id = c.id
 `;
