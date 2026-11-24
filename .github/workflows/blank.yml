@@ -2,9 +2,9 @@ name: KREISLAUF – Build und Tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, demo/local-auth-off]
   pull_request:
-    branches: [main]
+    branches: [main, demo/local-auth-off]
   workflow_dispatch:
 
 permissions:
