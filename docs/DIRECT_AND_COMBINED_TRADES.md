@@ -20,11 +20,12 @@ Migration `0004_direct_combined_trade.sql` ergänzt `listings.exchange_terms`, `
 
 ## Grenzen dieses Entwicklungsstands
 
-- Diese Änderung befindet sich in einem separaten Draft-PR. Die Migration wurde nicht auf einer Produktivdatenbank ausgeführt.
-- Der Streitfall wird gespeichert und blockiert den Vorgang; ein vollständiges moderiertes Schlichtungs- und Freigabe-UI ist noch offen.
-- Die Nachrichten-/Benachrichtigungsintegration ist noch nicht Bestandteil dieses Änderungspakets.
+- Diese Änderung befindet sich in einem separaten Draft-PR. Die Migrationen wurden nur in isolierten PGlite-Testdatenbanken ausgeführt, nicht auf einer Produktivdatenbank.
+- Der Streitfall wird gespeichert und blockiert den Vorgang; ein vollständiges moderiertes Schlichtungs- und Freigabe-UI ist noch offen. Es gibt keine automatische Freigabe oder Auszahlung bei Streit.
+- Gespräche sind inseratgebunden. Der Eingang ist unter `/nachrichten` erreichbar; Tauschvorschlag, Annahme, Ablehnung, Rückzug, Streitfall und Abschluss erzeugen Systemnachrichten im selben Gespräch. Benutzer-Nachrichten sind pro Konto auf 12 pro Minute und 80 pro Stunde begrenzt; Systemereignisse sind davon ausgenommen.
 - Leih-/Sharing-Inserate sind für direkten und kombinierten Tausch bewusst ausgeschlossen.
 - ID Austria bleibt abhängig von der separat einzurichtenden und live zu prüfenden Verifikation.
+- Es gibt noch keinen echten Push-/E-Mail-Dienst. Die Nachrichtenoberfläche aktualisiert Gespräche periodisch; Benachrichtigungen sind daher nicht garantiert sofort zugestellt.
 
 ## Tests
 
