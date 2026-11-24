@@ -12,6 +12,8 @@ test("3 Punkte 1 Ort is a dedicated regional coordinator area", () => {
   assert.match(route, /Angebote/);
   assert.match(route, /Koordinator hilft dabei, Gesuche und Angebote zusammenzuführen/);
   assert.match(route, /Aktuelle regionale Einträge/);
+  assert.match(route, /Treffpunkt-Abstimmung/);
+  assert.match(route, /sobald Gemeinde, Partner und regionale Koordination sie bestätigt haben/);
   assert.match(route, /Zuständigkeiten, reale Kontaktwege/);
 });
 
