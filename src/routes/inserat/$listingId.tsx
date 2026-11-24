@@ -257,7 +257,9 @@ function ListingPage() {
                         {request.status === "accepted" ? (
                           <p className="mt-2 text-xs text-subtle">
                             Bestätigungen: Anbieter {request.ownerConfirmed ? "✓" : "offen"} · Anfragender {request.requesterConfirmed ? "✓" : "offen"}
-                            {confirmedByMe ? " · Du hast bereits bestätigt." : ""}
+                            {confirmedByMe
+                              ? (otherConfirmed ? " · Beide Seiten haben bestätigt." : " · Du hast bereits bestätigt. Warte auf die Gegenseite.")
+                              : ""}
                           </p>
                         ) : null}
                         {request.status === "disputed" ? (
