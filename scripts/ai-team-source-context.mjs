@@ -121,3 +121,17 @@ export function buildSafeProjectContext({
   }
   return parts.join("");
 }
+
+export function hasUsablePrimaryContext(projectContext) {
+  if (!projectContext || typeof projectContext.repository !== "string" || !projectContext.repository) return false;
+  if (!Array.isArray(projectContext.repositories)) return false;
+  const primaryLoaded = projectContext.repositories.some((context) =>
+    context &&
+    context.repository === projectContext.repository &&
+    typeof context.branch === "string" &&
+    context.branch.length > 0
+  );
+  const source = typeof projectContext.source === "string" ? projectContext.source : "";
+  const sourceExcerpt = source.replace(/^#### [^\n]+\n/gm, "").trim();
+  return primaryLoaded && sourceExcerpt.length > 0;
+}
