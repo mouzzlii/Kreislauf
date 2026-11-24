@@ -1,16 +1,16 @@
 const SECRET_PATTERNS = [
-  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\\s\\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g,
-  /\\b(?:sk-[A-Za-z0-9_-]{20,}|xai-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{20,})\\b/g,
-  /\\beyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\b/g,
-  /((?:[A-Z0-9_]*(?:SECRET|TOKEN|API_KEY|PASSWORD|PRIVATE_KEY)[A-Z0-9_]*|clientSecret|apiKey|accessToken|refreshToken)\\s*[:=]\\s*)(["'`])[^"'`\\r\\n]{8,}\\2/gi,
-  /(Authorization\\s*[:=]\\s*)(["'`])Bearer\\s+[^"'`]+\\2/gi,
-  /([?&](?:key|token|access_token|client_secret)=)[^&\\s]+/gi,
+  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g,
+  /\b(?:sk-[A-Za-z0-9_-]{20,}|xai-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{20,})\b/g,
+  /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g,
+  /((?:[A-Z0-9_]*(?:SECRET|TOKEN|KEY|PASSWORD|PRIVATE_KEY)[A-Z0-9_]*|clientSecret|apiKey|accessToken|refreshToken)\s*[:=]\s*)(["'\x60])[^"'\x60\r\n]{8,}\2/gi,
+  /(Authorization\s*[:=]\s*)(["'\x60])Bearer\s+[^"'\x60]+\2/gi,
+  /([?&](?:key|token|access_token|client_secret)=)[^&\s]+/gi,
 ];
 
 export function redactSensitiveText(value) {
   let text = typeof value === "string" ? value : "";
   for (const pattern of SECRET_PATTERNS) {
-    text = text.replace(pattern, (match, prefix) => prefix ? `${prefix}[REDACTED]` : "[REDACTED SECRET]");
+    text = text.replace(pattern, (match, prefix) => prefix ? prefix + "[REDACTED]" : "[REDACTED SECRET]");
   }
   return text;
 }
