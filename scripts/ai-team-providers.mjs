@@ -24,7 +24,7 @@ export function buildMetaChatCompletion({ model, instructions, input, maxTokens 
       { role: "system", content: instructions },
       { role: "user", content: input },
     ],
-    max_tokens: maxTokens,
+    max_completion_tokens: maxTokens,
     stream: false,
   };
 }
