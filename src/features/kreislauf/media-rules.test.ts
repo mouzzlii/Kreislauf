@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import { Buffer } from "node:buffer";
 import { test } from "node:test";
-import { MAX_IMAGE_DATA_URL_CHARS, MAX_LISTING_IMAGES, MAX_TOTAL_IMAGE_DATA_URL_CHARS, normalizeListingImages } from "./media-rules.ts";
-const photo = (payload = "AAAA") => "data:image/jpeg;base64," + payload;
-test("accepts up to four valid JPEG data URLs", () => { const images = [photo(), photo("BBBB"), photo("CCCC"), photo("DDDD")]; assert.deepEqual(normalizeListingImages(images), images); assert.equal(MAX_LISTING_IMAGES, 4); });
+import { MAX_IMAGE_DATA_URL_CHARS, MAX_LISTING_IMAGES } from "./media-limits.ts";
+import { normalizeListingImages } from "./media-rules.ts";
+const prefix = "data:image/jpeg;base64,";
+const photo = (bytes = Buffer.from([0xff, 0xd8, 0xff, 0x00, 0xff, 0xd9])) => prefix + bytes.toString("base64");
+test("accepts up to four valid JPEG data URLs", () => { const images = [photo(), photo(Buffer.from([0xff,0xd8,0xff,1,0xff,0xd9])), photo(Buffer.from([0xff,0xd8,0xff,2,0xff,0xd9])), photo(Buffer.from([0xff,0xd8,0xff,3,0xff,0xd9]))]; assert.deepEqual(normalizeListingImages(images), images); assert.equal(MAX_LISTING_IMAGES, 4); });
 test("keeps legacy single-photo payloads readable", () => { assert.deepEqual(normalizeListingImages(undefined, photo()), [photo()]); assert.deepEqual(normalizeListingImages(undefined, null), []); });
-test("rejects more than four photos and non-JPEG content", () => { assert.throws(() => normalizeListingImages(Array.from({ length: 5 }, () => photo())), /höchstens 4/); assert.throws(() => normalizeListingImages(["data:image/png;base64,AAAA"]), /JPEG/); assert.throws(() => normalizeListingImages([photo("AA=A")]), /beschädigt/); });
-test("enforces per-photo and combined request limits", () => { assert.throws(() => normalizeListingImages([photo("A".repeat(MAX_IMAGE_DATA_URL_CHARS))]), /zu groß/); const largePhoto = photo("A".repeat(250_000)); assert.ok(largePhoto.length < MAX_IMAGE_DATA_URL_CHARS); assert.throws(() => normalizeListingImages([largePhoto, largePhoto, largePhoto, largePhoto]), /zusammen zu groß/); });
+test("rejects more than four photos, non-JPEG content and malformed base64", () => { assert.throws(() => normalizeListingImages(Array.from({ length: 5 }, () => photo())), /höchstens 4/); assert.throws(() => normalizeListingImages(["data:image/png;base64,AAAA"]), /JPEG/); assert.throws(() => normalizeListingImages([prefix + "AA=A"]), /beschädigt/); assert.throws(() => normalizeListingImages([photo(Buffer.from([1,2,3,4]))]), /kein gültiges JPEG/); });
+test("enforces per-photo and combined request limits", () => { const tooLarge = Buffer.alloc(210_000); tooLarge.set([0xff,0xd8,0xff]); tooLarge.set([0xff,0xd9], tooLarge.length - 2); assert.throws(() => normalizeListingImages([photo(tooLarge)]), /zu groß/); const large = Buffer.alloc(200_000); large.set([0xff,0xd8,0xff]); large.set([0xff,0xd9], large.length - 2); const largePhoto = photo(large); assert.ok(largePhoto.length < MAX_IMAGE_DATA_URL_CHARS); assert.throws(() => normalizeListingImages([largePhoto,largePhoto,largePhoto,largePhoto]), /zusammen zu groß/); });
