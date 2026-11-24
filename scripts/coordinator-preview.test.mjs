@@ -16,7 +16,7 @@ test("3 Punkte 1 Ort is a dedicated regional coordinator area", () => {
 });
 
 test("coordinator preview counts active requests and offers and does not fake contact", () => {
-  assert.match(route, /listing\.status !== "completed"/);
+  assert.match(route, /listing\.status === "active"/);
   assert.match(route, /listing\.offerType === "search"/);
   assert.match(route, /listing\.offerType !== "search"/);
   assert.match(route, /Koordinator kontaktieren/);
