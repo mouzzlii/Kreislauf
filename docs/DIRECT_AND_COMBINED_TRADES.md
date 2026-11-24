@@ -21,7 +21,7 @@ Migration `0004_direct_combined_trade.sql` ergänzt `listings.exchange_terms`, `
 ## Grenzen dieses Entwicklungsstands
 
 - Diese Änderung befindet sich in einem separaten Draft-PR. Die Migrationen wurden nur in isolierten PGlite-Testdatenbanken ausgeführt, nicht auf einer Produktivdatenbank.
-- Der Streitfall wird gespeichert und blockiert den Vorgang; ein vollständiges moderiertes Schlichtungs- und Freigabe-UI ist noch offen. Es gibt keine automatische Freigabe oder Auszahlung bei Streit.
+- Die Moderationsseite `/moderation` zeigt ausschließlich zugeteilte offene Fälle und erlaubt eine einmalige, begründete Stimme pro zugeteilter Person. Sie zeigt Stimmenstand, Abschluss-/Abbruchstimmen und die Vier-Stimmen-/Zweidrittelregel. Die erste Vergabe oder Entziehung von Moderationsrängen ist weiterhin eine Administrationsaufgabe per kontrollierter Datenbankfreigabe; dafür existiert noch keine Admin-Oberfläche. Es gibt keine automatische Freigabe bei ungelöstem Streit.
 - Gespräche sind inseratgebunden. Der Eingang ist unter `/nachrichten` erreichbar; Tauschvorschlag, Annahme, Ablehnung, Rückzug, Streitfall und Abschluss erzeugen Systemnachrichten im selben Gespräch. Benutzer-Nachrichten sind pro Konto auf 12 pro Minute und 80 pro Stunde begrenzt; Systemereignisse sind davon ausgenommen.
 - Leih-/Sharing-Inserate sind für direkten und kombinierten Tausch bewusst ausgeschlossen.
 - ID Austria bleibt abhängig von der separat einzurichtenden und live zu prüfenden Verifikation.
