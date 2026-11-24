@@ -5,24 +5,29 @@ import { Shell } from "@/components/shell";
 import { Button, fieldClass } from "@/components/ui";
 import {
   addReview,
+  confirmTradeRequest,
+  createTradeRequest,
   getListing,
   getMeetingPoint,
+  getTradeRequests,
   releaseEscrow,
   reserveListing,
   tradeListing,
   transitionBooking,
+  transitionTradeRequest,
 } from "@/features/kreislauf/api";
 import { useKreislauf } from "@/features/kreislauf/context";
 import {
   BOOKING_LABEL,
   CATEGORY_LABEL,
+  OFFER_TYPE_LABEL,
   STATUS_LABEL,
   formatKarma,
   formatTrust,
   formatWhen,
   priceCaption,
 } from "@/features/kreislauf/format";
-import type { ListingDetail } from "@/features/kreislauf/types";
+import type { ListingDetail, TradeRequest } from "@/features/kreislauf/types";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/inserat/$listingId")({
@@ -44,6 +49,8 @@ function ListingPage() {
   const [startsAt, setStartsAt] = useState("");
   const [endsAt, setEndsAt] = useState("");
   const [scores, setScores] = useState({ punctuality: 5, itemCondition: 5, reliability: 5, note: "" });
+  const [tradeRequests, setTradeRequests] = useState<TradeRequest[]>([]);
+  const [offeredDescription, setOfferedDescription] = useState("");
 
   useEffect(() => {
     if (version === 0) return;
@@ -55,6 +62,18 @@ function ListingPage() {
       cancel = true;
     };
   }, [listingId, version]);
+
+  useEffect(() => {
+    if (!user) {
+      setTradeRequests([]);
+      return;
+    }
+    let cancel = false;
+    getTradeRequests({ data: { id: listingId } })
+      .then((next) => { if (!cancel) setTradeRequests(next); })
+      .catch(() => { if (!cancel) setTradeRequests([]); });
+    return () => { cancel = true; };
+  }, [listingId, user?.id, version]);
 
   useEffect(() => {
     setQrTarget(`${window.location.origin}/inserat/${listingId}`);
@@ -83,6 +102,15 @@ function ListingPage() {
   const { listing, booking, reviews } = detail;
   const mine = user?.id === listing.userId;
   const party = user && booking && (user.id === booking.renterId || user.id === booking.ownerId);
+  const exchangeListing = listing.offerType === "barter" || listing.offerType === "combined";
+  const priceText =
+    listing.offerType === "search" ? "Suchanzeige" :
+    listing.offerType === "barter" ? "Direkter Tausch ohne Karma" :
+    listing.offerType === "combined"
+      ? (listing.karmaAdjustment > 0
+          ? formatKarma(listing.karmaAdjustment) + " Karma-Ausgleich + Gegenleistung"
+          : "Gegenleistung ohne Karma-Ausgleich")
+      : priceCaption(listing.category, listing.priceKarma);
 
   async function run(action: () => Promise<{ ok: boolean; error?: string }>) {
     setBusy(true);
@@ -110,7 +138,7 @@ function ListingPage() {
         <ListingVisual listing={listing} className="aspect-[4/3] w-full rounded-3xl" />
         <div>
           <p className="text-sm text-copper">
-            {listing.offerType === "sell" ? "Biete / Verkaufe" : listing.offerType === "search" ? "Suche nach" : "Verschenke"} · {CATEGORY_LABEL[listing.category]} · {STATUS_LABEL[listing.status]}
+            {OFFER_TYPE_LABEL[listing.offerType]} · {CATEGORY_LABEL[listing.category]} · {STATUS_LABEL[listing.status]}
           </p>
           <h1 className="mt-2 font-display text-4xl leading-tight text-fg">{listing.title}</h1>
           <p className="mt-3 text-muted">{listing.description}</p>
@@ -118,12 +146,18 @@ function ListingPage() {
             {listing.placeLabel} · {listing.ownerName}
             {listing.trust != null ? ` · Vertrauen ${formatTrust(listing.trust)}` : ""}
           </p>
-          <p className="mt-4 font-display text-3xl tabular-nums text-copper">
-            {listing.offerType === "search" ? "Suchanzeige" : priceCaption(listing.category, listing.priceKarma)}
+          <p className="mt-4 font-display text-2xl tabular-nums text-copper">
+            {priceText}
           </p>
+          {listing.exchangeTerms ? (
+            <div className="mt-3 rounded-2xl border border-line bg-elev p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-subtle">Gesuchte Gegenleistung</p>
+              <p className="mt-1 text-sm text-fg">{listing.exchangeTerms}</p>
+            </div>
+          ) : null}
           {listing.handsCount > 0 ? <p className="mt-3 inline-flex rounded-full bg-forest/15 px-3 py-1 text-sm text-forest">Bereits durch {listing.handsCount} {listing.handsCount === 1 ? "Hand" : "Hände"} gegangen</p> : null}
 
-          {listing.offerType !== "search" && listing.category !== "sharing" && listing.status === "active" && !mine ? (
+          {(listing.offerType === "sell" || listing.offerType === "gift") && listing.category !== "sharing" && listing.status === "active" && !mine ? (
             <div className="mt-5">
               {isPending ? (
                 <div className="h-11 w-40 animate-pulse rounded-lg bg-elev-2" />
@@ -140,6 +174,122 @@ function ListingPage() {
               )}
               <p className="mt-2 text-sm text-subtle">Karma geht sofort an {listing.ownerName}.</p>
             </div>
+          ) : null}
+
+
+          {exchangeListing ? (
+            <section className="mt-5 space-y-4 rounded-3xl border border-line bg-elev p-4">
+              <div>
+                <h2 className="font-display text-xl">Tauschvorschläge</h2>
+                <p className="mt-1 text-sm text-subtle">
+                  Kein Geldtransfer. {listing.offerType === "combined"
+                    ? "Der Karma-Ausgleich geht nur bei beidseitiger Abschlussbestätigung vom anfragenden Mitglied an den Anbieter."
+                    : "Beim direkten Tausch wird kein Karma bewegt."}
+                </p>
+              </div>
+
+              {!mine && listing.status === "active" ? (
+                !user ? (
+                  <Link to="/login" className="inline-flex h-11 items-center rounded-lg bg-forest px-4 text-sm font-medium text-paper">
+                    Anmelden zum Tauschen
+                  </Link>
+                ) : !profile?.isVerified ? (
+                  <Link to="/konto" className="inline-flex h-11 items-center rounded-lg bg-forest px-4 text-sm font-medium text-paper">
+                    Zuerst ID Austria bestätigen
+                  </Link>
+                ) : (
+                  <form
+                    className="space-y-3"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      void run(() => createTradeRequest({
+                        data: { id: listing.id, offeredDescription },
+                      })).then(() => setOfferedDescription(""));
+                    }}
+                  >
+                    <label className="block text-sm text-muted">
+                      Was bietest du konkret als Gegenleistung?
+                      <textarea
+                        className={fieldClass + " mt-2 h-24 py-3"}
+                        value={offeredDescription}
+                        onChange={(event) => setOfferedDescription(event.target.value)}
+                        minLength={8}
+                        maxLength={400}
+                        required
+                        placeholder="Beschreibe deine Ware oder Hilfe."
+                      />
+                    </label>
+                    <Button type="submit" disabled={busy}>Tauschvorschlag senden</Button>
+                  </form>
+                )
+              ) : null}
+
+              {tradeRequests.length ? (
+                <div className="space-y-3">
+                  {tradeRequests.map((request) => {
+                    const isOwner = user?.id === request.ownerId;
+                    const isRequester = user?.id === request.requesterId;
+                    const involved = isOwner || isRequester;
+                    const confirmedByMe = isOwner ? request.ownerConfirmed : request.requesterConfirmed;
+                    const otherConfirmed = isOwner ? request.requesterConfirmed : request.ownerConfirmed;
+                    if (!involved) return null;
+                    return (
+                      <article key={request.id} className="rounded-2xl border border-line bg-paper/30 p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-fg">
+                            {request.requesterName} bietet
+                          </p>
+                          <span className="rounded-full bg-elev-2 px-2 py-1 text-xs text-muted">
+                            {request.status === "requested" ? "Offen" :
+                              request.status === "accepted" ? "Angenommen" :
+                              request.status === "rejected" ? "Abgelehnt" :
+                              request.status === "cancelled" ? "Zurückgezogen" :
+                              request.status === "completed" ? "Abgeschlossen" : "Streitfall"}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-sm text-fg">{request.offeredDescription}</p>
+                        {request.karmaAmount > 0 ? (
+                          <p className="mt-2 text-sm text-copper">{formatKarma(request.karmaAmount)} Karma zusätzlich vom Anfragenden an den Anbieter</p>
+                        ) : null}
+                        {request.status === "accepted" ? (
+                          <p className="mt-2 text-xs text-subtle">
+                            Bestätigungen: Anbieter {request.ownerConfirmed ? "✓" : "offen"} · Anfragender {request.requesterConfirmed ? "✓" : "offen"}
+                            {confirmedByMe ? " · Du hast bereits bestätigt." : ""}
+                          </p>
+                        ) : null}
+                        {request.status === "disputed" ? (
+                          <p className="mt-2 text-sm text-copper">Streitfall gemeldet. Der Vorgang bleibt gesperrt; bis zur Klärung wird kein Karma übertragen.</p>
+                        ) : null}
+                        {request.status === "completed" ? (
+                          <p className="mt-2 text-sm text-forest">Beide Seiten haben bestätigt. Der Tausch ist abgeschlossen.</p>
+                        ) : null}
+                        {request.status === "requested" && isOwner ? (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <Button disabled={busy} onClick={() => void run(() => transitionTradeRequest({ data: { id: request.id, action: "accept" } }))}>Annehmen</Button>
+                            <Button variant="ghost" disabled={busy} onClick={() => void run(() => transitionTradeRequest({ data: { id: request.id, action: "reject" } }))}>Ablehnen</Button>
+                          </div>
+                        ) : null}
+                        {request.status === "requested" && isRequester ? (
+                          <Button className="mt-3" variant="ghost" disabled={busy} onClick={() => void run(() => transitionTradeRequest({ data: { id: request.id, action: "cancel" } }))}>Vorschlag zurückziehen</Button>
+                        ) : null}
+                        {request.status === "accepted" && involved ? (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {!confirmedByMe ? (
+                              <Button disabled={busy} onClick={() => void run(() => confirmTradeRequest({ data: { id: request.id } }))}>Abschluss bestätigen</Button>
+                            ) : null}
+                            <Button variant="ghost" disabled={busy} onClick={() => void run(() => transitionTradeRequest({ data: { id: request.id, action: "dispute" } }))}>Problem melden</Button>
+                          </div>
+                        ) : null}
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : mine ? (
+                <p className="text-sm text-muted">Noch keine Tauschvorschläge eingegangen.</p>
+              ) : listing.status !== "active" ? (
+                <p className="text-sm text-muted">Dieses Angebot ist derzeit nicht verfügbar.</p>
+              ) : null}
+            </section>
           ) : null}
 
           {listing.offerType !== "search" && listing.category === "sharing" && listing.status === "active" && !mine ? (
