@@ -32,7 +32,8 @@ const migrations = [
   "0024_independent_escrow_resolution.sql",
   "0025_archive_legacy_conflicted_escrow_votes.sql",
   "0026_complete_escrow_foreign_key_indexes.sql",
-  "0027_independent_all_escrow_parties.sql",
+  "0027_fix_transfer_message_thread_owner_direction.sql",
+  "0028_independent_all_escrow_parties.sql",
 ];
 
 async function checked(label, operation) {
@@ -144,6 +145,8 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     );
     await db.query("update profiles set moderator_rank=1 where user_id='escrow-buyer'");
     await db.query("insert into escrow_moderators(escrow_id,moderator_id) values ('sharing-case-party-guard','escrow-buyer')");
+    await db.query("update profiles set moderator_rank=1 where user_id='escrow-seller'");
+    await db.query("insert into escrow_moderators(escrow_id,moderator_id) values ('sharing-case-party-guard','escrow-seller')");
     await assert.rejects(
       db.query("select * from kreislauf_cast_escrow_vote($1,$2,$3,$4)",
         ["sharing-listing-party-guard","escrow-buyer","approve","Eigene Sharing-Freigabe"]),
