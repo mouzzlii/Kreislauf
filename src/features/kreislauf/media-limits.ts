@@ -1,0 +1,4 @@
+export const MAX_LISTING_IMAGES = 4;
+export const MAX_IMAGE_DATA_URL_CHARS = 280_000;
+export const MAX_TOTAL_IMAGE_DATA_URL_CHARS = 1_000_000;
+export const MAX_RAW_IMAGE_BYTES = 10 * 1024 * 1024;
