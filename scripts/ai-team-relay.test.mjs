@@ -7,7 +7,7 @@ import {
 } from "./ai-team-providers.mjs";
 
 const parseCommand = (body) => {
-  const match = body.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS)\s*:\s*([\s\S]+)$/i);
+  const match = body.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS|INSERAT-PROFI-AI|BOOK-YOUR-COOK|LARA-QUIZ)\s*:\s*([\s\S]+)$/i);
   if (!match) return null;
   const request = match[2].trim();
   if (!request) return null;
@@ -35,6 +35,12 @@ assert.ok(relaySource.includes('TRAKUNA: [process.env.PROJECT_REPO_TRAKUNA_ANDRO
 assert.ok(relaySource.includes("repositories: contexts.map"));
 assert.ok(relaySource.includes("contexts.flatMap"));
 assert.ok(relaySource.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
+assert.ok(relaySource.includes('"INSERAT-PROFI-AI": process.env.PROJECT_REPO_INSERAT_PROFI_AI || "mouzzlii/INSERAT-PROFI-AI"'));
+assert.ok(relaySource.includes('"BOOK-YOUR-COOK": process.env.PROJECT_REPO_BOOK_YOUR_COOK || "mouzzlii/book-your-cook"'));
+assert.ok(relaySource.includes('"LARA-QUIZ": process.env.PROJECT_REPO_LARA_QUIZ || "mouzzlii/Lara_Quiz"'));
+assert.deepEqual(parseCommand("/ai-team debate INSERAT-PROFI-AI: Prüfe die Foto-Gruppierung"), { project: "INSERAT-PROFI-AI", request: "Prüfe die Foto-Gruppierung" });
+assert.deepEqual(parseCommand("/ai-team debate BOOK-YOUR-COOK: Prüfe Refund-Status"), { project: "BOOK-YOUR-COOK", request: "Prüfe Refund-Status" });
+assert.deepEqual(parseCommand("/ai-team debate LARA-QUIZ: Prüfe Import"), { project: "LARA-QUIZ", request: "Prüfe Import" });
 assert.ok(relaySource.includes('const OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes('const CLAUDE_MODEL = process.env.CLAUDE_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes('const META_MODEL = process.env.META_MODEL?.trim() || ""'));
