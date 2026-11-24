@@ -125,6 +125,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/karte'
+    | '/koordinator'
     | '/konto'
     | '/login'
     | '/nachrichten'
@@ -136,6 +137,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/karte'
+    | '/koordinator'
     | '/konto'
     | '/login'
     | '/nachrichten'
