@@ -41,8 +41,8 @@ test("sensitive tokens, inline secrets and private keys are redacted before cont
     'const client_secret = "very-private-client-secret-value";',
     'Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signaturevalue";',
     'https://example.test/?access_token=very-private-token-value',
-    '-----BEGIN PRIVATE KEY-----\\nFAKE_PRIVATE_KEY_MATERIAL\\n-----END PRIVATE KEY-----',
-  ].join("\\n");
+    '-----BEGIN PRIVATE KEY-----\nFAKE_PRIVATE_KEY_MATERIAL\n-----END PRIVATE KEY-----',
+  ].join("\n");
   const redacted = redactSensitiveText(sample);
   for (const secret of [
     "sk-abcdefghijklmnopqrstuvwxyz123456",
