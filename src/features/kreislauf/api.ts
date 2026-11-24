@@ -959,9 +959,9 @@ export const sendListingMessage = createServerFn({ method: "POST" })
       const inserted = await sql.query<{ id: number }>(
         `with conversation as (
            insert into listing_conversations(id, listing_id, requester_id, owner_id)
-           select 'conv-' || md5(l.id || ':' || $3), l.id, $3, l.user_id
+           select 'conv-' || md5(l.id || ':' || $2), l.id, $2, l.user_id
            from listings l
-           where l.id = $2 and l.user_id = $4
+           where l.id = $1 and l.user_id = $3
              and (
                l.status = 'active'
                or exists (
@@ -977,12 +977,12 @@ export const sendListingMessage = createServerFn({ method: "POST" })
          ),
          message as (
            insert into listing_messages(conversation_id, sender_id, body, message_kind)
-           select conversation.id, $5, $6, 'user'
+           select conversation.id, $4, $5, 'user'
            from conversation
            returning id
          )
          select id from message`,
-        [data.id, data.id, requesterId, ownerId, context.userId, data.body],
+        [data.id, requesterId, ownerId, context.userId, data.body],
       );
       if (!inserted.length) return fail("Nachricht konnte nicht gespeichert werden.");
       return { ok: true };
