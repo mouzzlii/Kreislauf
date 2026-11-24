@@ -112,18 +112,21 @@ function ListingPage() {
           : "Gegenleistung ohne Karma-Ausgleich")
       : priceCaption(listing.category, listing.priceKarma);
 
-  async function run(action: () => Promise<{ ok: boolean; error?: string }>) {
+  async function run(action: () => Promise<{ ok: boolean; error?: string }>): Promise<boolean> {
     setBusy(true);
     setError(null);
     try {
       const result = await action();
-      if (!result.ok) setError(result.error ?? "Nicht möglich");
-      else {
-        bump();
-        await refreshProfile();
+      if (!result.ok) {
+        setError(result.error ?? "Nicht möglich");
+        return false;
       }
+      bump();
+      await refreshProfile();
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Nicht möglich");
+      return false;
     } finally {
       setBusy(false);
     }
@@ -204,7 +207,7 @@ function ListingPage() {
                       event.preventDefault();
                       void run(() => createTradeRequest({
                         data: { id: listing.id, offeredDescription },
-                      })).then(() => setOfferedDescription(""));
+                      })).then((success) => { if (success) setOfferedDescription(""); });
                     }}
                   >
                     <label className="block text-sm text-muted">
