@@ -7,6 +7,7 @@ import {
   MAX_SOURCE_CONTEXT_CHARS,
   MAX_SOURCE_FILE_CHARS,
   selectSourcePaths,
+  redactSensitiveText,
 } from "./ai-team-source-context.mjs";
 
 test("source selection prefers coordination, security and real application entry points", () => {
@@ -29,6 +30,34 @@ test("source selection prefers coordination, security and real application entry
   ]);
   assert.equal(selected.some((path) => path.includes(".env")), false);
   assert.equal(selected.some((path) => path.includes("node_modules")), false);
+});
+
+test("sensitive tokens, inline secrets and private keys are redacted before context is built", () => {
+  const sample = [
+    'const OPENAI_API_KEY = "sk-abcdefghijklmnopqrstuvwxyz123456";',
+    'const XAI_TOKEN = "xai-abcdefghijklmnopqrstuvwxyz123456";',
+    'const GOOGLE_API_KEY = "AIza012345678901234567890123456789012345";',
+    'const GITHUB_TOKEN = "ghp_abcdefghijklmnopqrstuvwxyz1234567890";',
+    'const client_secret = "very-private-client-secret-value";',
+    'Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signaturevalue";',
+    'https://example.test/?access_token=very-private-token-value',
+    '-----BEGIN PRIVATE KEY-----\\nFAKE_PRIVATE_KEY_MATERIAL\\n-----END PRIVATE KEY-----',
+  ].join("\\n");
+  const redacted = redactSensitiveText(sample);
+  for (const secret of [
+    "sk-abcdefghijklmnopqrstuvwxyz123456",
+    "xai-abcdefghijklmnopqrstuvwxyz123456",
+    "AIza012345678901234567890123456789012345",
+    "ghp_abcdefghijklmnopqrstuvwxyz1234567890",
+    "very-private-client-secret-value",
+    "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signaturevalue",
+    "very-private-token-value",
+    "FAKE_PRIVATE_KEY_MATERIAL",
+  ]) {
+    assert.equal(redacted.includes(secret), false, `secret leaked: ${secret.slice(0, 8)}`);
+  }
+  assert.ok(redacted.includes("[REDACTED SECRET]"));
+  assert.ok(redacted.includes("[REDACTED]"));
 });
 
 test("source selection never reads files outside the fixed allowlist", () => {
