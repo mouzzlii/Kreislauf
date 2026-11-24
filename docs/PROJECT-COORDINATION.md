@@ -27,12 +27,14 @@ Dieses Dokument koordiniert die vier Entwicklungsprojekte. Es ersetzt keine proj
 
 ## KI-Team-Zusammenarbeit
 
-- Der GitHub-Relay ist in KREISLAUF `main` integriert. Er reagiert nur auf einen ausdrücklich markierten Kommentar und bleibt vor jedem Provider-Aufruf gesperrt, solange Pflicht-Secrets, Modellkennungen, ein read-only GitHub-Repository-Token oder die manuelle Budgetfreigabe fehlen.
-- PR #29 ist gemergt. Der Relay lädt README, höchstens 80 Dateipfade und bis zu vier ausgewählte Quelltextauszüge pro Repository (maximal 1.800 Zeichen je Datei und 6.500 Zeichen pro Repository) aus einer festen Allowlist. Secret-Dateien, Umgebungsdateien, Credential-, Schlüssel-, Lock- und Builddateien sind nicht Teil der Auswahl.
+- Die sichere GitHub-Relay-Basis ist in KREISLAUF `main` integriert. PR #29 erweiterte sie um begrenzte Quelltextauszüge und Secret-Redaktion. Der Relay reagiert nur auf einen ausdrücklich markierten Kommentar in Issue #11 und ändert selbst keinen Quellcode.
+- Ein neuer Entwicklungs-PR stellt die bisherige Provider-Auswahl auf die gewünschte Architektur GPT → Claude → Llama → GPT um. Claude verwendet die Anthropic Messages API. Llama wird über einen ausdrücklich konfigurierten OpenAI-kompatiblen HTTPS-Chat-Completions-Endpunkt angebunden; das kann ein Hosting-Anbieter oder eine eigene, abgesicherte Inference-Instanz sein.
+- **Meta-/Llama-Grenze:** Die aktuelle gehostete Meta Model API stellt Muse-Modelle bereit, führt laut Meta aber keine Llama-Modellgewichte aus. Echte Llama-Modelle benötigen einen Inference-Anbieter oder eigene Infrastruktur. Der Relay darf diese beiden Wege nicht fälschlich als dieselbe API ausgeben.
+- Der Relay lädt README, höchstens 80 Dateipfade und bis zu vier ausgewählte Quelltextauszüge pro Repository (maximal 1.800 Zeichen je Datei und 6.500 Zeichen pro Repository) aus einer festen Allowlist. Secret-Dateien, Umgebungsdateien, Credential-, Schlüssel-, Lock- und Builddateien sind nicht Teil der Auswahl.
 - Die Redaktion deckt bekannte Provider-Token, PEM-Private-Keys, JWTs, benannte Secret-Zuweisungen und 64–128-stellige Hexwerte ab. Das ist eine zusätzliche Schutzschicht, keine Garantie, dass beliebige Geheimnisse niemals erkannt werden. Daher dürfen ausgewählte Dateien weiterhin keine echten Kundendaten, Sendungsdaten oder Geheimnisse enthalten.
-- Bei Aktivierung werden ausgewählte Quelltextauszüge zusammen mit der Anfrage an OpenAI, Gemini und xAI übertragen. Es gab in dieser Arbeit keine Provider-Aufrufe; kein Schlüssel und keine Modellvariable wurde eingerichtet oder verändert.
-- Der Relay führt keine Codeänderungen, Merges oder Deployments aus. Ein täglicher Deckel von zwei Debatten reserviert vor jedem Provider-Aufruf ein Kontingent im zentralen Issue #11.
-- Live-Freigabe bleibt ausstehend: Provider-Secrets, tatsächlich unterstützte Modellkennungen, read-only GitHub-Token, echte Anbieter-Ausgabenlimits und `AI_TEAM_BUDGET_CONFIRMED=true` müssen durch den Kontoinhaber eingerichtet und geprüft werden. Die Variable ist eine manuelle Bestätigung und prüft Anbieterbudgets nicht automatisch.
+- Bei Aktivierung werden ausgewählte Quelltextauszüge zusammen mit der Anfrage an OpenAI, Anthropic und den ausgewählten Llama-Inference-Anbieter übertragen. Es wurden keine Provider aufgerufen und keine Schlüssel eingerichtet.
+- Ein täglicher Deckel von zwei Debatten reserviert vor Provider-Aufrufen ein Kontingent im zentralen Issue #11. Das Gespräch verwendet maximal 1.000 Ausgabetokens je Modellschritt.
+- Live-Freigabe bleibt ausstehend: Provider-Secrets, tatsächlich unterstützte Modellkennungen, sichere Llama-HTTPS-Adresse, read-only GitHub-Token, echte Anbieter-Ausgabenlimits und `AI_TEAM_BUDGET_CONFIRMED=true` müssen durch den Kontoinhaber eingerichtet und geprüft werden. Die Variable ist eine manuelle Bestätigung und prüft Anbieterbudgets nicht automatisch.
 
 ## Abnahme-Gates je Projekt
 

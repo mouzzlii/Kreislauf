@@ -1,13 +1,15 @@
 import process from "node:process";
 import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, selectSourcePaths } from "./ai-team-source-context.mjs";
+import { ANTHROPIC_API_VERSION, buildClaudeMessage, buildLlamaChatCompletion, extractClaudeText, extractLlamaText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 
 const {
   GITHUB_TOKEN,
   GITHUB_REPOSITORY,
   GITHUB_EVENT_PATH,
   OPENAI_API_KEY,
-  GEMINI_API_KEY,
-  XAI_API_KEY,
+  ANTHROPIC_API_KEY,
+  LLAMA_API_KEY,
+  LLAMA_API_BASE_URL,
   AI_TEAM_REPO_READ_TOKEN,
   AI_TEAM_BUDGET_CONFIRMED,
 } = process.env;
@@ -27,8 +29,8 @@ const PROJECT_RELATED_REPOS = {
 
 // Require explicit, currently supported model IDs; never guess provider defaults.
 const OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || "";
-const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || "";
-const XAI_MODEL = process.env.XAI_MODEL?.trim() || "";
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL?.trim() || "";
+const LLAMA_MODEL = process.env.LLAMA_MODEL?.trim() || "";
 const AI_TEAM_ALLOWED_USERS = process.env.AI_TEAM_ALLOWED_USERS || "mouzzlii";
 
 const MAX_INPUT_CHARS = 8000;
@@ -93,49 +95,42 @@ async function askOpenAI(instructions, input) {
   return output;
 }
 
-async function askGemini(instructions, input) {
-  const data = await api("https://generativelanguage.googleapis.com/v1beta/interactions", {
+async function askClaude(instructions, input) {
+  const data = await api("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
-      "x-goog-api-key": GEMINI_API_KEY,
+      Authorization: `Bearer ${ANTHROPIC_API_KEY}`,
+      "anthropic-version": ANTHROPIC_API_VERSION,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      model: GEMINI_MODEL,
-      system_instruction: instructions,
+    body: JSON.stringify(buildClaudeMessage({
+      model: CLAUDE_MODEL,
+      instructions,
       input,
-      generation_config: { max_output_tokens: MAX_OUTPUT_TOKENS },
-      store: false,
-    }),
+      maxTokens: MAX_OUTPUT_TOKENS,
+    })),
   });
-  const output = (data.steps || [])
-    .filter((step) => step.type === "model_output")
-    .flatMap((step) => step.content || [])
-    .filter((part) => part.type === "text")
-    .map((part) => part.text || "")
-    .join("\n")
-    .trim();
-  if (!output) throw new Error("Gemini returned an empty response.");
+  const output = extractClaudeText(data);
+  if (!output) throw new Error("Claude returned an empty response.");
   return output;
 }
 
-async function askGrok(instructions, input) {
-  const data = await api("https://api.x.ai/v1/responses", {
+async function askLlama(instructions, input) {
+  const data = await api(LLAMA_API_BASE_URL, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${XAI_API_KEY}`,
+      Authorization: `Bearer ${LLAMA_API_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      model: XAI_MODEL,
+    body: JSON.stringify(buildLlamaChatCompletion({
+      model: LLAMA_MODEL,
       instructions,
       input,
-      max_output_tokens: MAX_OUTPUT_TOKENS,
-      store: false,
-    }),
+      maxTokens: MAX_OUTPUT_TOKENS,
+    })),
   });
-  const output = textFromResponses(data);
-  if (!output) throw new Error("Grok returned an empty response.");
+  const output = extractLlamaText(data);
+  if (!output) throw new Error("Llama returned an empty response.");
   return output;
 }
 
@@ -344,17 +339,16 @@ async function main() {
     return;
   }
 
-  const missing = [
-    !OPENAI_API_KEY && "OPENAI_API_KEY",
-    !GEMINI_API_KEY && "GEMINI_API_KEY",
-    !XAI_API_KEY && "XAI_API_KEY",
-    !AI_TEAM_REPO_READ_TOKEN && "AI_TEAM_REPO_READ_TOKEN",
-  ].filter(Boolean);
-  const missingModels = [
-    !OPENAI_MODEL && "OPENAI_MODEL",
-    !GEMINI_MODEL && "GEMINI_MODEL",
-    !XAI_MODEL && "XAI_MODEL",
-  ].filter(Boolean);
+  const { missingSecrets: missing, missingModels } = getMissingProviderConfiguration({
+    OPENAI_API_KEY,
+    ANTHROPIC_API_KEY,
+    LLAMA_API_KEY,
+    LLAMA_API_BASE_URL,
+    AI_TEAM_REPO_READ_TOKEN,
+    OPENAI_MODEL,
+    CLAUDE_MODEL,
+    LLAMA_MODEL,
+  });
   if (missing.length || missingModels.length) {
     const message = [
       marker,
@@ -375,7 +369,7 @@ async function main() {
     const message = [
       marker,
       "### KI-Team-Relay bleibt aus Sicherheitsgründen deaktiviert",
-      "Vor dem ersten Provider-Aufruf müssen die Kontoinhaber die verfügbaren Ausgabenlimits bzw. Kostenkontrollen bei OpenAI, Google und xAI selbst prüfen und setzen.",
+      "Vor dem ersten Provider-Aufruf müssen die Kontoinhaber die verfügbaren Ausgabenlimits bzw. Kostenkontrollen bei OpenAI, Anthropic und Llama API selbst prüfen und setzen.",
       "Danach darf die GitHub-Actions-Variable AI_TEAM_BUDGET_CONFIRMED ausdrücklich auf true gesetzt werden. Diese Variable ist eine manuelle Bestätigung, keine automatische Prüfung der Anbieterbudgets.",
       "Solange die Variable fehlt oder nicht exakt true ist, werden keine KI-Provider aufgerufen.",
     ].join("\n\n");
@@ -436,19 +430,19 @@ async function main() {
     safeContext,
   ));
 
-  const gemini = await runPhase(issue.number, marker, "Gemini-Gegenprüfung", () => askGemini(
-    `${baseInstructions} Du bist Gemini und erhältst die Analyse eines anderen Agenten. Prüfe sie unabhängig, widersprich bei Bedarf und nenne fehlende Belege.`,
+  const claude = await runPhase(issue.number, marker, "Claude-Gegenprüfung", () => askClaude(
+    `${baseInstructions} Du bist Claude und erhältst die Analyse eines anderen Agenten. Prüfe sie unabhängig, widersprich bei Bedarf und nenne fehlende Belege.`,
     `${safeContext}\n\nAnalyse von OpenAI/GPT:\n${initial}`,
   ));
 
-  const grok = await runPhase(issue.number, marker, "Grok-Gegenprüfung", () => askGrok(
-    `${baseInstructions} Du bist Grok und bist der unabhängige Gegenprüfer. Prüfe den ursprünglichen Auftrag sowie die beiden Analysen. Identifiziere Denkfehler, Risiken und bessere Alternativen.`,
-    `${safeContext}\n\nAnalyse von OpenAI/GPT:\n${initial}\n\nGegenprüfung von Gemini:\n${gemini}`,
+  const llama = await runPhase(issue.number, marker, "Llama-Gegenprüfung", () => askLlama(
+    `${baseInstructions} Du bist Llama und bist der unabhängige Gegenprüfer. Prüfe den ursprünglichen Auftrag sowie die beiden Analysen. Identifiziere Denkfehler, Risiken und bessere Alternativen.`,
+    `${safeContext}\n\nAnalyse von OpenAI/GPT:\n${initial}\n\nGegenprüfung von Claude:\n${claude}`,
   ));
 
   const synthesis = await runPhase(issue.number, marker, "OpenAI/GPT-Synthese", () => askOpenAI(
     `${baseInstructions} Du moderierst die Abschlussrunde. Fasse nur belastbare Übereinstimmungen zusammen, löse Widersprüche begründet auf und liste offene Nachweise. Behaupte nicht, dass Code geändert oder getestet wurde.`,
-    `${safeContext}\n\nGPT-Erstanalyse:\n${initial}\n\nGemini-Gegenprüfung:\n${gemini}\n\nGrok-Gegenprüfung:\n${grok}\n\nErstelle die abschließende gemeinsame Empfehlung.`,
+    `${safeContext}\n\nGPT-Erstanalyse:\n${initial}\n\nClaude-Gegenprüfung:\n${claude}\n\nLlama-Gegenprüfung:\n${llama}\n\nErstelle die abschließende gemeinsame Empfehlung.`,
   ));
 
   const body = [
@@ -457,10 +451,10 @@ async function main() {
     `Ausgelöst von @${comment.user.login} · Kommentar-ID ${comment.id}`,
     "## OpenAI / GPT – unabhängige Erstanalyse",
     initial,
-    "## Gemini – Gegenprüfung",
-    gemini,
-    "## Grok – unabhängige Kritik",
-    grok,
+    "## Claude – Gegenprüfung",
+    claude,
+    "## Llama – unabhängige Kritik",
+    llama,
     "## Gemeinsame Synthese",
     synthesis,
     "---",

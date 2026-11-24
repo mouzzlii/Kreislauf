@@ -10,6 +10,8 @@ on:
       - "scripts/ai-team-relay.test.mjs"
       - "scripts/ai-team-source-context.mjs"
       - "scripts/ai-team-source-context.test.mjs"
+      - "scripts/ai-team-providers.mjs"
+      - "scripts/ai-team-providers.test.mjs"
       - ".github/workflows/ai-team-communication.yml"
       - ".github/workflows/ai-team-relay-ci.yml"
       - "AI_TEAM_SETUP.md"
@@ -19,6 +21,8 @@ on:
       - "scripts/ai-team-relay.test.mjs"
       - "scripts/ai-team-source-context.mjs"
       - "scripts/ai-team-source-context.test.mjs"
+      - "scripts/ai-team-providers.mjs"
+      - "scripts/ai-team-providers.test.mjs"
       - ".github/workflows/ai-team-communication.yml"
       - ".github/workflows/ai-team-relay-ci.yml"
       - "AI_TEAM_SETUP.md"
@@ -38,8 +42,11 @@ jobs:
         run: |
           node --check scripts/ai-team-relay.mjs
           node --check scripts/ai-team-source-context.mjs
+          node --check scripts/ai-team-providers.mjs
       - name: Test bounded source context
         run: node --test scripts/ai-team-source-context.test.mjs
+      - name: Test Claude and Llama provider contracts
+        run: node --test scripts/ai-team-providers.test.mjs
       - name: Test command parser
         run: node scripts/ai-team-relay.test.mjs
       - name: Verify safe project mapping and daily cap
@@ -47,12 +54,29 @@ jobs:
           node --input-type=module <<'NODE'
           import assert from "node:assert/strict";
           import { readFileSync } from "node:fs";
+          import { getMissingProviderConfiguration } from "./scripts/ai-team-providers.mjs";
           const source = readFileSync("scripts/ai-team-relay.mjs", "utf8");
           const setup = readFileSync("AI_TEAM_SETUP.md", "utf8");
           const workflow = readFileSync(".github/workflows/ai-team-communication.yml", "utf8");
           assert.ok(source.includes('TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway"'));
           assert.ok(source.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
-          assert.ok(source.includes('!AI_TEAM_REPO_READ_TOKEN && "AI_TEAM_REPO_READ_TOKEN"'));
+          assert.ok(source.includes("getMissingProviderConfiguration({"));
+          const incomplete = getMissingProviderConfiguration({});
+          assert.ok(incomplete.missingSecrets.includes("AI_TEAM_REPO_READ_TOKEN"));
+          assert.ok(incomplete.missingSecrets.includes("LLAMA_API_BASE_URL"));
+          assert.ok(incomplete.missingModels.includes("CLAUDE_MODEL"));
+          assert.ok(incomplete.missingModels.includes("LLAMA_MODEL"));
+          const complete = getMissingProviderConfiguration({
+            OPENAI_API_KEY: "test-openai",
+            ANTHROPIC_API_KEY: "test-anthropic",
+            LLAMA_API_KEY: "test-llama",
+            LLAMA_API_BASE_URL: "https://inference.example.test/v1/chat/completions",
+            AI_TEAM_REPO_READ_TOKEN: "test-readonly",
+            OPENAI_MODEL: "test-gpt",
+            CLAUDE_MODEL: "test-claude",
+            LLAMA_MODEL: "test-llama-model",
+          });
+          assert.deepEqual(complete, { missingSecrets: [], missingModels: [] });
           assert.ok(source.includes("MAX_DAILY_DEBATES = 2"));
           assert.ok(source.includes("reserveDailyDebate(comment.id)"));
           assert.ok(source.includes("KI-Team-Debatte abgebrochen"));
@@ -60,6 +84,9 @@ jobs:
           assert.ok(source.includes("Tageskontingent bleibt verbraucht"));
           assert.ok(source.includes("issues/11/comments?per_page=100&sort=created&direction=desc"));
           assert.ok(workflow.includes("group: ai-team-global-budget"));
-          assert.ok(setup.includes("Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag"));
+          assert.ok(setup.includes("Höchstens zwei Debatten pro UTC-Kalendertag"));
+          assert.ok(workflow.includes("ANTHROPIC_API_KEY"));
+          assert.ok(workflow.includes("LLAMA_API_BASE_URL"));
+          assert.ok(workflow.includes("LLAMA_API_KEY"));
           console.log("Project mapping and daily invocation cap verified.");
           NODE
