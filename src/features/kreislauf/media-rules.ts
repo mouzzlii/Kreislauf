@@ -1,4 +1,4 @@
-import { MAX_IMAGE_DATA_URL_CHARS, MAX_LISTING_IMAGES, MAX_TOTAL_IMAGE_DATA_URL_CHARS } from "./media-limits";
+import { MAX_IMAGE_DATA_URL_CHARS, MAX_LISTING_IMAGES, MAX_TOTAL_IMAGE_DATA_URL_CHARS } from "./media-limits.ts";
 const JPEG_PREFIX = "data:image/jpeg;base64,";
 export function normalizeListingImages(value: unknown, legacyValue?: unknown): string[] {
   const candidate = value === undefined ? (legacyValue == null ? [] : [legacyValue]) : value;
