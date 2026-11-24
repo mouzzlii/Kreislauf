@@ -33,6 +33,7 @@ const migrations = [
   "0024_independent_escrow_resolution.sql",
   "0025_archive_legacy_conflicted_escrow_votes.sql",
   "0026_complete_escrow_foreign_key_indexes.sql",
+  "0027_fix_transfer_message_thread_owner_direction.sql",
 ];
 
 test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing reservation/escrow flow", async () => {
@@ -251,6 +252,35 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     assert.ok(oneSidedHandover.rows[0].renter_handover_at);
     assert.equal(oneSidedHandover.rows[0].owner_handover_at, null);
     await db.query("update bookings set renter_handover_at = null where id = $1", [bookingId]);
+
+    // A transfer initiated by the listing owner must still land in the original requester thread.
+    for (const [senderId, receiverId] of [
+      ["seed-leonie", "test-renter"],
+      ["test-renter", "seed-leonie"],
+    ]) {
+      await db.query(
+        `insert into ledger_entries(region_id, listing_id, sender_id, receiver_id, amount_karma, entry_kind, message)
+         values ('yspertal-b36', 'test-sharing', $1, $2, 1, 'transfer', 'Richtungsregression')`,
+        [senderId, receiverId],
+      );
+    }
+    await db.query(
+      `insert into ledger_entries(region_id, listing_id, sender_id, receiver_id, amount_karma, entry_kind, message)
+       values ('yspertal-b36', 'test-sharing', 'test-renter', 'test-moderator', 1, 'transfer', 'Nicht-Teilnehmer-Transfer')`,
+    );
+    const transferThread = await db.query(
+      `select
+         (select count(*)::int from listing_conversations where listing_id = 'test-sharing') as thread_count,
+         (select count(*)::int from listing_conversations where listing_id = 'test-sharing' and requester_id = 'test-renter' and owner_id = 'seed-leonie') as canonical_thread_count,
+         (select count(*)::int from listing_conversations where listing_id = 'test-sharing' and requester_id = 'seed-leonie') as inverted_thread_count,
+         (select count(*)::int from listing_messages m join listing_conversations c on c.id = m.conversation_id
+           where c.listing_id = 'test-sharing' and c.requester_id = 'test-renter' and c.owner_id = 'seed-leonie'
+             and m.message_kind = 'system' and m.body = 'Tauschvorgang aktualisiert: Die Karma-Buchung wurde erfasst.') as transfer_message_count`,
+    );
+    assert.equal(transferThread.rows[0].thread_count, 1, "both transfer directions must reuse one listing conversation");
+    assert.equal(transferThread.rows[0].canonical_thread_count, 1, "the requester/owner orientation must stay canonical");
+    assert.equal(transferThread.rows[0].inverted_thread_count, 0, "an owner-initiated transfer must not create an inverted duplicate thread");
+    assert.equal(transferThread.rows[0].transfer_message_count, 2, "both parties' transfers must create system messages in the same thread");
 
     const notifications = await db.query(
       `select c.listing_id as "listingId", l.title as "listingTitle",
