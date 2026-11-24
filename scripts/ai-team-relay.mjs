@@ -21,6 +21,9 @@ const PROJECT_REPOS = {
   TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway",
   "SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT",
   CHRONOS: process.env.PROJECT_REPO_CHRONOS || "mouzzlii/CHRONOS",
+  "INSERAT-PROFI-AI": process.env.PROJECT_REPO_INSERAT_PROFI_AI || "mouzzlii/INSERAT-PROFI-AI",
+  "BOOK-YOUR-COOK": process.env.PROJECT_REPO_BOOK_YOUR_COOK || "mouzzlii/book-your-cook",
+  "LARA-QUIZ": process.env.PROJECT_REPO_LARA_QUIZ || "mouzzlii/Lara_Quiz",
 };
 
 // The canonical gateway repository holds coordination/architecture docs;
@@ -354,7 +357,7 @@ async function main() {
     return;
   }
 
-  const match = comment.body?.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS)\s*:\s*([\s\S]+)$/i);
+  const match = comment.body?.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS|INSERAT-PROFI-AI|BOOK-YOUR-COOK|LARA-QUIZ)\s*:\s*([\s\S]+)$/i);
   if (!match) return;
 
   const project = match[1].toUpperCase();
