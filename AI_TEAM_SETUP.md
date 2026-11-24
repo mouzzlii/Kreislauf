@@ -1,8 +1,8 @@
-# KI-Team-Kommunikation für vier Projekte
+# KI-Team-Kommunikation für fünf Projekte
 
 ## Ziel und Ablauf
 
-GitHub ist das gemeinsame, dauerhafte Postfach und Entscheidungsprotokoll für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS.
+GitHub ist das gemeinsame, dauerhafte Postfach und Entscheidungsprotokoll für KREISLAUF, TRAKUNA, SCAN-PROFIT, CHRONOS und KI-ARBEITSPLATZ.
 
 Zentrale Koordination: https://github.com/mouzzlii/Kreislauf/issues/11
 
@@ -50,7 +50,11 @@ Nur ein ausdrücklich markierter Kommentar im zentralen Issue #11 startet einen 
 /ai-team debate SCAN-PROFIT: Prüft den aktuellen Scan-Lock-Ansatz.
 ```
 
-Zulässige Projektnamen: `KREISLAUF`, `TRAKUNA`, `SCAN-PROFIT`, `CHRONOS`.
+```text
+/ai-team debate KI-ARBEITSPLATZ: Prüft den Offline-Worker, die lokale Ollama-Erstprüfung und den aktuellen Windows-Abnahmestand.
+```
+
+Zulässige Projektnamen: `KREISLAUF`, `TRAKUNA`, `SCAN-PROFIT`, `CHRONOS`, `KI-ARBEITSPLATZ`.
 
 ## Einrichtung durch den Kontoinhaber
 
@@ -81,7 +85,7 @@ API-Schlüssel sind nicht in dieser Sitzung vorhanden und dürfen niemals im Cha
 - `LLAMA_MODEL` – Modellkennung, die der gewählte Llama-Host bereitstellt.
 - `LLAMA_API_BASE_URL` – vollständige HTTPS-Adresse, die auf `/v1/chat/completions` endet.
 
-`AI_TEAM_REPO_READ_TOKEN` muss ein Fine-grained GitHub-Token mit ausschließlich `Contents: read-only` und Metadata-Lesezugriff auf die vier Projekt-Repositories sein. Es wird ausschließlich zum Laden des begrenzten Quellkontexts verwendet. Das separate Workflow-`GITHUB_TOKEN` kommentiert nur Issue #11; es erhält keine Merge- oder Quellcode-Schreibrechte.
+`AI_TEAM_REPO_READ_TOKEN` muss ein Fine-grained GitHub-Token mit ausschließlich `Contents: read-only` und Metadata-Lesezugriff auf alle fünf Projekt-Repositories sein. Für KI-ARBEITSPLATZ muss `mouzzlii/KI-Arbeitsplatz` ausdrücklich in der Repository-Auswahl dieses Tokens enthalten sein; ohne diesen Zugriff bricht der Relay vor Provider-Aufrufen ab. Es wird ausschließlich zum Laden des begrenzten Quellkontexts verwendet. Das separate Workflow-`GITHUB_TOKEN` kommentiert nur Issue #11; es erhält keine Merge- oder Quellcode-Schreibrechte.
 
 Fehlende Schlüssel, ein fehlender Provider-Wert, eine unbekannte Modellkennung oder eine unsichere Llama-URL führen zum sicheren Abbruch, bevor ein Provider aufgerufen wird. Modellkennungen werden nicht erraten. Meta erhält keine Llama-Anfragen und der Llama-Adapter wird nicht verwendet, wenn `AI_TEAM_THIRD_PROVIDER=meta` gewählt wurde.
 
@@ -104,6 +108,7 @@ Fehlende Schlüssel, ein fehlender Provider-Wert, eine unbekannte Modellkennung 
 - `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway` und `PROJECT_REPO_TRAKUNA_ANDROID=mouzzlii/Fuck`
 - `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS`
 - `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT`
+- `PROJECT_REPO_KI_ARBEITSPLATZ=mouzzlii/KI-Arbeitsplatz`
 
 Für TRAKUNA werden Architektur- und Android-Quellrepository gemeinsam geladen; `multi-carrier-gateway-neu` bleibt ein separates Experiment. Der vollständige SCAN-PROFIT-Next.js-Quellbaum ist noch nicht in GitHub importiert; Relay-Analysen dürfen deshalb nicht als vollständige Quellcodeprüfung dieses Zweigs ausgegeben werden.
 
@@ -117,3 +122,9 @@ Der Livebetrieb gilt erst als aktiviert, wenn ein synthetischer Ende-zu-Ende-Tes
 5. Fehlende Konfiguration, Provider-Fehler, unsichere Llama-Endpunkte und Kostenlimits werden korrekt behandelt.
 
 Der Relay ist in `main` integriert, aber bis zur Einrichtung der tatsächlichen Konten, Modellkennungen, Provider-Ausgabenlimits, read-only GitHub-Zugriff und einer ausdrücklichen Budgetfreigabe gesperrt. Es wurden in dieser Arbeit keine externen KI-Provider aufgerufen.
+
+## KI-ARBEITSPLATZ – lokale/offline Projektgrenze
+
+Der Relay lädt für `KI-ARBEITSPLATZ` nur eine feste, kleine Allowlist aus Roadmap und Offline-Worker-Quelltext (maximal vier Auszüge je Repository, je höchstens 1.800 Zeichen). Der Relay arbeitet weiterhin ausschließlich lesend: keine Commits, keine Dateien ändern, keine Merges und keine Deployments. Die lokale Windows-Ollama-Funktion bleibt davon getrennt. Der externe Relay ist nur für unabhängige Gegenprüfungen zuständig.
+
+Wenn das Repository oder die ausgewählten Quelltexte nicht vollständig gelesen werden können, wird die Debatte vor der Tagesbudgetreservierung abgebrochen. Damit werden keine Provider mit einem unvollständigen oder leeren Projektkontext aufgerufen.
