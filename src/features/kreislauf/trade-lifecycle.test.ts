@@ -61,7 +61,8 @@ async function fixture(): Promise<TestDatabase> {
       ('combined','owner','yspertal-b36','goods','combined','item-combined','Hof am Hang','Gartenhilfe gegen Reparatur',25),
       ('direct','owner','yspertal-b36','goods','barter','item-direct','Werkstatt','Werkzeug gegen Brennholz',0),
       ('dispute','owner','yspertal-b36','service','barter','item-dispute','Yspertal','Werkzeug gegen Brennholz',0),
-      ('cancel','owner','yspertal-b36','goods','barter','item-cancel','Yspertal','Werkzeug gegen Brennholz',0);
+      ('cancel','owner','yspertal-b36','goods','barter','item-cancel','Yspertal','Werkzeug gegen Brennholz',0),
+      ('dispute-cancel','owner','yspertal-b36','goods','combined','item-dispute-cancel','Yspertal','Gartenarbeit gegen Werkzeug',15);
     create table ledger_entries (
       id bigint generated always as identity primary key,
       region_id text not null,
@@ -268,5 +269,130 @@ test("every user and system message advances inbox conversation activity", async
       [conversation.rows[0].id],
     );
     assert.ok(new Date(updated.rows[0].updated_at).getTime() > new Date("2000-01-01T00:00:00Z").getTime());
+  } finally { await db.close(); }
+});
+
+test("trade dispute requires seven independent active moderators in the same region", async () => {
+  const db=await fixture();
+  try {
+    await create(db,"combined");
+    await transition(db,"req-1","owner","accept");
+    const opened=await transition(db,"req-1","requester","dispute","Die vereinbarte Gegenleistung wurde nicht übergeben.");
+    assert.equal(opened.rows[0].status,"disputed");
+    const assigned=await db.query<{moderator_id:string}>(
+      "select moderator_id from trade_dispute_moderators where trade_request_id='req-1' order by moderator_id",
+    );
+    assert.equal(assigned.rows.length,7);
+    assert.equal(assigned.rows.some(x=>x.moderator_id==="owner"||x.moderator_id==="requester"),false);
+    const invalid=await db.query<{n:number}>(
+      `select count(*)::int as n from trade_dispute_moderators a
+       join profiles p on p.user_id=a.moderator_id
+       where a.trade_request_id='req-1'
+         and (p.region_id <> 'yspertal-b36' or not p.is_verified or p.moderator_rank <= 0
+           or p.last_active_at < now() - interval '30 days')`,
+    );
+    assert.equal(invalid.rows[0].n,0);
+  } finally { await db.close(); }
+});
+
+test("trade dispute cannot open if seven eligible moderators are not available", async () => {
+  const db=await fixture();
+  try {
+    await create(db,"combined");
+    await transition(db,"req-1","owner","accept");
+    await db.exec("delete from profiles where user_id in ('mod-04','mod-05','mod-06','mod-07')");
+    await assert.rejects(
+      transition(db,"req-1","requester","dispute","Die vereinbarte Gegenleistung wurde nicht übergeben."),
+      /sieben aktive, verifizierte Moderationspersonen/,
+    );
+    assert.equal((await requestRow(db,"req-1")).status,"accepted");
+    assert.equal((await db.query<{status:string}>("select status from listings where id='combined'")).rows[0].status,"booked");
+    assert.equal((await db.query<{n:number}>("select count(*)::int as n from trade_dispute_moderators")).rows[0].n,0);
+  } finally { await db.close(); }
+});
+
+test("three votes cannot resolve; a 3-of-4 supermajority completes and transfers Karma once", async () => {
+  const db=await fixture();
+  try {
+    const before=await balances(db);
+    await create(db,"combined");
+    await transition(db,"req-1","owner","accept");
+    await transition(db,"req-1","requester","dispute","Die vereinbarte Gegenleistung wurde nicht übergeben.");
+    const a=await voteDispute(db,"req-1","mod-01","complete");
+    const b=await voteDispute(db,"req-1","mod-02","complete");
+    const d=await voteDispute(db,"req-1","mod-03","cancel");
+    assert.equal(a.rows[0].status,"disputed");
+    assert.equal(b.rows[0].status,"disputed");
+    assert.equal(d.rows[0].votes,3);
+    assert.equal(d.rows[0].assigned,7);
+    assert.equal((await balances(db)).requester,before.requester);
+    const decided=await voteDispute(db,"req-1","mod-04","complete");
+    assert.equal(decided.rows[0].status,"completed");
+    const after=await balances(db);
+    assert.equal(after.requester,before.requester-25);
+    assert.equal(after.owner,before.owner+25);
+    assert.equal((await db.query<{n:number}>(
+      "select count(*)::int as n from ledger_entries where entry_kind='transfer'"
+    )).rows[0].n,1);
+    assert.equal((await db.query<{status:string}>(
+      "select status from listings where id='combined'"
+    )).rows[0].status,"completed");
+    await assert.rejects(voteDispute(db,"req-1","mod-05","complete"),/offener, nicht entschiedener Streitfall/);
+    assert.deepEqual(await balances(db),after);
+  } finally { await db.close(); }
+});
+
+test("seven votes without a two-thirds majority leave the trade locked and wallets untouched", async () => {
+  const db=await fixture();
+  try {
+    const before=await balances(db);
+    await create(db,"combined");
+    await transition(db,"req-1","owner","accept");
+    await transition(db,"req-1","requester","dispute","Die vereinbarte Gegenleistung wurde nicht übergeben.");
+    const decisions=["complete","complete","complete","complete","cancel","cancel","cancel"] as const;
+    let result: Awaited<ReturnType<typeof voteDispute>> | undefined;
+    for(let i=0;i<decisions.length;i++){
+      result=await voteDispute(db,"req-1",`mod-0${i+1}`,decisions[i]);
+    }
+    assert.equal(result?.rows[0].votes,7);
+    assert.equal(result?.rows[0].status,"disputed");
+    assert.equal((await requestRow(db,"req-1")).status,"disputed");
+    assert.equal((await db.query<{status:string}>("select status from listings where id='combined'")).rows[0].status,"booked");
+    assert.deepEqual(await balances(db),before);
+    assert.equal((await db.query<{n:number}>("select count(*)::int as n from ledger_entries")).rows[0].n,0);
+  } finally { await db.close(); }
+});
+
+test("three-of-four cancel vote returns listing and does not transfer Karma", async () => {
+  const db=await fixture();
+  try {
+    const before=await balances(db);
+    await create(db,"dispute-cancel");
+    await transition(db,"req-1","owner","accept");
+    await transition(db,"req-1","requester","dispute","Die Ware entsprach nicht der Vereinbarung.");
+    await voteDispute(db,"req-1","mod-01","cancel");
+    await voteDispute(db,"req-1","mod-02","cancel");
+    await voteDispute(db,"req-1","mod-03","complete");
+    const decision=await voteDispute(db,"req-1","mod-04","cancel");
+    assert.equal(decision.rows[0].status,"cancelled");
+    assert.equal((await db.query<{status:string}>("select status from listings where id='dispute-cancel'")).rows[0].status,"active");
+    assert.deepEqual(await balances(db),before);
+    assert.equal((await db.query<{n:number}>("select count(*)::int as n from ledger_entries")).rows[0].n,0);
+  } finally { await db.close(); }
+});
+
+test("parties and unassigned members cannot vote; assigned votes are immutable", async () => {
+  const db=await fixture();
+  try {
+    await create(db,"dispute");
+    await transition(db,"req-1","owner","accept");
+    await transition(db,"req-1","requester","dispute","Die Ware wurde nicht übergeben.");
+    await assert.rejects(voteDispute(db,"req-1","requester","complete"),/Keine aktive, unabhängige Moderationszuordnung/);
+    await assert.rejects(voteDispute(db,"req-1","outsider","complete"),/Keine aktive, unabhängige Moderationszuordnung/);
+    await voteDispute(db,"req-1","mod-01","complete");
+    await assert.rejects(voteDispute(db,"req-1","mod-01","cancel"),/duplicate key|unique constraint/i);
+    assert.equal((await db.query<{n:number}>(
+      "select count(*)::int as n from trade_dispute_votes where trade_request_id='req-1' and moderator_id='mod-01'"
+    )).rows[0].n,1);
   } finally { await db.close(); }
 });
