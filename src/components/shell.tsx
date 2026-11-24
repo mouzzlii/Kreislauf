@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Map, Moon, Plus, Store, Sun, Wallet } from "lucide-react";
+import { Map, MessageCircle, Moon, Plus, Store, Sun, Wallet } from "lucide-react";
 import type { ReactNode } from "react";
 import { SignedIn, SignedOut } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
@@ -10,6 +10,7 @@ import type { Region } from "@/features/kreislauf/types";
 const NAV = [
   { to: "/", label: "Markt", icon: Store },
   { to: "/karte", label: "Karte", icon: Map },
+  { to: "/nachrichten", label: "Nachrichten", icon: MessageCircle },
   { to: "/inserat/neu", label: "Inserieren", icon: Plus },
   { to: "/konto", label: "Konto", icon: Wallet },
 ] as const;
@@ -92,7 +93,7 @@ export function Shell({
       </header>
       <main className="mx-auto w-full max-w-5xl px-4 pt-5 pb-28 md:pb-16">{children}</main>
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] md:hidden">
-        <ul className="grid grid-cols-4">
+        <ul className="grid grid-cols-5">
           {NAV.map((item) => {
             const active = item.to === "/" ? pathname === "/" : pathname === item.to;
             const Icon = item.icon;
