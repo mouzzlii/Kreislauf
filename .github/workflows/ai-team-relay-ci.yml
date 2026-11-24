@@ -84,7 +84,7 @@ jobs:
           assert.ok(source.includes("Tageskontingent bleibt verbraucht"));
           assert.ok(source.includes("issues/11/comments?per_page=100&sort=created&direction=desc"));
           assert.ok(workflow.includes("group: ai-team-global-budget"));
-          assert.ok(setup.includes("Fester technischer Tagesdeckel: höchstens zwei Debatten pro UTC-Kalendertag"));
+          assert.ok(setup.includes("Höchstens zwei Debatten pro UTC-Kalendertag"));
           assert.ok(workflow.includes("ANTHROPIC_API_KEY"));
           assert.ok(workflow.includes("LLAMA_API_BASE_URL"));
           assert.ok(workflow.includes("LLAMA_API_KEY"));
