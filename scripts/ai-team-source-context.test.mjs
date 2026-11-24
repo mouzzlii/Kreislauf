@@ -44,13 +44,15 @@ test("GitHub base64 file content is decoded safely", () => {
 test("source excerpts are bounded per file and per repository", () => {
   const context = buildSourceContext("example/repo", [
     { path: "a.ts", content: "A".repeat(MAX_SOURCE_FILE_CHARS + 500) },
-    { path: "b.ts", content: "B".repeat(MAX_SOURCE_CONTEXT_CHARS) },
-    { path: "c.ts", content: "C".repeat(100) },
-    { path: "d.ts", content: "D".repeat(100) },
+    { path: "b.ts", content: "B".repeat(MAX_SOURCE_FILE_CHARS + 500) },
+    { path: "c.ts", content: "C".repeat(MAX_SOURCE_FILE_CHARS + 500) },
+    { path: "d.ts", content: "D".repeat(MAX_SOURCE_FILE_CHARS + 500) },
+    { path: "e.ts", content: "E".repeat(MAX_SOURCE_FILE_CHARS + 500) },
   ]);
   assert.ok(context.length <= MAX_SOURCE_CONTEXT_CHARS);
   assert.ok(context.includes("example/repo/a.ts"));
   assert.ok(context.includes("example/repo/b.ts"));
   assert.ok(context.includes("example/repo/c.ts"));
-  assert.ok(!context.includes("example/repo/d.ts"));
+  assert.ok(context.includes("example/repo/d.ts"));
+  assert.ok(!context.includes("example/repo/e.ts"));
 });
