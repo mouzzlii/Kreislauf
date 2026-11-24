@@ -33,15 +33,21 @@ test("source selection prefers coordination, security and real application entry
 });
 
 test("sensitive tokens, inline secrets and private keys are redacted before context is built", () => {
+  const hexSecret = "a".repeat(64);
+  const stripeFake = ["sk", "live", "A".repeat(24)].join("_");
+  const slackFake = ["xoxb", "1234567890", "A".repeat(20)].join("-");
   const sample = [
     'const OPENAI_API_KEY = "sk-abcdefghijklmnopqrstuvwxyz123456";',
     'const XAI_TOKEN = "xai-abcdefghijklmnopqrstuvwxyz123456";',
     'const GOOGLE_API_KEY = "AIza012345678901234567890123456789012345";',
     'const GITHUB_TOKEN = "ghp_abcdefghijklmnopqrstuvwxyz1234567890";',
     'const client_secret = "very-private-client-secret-value";',
+    `const STRIPE_KEY = "${stripeFake}";`,
+    `const SLACK_TOKEN = "${slackFake}";`,
+    `const PREVIEW_SHARED = "${hexSecret}";`,
     'Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signaturevalue";',
-    'https://example.test/?access_token=very-private-token-value',
-    '-----BEGIN PRIVATE KEY-----\nFAKE_PRIVATE_KEY_MATERIAL\n-----END PRIVATE KEY-----',
+    "https://example.test/?access_token=very-private-token-value",
+    "-----BEGIN PRIVATE KEY-----\\nFAKE_PRIVATE_KEY_MATERIAL\\n-----END PRIVATE KEY-----",
   ].join("\n");
   const redacted = redactSensitiveText(sample);
   for (const secret of [
@@ -50,6 +56,9 @@ test("sensitive tokens, inline secrets and private keys are redacted before cont
     "AIza012345678901234567890123456789012345",
     "ghp_abcdefghijklmnopqrstuvwxyz1234567890",
     "very-private-client-secret-value",
+    stripeFake,
+    slackFake,
+    hexSecret,
     "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signaturevalue",
     "very-private-token-value",
     "FAKE_PRIVATE_KEY_MATERIAL",
@@ -58,6 +67,7 @@ test("sensitive tokens, inline secrets and private keys are redacted before cont
   }
   assert.ok(redacted.includes("[REDACTED SECRET]"));
   assert.ok(redacted.includes("[REDACTED]"));
+  assert.ok(redacted.includes("[REDACTED HIGH-ENTROPY HEX]"));
 });
 
 test("source selection never reads files outside the fixed allowlist", () => {
@@ -112,4 +122,13 @@ test("issue and user request remain present when repository context is oversized
     request: "Check this key sk-abcdefghijklmnopqrstuvwxyz123456",
   });
   assert.equal(withSecret.includes("sk-abcdefghijklmnopqrstuvwxyz123456"), false);
+  const withHexSecret = buildSafeProjectContext({
+    project: "KREISLAUF",
+    repository: "mouzzlii/Kreislauf",
+    branch: "main",
+    issueNumber: 44,
+    issueTitle: "No sensitive title",
+    request: `Check this value ${"b".repeat(64)}`,
+  });
+  assert.equal(withHexSecret.includes("b".repeat(64)), false);
 });
