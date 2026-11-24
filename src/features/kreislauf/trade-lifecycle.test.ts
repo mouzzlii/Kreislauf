@@ -8,6 +8,7 @@ type TestDatabase = InstanceType<typeof PGlite>;
 
 const migration = await readFile(new URL("../../../migrations/0004_direct_combined_trade.sql", import.meta.url), "utf8");
 const messagingMigration = await readFile(new URL("../../../migrations/0005_listing_conversations_messages.sql", import.meta.url), "utf8");
+const moderationMigration = await readFile(new URL("../../../migrations/0006_trade_dispute_moderation_quorum.sql", import.meta.url), "utf8");
 
 async function fixture(): Promise<TestDatabase> {
   const db = new PGlite();
@@ -17,7 +18,10 @@ async function fixture(): Promise<TestDatabase> {
       user_id text primary key,
       region_id text not null references regions(id),
       karma_balance integer not null default 0 check (karma_balance >= 0),
-      last_activity_at timestamptz not null default now()
+      last_activity_at timestamptz not null default now(),
+      is_verified boolean not null default false,
+      moderator_rank integer not null default 0,
+      last_active_at timestamptz not null default now()
     );
     create table listings (
       id text primary key,
@@ -36,10 +40,20 @@ async function fixture(): Promise<TestDatabase> {
       ('owner','yspertal-b36',100),
       ('requester','yspertal-b36',80),
       ('other','yspertal-b36',100),
-      ('outsider','donautal-sued',100);
+      ('outsider','donautal-sued',100),
+      ('mod-01','yspertal-b36',100),
+      ('mod-02','yspertal-b36',100),
+      ('mod-03','yspertal-b36',100),
+      ('mod-04','yspertal-b36',100),
+      ('mod-05','yspertal-b36',100),
+      ('mod-06','yspertal-b36',100),
+      ('mod-07','yspertal-b36',100);
+    update profiles set is_verified=true, moderator_rank=1, last_active_at=now()
+      where user_id like 'mod-%';
   `);
   await db.exec(migration);
   await db.exec(messagingMigration);
+  await db.exec(moderationMigration);
   await db.exec(`
     insert into listings (
       id,user_id,region_id,category,offer_type,item_uuid,place_label,exchange_terms,karma_adjustment
@@ -73,8 +87,14 @@ async function fixture(): Promise<TestDatabase> {
 async function create(db: TestDatabase, listingId: string, requesterId = "requester", requestId = "req-1") {
   return db.query<{ id: string }>(CREATE_TRADE_REQUEST_SQL, [listingId, requesterId, requestId, "Ich biete zwei Stunden Gartenhilfe."]);
 }
-async function transition(db: TestDatabase, requestId: string, actor: string, action: string) {
-  return db.query<{ status: string }>(TRANSITION_TRADE_REQUEST_SQL, [requestId, actor, action]);
+async function transition(db: TestDatabase, requestId: string, actor: string, action: string, reason = "Die Übergabe weicht von der Vereinbarung ab.") {
+  return db.query<{ status: string }>(TRANSITION_TRADE_REQUEST_SQL, [requestId, actor, action, reason]);
+}
+async function voteDispute(db: TestDatabase, requestId: string, moderatorId: string, decision: "complete" | "cancel", note = "Prüfung der dokumentierten Übergabe.") {
+  return db.query<{ status: string; votes: number; complete_votes: number; cancel_votes: number; assigned: number; required: number }>(
+    "select * from kreislauf_vote_trade_dispute($1,$2,$3,$4)",
+    [requestId, moderatorId, decision, note],
+  );
 }
 async function confirm(db: TestDatabase, requestId: string, actor: string) {
   return db.query<{ id: string; status: string }>(CONFIRM_TRADE_REQUEST_SQL, [requestId, actor]);
