@@ -838,6 +838,7 @@ export const getMyTradeDisputes = createServerFn({ method: "GET" })
          on mine.trade_request_id = tr.id and mine.moderator_id = $1
        join profiles moderator on moderator.user_id = assignment.moderator_id
        where assignment.moderator_id = $1
+         and moderator.region_id = tr.region_id
          and moderator.is_verified = true
          and moderator.moderator_rank > 0
          and moderator.last_active_at >= now() - interval '30 days'
