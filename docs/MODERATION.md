@@ -2,7 +2,7 @@
 
 ## Zuweisung von Moderatorinnen und Moderatoren
 
-Die automatische Auswahl berücksichtigt ausschließlich Profile derselben Region mit `is_verified = true`, `moderator_rank > 0` und `last_active_at` innerhalb der letzten 30 Tage. Die Auswahl erfolgt zufällig. Die Aktivität wird beim authentifizierten Profil-Aufruf aktualisiert; inaktive Personen werden nicht ausgewählt, ihr Rang bleibt aber für eine spätere Reaktivierung gespeichert.
+Die automatische Auswahl berücksichtigt ausschließlich Profile derselben Region mit `is_verified = true`, `moderator_rank > 0` und `last_active_at` innerhalb der letzten 30 Tage. Sie bevorzugt Personen mit möglichst wenigen gleichzeitig offenen Streitfällen, danach höheren Moderationsrang und jüngere Aktivität; die Benutzerkennung löst Gleichstände stabil auf. Die Aktivität wird beim Laden/Anlegen des authentifizierten Profils aktualisiert. Inaktive Personen werden nicht ausgewählt; ihr Rang bleibt für eine spätere Reaktivierung gespeichert. Eine zugeteilte Person verliert die Abstimmungsberechtigung, wenn sie bis zur Stimmabgabe Region, Verifizierungsstatus, Moderationsrang oder Aktivität nicht mehr erfüllt.
 
 Die erste Vergabe eines Moderator-Rangs muss durch eine vertrauenswürdige Administration erfolgen. Beispiel für eine manuelle Vergabe nach interner Prüfung:
 
