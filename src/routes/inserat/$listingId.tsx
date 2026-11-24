@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ListingVisual } from "@/components/listing-card";
+import { ListingGallery } from "@/components/listing-card";
 import { Shell } from "@/components/shell";
 import { ListingConversation } from "@/components/listing-conversation";
 import { Button, fieldClass } from "@/components/ui";
@@ -144,7 +144,7 @@ function ListingPage() {
         Markt
       </Link>
       <div className="mt-3 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-        <ListingVisual listing={listing} className="aspect-[4/3] w-full rounded-3xl" />
+        <ListingGallery listing={listing} className="aspect-[4/3] w-full rounded-3xl" />
         <div>
           <p className="text-sm text-copper">
             {OFFER_TYPE_LABEL[listing.offerType]} · {CATEGORY_LABEL[listing.category]} · {STATUS_LABEL[listing.status]}
