@@ -22,7 +22,28 @@ with target as materialized (
            select $3, target.id, target.region_id, $2, target.owner_id,
              $4, target.karma_adjustment, 'requested'
            from target
+           returning id, listing_id, requester_id, owner_id
+         ),
+         conversation as (
+           insert into listing_conversations (id, listing_id, requester_id, owner_id)
+           select 'conv-' || md5(c.listing_id || ':' || c.requester_id),
+             c.listing_id, c.requester_id, c.owner_id
+           from created c
+           on conflict (listing_id, requester_id)
+           do update set updated_at = now()
            returning id, listing_id
+         ),
+         system_message as (
+           insert into listing_messages (conversation_id, sender_id, body, message_kind)
+           select conversation.id, $2,
+             'Neuer Tauschvorschlag: ' || $4 ||
+               case when target.karma_adjustment > 0
+                 then ' Zusätzlich ' || target.karma_adjustment::text || ' Karma-Ausgleich.'
+                 else '' end,
+             'system'
+           from conversation
+           join target on target.id = conversation.listing_id
+           returning id
          ),
          held as (
            update listings l set status = 'booked'
@@ -62,7 +83,25 @@ with target as materialized (
              ($3 = 'cancel' and target.status = 'requested') or
              ($3 = 'dispute' and target.status = 'accepted')
            )
-         returning tr.listing_id, tr.status
+         returning tr.listing_id, tr.status, tr.requester_id, tr.owner_id
+       ),
+       system_message as (
+         insert into listing_messages (conversation_id, sender_id, body, message_kind)
+         select conversation.id, $2,
+           case changed.status
+             when 'accepted' then 'Der Anbieter hat den Tauschvorschlag angenommen. Nach der Übergabe bestätigen beide Seiten den Abschluss.'
+             when 'rejected' then 'Der Tauschvorschlag wurde abgelehnt. Das Inserat ist wieder verfügbar.'
+             when 'cancelled' then 'Der Tauschvorschlag wurde zurückgezogen. Das Inserat ist wieder verfügbar.'
+             when 'disputed' then 'Ein Streitfall wurde gemeldet. Der Tauschvorgang ist gesperrt; es wird kein Karma übertragen.'
+             else 'Der Tauschvorgang wurde aktualisiert.'
+           end,
+           'system'
+         from changed
+         join listing_conversations conversation
+           on conversation.listing_id = changed.listing_id
+           and conversation.requester_id = changed.requester_id
+           and conversation.owner_id = changed.owner_id
+         returning id
        ),
        listing_state as (
          update listings l
@@ -118,6 +157,21 @@ with target as materialized (
          returning tr.id, tr.listing_id, tr.region_id, tr.requester_id, tr.owner_id,
            tr.karma_amount, tr.requester_confirmed, tr.owner_confirmed,
            tr.status, t.item_uuid, t.place_label
+       ),
+       system_message as (
+         insert into listing_messages (conversation_id, sender_id, body, message_kind)
+         select conversation.id, $2,
+           case when confirmed.status = 'completed'
+             then 'Beide Seiten haben den Tauschabschluss bestätigt. Der Vorgang ist abgeschlossen.'
+             else 'Eine Tauschpartei hat die Übergabe bestätigt. Bitte bestätige auch du den Abschluss oder melde ein Problem.'
+           end,
+           'system'
+         from confirmed
+         join listing_conversations conversation
+           on conversation.listing_id = confirmed.listing_id
+           and conversation.requester_id = confirmed.requester_id
+           and conversation.owner_id = confirmed.owner_id
+         returning id
        ),
        ready as materialized (
          select * from confirmed where status = 'completed'
