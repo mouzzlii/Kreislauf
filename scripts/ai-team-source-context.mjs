@@ -36,6 +36,10 @@ const PRIORITY_PATHS = [
   "SPEC.md",
   "android/README_DE.md",
   "package.json",
+  "MASTERWERK-ROADMAP.md",
+  "Offline-Modus/Lib/Common.ps1",
+  "Offline-Modus/Lib/LocalAI.ps1",
+  "Offline-Modus/Worker.ps1",
 ];
 
 export const MAX_SOURCE_FILES_PER_REPO = 4;
