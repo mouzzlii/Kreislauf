@@ -1433,7 +1433,7 @@ export const getMyListingConversations = createServerFn({ method: "GET" })
         to_char(c.updated_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "updatedAt"
        from listing_conversations c
        join listings l on l.id = c.listing_id
-       join profiles p on p.user_id = case
+       left join profiles p on p.user_id = case
          when c.owner_id = $1 then c.requester_id else c.owner_id end
        left join listing_messages m on m.conversation_id = c.id
        where c.owner_id = $1 or c.requester_id = $1
