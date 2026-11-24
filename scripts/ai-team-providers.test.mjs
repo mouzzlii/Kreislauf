@@ -50,7 +50,7 @@ test("Meta Model API uses its hosted OpenAI-compatible Chat Completions endpoint
       { role: "system", content: "Challenge the proposal." },
       { role: "user", content: "Review this change." },
     ],
-    max_tokens: 800,
+    max_completion_tokens: 800,
     stream: false,
   });
   assert.equal(extractMetaText({
