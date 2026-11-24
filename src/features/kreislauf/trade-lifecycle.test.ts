@@ -4,9 +4,11 @@ import { PGlite } from "@electric-sql/pglite";
 import { CREATE_TRADE_REQUEST_SQL, TRANSITION_TRADE_REQUEST_SQL, CONFIRM_TRADE_REQUEST_SQL } from "./trade-queries.ts";
 import { readFile } from "node:fs/promises";
 
+type TestDatabase = InstanceType<typeof PGlite>;
+
 const migration = await readFile(new URL("../../../migrations/0004_direct_combined_trade.sql", import.meta.url), "utf8");
 
-async function fixture() {
+async function fixture(): Promise<TestDatabase> {
   const db = new PGlite();
   await db.exec(`
     create table regions (id text primary key);
@@ -67,21 +69,21 @@ async function fixture() {
   return db;
 }
 
-async function create(db, listingId, requesterId="requester", requestId="req-1") {
-  return db.query(CREATE_TRADE_REQUEST_SQL, [listingId, requesterId, requestId, "Ich biete zwei Stunden Gartenhilfe."]);
+async function create(db: TestDatabase, listingId: string, requesterId = "requester", requestId = "req-1") {
+  return db.query<{ id: string }>(CREATE_TRADE_REQUEST_SQL, [listingId, requesterId, requestId, "Ich biete zwei Stunden Gartenhilfe."]);
 }
-async function transition(db, requestId, actor, action) {
-  return db.query(TRANSITION_TRADE_REQUEST_SQL, [requestId, actor, action]);
+async function transition(db: TestDatabase, requestId: string, actor: string, action: string) {
+  return db.query<{ status: string }>(TRANSITION_TRADE_REQUEST_SQL, [requestId, actor, action]);
 }
-async function confirm(db, requestId, actor) {
-  return db.query(CONFIRM_TRADE_REQUEST_SQL, [requestId, actor]);
+async function confirm(db: TestDatabase, requestId: string, actor: string) {
+  return db.query<{ id: string; status: string }>(CONFIRM_TRADE_REQUEST_SQL, [requestId, actor]);
 }
-async function balances(db) {
-  const r=await db.query("select user_id,karma_balance from profiles order by user_id");
+async function balances(db: TestDatabase): Promise<Record<string, number>> {
+  const r=await db.query<{ user_id: string; karma_balance: number }>("select user_id,karma_balance from profiles order by user_id");
   return Object.fromEntries(r.rows.map(x=>[x.user_id,Number(x.karma_balance)]));
 }
-async function requestRow(db,id) {
-  const r=await db.query("select status, requester_confirmed, owner_confirmed, karma_amount from trade_requests where id=$1",[id]);
+async function requestRow(db: TestDatabase, id: string) {
+  const r=await db.query<{ status: string; requester_confirmed: boolean; owner_confirmed: boolean; karma_amount: number }>("select status, requester_confirmed, owner_confirmed, karma_amount from trade_requests where id=$1",[id]);
   return r.rows[0];
 }
 
@@ -91,7 +93,7 @@ test("combined trade requires both confirmations before one directional Karma tr
     const before=await balances(db);
     const made=await create(db,"combined");
     assert.equal(made.rows[0].id,"req-1");
-    assert.equal((await db.query("select status from listings where id='combined'")).rows[0].status,"booked");
+    assert.equal((await db.query<{ status: string }>("select status from listings where id='combined'")).rows[0].status,"booked");
     await transition(db,"req-1","owner","accept");
 
     await confirm(db,"req-1","owner");
@@ -108,14 +110,14 @@ test("combined trade requires both confirmations before one directional Karma tr
     assert.equal(after.other,before.other);
     row=await requestRow(db,"req-1");
     assert.equal(row.status,"completed");
-    const ledger=await db.query("select sender_id,receiver_id,amount_karma,entry_kind from ledger_entries");
+    const ledger=await db.query<{ sender_id: string; receiver_id: string; amount_karma: number; entry_kind: string }>("select sender_id,receiver_id,amount_karma,entry_kind from ledger_entries");
     assert.equal(ledger.rows.length,1);
     assert.deepEqual(ledger.rows[0],{sender_id:"requester",receiver_id:"owner",amount_karma:25,entry_kind:"transfer"});
     assert.equal((await db.query("select status from listings where id='combined'")).rows[0].status,"completed");
-    assert.equal((await db.query("select event_kind,owner_id from item_history")).rows[0].owner_id,"requester");
+    assert.equal((await db.query<{ event_kind: string; owner_id: string }>("select event_kind,owner_id from item_history")).rows[0].owner_id,"requester");
     const repeated=await confirm(db,"req-1","requester");
     assert.equal(repeated.rows.length,0);
-    assert.equal((await db.query("select count(*)::int as n from ledger_entries")).rows[0].n,1);
+    assert.equal((await db.query<{ n: number }>("select count(*)::int as n from ledger_entries")).rows[0].n,1);
   } finally { await db.close(); }
 });
 
@@ -142,7 +144,7 @@ test("disputed trade remains locked and can never transfer Karma", async () => {
     await transition(db,"req-1","owner","accept");
     await transition(db,"req-1","requester","dispute");
     assert.equal((await requestRow(db,"req-1")).status,"disputed");
-    assert.equal((await db.query("select status from listings where id='dispute'")).rows[0].status,"booked");
+    assert.equal((await db.query<{ status: string }>("select status from listings where id='dispute'")).rows[0].status,"booked");
     assert.equal((await confirm(db,"req-1","owner")).rows.length,0);
     assert.deepEqual(await balances(db),before);
     assert.equal((await db.query("select count(*)::int as n from ledger_entries")).rows[0].n,0);
@@ -154,8 +156,8 @@ test("rejection restores the listing and allows a fresh proposal", async () => {
   try {
     await create(db,"cancel");
     await transition(db,"req-1","owner","reject");
-    assert.equal((await db.query("select status from listings where id='cancel'")).rows[0].status,"active");
-    const second=await db.query(CREATE_TRADE_REQUEST_SQL,["cancel","other","req-2","Ich biete eine andere Gegenleistung."]);
+    assert.equal((await db.query<{ status: string }>("select status from listings where id='cancel'")).rows[0].status,"active");
+    const second=await db.query<{ id: string }>(CREATE_TRADE_REQUEST_SQL,["cancel","other","req-2","Ich biete eine andere Gegenleistung."]);
     assert.equal(second.rows.length,1);
   } finally { await db.close(); }
 });
