@@ -709,6 +709,7 @@ export const getTradeRequests = createServerFn({ method: "GET" })
          tr.owner_id as "ownerId", requester.username as "requesterName",
          owner.username as "ownerName", tr.offered_description as "offeredDescription",
          tr.karma_amount as "karmaAmount", tr.status,
+         tr.dispute_reason as "disputeReason",
          tr.requester_confirmed as "requesterConfirmed",
          tr.owner_confirmed as "ownerConfirmed",
          to_char(tr.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt"
@@ -730,6 +731,7 @@ export const getTradeRequests = createServerFn({ method: "GET" })
       offeredDescription: asString(row.offeredDescription),
       karmaAmount: asNumber(row.karmaAmount),
       status: asString(row.status) as TradeRequest["status"],
+      disputeReason: row.disputeReason == null ? null : asString(row.disputeReason),
       requesterConfirmed: row.requesterConfirmed === true || row.requesterConfirmed === "true",
       ownerConfirmed: row.ownerConfirmed === true || row.ownerConfirmed === "true",
       createdAt: asString(row.createdAt),
@@ -739,22 +741,31 @@ export const getTradeRequests = createServerFn({ method: "GET" })
 export const transitionTradeRequest = createServerFn({ method: "POST" })
   .validator((input: unknown) => {
     const id = idOf(input, "id");
-    const action = input && typeof input === "object" && "action" in input
-      ? (input as { action: unknown }).action : "";
+    const source = input && typeof input === "object" ? input as Record<string, unknown> : {};
+    const action = source.action;
     if (action !== "accept" && action !== "reject" && action !== "cancel" && action !== "dispute") {
       throw new Error("Unbekannter Tauschschritt");
     }
-    return { id, action };
+    const reason = typeof source.reason === "string" ? source.reason.trim() : "";
+    if (action === "dispute" && (reason.length < 10 || reason.length > 1000)) {
+      throw new Error("Bitte beschreibe den Streitfall mit 10 bis 1.000 Zeichen.");
+    }
+    return { id, action, reason };
   })
   .middleware([authMiddleware])
   .handler(async ({ data, context }): Promise<ActionResult> => {
     const sql = await getSql();
     const rows = await sql.query<{ status: string }>(
       TRANSITION_TRADE_REQUEST_SQL,
-      [data.id, context.userId, data.action],
+      [data.id, context.userId, data.action, data.reason],
     );
     if (!rows.length) return fail("Dieser Tauschschritt ist nicht mehr möglich oder du bist nicht beteiligt.");
     return { ok: true };
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+    if (code === "P0001") return fail(error instanceof Error ? error.message : "Sieben Moderationspersonen sind derzeit nicht verfügbar.");
+    throw error;
+  }
   });
 
 export const confirmTradeRequest = createServerFn({ method: "POST" })
