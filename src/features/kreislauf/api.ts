@@ -16,7 +16,9 @@ import {
   type Profile,
   type Region,
   type Review,
+  type TradeRequest,
 } from "./types";
+import { normalizeExchangeListing, normalizeTradeOffer } from "./trade-rules";
 
 type Row = Record<string, unknown>;
 
@@ -94,6 +96,8 @@ function mapListing(row: Row): Listing {
     handsCount: asNumber(row.handsCount),
     what3wordsAddress: row.what3wordsAddress == null ? null : asString(row.what3wordsAddress),
     priceKarma: asNumber(row.priceKarma),
+    exchangeTerms: row.exchangeTerms == null ? null : asString(row.exchangeTerms),
+    karmaAdjustment: asNumber(row.karmaAdjustment),
     status: asString(row.status, "active") as ListingStatus,
     images: asImages(row.images),
     lat: asNumber(row.lat),
@@ -133,7 +137,9 @@ const REGION_SQL = `
 const LISTING_SQL = `
   select l.id, l.user_id as "userId", l.region_id as "regionId", l.title, l.description,
     l.category, l.offer_type as "offerType", l.item_uuid as "itemUuid", l.hands_count as "handsCount",
-    l.price_karma as "priceKarma", l.status, l.images, round(l.lat::numeric, 2)::float8 as lat, round(l.lng::numeric, 2)::float8 as lng,
+    l.price_karma as "priceKarma", l.exchange_terms as "exchangeTerms",
+    l.karma_adjustment as "karmaAdjustment", l.status, l.images,
+    round(l.lat::numeric, 2)::float8 as lat, round(l.lng::numeric, 2)::float8 as lng,
     l.place_label as "placeLabel", l.asset_kind as "assetKind",
     to_char(l.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt",
     p.username as "ownerName",
@@ -449,8 +455,21 @@ export const createListing = createServerFn({ method: "POST" })
       throw new Error("Kategorie fehlt");
     }
     const offerType = source.offerType;
-    if (offerType !== "sell" && offerType !== "search" && offerType !== "gift") throw new Error("Bitte Inseratstyp wählen");
-    const priceKarma = offerType === "gift" ? 0 : typeof source.priceKarma === "number" ? Math.round(source.priceKarma) : -1;
+    if (
+      offerType !== "sell" && offerType !== "search" && offerType !== "gift" &&
+      offerType !== "barter" && offerType !== "combined"
+    ) throw new Error("Bitte Inseratstyp wählen");
+    const terms = normalizeExchangeListing(
+      offerType,
+      source.exchangeTerms,
+      source.karmaAdjustment,
+    );
+    if ((offerType === "barter" || offerType === "combined") && category === "sharing") {
+      throw new Error("Direkter und kombinierter Tausch sind derzeit für Güter und Hilfen vorgesehen, nicht für Leihgeräte.");
+    }
+    const priceKarma = offerType === "gift" || offerType === "barter" || offerType === "combined"
+      ? 0
+      : typeof source.priceKarma === "number" ? Math.round(source.priceKarma) : -1;
     if (priceKarma < (offerType === "gift" ? 0 : 1) || priceKarma > 500) throw new Error("Karma zwischen 1 und 500");
     const what3wordsAddress = typeof source.what3wordsAddress === "string" ? source.what3wordsAddress.trim().replace(/^\/+/, "").slice(0, 100) : "";
     if (what3wordsAddress && !/^[a-zäöüß]+\.[a-zäöüß]+\.[a-zäöüß]+$/i.test(what3wordsAddress)) throw new Error("what3words-Adresse bitte im Format wort.wort.wort eingeben");
@@ -471,7 +490,12 @@ export const createListing = createServerFn({ method: "POST" })
     const lat = typeof source.lat === "number" ? source.lat : null;
     const lng = typeof source.lng === "number" ? source.lng : null;
     const itemUuid = typeof source.itemUuid === "string" && /^item-[a-z0-9-]{8,80}$/.test(source.itemUuid) ? source.itemUuid : null;
-    return { regionId, title, description, category, offerType, priceKarma, placeLabel, imageDataUrl, lat, lng, what3wordsAddress, itemUuid };
+    return {
+      regionId, title, description, category, offerType, priceKarma,
+      exchangeTerms: terms.exchangeTerms,
+      karmaAdjustment: terms.karmaAdjustment,
+      placeLabel, imageDataUrl, lat, lng, what3wordsAddress, itemUuid,
+    };
   })
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
@@ -515,9 +539,10 @@ export const createListing = createServerFn({ method: "POST" })
     const assetKind = data.category === "sharing" ? "tool" : null;
     await sql.query(
       `insert into listings (
-         id, user_id, region_id, title, description, category, offer_type, price_karma, status,
-         images, lat, lng, place_label, asset_kind, item_uuid, what3words_address, hands_count
-       ) values ($1,$2,$3,$4,$5,$6,$7,$8,'active',$9::jsonb,$10,$11,$12,$13,$14,$15,$16)`,
+         id, user_id, region_id, title, description, category, offer_type, price_karma,
+         exchange_terms, karma_adjustment, status, images, lat, lng, place_label,
+         asset_kind, item_uuid, what3words_address, hands_count
+       ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'active',$11::jsonb,$12,$13,$14,$15,$16,$17,$18)`,
       [
         id,
         context.userId,
@@ -527,6 +552,8 @@ export const createListing = createServerFn({ method: "POST" })
         data.category,
         data.offerType,
         data.priceKarma,
+        data.exchangeTerms,
+        data.karmaAdjustment,
         JSON.stringify(images),
         lat,
         lng,
@@ -635,6 +662,261 @@ export const tradeListing = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
+function requestTradeDescription(value: unknown): string {
+  return normalizeTradeOffer(value);
+}
+
+export const createTradeRequest = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    const id = idOf(input, "id");
+    if (!input || typeof input !== "object") throw new Error("Ungültige Eingabe");
+    const offeredDescription = requestTradeDescription((input as Record<string, unknown>).offeredDescription);
+    return { id, offeredDescription };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    const sql = await getSql();
+    const verification = await sql.query<{ is_verified: boolean }>(
+      `select is_verified from profiles where user_id = $1`, [context.userId]);
+    if (!verification[0]?.is_verified) return fail("Bitte verifiziere zuerst dein Konto mit ID Austria.");
+
+    const tradeId = `trd-${crypto.randomUUID()}`;
+    try {
+      const rows = await sql.query<{ id: string }>(
+        `with target as materialized (
+           select l.id, l.user_id as owner_id, l.region_id, l.karma_adjustment
+           from listings l
+           join profiles requester on requester.user_id = $2
+           join profiles owner on owner.user_id = l.user_id
+           where l.id = $1
+             and l.status = 'active'
+             and l.offer_type in ('barter','combined')
+             and l.category in ('goods','service')
+             and l.user_id <> $2
+             and requester.region_id = l.region_id
+             and owner.region_id = l.region_id
+             and (l.karma_adjustment = 0 or requester.karma_balance >= l.karma_adjustment)
+           for update of l
+         ),
+         created as (
+           insert into trade_requests (
+             id, listing_id, region_id, requester_id, owner_id,
+             offered_description, karma_amount, status
+           )
+           select $3, target.id, target.region_id, $2, target.owner_id,
+             $4, target.karma_adjustment, 'requested'
+           from target
+           returning id, listing_id
+         ),
+         held as (
+           update listings l set status = 'booked'
+           from created c
+           where l.id = c.listing_id and l.status = 'active'
+           returning l.id
+         )
+         select c.id from created c join held h on h.id = c.listing_id`,
+        [data.id, context.userId, tradeId, data.offeredDescription],
+      );
+      if (!rows.length) {
+        return fail("Tauschvorschlag nicht möglich. Prüfe Region, Guthaben und Verfügbarkeit des Inserats.");
+      }
+      return { ok: true };
+    } catch (err) {
+      const code = err && typeof err === "object" && "code" in err ? String(err.code) : "";
+      if (code === "23505") return fail("Für dieses Inserat liegt bereits ein offener Tauschvorschlag vor.");
+      throw err;
+    }
+  });
+
+export const getTradeRequests = createServerFn({ method: "GET" })
+  .validator((input: unknown) => ({ id: idOf(input, "id") }))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<TradeRequest[]> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      `select tr.id, tr.listing_id as "listingId", tr.requester_id as "requesterId",
+         tr.owner_id as "ownerId", requester.username as "requesterName",
+         owner.username as "ownerName", tr.offered_description as "offeredDescription",
+         tr.karma_amount as "karmaAmount", tr.status,
+         tr.requester_confirmed as "requesterConfirmed",
+         tr.owner_confirmed as "ownerConfirmed",
+         to_char(tr.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt"
+       from trade_requests tr
+       join profiles requester on requester.user_id = tr.requester_id
+       join profiles owner on owner.user_id = tr.owner_id
+       where tr.listing_id = $1 and (tr.requester_id = $2 or tr.owner_id = $2)
+       order by tr.created_at desc
+       limit 10`,
+      [data.id, context.userId],
+    );
+    return rows.map((row) => ({
+      id: asString(row.id),
+      listingId: asString(row.listingId),
+      requesterId: asString(row.requesterId),
+      ownerId: asString(row.ownerId),
+      requesterName: asString(row.requesterName),
+      ownerName: asString(row.ownerName),
+      offeredDescription: asString(row.offeredDescription),
+      karmaAmount: asNumber(row.karmaAmount),
+      status: asString(row.status) as TradeRequest["status"],
+      requesterConfirmed: row.requesterConfirmed === true || row.requesterConfirmed === "true",
+      ownerConfirmed: row.ownerConfirmed === true || row.ownerConfirmed === "true",
+      createdAt: asString(row.createdAt),
+    }));
+  });
+
+export const transitionTradeRequest = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    const id = idOf(input, "id");
+    const action = input && typeof input === "object" && "action" in input
+      ? (input as { action: unknown }).action : "";
+    if (action !== "accept" && action !== "reject" && action !== "cancel" && action !== "dispute") {
+      throw new Error("Unbekannter Tauschschritt");
+    }
+    return { id, action };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    const sql = await getSql();
+    const rows = await sql.query<{ status: string }>(
+      `with target as materialized (
+         select tr.id, tr.listing_id, tr.status, tr.requester_id, tr.owner_id
+         from trade_requests tr
+         where tr.id = $1 and (
+           (tr.owner_id = $2 and $3 in ('accept','reject')) or
+           (tr.requester_id = $2 and $3 = 'cancel') or
+           ((tr.requester_id = $2 or tr.owner_id = $2) and $3 = 'dispute')
+         )
+         for update
+       ),
+       changed as (
+         update trade_requests tr
+         set status = case
+               when $3 = 'accept' and target.status = 'requested' then 'accepted'
+               when $3 = 'reject' and target.status = 'requested' then 'rejected'
+               when $3 = 'cancel' and target.status = 'requested' then 'cancelled'
+               when $3 = 'dispute' and target.status = 'accepted' then 'disputed'
+               else tr.status
+             end,
+             updated_at = now(),
+             resolved_at = case when $3 in ('reject','cancel','dispute') then now() else null end
+         from target
+         where tr.id = target.id
+           and (
+             ($3 in ('accept','reject') and target.status = 'requested') or
+             ($3 = 'cancel' and target.status = 'requested') or
+             ($3 = 'dispute' and target.status = 'accepted')
+           )
+         returning tr.listing_id, tr.status
+       ),
+       listing_state as (
+         update listings l
+         set status = case when c.status in ('rejected','cancelled') then 'active' else 'booked' end
+         from changed c where l.id = c.listing_id
+         returning l.id
+       )
+       select c.status from changed c join listing_state l on l.id = c.listing_id`,
+      [data.id, context.userId, data.action],
+    );
+    if (!rows.length) return fail("Dieser Tauschschritt ist nicht mehr möglich oder du bist nicht beteiligt.");
+    return { ok: true };
+  });
+
+export const confirmTradeRequest = createServerFn({ method: "POST" })
+  .validator((input: unknown) => ({ id: idOf(input, "id") }))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      `with target as materialized (
+         select tr.id, tr.listing_id, tr.region_id, tr.requester_id, tr.owner_id,
+           tr.karma_amount, l.item_uuid, l.place_label, tr.status
+         from trade_requests tr
+         join listings l on l.id = tr.listing_id
+         where tr.id = $1 and tr.status = 'accepted'
+           and l.status = 'booked'
+           and (tr.requester_id = $2 or tr.owner_id = $2)
+         for update of tr, l
+       ),
+       wallet_rows as materialized (
+         select p.user_id, p.karma_balance
+         from profiles p join target t on p.user_id in (t.requester_id, t.owner_id)
+         order by p.user_id
+         for update of p
+       ),
+       wallet_check as (
+         select t.id,
+           count(w.user_id) = 2
+             and coalesce(max(w.karma_balance) filter (where w.user_id = t.requester_id), 0) >= t.karma_amount as ok
+         from target t left join wallet_rows w on true
+         group by t.id
+       ),
+       confirmed as (
+         update trade_requests tr
+         set requester_confirmed = tr.requester_confirmed or tr.requester_id = $2,
+             owner_confirmed = tr.owner_confirmed or tr.owner_id = $2,
+             updated_at = now()
+         from target t join wallet_check wc on wc.id = t.id
+         where tr.id = t.id and wc.ok
+         returning tr.id, tr.listing_id, tr.region_id, tr.requester_id, tr.owner_id,
+           tr.karma_amount, tr.requester_confirmed, tr.owner_confirmed,
+           t.item_uuid, t.place_label
+       ),
+       ready as materialized (
+         select * from confirmed where requester_confirmed and owner_confirmed
+       ),
+       wallet_move as (
+         update profiles p
+         set karma_balance = p.karma_balance + case
+               when p.user_id = r.requester_id then -r.karma_amount
+               else r.karma_amount
+             end,
+             last_activity_at = now()
+         from ready r
+         where r.karma_amount > 0 and p.user_id in (r.requester_id, r.owner_id)
+         returning p.user_id
+       ),
+       completed as (
+         update trade_requests tr
+         set status = 'completed', resolved_at = now(), updated_at = now()
+         from ready r
+         where tr.id = r.id
+           and (r.karma_amount = 0 or (select count(*) from wallet_move) = 2)
+         returning tr.id, tr.listing_id, tr.region_id, tr.requester_id, tr.owner_id,
+           tr.karma_amount, r.item_uuid, r.place_label
+       ),
+       ledger as (
+         insert into ledger_entries (
+           region_id, sender_id, receiver_id, listing_id, amount_karma, entry_kind, message
+         )
+         select c.region_id, c.requester_id, c.owner_id, c.listing_id,
+           c.karma_amount, 'transfer', 'Kreislauf-Tausch mit Karma-Ausgleich'
+         from completed c where c.karma_amount > 0
+         returning id
+       ),
+       history as (
+         insert into item_history (item_uuid, listing_id, owner_id, place_label, event_kind)
+         select c.item_uuid, c.listing_id, c.requester_id, c.place_label, 'transferred'
+         from completed c
+         returning id
+       ),
+       listing_done as (
+         update listings l set status = 'completed', hands_count = hands_count + 1
+         from completed c where l.id = c.listing_id
+         returning l.id
+       )
+       select c.id, c.status
+       from confirmed c
+       left join completed done on done.id = c.id`,
+      [data.id, context.userId],
+    );
+    if (!rows.length) {
+      return fail("Bestätigung nicht möglich. Prüfe Beteiligung, Status und verfügbares Karma.");
+    }
+    if (rows[0].status === "completed") return { ok: true };
+    return { ok: true };
+  });
 export const reserveListing = createServerFn({ method: "POST" })
   .validator((input: unknown) => {
     const id = idOf(input, "id");
