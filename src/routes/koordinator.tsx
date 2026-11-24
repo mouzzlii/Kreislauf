@@ -98,6 +98,14 @@ function CoordinatorPage() {
         )}
       </section>
 
+      <section className="mt-6 rounded-2xl border border-line bg-elev p-5">
+        <div className="flex items-center gap-2">
+          <MapPin className="h-5 w-5 text-copper" aria-hidden="true" />
+          <h2 className="font-display text-xl text-fg">Treffpunkt-Abstimmung</h2>
+        </div>
+        <p className="mt-2 text-sm text-muted">Mögliche Orte und Zeiten werden hier veröffentlicht, sobald Gemeinde, Partner und regionale Koordination sie bestätigt haben. Bis dahin werden keine Treffen als verbindlich angezeigt.</p>
+      </section>
+
       <p className="mt-6 rounded-2xl border border-line bg-elev p-4 text-xs leading-relaxed text-subtle">Funktionsvorschau: Zuständigkeiten, reale Kontaktwege, Treffpunktregeln und Terminorganisation müssen mit der Region abgestimmt werden. Diese Seite löst noch keine Treffen aus und versendet keine Koordinator-Nachrichten.</p>
     </Shell>
   );
