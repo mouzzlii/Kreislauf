@@ -8,7 +8,7 @@ const {
   GITHUB_EVENT_PATH,
   OPENAI_API_KEY,
   ANTHROPIC_API_KEY,
-  AI_TEAM_THIRD_PROVIDER,
+  AI_TEAM_THIRD_PROVIDER: RAW_AI_TEAM_THIRD_PROVIDER,
   META_MODEL_API_KEY,
   LLAMA_API_KEY,
   LLAMA_API_BASE_URL,
@@ -34,6 +34,7 @@ const OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || "";
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL?.trim() || "";
 const META_MODEL = process.env.META_MODEL?.trim() || "";
 const LLAMA_MODEL = process.env.LLAMA_MODEL?.trim() || "";
+const AI_TEAM_THIRD_PROVIDER = String(RAW_AI_TEAM_THIRD_PROVIDER || "").trim().toLowerCase();
 const AI_TEAM_ALLOWED_USERS = process.env.AI_TEAM_ALLOWED_USERS || "mouzzlii";
 
 const MAX_INPUT_CHARS = 8000;
