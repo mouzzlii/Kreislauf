@@ -92,7 +92,7 @@ function ListingPage() {
       if (!cancel) setMeetingPointUrl(result.url);
     }).catch(() => { if (!cancel) setMeetingPointUrl(null); });
     return () => { cancel = true; };
-  }, [listingId, user?.id, version]);
+  }, [listingId, user, version]);
 
   if (!detail) {
     return (
