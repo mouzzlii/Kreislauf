@@ -8,6 +8,8 @@ on:
     paths:
       - "scripts/ai-team-relay.mjs"
       - "scripts/ai-team-relay.test.mjs"
+      - "scripts/ai-team-source-context.mjs"
+      - "scripts/ai-team-source-context.test.mjs"
       - ".github/workflows/ai-team-communication.yml"
       - ".github/workflows/ai-team-relay-ci.yml"
       - "AI_TEAM_SETUP.md"
@@ -31,7 +33,11 @@ jobs:
         with:
           node-version: 22
       - name: Check JavaScript syntax
-        run: node --check scripts/ai-team-relay.mjs
+        run: |
+          node --check scripts/ai-team-relay.mjs
+          node --check scripts/ai-team-source-context.mjs
+      - name: Test bounded source context
+        run: node --test scripts/ai-team-source-context.test.mjs
       - name: Test command parser
         run: node scripts/ai-team-relay.test.mjs
       - name: Verify safe project mapping and daily cap
