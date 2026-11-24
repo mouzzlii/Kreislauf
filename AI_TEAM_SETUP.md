@@ -1,4 +1,4 @@
-# KI-Team-Kommunikation für vier Projekte
+# KI-Team-Kommunikation und Projektportfolio
 
 ## Ziel und Ablauf
 
@@ -50,7 +50,7 @@ Nur ein ausdrücklich markierter Kommentar im zentralen Issue #11 startet einen 
 /ai-team debate SCAN-PROFIT: Prüft den aktuellen Scan-Lock-Ansatz.
 ```
 
-Zulässige Projektnamen: `KREISLAUF`, `TRAKUNA`, `SCAN-PROFIT`, `CHRONOS`.
+Zulässige Projektnamen: `KREISLAUF`, `TRAKUNA`, `SCAN-PROFIT`, `CHRONOS`, `INSERAT-PROFI-AI`, `BOOK-YOUR-COOK`, `LARA-QUIZ`.
 
 ## Einrichtung durch den Kontoinhaber
 
@@ -98,12 +98,25 @@ Fehlende Schlüssel, ein fehlender Provider-Wert, eine unbekannte Modellkennung 
 - `AI_TEAM_BUDGET_CONFIRMED=true` ist nur die manuelle Bestätigung des Kontoinhabers und prüft Anbieterbudgets nicht automatisch.
 - Keine Secrets ausgeben oder anfordern; keine Produktivdatenbanken, Carrier-Systeme oder produktiven Buchungen verändern.
 
+## Erweitertes Projektportfolio
+
+Zusätzlich zu den vier ursprünglichen Projekten sind drei eigenständige Repositories für die begrenzte Council-Analyse vorgesehen:
+
+- `INSERAT-PROFI-AI` → `mouzzlii/INSERAT-PROFI-AI` (eigenständige App; keine Kopplung oder Änderung an SCAN-PROFIT).
+- `BOOK-YOUR-COOK` → `mouzzlii/book-your-cook` (Finanz-/Steuerlogik bleibt fachlich freigabepflichtig; keine automatischen Änderungen oder verbindlichen Steuerannahmen).
+- `LARA-QUIZ` → `mouzzlii/Lara_Quiz` (lokales Offline-Quiz; keine Cloud-Synchronisierung unterstellen).
+
+Die drei zusätzlichen Repositories werden nur über feste, kleine Quelltext-Allowlists eingebunden. Für BOOK-YOUR-COOK sind insbesondere Steuer-/Preisregeln und Zahlungs-Webhook-Dateien als Prüfkontext markiert, nicht als Erlaubnis, sie ohne fachliche Freigabe zu ändern.
+
 ## Repository-Zuordnung
 
 - `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf`
 - `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway` und `PROJECT_REPO_TRAKUNA_ANDROID=mouzzlii/Fuck`
 - `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS`
 - `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT`
+- `PROJECT_REPO_INSERAT_PROFI_AI=mouzzlii/INSERAT-PROFI-AI`
+- `PROJECT_REPO_BOOK_YOUR_COOK=mouzzlii/book-your-cook`
+- `PROJECT_REPO_LARA_QUIZ=mouzzlii/Lara_Quiz`
 
 Für TRAKUNA werden Architektur- und Android-Quellrepository gemeinsam geladen; `multi-carrier-gateway-neu` bleibt ein separates Experiment. Der vollständige SCAN-PROFIT-Next.js-Quellbaum ist noch nicht in GitHub importiert; Relay-Analysen dürfen deshalb nicht als vollständige Quellcodeprüfung dieses Zweigs ausgegeben werden.
 
