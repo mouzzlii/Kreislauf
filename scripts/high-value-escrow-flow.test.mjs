@@ -137,7 +137,7 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
     await db.query(
       `insert into listings
          (id,user_id,region_id,title,description,category,price_karma,status,images,lat,lng,place_label,offer_type,item_uuid)
-       values ('sharing-listing-party-guard','escrow-seller','yspertal-b36','Sharing Guard','Test','goods',0,'active','[]'::jsonb,48.3,15.06,'Testort','share','sharing-item-party-guard')`,
+       values ('sharing-listing-party-guard','escrow-seller','yspertal-b36','Sharing Guard','Test','sharing',0,'active','[]'::jsonb,48.3,15.06,'Testort','sell','sharing-item-party-guard')`,
     );
     await db.query(
       `insert into escrow_cases(id,listing_id,requester_id,moderator_id,reason,status)
