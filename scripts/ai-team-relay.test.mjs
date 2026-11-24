@@ -38,7 +38,7 @@ assert.ok(relaySource.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PRO
 assert.ok(relaySource.includes('const OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes('const CLAUDE_MODEL = process.env.CLAUDE_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes('const META_MODEL = process.env.META_MODEL?.trim() || ""'));
-assert.ok(relaySource.includes("process.env.AI_TEAM_THIRD_PROVIDER"));
+assert.ok(relaySource.includes("AI_TEAM_THIRD_PROVIDER: RAW_AI_TEAM_THIRD_PROVIDER"));
 assert.ok(relaySource.includes("askMeta"));
 assert.ok(relaySource.includes("askLlama"));
 assert.ok(relaySource.includes("askThirdProvider"));
