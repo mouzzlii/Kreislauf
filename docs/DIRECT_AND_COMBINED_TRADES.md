@@ -28,4 +28,4 @@ Migration `0004_direct_combined_trade.sql` ergänzt `listings.exchange_terms`, `
 
 ## Tests
 
-`src/features/kreislauf/trade-rules.test.ts` prüft die fachliche Validierung. `scripts/kreislauf-trade-migration.test.mjs` führt die Migration auf einer isolierten PGlite-Testdatenbank aus und prüft Constraints, Einmaligkeit offener Vorschläge sowie, dass vorhandene Karma-Guthaben nicht verändert werden.
+`src/features/kreislauf/trade-rules.test.ts` prüft die fachliche Validierung. `scripts/kreislauf-trade-migration.test.mjs` führt die Migration auf einer isolierten PGlite-Testdatenbank aus und prüft Constraints, Einmaligkeit offener Vorschläge sowie unveränderte Altguthaben. `src/features/kreislauf/trade-lifecycle.test.ts` führt die echten SQL-Abfragen aus `trade-queries.ts` auf PGlite aus und prüft doppelte/regionfremde Anfragen, Annahme/Ablehnung, beidseitige Bestätigung, richtungsgebuchten Karma-Ausgleich, direkten Tausch ohne Ledger-Transfer, Streitfallsperre und unzureichendes Guthaben.
