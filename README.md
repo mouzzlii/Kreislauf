@@ -17,9 +17,10 @@ KREISLAUF ist eine funktionsfähige Entwicklungsbasis, aber noch keine öffentli
 - Karma-Guthaben mit unveränderlichem Ledger
 - Gemeinschaftsmechanik gegen dauerhaftes Stillliegen: derzeit 0,5 % pro stillen Monat; Karma wird dabei nicht an andere Personen übertragen
 - Profile, Bewertungen und Vertrauensanzeige
-- Inseratgebundene Nachrichten mit zentralem Posteingang unter `/nachrichten`; jedes Gespräch öffnet direkt den passenden Inserat-Chat
-- Moderations-Posteingang unter `/moderation` für serverseitig zugewiesene Treuhand- und Streitfälle
-- Treuhand- und Übergabestatusmodell mit Community-Abstimmungen im Demo-Preview-Branch
+- Direkter und kombinierter Tausch mit konkreter Gegenleistung, optionalem Karma-Ausgleich und beidseitiger Abschlussbestätigung
+- Inseratgebundene Nachrichten mit zentralem Posteingang unter `/nachrichten`; Tauschschritte erzeugen Systemnachrichten im passenden Gespräch
+- Moderations-Posteingang unter `/moderation` und unabhängige regionale Schlichtung mit sieben zugeteilten Personen, mindestens vier Stimmen und Zweidrittelmehrheit
+- Zusätzliche hochwertige Treuhand-/Sharing-Demo mit Community-Abstimmungen ist weiterhin getrennt im Preview-Branch; sie ist noch nicht in Main integriert oder produktiv abgenommen
 - Responsive Oberfläche mit Waldgrün-/Naturfarbwelt
 - Lokale PGlite-Datenbank als Entwicklungsstandard; Neon kann über `DATABASE_URL` angebunden werden
 - **Datenbankhinweis:** Der aktuelle App-Code nutzt PGlite oder Neon/Postgres über `DATABASE_URL`. Die vorhandenen Supabase-Projekte sind aktuell nicht automatisch mit der Anwendung verbunden. Vor einer Supabase-Nutzung müssen Verbindung, Migration-Drift und Auth-Schema ausdrücklich eingerichtet und geprüft werden.
