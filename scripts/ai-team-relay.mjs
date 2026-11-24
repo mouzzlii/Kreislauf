@@ -21,6 +21,7 @@ const PROJECT_REPOS = {
   TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway",
   "SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT",
   CHRONOS: process.env.PROJECT_REPO_CHRONOS || "mouzzlii/CHRONOS",
+  "KI-ARBEITSPLATZ": process.env.PROJECT_REPO_KI_ARBEITSPLATZ || "mouzzlii/KI-Arbeitsplatz",
 };
 
 // The canonical gateway repository holds coordination/architecture docs;
@@ -354,7 +355,7 @@ async function main() {
     return;
   }
 
-  const match = comment.body?.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS)\s*:\s*([\s\S]+)$/i);
+  const match = comment.body?.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS|KI-ARBEITSPLATZ)\s*:\s*([\s\S]+)$/i);
   if (!match) return;
 
   const project = match[1].toUpperCase();
@@ -412,6 +413,43 @@ async function main() {
     return;
   }
 
+  const projectContext = await fetchProjectContext(project);
+  const safeContext = buildSafeProjectContext({
+    project,
+    repository: projectContext.repository,
+    branch: projectContext.branch,
+    note: projectContext.note,
+    issueNumber: issue.number,
+    issueTitle: issue.title,
+    request,
+    readme: projectContext.readme,
+    source: projectContext.source,
+    paths: projectContext.paths,
+    maxChars: MAX_CONTEXT_CHARS,
+  });
+
+  const primaryContextLoaded = projectContext.repositories.some((context) =>
+    context.repository === projectContext.repository && Boolean(context.branch)
+  );
+  const hasSourceExcerpt = projectContext.source
+    .replace(/^#### [^\\n]+\\n/gm, "")
+    .trim().length > 0;
+  if (!primaryContextLoaded || !hasSourceExcerpt) {
+    await githubRequest(`issues/${issue.number}/comments`, {
+      method: "POST",
+      body: JSON.stringify({
+        body: [
+          marker,
+          "### KI-Team-Relay abgebrochen",
+          `Der Quellkontext für ${project} (${projectContext.repository || "Repository nicht konfiguriert"}) konnte nicht vollständig geladen werden.`,
+          "Bitte den Fine-grained AI_TEAM_REPO_READ_TOKEN auf das Projekt-Repository mit Contents: read-only und Metadata-Lesezugriff erweitern.",
+          "Es wurden keine Provider aufgerufen und kein Tageskontingent reserviert.",
+        ].join("\\n\\n"),
+      }),
+    });
+    return;
+  }
+
   const reservation = await reserveDailyDebate(comment.id);
   if (!reservation.allowed) {
     if (reservation.duplicate) {
@@ -431,21 +469,6 @@ async function main() {
     });
     return;
   }
-
-  const projectContext = await fetchProjectContext(project);
-  const safeContext = buildSafeProjectContext({
-    project,
-    repository: projectContext.repository,
-    branch: projectContext.branch,
-    note: projectContext.note,
-    issueNumber: issue.number,
-    issueTitle: issue.title,
-    request,
-    readme: projectContext.readme,
-    source: projectContext.source,
-    paths: projectContext.paths,
-    maxChars: MAX_CONTEXT_CHARS,
-  });
 
   const baseInstructions = [
     "Du bist Mitglied eines unabhängigen KI-Entwicklungsteams.",
