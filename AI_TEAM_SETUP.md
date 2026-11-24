@@ -56,6 +56,8 @@ Nur ein ausdrücklich markierter Kommentar im zentralen Issue #11 startet einen 
 
 Zulässige Projektnamen: `KREISLAUF`, `TRAKUNA`, `SCAN-PROFIT`, `CHRONOS`, `KI-ARBEITSPLATZ`.
 
+**Rollout-Hinweis:** Die KI-ARBEITSPLATZ-Erweiterung liegt derzeit in Draft PR #39 und ist auf `main` noch nicht aktiv. Den neuen Befehl erst nach Review/Merge und nach Erweiterung des Read-only-Tokens verwenden.
+
 ## Einrichtung durch den Kontoinhaber
 
 API-Schlüssel sind nicht in dieser Sitzung vorhanden und dürfen niemals im Chat oder Repository gepostet werden. In GitHub unter `Settings → Secrets and variables → Actions`:
