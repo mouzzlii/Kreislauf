@@ -36,17 +36,16 @@ async function fixture(): Promise<TestDatabase> {
       ('requester','yspertal-b36',80),
       ('other','yspertal-b36',100),
       ('outsider','donautal-sued',100);
-    insert into listings (id,user_id,region_id,category,offer_type,item_uuid,place_label)
-      values
-      ('combined','owner','yspertal-b36','goods','combined','item-combined','Hof am Hang'),
-      ('direct','owner','yspertal-b36','goods','barter','item-direct','Werkstatt'),
-      ('dispute','owner','yspertal-b36','service','barter','item-dispute','Yspertal'),
-      ('cancel','owner','yspertal-b36','goods','barter','item-cancel','Yspertal');
   `);
   await db.exec(migration);
   await db.exec(`
-    update listings set exchange_terms='Werkzeug gegen Brennholz', karma_adjustment=0 where offer_type='barter';
-    update listings set exchange_terms='Gartenhilfe gegen Reparatur', karma_adjustment=25 where id='combined';
+    insert into listings (
+      id,user_id,region_id,category,offer_type,item_uuid,place_label,exchange_terms,karma_adjustment
+    ) values
+      ('combined','owner','yspertal-b36','goods','combined','item-combined','Hof am Hang','Gartenhilfe gegen Reparatur',25),
+      ('direct','owner','yspertal-b36','goods','barter','item-direct','Werkstatt','Werkzeug gegen Brennholz',0),
+      ('dispute','owner','yspertal-b36','service','barter','item-dispute','Yspertal','Werkzeug gegen Brennholz',0),
+      ('cancel','owner','yspertal-b36','goods','barter','item-cancel','Yspertal','Werkzeug gegen Brennholz',0);
     create table ledger_entries (
       id bigint generated always as identity primary key,
       region_id text not null,
