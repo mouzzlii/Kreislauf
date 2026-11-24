@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Shell } from "@/components/shell";
 import { Button, Field, fieldClass } from "@/components/ui";
 import { createListing, getItemTemplate } from "@/features/kreislauf/api";
@@ -25,7 +25,8 @@ function NewListing() {
   const [what3words, setWhat3words] = useState("");
   const [price, setPrice] = useState("10");
   const [place, setPlace] = useState("");
-  const [image, setImage] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]);
+  const imageSelection = useRef(0);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [reuseLoading, setReuseLoading] = useState(false);
@@ -37,7 +38,7 @@ function NewListing() {
     getItemTemplate({ data: { itemUuid: reuse } }).then((template) => {
       if (cancel) return;
       setTitle(template.title); setDescription(template.description); setCategory(template.category);
-      setPrice(String(template.priceKarma)); setPlace(template.placeLabel); setImage(template.imageDataUrl);
+      setPrice(String(template.priceKarma)); setPlace(template.placeLabel); setImages(template.imageDataUrls);
     }).catch((error: unknown) => { if (!cancel) setError(error instanceof Error ? error.message : "Artikel konnte nicht übernommen werden"); })
       .finally(() => { if (!cancel) setReuseLoading(false); });
     return () => { cancel = true; };
@@ -85,7 +86,7 @@ function NewListing() {
                 exchangeTerms,
                 karmaAdjustment: offerType === "combined" ? Number(price) : 0,
                 placeLabel: place,
-                imageDataUrl: image,
+                imageDataUrls: images,
                 lat: profile?.lat ?? null,
                 lng: profile?.lng ?? null,
               },
@@ -170,22 +171,53 @@ function NewListing() {
             <input className={fieldClass} value={what3words} onChange={(event) => setWhat3words(event.target.value)} placeholder="///apfel.baum.strasse" />
             <span className="mt-1 block text-xs text-subtle">Wird öffentlich nicht angezeigt. Freigabe nur für bestätigte Buchungsparteien.</span>
           </Field>
-          <Field label="Foto, optional">
+          <Field label="Fotos (optional, maximal 4)">
             <input
               className="block w-full text-sm text-muted file:mr-3 file:h-11 file:rounded-lg file:border-0 file:bg-elev-2 file:px-4 file:text-fg"
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
               onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (!file) {
-                  setImage(null);
+                const files = Array.from(event.currentTarget.files ?? []);
+                const selection = ++imageSelection.current;
+                if (files.length > 4) {
+                  setError("Bitte höchstens 4 Fotos auswählen.");
+                  event.currentTarget.value = "";
                   return;
                 }
-                void compressImage(file).then(setImage).catch(() => setError("Foto ließ sich nicht lesen"));
+                if (!files.length) {
+                  setImages([]);
+                  return;
+                }
+                setError(null);
+                void Promise.all(files.map(compressImage)).then((next) => {
+                  if (selection === imageSelection.current) setImages(next);
+                }).catch(() => {
+                  if (selection === imageSelection.current) setError("Mindestens ein Foto ließ sich nicht lesen.");
+                });
               }}
             />
+            <span className="mt-1 block text-xs text-subtle">
+              Bis zu 4 Fotos. Sie werden vor dem Speichern auf eine einheitliche JPEG-Vorschau verkleinert.
+              Videos sind erst verfügbar, wenn die sichere serverseitige Speicherung und Laufzeitprüfung eingerichtet ist.
+            </span>
           </Field>
-          {image ? <img src={image} alt="" className="aspect-[4/3] w-full rounded-xl object-cover" /> : null}
+          {images.length ? (
+            <div className="grid grid-cols-2 gap-3">
+              {images.map((src, index) => (
+                <div key={index} className="relative">
+                  <img src={src} alt={`Inseratfoto ${index + 1}`} className="aspect-[4/3] w-full rounded-xl object-cover" />
+                  {index === 0 ? <span className="absolute left-2 top-2 rounded-full bg-forest px-2 py-1 text-xs text-paper">Titelbild</span> : null}
+                  <button
+                    type="button"
+                    className="mt-1 text-xs text-muted underline"
+                    onClick={() => setImages((current) => current.filter((_, photoIndex) => photoIndex !== index))}
+                    aria-label={`Foto ${index + 1} entfernen`}
+                  >Foto entfernen</button>
+                </div>
+              ))}
+            </div>
+          ) : null}
           {error ? <p className="text-sm text-copper">{error}</p> : null}
           <Button type="submit" disabled={busy}>
             {busy ? "Speichert…" : "Inserat stellen"}
