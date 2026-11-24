@@ -135,3 +135,19 @@ export function hasUsablePrimaryContext(projectContext) {
   const sourceExcerpt = source.replace(/^#### [^\n]+\n/gm, "").trim();
   return primaryLoaded && sourceExcerpt.length > 0;
 }
+
+export function resolveProjectBranch(defaultBranch, configuredBranch = "") {
+  const fallback = typeof defaultBranch === "string" && defaultBranch ? defaultBranch : "main";
+  if (typeof configuredBranch !== "string" || !configuredBranch.trim()) return fallback;
+  const branch = configuredBranch.trim();
+  if (
+    !/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/.test(branch) ||
+    branch.includes("..") ||
+    branch.startsWith("/") ||
+    branch.endsWith("/") ||
+    branch.includes("//")
+  ) {
+    throw new Error("Unsafe project branch reference.");
+  }
+  return branch;
+}
