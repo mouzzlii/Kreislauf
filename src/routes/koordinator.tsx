@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, Handshake, MapPin, MessageCircle, Search, Store } from "lucide-react";
+import { ArrowRight, MapPin, MessageCircle, Search, Store } from "lucide-react";
 import { Shell } from "@/components/shell";
 import { getBoard } from "@/features/kreislauf/api";
 import { useKreislauf } from "@/features/kreislauf/context";
