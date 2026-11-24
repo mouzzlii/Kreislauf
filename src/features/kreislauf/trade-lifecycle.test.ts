@@ -175,8 +175,8 @@ test("insufficient Karma at second confirmation blocks settlement and preserves 
   try {
     await create(db,"combined");
     await transition(db,"req-1","owner","accept");
-    await db.exec("update profiles set karma_balance=10 where user_id='requester'");
     await confirm(db,"req-1","owner");
+    await db.exec("update profiles set karma_balance=10 where user_id='requester'");
     const failure=await confirm(db,"req-1","requester");
     assert.equal(failure.rows.length,0);
     assert.equal((await requestRow(db,"req-1")).status,"accepted");
