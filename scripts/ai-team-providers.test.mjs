@@ -3,8 +3,10 @@ import { test } from "node:test";
 import {
   ANTHROPIC_API_VERSION,
   buildClaudeMessage,
+  buildMetaChatCompletion,
   buildLlamaChatCompletion,
   extractClaudeText,
+  extractMetaText,
   extractLlamaText,
   getMissingProviderConfiguration,
   isSecureLlamaEndpoint,
@@ -34,6 +36,26 @@ test("Claude response extraction keeps only text blocks", () => {
     ],
   }), "First finding.\nSecond finding.");
   assert.equal(extractClaudeText({ content: [] }), "");
+});
+
+test("Meta Model API uses its hosted OpenAI-compatible Chat Completions endpoint shape", () => {
+  assert.deepEqual(buildMetaChatCompletion({
+    model: "muse-spark-1.3",
+    instructions: "Challenge the proposal.",
+    input: "Review this change.",
+    maxTokens: 800,
+  }), {
+    model: "muse-spark-1.3",
+    messages: [
+      { role: "system", content: "Challenge the proposal." },
+      { role: "user", content: "Review this change." },
+    ],
+    max_tokens: 800,
+    stream: false,
+  });
+  assert.equal(extractMetaText({
+    choices: [{ message: { content: " Meta Muse review " } }],
+  }), "Meta Muse review");
 });
 
 test("Llama OpenAI-compatible request is bounded and non-streaming", () => {
@@ -80,6 +102,7 @@ test("all three provider credentials, endpoint and selected model IDs are explic
   const incomplete = getMissingProviderConfiguration({
     OPENAI_API_KEY: "present",
     ANTHROPIC_API_KEY: "",
+    AI_TEAM_THIRD_PROVIDER: "llama",
     LLAMA_API_KEY: "present",
     LLAMA_API_BASE_URL: "http://host/v1/chat/completions",
     AI_TEAM_REPO_READ_TOKEN: "present",
@@ -96,6 +119,7 @@ test("all three provider credentials, endpoint and selected model IDs are explic
   const complete = getMissingProviderConfiguration({
     OPENAI_API_KEY: "openai",
     ANTHROPIC_API_KEY: "claude",
+    AI_TEAM_THIRD_PROVIDER: "llama",
     LLAMA_API_KEY: "llama",
     LLAMA_API_BASE_URL: "https://llama.example.com/v1/chat/completions",
     AI_TEAM_REPO_READ_TOKEN: "readonly",
@@ -105,3 +129,47 @@ test("all three provider credentials, endpoint and selected model IDs are explic
   });
   assert.deepEqual(complete, { missingSecrets: [], missingModels: [] });
 });
+test("Meta mode requires its own key and explicit Muse model but no Llama host", () => {
+  const missing = getMissingProviderConfiguration({
+    OPENAI_API_KEY: "openai",
+    ANTHROPIC_API_KEY: "claude",
+    AI_TEAM_THIRD_PROVIDER: "meta",
+    META_MODEL_API_KEY: "",
+    AI_TEAM_REPO_READ_TOKEN: "readonly",
+    OPENAI_MODEL: "gpt",
+    CLAUDE_MODEL: "claude",
+    META_MODEL: "",
+  });
+  assert.deepEqual(missing, {
+    missingSecrets: ["META_MODEL_API_KEY"],
+    missingModels: ["META_MODEL"],
+  });
+
+  const complete = getMissingProviderConfiguration({
+    OPENAI_API_KEY: "openai",
+    ANTHROPIC_API_KEY: "claude",
+    AI_TEAM_THIRD_PROVIDER: "meta",
+    META_MODEL_API_KEY: "meta",
+    AI_TEAM_REPO_READ_TOKEN: "readonly",
+    OPENAI_MODEL: "gpt",
+    CLAUDE_MODEL: "claude",
+    META_MODEL: "muse-spark-1.3",
+  });
+  assert.deepEqual(complete, { missingSecrets: [], missingModels: [] });
+});
+
+test("third-agent selection rejects unknown providers before any provider call", () => {
+  const invalid = getMissingProviderConfiguration({
+    OPENAI_API_KEY: "openai",
+    ANTHROPIC_API_KEY: "claude",
+    AI_TEAM_THIRD_PROVIDER: "unlisted",
+    AI_TEAM_REPO_READ_TOKEN: "readonly",
+    OPENAI_MODEL: "gpt",
+    CLAUDE_MODEL: "claude",
+  });
+  assert.deepEqual(invalid.missingSecrets, [
+    "AI_TEAM_THIRD_PROVIDER (muss meta oder llama sein)",
+  ]);
+  assert.deepEqual(invalid.missingModels, []);
+});
+
