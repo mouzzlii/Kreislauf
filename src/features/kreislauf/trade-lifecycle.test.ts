@@ -396,3 +396,25 @@ test("parties and unassigned members cannot vote; assigned votes are immutable",
     )).rows[0].n,1);
   } finally { await db.close(); }
 });
+
+
+test("an assigned moderator who leaves the case region cannot vote", async () => {
+  const db=await fixture();
+  try {
+    await create(db,"dispute");
+    await transition(db,"req-1","owner","accept");
+    await transition(db,"req-1","requester","dispute","Die Ware wurde nicht übergeben.");
+    const before=await db.query<{n:number}>(
+      "select count(*)::int as n from trade_dispute_moderators where trade_request_id='req-1' and moderator_id='mod-01'"
+    );
+    assert.equal(before.rows[0].n,1);
+    await db.exec("update profiles set region_id='donautal-sued' where user_id='mod-01'");
+    await assert.rejects(
+      voteDispute(db,"req-1","mod-01","complete"),
+      /Keine aktive, unabhängige Moderationszuordnung/,
+    );
+    assert.equal((await db.query<{n:number}>(
+      "select count(*)::int as n from trade_dispute_votes where trade_request_id='req-1'"
+    )).rows[0].n,0);
+  } finally { await db.close(); }
+});
