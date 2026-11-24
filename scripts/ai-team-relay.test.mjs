@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import {
+  buildMetaChatCompletion,
   getMissingProviderConfiguration,
   isSecureLlamaEndpoint,
 } from "./ai-team-providers.mjs";
@@ -36,7 +37,11 @@ assert.ok(relaySource.includes("contexts.flatMap"));
 assert.ok(relaySource.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
 assert.ok(relaySource.includes('const OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || ""'));
 assert.ok(relaySource.includes('const CLAUDE_MODEL = process.env.CLAUDE_MODEL?.trim() || ""'));
-assert.ok(relaySource.includes('const LLAMA_MODEL = process.env.LLAMA_MODEL?.trim() || ""'));
+assert.ok(relaySource.includes('const META_MODEL = process.env.META_MODEL?.trim() || ""'));
+assert.ok(relaySource.includes("process.env.AI_TEAM_THIRD_PROVIDER"));
+assert.ok(relaySource.includes("askMeta"));
+assert.ok(relaySource.includes("askLlama"));
+assert.ok(relaySource.includes("askThirdProvider"));
 assert.ok(relaySource.includes("getMissingProviderConfiguration"));
 assert.ok(relaySource.includes("askClaude"));
 assert.ok(relaySource.includes("askLlama"));
@@ -47,6 +52,8 @@ assert.ok(workflowSource.includes("LLAMA_API_BASE_URL"));
 assert.ok(setup.includes("Claude"));
 assert.ok(setup.includes("Llama"));
 assert.ok(setup.includes("Meta Model API"));
+assert.ok(setup.includes("Meta Muse"));
+assert.ok(setup.includes("AI_TEAM_THIRD_PROVIDER"));
 assert.ok(setup.includes("AI_TEAM_REPO_READ_TOKEN"));
 assert.equal((relaySource.match(/AI_TEAM_BUDGET_CONFIRMED !== "true"/g) || []).length, 1);
 assert.ok(relaySource.includes("const MAX_DAILY_DEBATES = 2;"));
@@ -58,6 +65,7 @@ assert.equal(isSecureLlamaEndpoint("http://llama.example.com/v1/chat/completions
 assert.deepEqual(getMissingProviderConfiguration({
   OPENAI_API_KEY:"openai",
   ANTHROPIC_API_KEY:"claude",
+  AI_TEAM_THIRD_PROVIDER:"llama",
   LLAMA_API_KEY:"llama",
   LLAMA_API_BASE_URL:"https://llama.example.com/v1/chat/completions",
   AI_TEAM_REPO_READ_TOKEN:"read-only",
@@ -65,4 +73,23 @@ assert.deepEqual(getMissingProviderConfiguration({
   CLAUDE_MODEL:"claude",
   LLAMA_MODEL:"llama",
 }), { missingSecrets:[], missingModels:[] });
-console.log("AI team routing, provider credentials, secure endpoint and budget-gate tests passed.");
+assert.deepEqual(getMissingProviderConfiguration({
+  OPENAI_API_KEY:"openai",
+  ANTHROPIC_API_KEY:"claude",
+  AI_TEAM_THIRD_PROVIDER:"meta",
+  META_MODEL_API_KEY:"meta",
+  AI_TEAM_REPO_READ_TOKEN:"read-only",
+  OPENAI_MODEL:"gpt",
+  CLAUDE_MODEL:"claude",
+  META_MODEL:"muse-spark-1.3",
+}), { missingSecrets:[], missingModels:[] });
+assert.deepEqual(buildMetaChatCompletion({
+  model:"muse-spark-1.3",
+  instructions:"Check.",
+  input:"Review.",
+  maxTokens:500,
+}).messages, [
+  {role:"system",content:"Check."},
+  {role:"user",content:"Review."},
+]);
+console.log("AI team routing, Meta/Llama selection, provider credentials, secure endpoint and budget-gate tests passed.");
