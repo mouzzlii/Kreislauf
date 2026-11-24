@@ -113,7 +113,7 @@ test("combined trade requires both confirmations before one directional Karma tr
     const ledger=await db.query<{ sender_id: string; receiver_id: string; amount_karma: number; entry_kind: string }>("select sender_id,receiver_id,amount_karma,entry_kind from ledger_entries");
     assert.equal(ledger.rows.length,1);
     assert.deepEqual(ledger.rows[0],{sender_id:"requester",receiver_id:"owner",amount_karma:25,entry_kind:"transfer"});
-    assert.equal((await db.query("select status from listings where id='combined'")).rows[0].status,"completed");
+    assert.equal((await db.query<{ status: string }>("select status from listings where id='combined'")).rows[0].status,"completed");
     assert.equal((await db.query<{ event_kind: string; owner_id: string }>("select event_kind,owner_id from item_history")).rows[0].owner_id,"requester");
     const repeated=await confirm(db,"req-1","requester");
     assert.equal(repeated.rows.length,0);
@@ -132,7 +132,7 @@ test("direct barter completes without a Karma balance change or ledger transfer"
     await confirm(db,"req-1","owner");
     assert.deepEqual(await balances(db),before);
     assert.equal((await requestRow(db,"req-1")).status,"completed");
-    assert.equal((await db.query("select count(*)::int as n from ledger_entries")).rows[0].n,0);
+    assert.equal((await db.query<{ n: number }>("select count(*)::int as n from ledger_entries")).rows[0].n,0);
   } finally { await db.close(); }
 });
 
@@ -147,7 +147,7 @@ test("disputed trade remains locked and can never transfer Karma", async () => {
     assert.equal((await db.query<{ status: string }>("select status from listings where id='dispute'")).rows[0].status,"booked");
     assert.equal((await confirm(db,"req-1","owner")).rows.length,0);
     assert.deepEqual(await balances(db),before);
-    assert.equal((await db.query("select count(*)::int as n from ledger_entries")).rows[0].n,0);
+    assert.equal((await db.query<{ n: number }>("select count(*)::int as n from ledger_entries")).rows[0].n,0);
   } finally { await db.close(); }
 });
 
