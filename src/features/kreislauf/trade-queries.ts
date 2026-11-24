@@ -56,7 +56,7 @@ with target as materialized (
 
 export const TRANSITION_TRADE_REQUEST_SQL = `
 with target as materialized (
-         select tr.id, tr.listing_id, tr.status, tr.requester_id, tr.owner_id
+         select tr.id, tr.listing_id, tr.status, tr.requester_id, tr.owner_id, tr.dispute_reason
          from trade_requests tr
          where tr.id = $1 and (
            (tr.owner_id = $2 and $3 in ('accept','reject')) or
@@ -74,6 +74,7 @@ with target as materialized (
                when $3 = 'dispute' and target.status = 'accepted' then 'disputed'
                else tr.status
              end,
+             dispute_reason = case when $3 = 'dispute' then $4 else tr.dispute_reason end,
              updated_at = now(),
              resolved_at = case when $3 in ('reject','cancel') then now() else null end
          from target
@@ -83,7 +84,7 @@ with target as materialized (
              ($3 = 'cancel' and target.status = 'requested') or
              ($3 = 'dispute' and target.status = 'accepted')
            )
-         returning tr.listing_id, tr.status, tr.requester_id, tr.owner_id
+         returning tr.listing_id, tr.status, tr.requester_id, tr.owner_id, tr.dispute_reason
        ),
        system_message as (
          insert into listing_messages (conversation_id, sender_id, body, message_kind)
@@ -92,7 +93,7 @@ with target as materialized (
              when 'accepted' then 'Der Anbieter hat den Tauschvorschlag angenommen. Nach der Übergabe bestätigen beide Seiten den Abschluss.'
              when 'rejected' then 'Der Tauschvorschlag wurde abgelehnt. Das Inserat ist wieder verfügbar.'
              when 'cancelled' then 'Der Tauschvorschlag wurde zurückgezogen. Das Inserat ist wieder verfügbar.'
-             when 'disputed' then 'Ein Streitfall wurde gemeldet. Der Tauschvorgang ist gesperrt; es wird kein Karma übertragen.'
+             when 'disputed' then 'Streitfall eröffnet: ' || coalesce(changed.dispute_reason, 'Keine weitere Angabe') || ' Sieben unabhängige Moderationspersonen entscheiden; mindestens vier Stimmen und zwei Drittel Mehrheit sind erforderlich.'
              else 'Der Tauschvorgang wurde aktualisiert.'
            end,
            'system'
