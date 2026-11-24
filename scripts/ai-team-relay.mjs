@@ -469,12 +469,12 @@ async function main() {
   const thirdProviderLabel = AI_TEAM_THIRD_PROVIDER === "meta" ? "Meta Muse" : "Llama";
   const thirdProvider = await runPhase(issue.number, marker, `${thirdProviderLabel}-Gegenprüfung`, () => askThirdProvider(
     `${baseInstructions} Du bist ${thirdProviderLabel} und der unabhängige Gegenprüfer. Prüfe den ursprünglichen Auftrag sowie die bisherigen Analysen. Identifiziere Denkfehler, Risiken und bessere Alternativen.`,
-    `${safeContext}\\n\\nAnalyse von OpenAI/GPT:\\n${initial}\\n\\nGegenprüfung von Claude:\\n${claude}`,
+    `${safeContext}\n\nAnalyse von OpenAI/GPT:\n${initial}\n\nGegenprüfung von Claude:\n${claude}`,
   ));
 
   const synthesis = await runPhase(issue.number, marker, "OpenAI/GPT-Synthese", () => askOpenAI(
     `${baseInstructions} Du moderierst die Abschlussrunde. Fasse nur belastbare Übereinstimmungen zusammen, löse Widersprüche begründet auf und liste offene Nachweise. Behaupte nicht, dass Code geändert oder getestet wurde.`,
-    `${safeContext}\n\nGPT-Erstanalyse:\n${initial}\n\nClaude-Gegenprüfung:\n${claude}\n\nLlama-Gegenprüfung:\n${thirdProvider}\n\nErstelle die abschließende gemeinsame Empfehlung.`,
+    `${safeContext}\n\nGPT-Erstanalyse:\n${initial}\n\nClaude-Gegenprüfung:\n${claude}\n\n${thirdProviderLabel}-Gegenprüfung:\n${thirdProvider}\n\nErstelle die abschließende gemeinsame Empfehlung.`,
   ));
 
   const body = [
