@@ -754,9 +754,10 @@ export const transitionTradeRequest = createServerFn({ method: "POST" })
   })
   .middleware([authMiddleware])
   .handler(async ({ data, context }): Promise<ActionResult> => {
-    const sql = await getSql();
-    const rows = await sql.query<{ status: string }>(
-      TRANSITION_TRADE_REQUEST_SQL,
+    try {
+      const sql = await getSql();
+      const rows = await sql.query<{ status: string }>(
+        TRANSITION_TRADE_REQUEST_SQL,
       [data.id, context.userId, data.action, data.reason],
     );
     if (!rows.length) return fail("Dieser Tauschschritt ist nicht mehr möglich oder du bist nicht beteiligt.");
