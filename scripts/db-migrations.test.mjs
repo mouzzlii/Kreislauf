@@ -7,6 +7,15 @@ import { PGlite } from "@electric-sql/pglite";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const apiSource = await readFile(join(root, "src/features/kreislauf/api.ts"), "utf8");
+const moderationInboxStart = apiSource.indexOf("export const getMyModerationCases");
+const moderationInboxEnd = apiSource.indexOf("export type EscrowSummary", moderationInboxStart);
+const moderationInboxSource = apiSource.slice(moderationInboxStart, moderationInboxEnd);
+assert.ok(moderationInboxStart >= 0, "a dedicated moderator inbox server function must exist");
+assert.match(moderationInboxSource, /join escrow_moderators a on a\.escrow_id = e\.id and a\.moderator_id = \$1/);
+assert.match(moderationInboxSource, /p\.is_verified = true/);
+assert.match(moderationInboxSource, /p\.moderator_rank > 0/);
+assert.match(moderationInboxSource, /e\.status in \('pending', 'disputed'\)/);
+
 const migrations = [
   "0002_kreislauf.sql",
   "0003_kreislauf_v2.sql",
@@ -241,6 +250,38 @@ test("all PostgreSQL migrations apply in the embedded PGlite demo and sharing re
     assert.equal(result.owner_moderator_count, 0, "listing owner must never be assigned as moderator");
     assert.ok(result.assigned_moderator_count >= 4, "at least four eligible moderators should be assigned for quorum");
     assert.ok(result.assigned_moderator_count <= 7, "no escrow case may assign more than seven moderators");
+    const assignedModerator = await db.query(
+      "select moderator_id from escrow_moderators where escrow_id = $1 order by moderator_id limit 1",
+      [escrowId],
+    );
+    assert.ok(assignedModerator.rows.length > 0);
+    const assignedInboxCases = await db.query(
+      `select e.id
+       from escrow_cases e
+       join escrow_moderators a on a.escrow_id = e.id and a.moderator_id = $1
+       join profiles p on p.user_id = $1 and p.is_verified = true
+         and p.moderator_rank > 0 and p.last_active_at >= now() - interval '30 days'
+       join listings l on l.id = e.listing_id
+       where e.status in ('pending', 'disputed')
+         and e.buyer_id is distinct from $1
+         and e.seller_id is distinct from $1`,
+      [assignedModerator.rows[0].moderator_id],
+    );
+    assert.equal(assignedInboxCases.rows.length, 1, "an assigned active moderator must see the case in their inbox");
+    const requesterInboxCases = await db.query(
+      `select e.id from escrow_cases e
+       join escrow_moderators a on a.escrow_id = e.id and a.moderator_id = $1
+       where e.status in ('pending', 'disputed')`,
+      ["test-renter"],
+    );
+    assert.equal(requesterInboxCases.rows.length, 0, "a requester must never see a moderation inbox case");
+    const ownerInboxCases = await db.query(
+      `select e.id from escrow_cases e
+       join escrow_moderators a on a.escrow_id = e.id and a.moderator_id = $1
+       where e.status in ('pending', 'disputed')`,
+      ["seed-leonie"],
+    );
+    assert.equal(ownerInboxCases.rows.length, 0, "a listing owner must never see a moderation inbox case");
     assert.ok(result.system_message_count >= 1, "booking should create an in-app system message");
 
     await db.query("update bookings set renter_handover_at = now() where id = $1", [bookingId]);
