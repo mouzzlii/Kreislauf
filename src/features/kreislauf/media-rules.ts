@@ -1,9 +1,6 @@
+import { Buffer } from "node:buffer";
+import { MAX_IMAGE_DATA_URL_CHARS, MAX_LISTING_IMAGES, MAX_TOTAL_IMAGE_DATA_URL_CHARS } from "./media-limits";
 const JPEG_PREFIX = "data:image/jpeg;base64,";
-export const MAX_LISTING_IMAGES = 4;
-export const MAX_IMAGE_DATA_URL_CHARS = 280_000;
-export const MAX_TOTAL_IMAGE_DATA_URL_CHARS = 1_000_000;
-
-/** Validate and normalize legacy single-photo or current multi-photo input. */
 export function normalizeListingImages(value: unknown, legacyValue?: unknown): string[] {
   const candidate = value === undefined ? (legacyValue == null ? [] : [legacyValue]) : value;
   if (!Array.isArray(candidate)) throw new Error("Fotos müssen als Liste übermittelt werden.");
@@ -14,6 +11,8 @@ export function normalizeListingImages(value: unknown, legacyValue?: unknown): s
     if (item.length > MAX_IMAGE_DATA_URL_CHARS) throw new Error("Ein Foto ist zu groß. Bitte wähle ein kleineres Bild.");
     const encoded = item.slice(JPEG_PREFIX.length);
     if (!encoded || encoded.length % 4 !== 0 || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded)) throw new Error("Ein Foto ist beschädigt oder ungültig kodiert.");
+    const bytes = Buffer.from(encoded, "base64");
+    if (bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8 || bytes[2] !== 0xff || bytes[bytes.length - 2] !== 0xff || bytes[bytes.length - 1] !== 0xd9) throw new Error("Die Datei enthält kein gültiges JPEG-Bild.");
     totalChars += item.length;
     return item;
   });
