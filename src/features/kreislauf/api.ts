@@ -771,6 +771,228 @@ export const confirmTradeRequest = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+export type ListingThread = {
+  requesterId: string;
+  requesterName: string;
+  lastMessage: string;
+  updatedAt: string;
+};
+
+export type ListingMessage = {
+  id: number;
+  senderId: string | null;
+  senderName: string;
+  body: string;
+  kind: "user" | "system";
+  createdAt: string;
+  isMine: boolean;
+};
+
+export type ListingConversationSummary = {
+  listingId: string;
+  requesterId: string;
+  listingTitle: string;
+  otherName: string;
+  lastMessage: string;
+  unreadCount: number;
+  updatedAt: string;
+};
+
+/** Alle Inserat-Unterhaltungen des angemeldeten Mitglieds. */
+export const getMyListingConversations = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }): Promise<ListingConversationSummary[]> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      `select c.listing_id as "listingId", c.requester_id as "requesterId",
+        l.title as "listingTitle",
+        coalesce(p.username, 'Mitglied') as "otherName",
+        count(m.id) filter (
+          where m.read_at is null and m.sender_id is distinct from $1
+        )::int as "unreadCount",
+        coalesce((select lm.body from listing_messages lm
+          where lm.conversation_id = c.id order by lm.id desc limit 1), '') as "lastMessage",
+        to_char(c.updated_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "updatedAt"
+       from listing_conversations c
+       join listings l on l.id = c.listing_id
+       left join profiles p on p.user_id = case
+         when c.owner_id = $1 then c.requester_id else c.owner_id end
+       left join listing_messages m on m.conversation_id = c.id
+       where c.owner_id = $1 or c.requester_id = $1
+       group by c.id, l.title, p.username
+       order by c.updated_at desc
+       limit 100`,
+      [context.userId],
+    );
+    return rows.map((row) => ({
+      listingId: asString(row.listingId),
+      requesterId: asString(row.requesterId),
+      listingTitle: asString(row.listingTitle),
+      otherName: asString(row.otherName),
+      lastMessage: asString(row.lastMessage),
+      unreadCount: asNumber(row.unreadCount),
+      updatedAt: asString(row.updatedAt),
+    }));
+  });
+
+export const getListingThreads = createServerFn({ method: "GET" })
+  .validator((input: unknown) => ({ id: idOf(input, "id") }))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ListingThread[]> => {
+    const sql = await getSql();
+    const allowed = await sql.query<{ user_id: string }>(
+      "select user_id from listings where id = $1", [data.id],
+    );
+    if (!allowed.length) return [];
+    const rows = await sql.query<Row>(
+      `select c.requester_id as "requesterId", p.username as "requesterName",
+        coalesce((select m.body from listing_messages m
+          where m.conversation_id = c.id order by m.id desc limit 1), '') as "lastMessage",
+        to_char(c.updated_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "updatedAt"
+       from listing_conversations c join profiles p on p.user_id = c.requester_id
+       where c.listing_id = $1 and (c.owner_id = $2 or c.requester_id = $2)
+       order by c.updated_at desc`,
+      [data.id, context.userId],
+    );
+    if (allowed[0].user_id !== context.userId &&
+        !rows.some((row) => asString(row.requesterId) === context.userId)) return [];
+    return rows.map((row) => ({
+      requesterId: asString(row.requesterId),
+      requesterName: asString(row.requesterName, "Mitglied"),
+      lastMessage: asString(row.lastMessage),
+      updatedAt: asString(row.updatedAt),
+    }));
+  });
+
+export const getListingMessages = createServerFn({ method: "GET" })
+  .validator((input: unknown) => {
+    const id = idOf(input, "id");
+    const requesterId = input && typeof input === "object" && "requesterId" in input
+      ? String((input as Record<string, unknown>).requesterId ?? "") : "";
+    if (requesterId && !/^[a-zA-Z0-9_-]{2,128}$/.test(requesterId)) {
+      throw new Error("Ungültige Unterhaltung");
+    }
+    return { id, requesterId };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ListingMessage[]> => {
+    const sql = await getSql();
+    const listing = await sql.query<{ user_id: string }>(
+      "select user_id from listings where id = $1", [data.id],
+    );
+    if (!listing.length) return [];
+    const ownerId = listing[0].user_id;
+    const requesterId = ownerId === context.userId ? data.requesterId : context.userId;
+    if (!requesterId || requesterId === ownerId) return [];
+    const rows = await sql.query<Row>(
+      `select m.id, m.sender_id as "senderId",
+        coalesce(p.username, 'KREISLAUF') as "senderName",
+        m.body, m.message_kind as kind,
+        to_char(m.created_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt"
+       from listing_conversations c
+       join listing_messages m on m.conversation_id = c.id
+       left join profiles p on p.user_id = m.sender_id
+       where c.listing_id = $1 and c.requester_id = $2 and c.owner_id = $3
+         and (c.requester_id = $4 or c.owner_id = $4)
+       order by m.id asc limit 200`,
+      [data.id, requesterId, ownerId, context.userId],
+    );
+    await sql.query(
+      `update listing_messages set read_at = now()
+       where conversation_id in (
+         select id from listing_conversations
+         where listing_id = $1 and requester_id = $2 and owner_id = $3
+           and (requester_id = $4 or owner_id = $4)
+       )
+         and sender_id is distinct from $4 and read_at is null`,
+      [data.id, requesterId, ownerId, context.userId],
+    );
+    return rows.map((row) => ({
+      id: asNumber(row.id),
+      senderId: row.senderId == null ? null : asString(row.senderId),
+      senderName: asString(row.senderName),
+      body: asString(row.body),
+      kind: asString(row.kind, "user") as "user" | "system",
+      createdAt: asString(row.createdAt),
+      isMine: row.senderId === context.userId,
+    }));
+  });
+
+export const sendListingMessage = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    if (!input || typeof input !== "object") throw new Error("Ungültige Nachricht");
+    const source = input as Record<string, unknown>;
+    const id = idOf(source, "id");
+    const body = typeof source.body === "string" ? source.body.trim() : "";
+    if (!body || body.length > 2000) throw new Error("Nachricht muss 1 bis 2000 Zeichen haben");
+    const requesterId = typeof source.requesterId === "string" ? source.requesterId : "";
+    if (requesterId && !/^[a-zA-Z0-9_-]{2,128}$/.test(requesterId)) {
+      throw new Error("Ungültige Unterhaltung");
+    }
+    return { id, body, requesterId };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<ActionResult> => {
+    const sql = await getSql();
+    const listing = await sql.query<{ user_id: string; status: string }>(
+      "select user_id, status from listings where id = $1", [data.id],
+    );
+    if (!listing.length) return fail("Inserat nicht gefunden.");
+    const ownerId = listing[0].user_id;
+    const requesterId = context.userId === ownerId ? data.requesterId : context.userId;
+    if (!requesterId || requesterId === ownerId) return fail("Unterhaltung nicht ausgewählt.");
+
+    if (context.userId === ownerId) {
+      const existing = await sql.query(
+        "select id from listing_conversations where listing_id = $1 and requester_id = $2 and owner_id = $3",
+        [data.id, requesterId, ownerId],
+      );
+      if (!existing.length) return fail("Du kannst erst antworten, wenn das andere Mitglied eine Unterhaltung begonnen hat.");
+    }
+    const member = await sql.query(
+      "select user_id from profiles where user_id = $1", [requesterId],
+    );
+    if (!member.length) return fail("Mitglied nicht gefunden.");
+
+    try {
+      const inserted = await sql.query<{ id: number }>(
+        `with conversation as (
+           insert into listing_conversations(id, listing_id, requester_id, owner_id)
+           select 'conv-' || md5(l.id || ':' || $3), l.id, $3, l.user_id
+           from listings l
+           where l.id = $2 and l.user_id = $4
+             and (
+               l.status = 'active'
+               or exists (
+                 select 1 from listing_conversations existing
+                 where existing.listing_id = l.id
+                   and existing.requester_id = $3
+                   and existing.owner_id = l.user_id
+               )
+             )
+           on conflict (listing_id, requester_id)
+           do update set updated_at = now()
+           returning id
+         ),
+         message as (
+           insert into listing_messages(conversation_id, sender_id, body, message_kind)
+           select conversation.id, $5, $6, 'user'
+           from conversation
+           returning id
+         )
+         select id from message`,
+        [data.id, data.id, requesterId, ownerId, context.userId, data.body],
+      );
+      if (!inserted.length) return fail("Nachricht konnte nicht gespeichert werden.");
+      return { ok: true };
+    } catch (error) {
+      const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+      if (code === "P0001") return fail("Nachrichtenlimit erreicht. Bitte warte und versuche es später erneut.");
+      throw error;
+    }
+  });
+
 export const reserveListing = createServerFn({ method: "POST" })
   .validator((input: unknown) => {
     const id = idOf(input, "id");
