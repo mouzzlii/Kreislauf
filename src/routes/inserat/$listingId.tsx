@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ListingVisual } from "@/components/listing-card";
 import { Shell } from "@/components/shell";
+import { ListingConversation } from "@/components/listing-conversation";
 import { Button, fieldClass } from "@/components/ui";
 import {
   addReview,
@@ -31,6 +32,9 @@ import type { ListingDetail, TradeRequest } from "@/features/kreislauf/types";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 
 export const Route = createFileRoute("/inserat/$listingId")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    conversation: typeof search.conversation === "string" ? search.conversation : undefined,
+  }),
   loader: ({ params }) => getListing({ data: { id: params.listingId } }),
   component: ListingPage,
 });
@@ -38,6 +42,7 @@ export const Route = createFileRoute("/inserat/$listingId")({
 function ListingPage() {
   const initial = Route.useLoaderData();
   const { listingId } = Route.useParams();
+  const { conversation } = Route.useSearch();
   const navigate = useNavigate();
   const { version, bump, refreshProfile, profile } = useKreislauf();
   const { user, isPending } = useCurrentUserState();
@@ -403,6 +408,13 @@ function ListingPage() {
           {detail.history.length ? <ol className="mt-3 space-y-3">{detail.history.map((entry, index) => <li key={`${entry.createdAt}-${index}`} className="border-l-2 border-forest/40 pl-3"><p className="text-sm text-fg">{entry.placeLabel}</p><p className="text-xs text-subtle">{formatWhen(entry.createdAt)} · {entry.eventKind === "listed" ? "Eingestellt" : entry.eventKind === "gifted" ? "Verschenkt" : entry.eventKind === "loaned" ? "Verliehen" : "Weitergegeben"}</p></li>)}</ol> : <p className="mt-2 text-sm text-muted">Noch keine Stationen dokumentiert.</p>}
         </div>
       </section>
+
+      <ListingConversation
+        listingId={listing.id}
+        ownerId={listing.userId}
+        currentUserId={user?.id ?? null}
+        initialRequesterId={conversation}
+      />
 
       <section className="mt-8">
         <h2 className="font-display text-2xl">Bewertungen</h2>
