@@ -783,6 +783,125 @@ export const confirmTradeRequest = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
+export type TradeDisputeCase = {
+  id: string;
+  listingId: string;
+  listingTitle: string;
+  requesterName: string;
+  ownerName: string;
+  offeredDescription: string;
+  karmaAmount: number;
+  reason: string;
+  votes: number;
+  completeVotes: number;
+  cancelVotes: number;
+  assigned: number;
+  myVote: "complete" | "cancel" | null;
+  createdAt: string;
+};
+
+export type TradeDisputeVoteResult = {
+  status: "disputed" | "completed" | "cancelled";
+  votes: number;
+  completeVotes: number;
+  cancelVotes: number;
+  assigned: number;
+  required: number;
+};
+
+/** Nur offen zugeteilte Streitfälle der angemeldeten Moderationsperson. */
+export const getMyTradeDisputes = createServerFn({ method: "GET" })
+  .middleware([authMiddleware])
+  .handler(async ({ context }): Promise<TradeDisputeCase[]> => {
+    const sql = await getSql();
+    const rows = await sql.query<Row>(
+      `select tr.id, tr.listing_id as "listingId", l.title as "listingTitle",
+         requester.username as "requesterName", owner.username as "ownerName",
+         tr.offered_description as "offeredDescription",
+         tr.karma_amount as "karmaAmount",
+         coalesce(tr.dispute_reason, '') as reason,
+         count(v.moderator_id)::int as votes,
+         count(v.moderator_id) filter (where v.decision = 'complete')::int as "completeVotes",
+         count(v.moderator_id) filter (where v.decision = 'cancel')::int as "cancelVotes",
+         7::int as assigned,
+         max(mine.decision) as "myVote",
+         to_char(tr.updated_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') as "createdAt"
+       from trade_dispute_moderators assignment
+       join trade_requests tr on tr.id = assignment.trade_request_id and tr.status = 'disputed'
+       join listings l on l.id = tr.listing_id
+       join profiles requester on requester.user_id = tr.requester_id
+       join profiles owner on owner.user_id = tr.owner_id
+       left join trade_dispute_votes v on v.trade_request_id = tr.id
+       left join trade_dispute_votes mine
+         on mine.trade_request_id = tr.id and mine.moderator_id = $1
+       join profiles moderator on moderator.user_id = assignment.moderator_id
+       where assignment.moderator_id = $1
+         and moderator.is_verified = true
+         and moderator.moderator_rank > 0
+         and moderator.last_active_at >= now() - interval '30 days'
+       group by tr.id, l.title, requester.username, owner.username
+       order by tr.created_at asc
+       limit 100`,
+      [context.userId],
+    );
+    return rows.map((row) => ({
+      id: asString(row.id),
+      listingId: asString(row.listingId),
+      listingTitle: asString(row.listingTitle),
+      requesterName: asString(row.requesterName),
+      ownerName: asString(row.ownerName),
+      offeredDescription: asString(row.offeredDescription),
+      karmaAmount: asNumber(row.karmaAmount),
+      reason: asString(row.reason),
+      votes: asNumber(row.votes),
+      completeVotes: asNumber(row.completeVotes),
+      cancelVotes: asNumber(row.cancelVotes),
+      assigned: asNumber(row.assigned),
+      myVote: row.myVote === "complete" || row.myVote === "cancel" ? row.myVote : null,
+      createdAt: asString(row.createdAt),
+    }));
+  });
+
+export const voteTradeDispute = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    if (!input || typeof input !== "object") throw new Error("Ungültige Abstimmung");
+    const source = input as Record<string, unknown>;
+    const id = idOf(source, "id");
+    const decision = source.decision === "complete" || source.decision === "cancel" ? source.decision : null;
+    const note = typeof source.note === "string" ? source.note.trim() : "";
+    if (!decision) throw new Error("Entscheidung muss Tauschabschluss oder Abbruch sein.");
+    if (note.length < 10 || note.length > 500) throw new Error("Bitte begründe deine Entscheidung mit 10 bis 500 Zeichen.");
+    return { id, decision, note };
+  })
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }): Promise<TradeDisputeVoteResult | ActionResult> => {
+    const sql = await getSql();
+    try {
+      const rows = await sql.query<Row>(
+        "select * from kreislauf_vote_trade_dispute($1, $2, $3, $4)",
+        [data.id, context.userId, data.decision, data.note],
+      );
+      const row = rows[0];
+      if (!row) return fail("Die Abstimmung lieferte kein Ergebnis.");
+      return {
+        status: asString(row.status) as TradeDisputeVoteResult["status"],
+        votes: asNumber(row.votes),
+        completeVotes: asNumber(row.complete_votes),
+        cancelVotes: asNumber(row.cancel_votes),
+        assigned: asNumber(row.assigned),
+        required: asNumber(row.required),
+      };
+    } catch (error) {
+      const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
+      if (code === "23505") return fail("Du hast in diesem Fall bereits abgestimmt. Eine Stimme kann nicht geändert werden.");
+      if (code === "42501" || code === "P0002" || code === "23514") {
+        return fail(error instanceof Error ? error.message : "Abstimmung nicht möglich.");
+      }
+      throw error;
+    }
+  });
+
 export type ListingThread = {
   requesterId: string;
   requesterName: string;
