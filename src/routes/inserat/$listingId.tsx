@@ -56,6 +56,7 @@ function ListingPage() {
   const [scores, setScores] = useState({ punctuality: 5, itemCondition: 5, reliability: 5, note: "" });
   const [tradeRequests, setTradeRequests] = useState<TradeRequest[]>([]);
   const [offeredDescription, setOfferedDescription] = useState("");
+  const [disputeReason, setDisputeReason] = useState("");
 
   useEffect(() => {
     if (version === 0) return;
@@ -268,7 +269,11 @@ function ListingPage() {
                           </p>
                         ) : null}
                         {request.status === "disputed" ? (
-                          <p className="mt-2 text-sm text-copper">Streitfall gemeldet. Der Vorgang bleibt gesperrt; bis zur Klärung wird kein Karma übertragen.</p>
+                          <div className="mt-3 rounded-xl border border-copper/30 bg-elev p-3">
+                            <p className="text-sm font-semibold text-copper">Unabhängige Schlichtung läuft</p>
+                            {request.disputeReason ? <p className="mt-1 text-sm text-fg">{request.disputeReason}</p> : null}
+                            <p className="mt-2 text-xs text-subtle">Sieben aktive, verifizierte Moderationspersonen aus der Region prüfen den Fall unabhängig. Eine Entscheidung ist frühestens mit vier Stimmen und mindestens zwei Dritteln Mehrheit möglich. Bis dahin bleiben Inserat und Karma gesperrt.</p>
+                          </div>
                         ) : null}
                         {request.status === "completed" ? (
                           <p className="mt-2 text-sm text-forest">Beide Seiten haben bestätigt. Der Tausch ist abgeschlossen.</p>
@@ -283,11 +288,36 @@ function ListingPage() {
                           <Button className="mt-3" variant="ghost" disabled={busy} onClick={() => void run(() => transitionTradeRequest({ data: { id: request.id, action: "cancel" } }))}>Vorschlag zurückziehen</Button>
                         ) : null}
                         {request.status === "accepted" && involved ? (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {!confirmedByMe ? (
-                              <Button disabled={busy} onClick={() => void run(() => confirmTradeRequest({ data: { id: request.id } }))}>Abschluss bestätigen</Button>
-                            ) : null}
-                            <Button variant="ghost" disabled={busy} onClick={() => void run(() => transitionTradeRequest({ data: { id: request.id, action: "dispute" } }))}>Problem melden</Button>
+                          <div className="mt-3 space-y-3">
+                            <div className="flex flex-wrap gap-2">
+                              {!confirmedByMe ? (
+                                <Button disabled={busy} onClick={() => void run(() => confirmTradeRequest({ data: { id: request.id } }))}>Abschluss bestätigen</Button>
+                              ) : null}
+                            </div>
+                            <form
+                              className="space-y-2 rounded-xl border border-line p-3"
+                              onSubmit={(event) => {
+                                event.preventDefault();
+                                void run(() => transitionTradeRequest({
+                                  data: { id: request.id, action: "dispute", reason: disputeReason },
+                                })).then((success) => { if (success) setDisputeReason(""); });
+                              }}
+                            >
+                              <label className="block text-sm text-muted">
+                                Problem melden – bitte konkret beschreiben
+                                <textarea
+                                  className={fieldClass + " mt-2 h-24 py-3"}
+                                  value={disputeReason}
+                                  onChange={(event) => setDisputeReason(event.target.value)}
+                                  minLength={10}
+                                  maxLength={1000}
+                                  required
+                                  placeholder="Was ist bei der Übergabe oder Vereinbarung schiefgelaufen?"
+                                />
+                              </label>
+                              <p className="text-xs text-subtle">Die Begründung wird dem Schlichtungsfall und dem Inserat-Chat beigefügt. Eine Entscheidung braucht mindestens vier Stimmen und eine Zweidrittelmehrheit.</p>
+                              <Button variant="ghost" type="submit" disabled={busy || disputeReason.trim().length < 10}>Streitfall eröffnen</Button>
+                            </form>
                           </div>
                         ) : null}
                       </article>
