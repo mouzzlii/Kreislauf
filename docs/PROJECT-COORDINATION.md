@@ -10,6 +10,7 @@ Dieses Dokument koordiniert die verifizierten Entwicklungsprojekte und kennzeich
 - Änderungen erfolgen grundsätzlich auf Aufgaben-Branches und werden über Pull Requests integriert.
 - Keine parallelen Änderungen an denselben Dateien ohne vorherige Abstimmung.
 - Vor jeder Änderung: aktuellen Stand, README, Projektanweisungen, offene Issues und CI lesen.
+- Doppelarbeit vermeiden: pro Projekt/Funktion gibt es genau einen verantwortlichen Umsetzungs-PR; neue Chats und Aufgaben müssen zuerst Issue #11 und bestehende PRs abgleichen. Bestehende Arbeit wird fortgesetzt oder geprüft, nicht parallel neu implementiert.
 - Nach jeder Änderung: passende Tests ausführen und Ergebnisse samt Commit-SHA dokumentieren.
 - Keine Zugangsdaten, Kundendaten, privaten Fotos, Produktionsdatenbanken oder echten `.env`-Dateien committen.
 - Externe Dienste gelten erst nach erfolgreicher Integration und echtem Ende-zu-Ende-Test als einsatzbereit.
@@ -28,9 +29,11 @@ Dieses Dokument koordiniert die verifizierten Entwicklungsprojekte und kennzeich
 | **INSERAT-PROFI AI** | [mouzzlii/INSERAT-PROFI-AI](https://github.com/mouzzlii/INSERAT-PROFI-AI) | Eigenständige App mit eigener Oberfläche und Datenhaltung; darf Erkenntnisse/Komponenten aus SCAN-PROFIT wiederverwenden, aber SCAN-PROFIT nicht verändern. PR #2 zur kontrollierten KI-Fotoerkennung/-Gruppierung ist separat zu prüfen. Automatische Willhaben-Veröffentlichung und verifizierter Willhaben-CSV-Import sind nicht belegt. |
 | **BOOK YOUR COOK** | [mouzzlii/book-your-cook](https://github.com/mouzzlii/book-your-cook) | Eigenständiges Produkt. Issue #1 dokumentiert offenen Steuer-/Brutto-Netto-Blocker; PR #2 zur monotonen Stripe-Refund-Statusbehandlung ist separat zu prüfen. Steuerliche Preislogik nicht ohne fachliche/gesetzliche Klärung verändern. |
 | **LARA QUIZ** | [mouzzlii/Lara_Quiz](https://github.com/mouzzlii/Lara_Quiz) | Eigenständiges Offline-HTML-Quiz mit lokalem Speicher und JSON-Import; keine Server-/Cloud-Synchronisierung unterstellen. Importgrenzen und Validator sind Teil der begrenzten Prüfung. |
+| **KI-ARBEITSPLATZ** | [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz) | Eigenständiger lokaler Windows-Arbeitsplatz (Meisterwerk Edition 1.0.0), derzeit als ZIP-Paket im Repository. Enthält bereits einen PowerShell-Startkern, lokale Aufgaben- und Projektverwaltung, Git-Status/FETCH mit Bestätigung, Systemprüfung sowie ZIP-Backups. Laut Paketdokumentation gibt es noch keine ChatGPT-PC-Verbindung, kein lokales KI-Modell und keinen autonomen Hintergrund-Agenten. Das bestehende Paket ist die einzige Umsetzungsbasis; Erweiterungen müssen darauf aufbauen und dürfen kein zweites Arbeitsplatzprogramm erzeugen. Paket wurde strukturell und durch Auslesen zentraler Dateien geprüft; kein Windows-Laufzeittest durchgeführt. |
 
 ## KI-Team-Zusammenarbeit
 
+- Der lokale KI-Arbeitsplatz ist vom Cloud-Council-Relay zu unterscheiden: Er soll später lokale/offline Aufgaben auf Windows ausführen; der Relay dient der kontrollierten externen Modell-Gegenprüfung. Keine dieser Verbindungen gilt ohne echten Ende-zu-Ende-Test als aktiv.
 - Die sichere GitHub-Relay-Basis ist in KREISLAUF `main` integriert. PR #29 erweiterte sie um begrenzte Quelltextauszüge und Secret-Redaktion. Der Relay reagiert nur auf einen ausdrücklich markierten Kommentar in Issue #11 und ändert selbst keinen Quellcode.
 - PR #32 und PR #33 sind in Main integriert (Commits `f1bd274` und `e559f68`). Die Rollenfolge lautet GPT → Claude → dritter Agent → GPT. Claude nutzt die Anthropic Messages API. Der dritte Agent kann über `AI_TEAM_THIRD_PROVIDER=meta` Meta Muse via gehostete Meta Model API ausführen oder über `AI_TEAM_THIRD_PROVIDER=llama` ein echtes Llama-Modell via separat gehostetem HTTPS-Inference-Endpunkt. Relay-CI Run 45308167302 und vollständige PR-Build-CI Run 45308167341 erfolgreich; Main-Push-CI nach PR #33 läuft noch.
 - **Meta-/Llama-Grenze:** Die gehostete Meta Model API stellt Muse-Modelle bereit, nicht Llama-Gewichte. Llama bleibt deshalb ein getrennt gehostetes Open-Weight-Modell. Die Auswahl ist explizit und fail-closed; ohne passenden Secret-/Modell-/Endpoint-Satz wird kein Provider aufgerufen.
@@ -44,7 +47,7 @@ Dieses Dokument koordiniert die verifizierten Entwicklungsprojekte und kennzeich
 
 - `mouzzlii/Pakete` ist ein historischer Paket-Prototyp; TRAKUNA ist der kanonische Entwicklungsstrang.
 - `mouzzlii/multi-carrier-gateway-neu`, `Pakete-neu`, `Paketescanner`, `Pakete-Scanner` und `ShopScannerNeu` bleiben Experimente bzw. unklassifizierte Kandidaten, bis README, Commitstand und Abhängigkeiten fachlich zugeordnet sind.
-- `mouzzlii/Gemeinwohl` und `mouzzlii/KI-Arbeitsplatz` enthalten derzeit vor allem Archiv-/ZIP-Artefakte; sie gelten nicht als bestätigte eigenständige aktive Produktquellcodes.
+- `mouzzlii/Gemeinwohl` enthält derzeit vor allem Archiv-/ZIP-Artefakte und bleibt bis zum Versions-/Abhängigkeitsvergleich unklassifiziert.
 - „Menschheitsfamilie“ bleibt ein verwandter Konzept-/Projektbereich; ein kanonisches eigenständiges Repository ist hier noch nicht bestätigt.
 
 ## Abnahme-Gates je Projekt
