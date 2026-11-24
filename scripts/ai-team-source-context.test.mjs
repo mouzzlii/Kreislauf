@@ -32,6 +32,24 @@ test("source selection prefers coordination, security and real application entry
   assert.equal(selected.some((path) => path.includes("node_modules")), false);
 });
 
+test("KI-Arbeitsplatz selects only its bounded roadmap and offline worker sources", () => {
+  const selected = selectSourcePaths([
+    "MASTERWERK-ROADMAP.md",
+    "Offline-Modus/Lib/Common.ps1",
+    "Offline-Modus/Lib/LocalAI.ps1",
+    "Offline-Modus/Worker.ps1",
+    ".env",
+    "Council/BUDGET-APPROVAL.json",
+  ]);
+  assert.deepEqual(selected, [
+    "MASTERWERK-ROADMAP.md",
+    "Offline-Modus/Lib/Common.ps1",
+    "Offline-Modus/Lib/LocalAI.ps1",
+    "Offline-Modus/Worker.ps1",
+  ]);
+  assert.equal(selected.length, 4);
+});
+
 test("sensitive tokens, inline secrets and private keys are redacted before context is built", () => {
   const hexSecret = "a".repeat(64);
   const stripeFake = ["sk", "live", "A".repeat(24)].join("_");
