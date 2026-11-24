@@ -4,6 +4,7 @@ import {
   buildSafeProjectContext,
   buildSourceContext,
   decodeSourceFile,
+  hasUsablePrimaryContext,
   MAX_SOURCE_CONTEXT_CHARS,
   MAX_SOURCE_FILE_CHARS,
   selectSourcePaths,
@@ -48,6 +49,18 @@ test("KI-Arbeitsplatz selects only its bounded roadmap and offline worker source
     "Offline-Modus/Worker.ps1",
   ]);
   assert.equal(selected.length, 4);
+});
+
+test("primary repository and a real source excerpt are required before Council calls", () => {
+  const valid = {
+    repository: "mouzzlii/KI-Arbeitsplatz",
+    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "main" }],
+    source: "#### Offline-Modus/Lib/LocalAI.ps1\\nfunction Test-Example { return $true }",
+  };
+  assert.equal(hasUsablePrimaryContext(valid), true);
+  assert.equal(hasUsablePrimaryContext({ ...valid, repositories: [{ repository: "mouzzlii/Kreislauf", branch: "main" }] }), false);
+  assert.equal(hasUsablePrimaryContext({ ...valid, source: "#### Offline-Modus/Lib/LocalAI.ps1\\n" }), false);
+  assert.equal(hasUsablePrimaryContext({ ...valid, repository: "", source: "content" }), false);
 });
 
 test("sensitive tokens, inline secrets and private keys are redacted before context is built", () => {
