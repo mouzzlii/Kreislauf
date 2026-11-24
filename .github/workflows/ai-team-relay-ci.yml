@@ -15,6 +15,7 @@ on:
       - ".github/workflows/ai-team-communication.yml"
       - ".github/workflows/ai-team-relay-ci.yml"
       - "AI_TEAM_SETUP.md"
+      - "docs/PROJECT-COORDINATION.md"
   pull_request:
     paths:
       - "scripts/ai-team-relay.mjs"
@@ -26,6 +27,7 @@ on:
       - ".github/workflows/ai-team-communication.yml"
       - ".github/workflows/ai-team-relay-ci.yml"
       - "AI_TEAM_SETUP.md"
+      - "docs/PROJECT-COORDINATION.md"
 
 permissions:
   contents: read
@@ -60,6 +62,12 @@ jobs:
           const workflow = readFileSync(".github/workflows/ai-team-communication.yml", "utf8");
           assert.ok(source.includes('TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway"'));
           assert.ok(source.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
+          assert.ok(source.includes('"INSERAT-PROFI-AI": process.env.PROJECT_REPO_INSERAT_PROFI_AI || "mouzzlii/INSERAT-PROFI-AI"'));
+          assert.ok(source.includes('"BOOK-YOUR-COOK": process.env.PROJECT_REPO_BOOK_YOUR_COOK || "mouzzlii/book-your-cook"'));
+          assert.ok(source.includes('"LARA-QUIZ": process.env.PROJECT_REPO_LARA_QUIZ || "mouzzlii/Lara_Quiz"'));
+          assert.ok(workflow.includes("PROJECT_REPO_INSERAT_PROFI_AI"));
+          assert.ok(workflow.includes("PROJECT_REPO_BOOK_YOUR_COOK"));
+          assert.ok(workflow.includes("PROJECT_REPO_LARA_QUIZ"));
           assert.ok(source.includes("getMissingProviderConfiguration({"));
           const incomplete = getMissingProviderConfiguration({});
           assert.ok(incomplete.missingSecrets.includes("AI_TEAM_REPO_READ_TOKEN"));
