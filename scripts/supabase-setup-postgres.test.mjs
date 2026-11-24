@@ -95,6 +95,24 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
           now(), now() + interval '1 day', 'reserved', 10)`,
     );
 
+    await db.query(
+      `insert into ledger_entries(region_id, listing_id, sender_id, receiver_id, amount_karma, entry_kind, message)
+       values ('yspertal-b36', 'setup-test-listing', 'setup-test-owner', 'setup-test-renter', 1, 'transfer', 'Owner initiated transfer')`,
+    );
+    const transferThread = await db.query(
+      `select
+         (select count(*)::int from listing_conversations where listing_id = 'setup-test-listing') as thread_count,
+         (select count(*)::int from listing_conversations where listing_id = 'setup-test-listing' and requester_id = 'setup-test-renter' and owner_id = 'setup-test-owner') as canonical_thread_count,
+         (select count(*)::int from listing_conversations where listing_id = 'setup-test-listing' and requester_id = 'setup-test-owner') as inverted_thread_count,
+         (select count(*)::int from listing_messages m join listing_conversations c on c.id = m.conversation_id
+           where c.listing_id = 'setup-test-listing' and c.requester_id = 'setup-test-renter' and c.owner_id = 'setup-test-owner'
+             and m.message_kind = 'system' and m.body = 'Tauschvorgang aktualisiert: Die Karma-Buchung wurde erfasst.') as transfer_message_count`,
+    );
+    assert.equal(transferThread.rows[0].thread_count, 1, "owner-initiated transfer must reuse the existing listing conversation");
+    assert.equal(transferThread.rows[0].canonical_thread_count, 1);
+    assert.equal(transferThread.rows[0].inverted_thread_count, 0);
+    assert.equal(transferThread.rows[0].transfer_message_count, 1);
+
     // Escrow must fail closed if the assignment trigger cannot find four moderators.
     await db.query(
       `insert into profiles (user_id, username, region_id, is_verified, moderator_rank, last_active_at)
@@ -152,7 +170,7 @@ test("Supabase setup SQL executes against a clean PostgreSQL-compatible database
     );
 
     const applied = await db.query("select name from _migrations order by name");
-    assert.equal(applied.rows.length, 25);
+    assert.equal(applied.rows.length, 26);
   } finally {
     await db.close();
   }
