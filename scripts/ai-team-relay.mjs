@@ -432,7 +432,7 @@ async function main() {
     context.repository === projectContext.repository && Boolean(context.branch)
   );
   const hasSourceExcerpt = projectContext.source
-    .replace(/^#### [^\\n]+\\n/gm, "")
+    .replace(/^#### [^\n]+\n/gm, "")
     .trim().length > 0;
   if (!primaryContextLoaded || !hasSourceExcerpt) {
     await githubRequest(`issues/${issue.number}/comments`, {
@@ -444,7 +444,7 @@ async function main() {
           `Der Quellkontext für ${project} (${projectContext.repository || "Repository nicht konfiguriert"}) konnte nicht vollständig geladen werden.`,
           "Bitte den Fine-grained AI_TEAM_REPO_READ_TOKEN auf das Projekt-Repository mit Contents: read-only und Metadata-Lesezugriff erweitern.",
           "Es wurden keine Provider aufgerufen und kein Tageskontingent reserviert.",
-        ].join("\\n\\n"),
+        ].join("\n\n"),
       }),
     });
     return;
