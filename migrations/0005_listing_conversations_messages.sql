@@ -116,3 +116,24 @@ before insert on listing_messages
 for each row execute function kreislauf_limit_listing_messages();
 
 revoke all on function kreislauf_limit_listing_messages() from public;
+
+-- Keep inbox ordering correct for both user messages and automatic trade events.
+create or replace function kreislauf_touch_listing_conversation()
+returns trigger
+language plpgsql
+set search_path = pg_catalog, public, pg_temp
+as $fn$
+begin
+  update public.listing_conversations
+  set updated_at = greatest(updated_at, NEW.created_at)
+  where id = NEW.conversation_id;
+  return NEW;
+end;
+$fn$;
+
+drop trigger if exists listing_messages_touch_conversation on listing_messages;
+create trigger listing_messages_touch_conversation
+after insert on listing_messages
+for each row execute function kreislauf_touch_listing_conversation();
+
+revoke all on function kreislauf_touch_listing_conversation() from public;
