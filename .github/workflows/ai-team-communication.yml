@@ -41,6 +41,9 @@ jobs:
           GITHUB_EVENT_PATH: ${{ github.event_path }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AI_TEAM_THIRD_PROVIDER: ${{ vars.AI_TEAM_THIRD_PROVIDER }}
+          META_MODEL_API_KEY: ${{ secrets.META_MODEL_API_KEY }}
+          META_MODEL: ${{ vars.META_MODEL }}
           LLAMA_API_KEY: ${{ secrets.LLAMA_API_KEY }}
           LLAMA_API_BASE_URL: ${{ vars.LLAMA_API_BASE_URL }}
           AI_TEAM_REPO_READ_TOKEN: ${{ secrets.AI_TEAM_REPO_READ_TOKEN }}
