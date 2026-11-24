@@ -94,9 +94,255 @@ export interface FileRoutesById {
   '/konto': typeof KontoRoute
   '/login': typeof LoginRoute
   '/nachrichten': typeof NachrichtenRoute
+  '/moderation': typeof ModerationRoute
   '/inserat/$listingId': typeof InseratListingIdRoute
   '/inserat/neu': typeof InseratNeuRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/nachrichten'
+    | '/moderation'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/nachrichten'
+    | '/moderation'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/karte'
+    | '/konto'
+    | '/login'
+    | '/nachrichten'
+    | '/moderation'
+    | '/inserat/$listingId'
+    | '/inserat/neu'
+    | '/api/auth/: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  NachrichtenRoute: typeof NachrichtenRoute
+  ModerationRoute: typeof ModerationRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nachrichten': {
+      id: '/nachrichten'
+      path: '/nachrichten'
+      fullPath: '/nachrichten'
+      preLoaderRoute: typeof NachrichtenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moderation': {
+      id: '/moderation'
+      path: '/moderation'
+      fullPath: '/moderation'
+      preLoaderRoute: typeof ModerationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  NachrichtenRoute: NachrichtenRoute,
+  ModerationRoute: ModerationRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  KarteRoute: typeof KarteRoute
+  KontoRoute: typeof KontoRoute
+  LoginRoute: typeof LoginRoute
+  NachrichtenRoute: typeof NachrichtenRoute
+  ModerationRoute: typeof ModerationRoute
+  InseratListingIdRoute: typeof InseratListingIdRoute
+  InseratNeuRoute: typeof InseratNeuRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/konto': {
+      id: '/konto'
+      path: '/konto'
+      fullPath: '/konto'
+      preLoaderRoute: typeof KontoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nachrichten': {
+      id: '/nachrichten'
+      path: '/nachrichten'
+      fullPath: '/nachrichten'
+      preLoaderRoute: typeof NachrichtenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moderation': {
+      id: '/moderation'
+      path: '/moderation'
+      fullPath: '/moderation'
+      preLoaderRoute: typeof ModerationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/$listingId': {
+      id: '/inserat/$listingId'
+      path: '/inserat/$listingId'
+      fullPath: '/inserat/$listingId'
+      preLoaderRoute: typeof InseratListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inserat/neu': {
+      id: '/inserat/neu'
+      path: '/inserat/neu'
+      fullPath: '/inserat/neu'
+      preLoaderRoute: typeof InseratNeuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  KarteRoute: KarteRoute,
+  KontoRoute: KontoRoute,
+  LoginRoute: LoginRoute,
+  NachrichtenRoute: NachrichtenRoute,
+  ModerationRoute: ModerationRoute,
+  InseratListingIdRoute: InseratListingIdRoute,
+  InseratNeuRoute: InseratNeuRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+}
+export const routeTree = rootRouteImport
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
+: typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
