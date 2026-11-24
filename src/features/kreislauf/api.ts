@@ -800,7 +800,7 @@ export const transitionTradeRequest = createServerFn({ method: "POST" })
                else tr.status
              end,
              updated_at = now(),
-             resolved_at = case when $3 in ('reject','cancel','dispute') then now() else null end
+             resolved_at = case when $3 in ('reject','cancel') then now() else null end
          from target
          where tr.id = target.id
            and (
