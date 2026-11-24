@@ -769,7 +769,6 @@ export const confirmTradeRequest = createServerFn({ method: "POST" })
     if (!rows.length) {
       return fail("Bestätigung nicht möglich. Prüfe Beteiligung, Status und verfügbares Karma.");
     }
-    if (rows[0].status === "completed") return { ok: true };
     return { ok: true };
   });
 export const reserveListing = createServerFn({ method: "POST" })
