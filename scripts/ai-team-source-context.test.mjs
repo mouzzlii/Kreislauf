@@ -55,11 +55,11 @@ test("primary repository and a real source excerpt are required before Council c
   const valid = {
     repository: "mouzzlii/KI-Arbeitsplatz",
     repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "main" }],
-    source: "#### Offline-Modus/Lib/LocalAI.ps1\\nfunction Test-Example { return $true }",
+    source: "#### Offline-Modus/Lib/LocalAI.ps1\nfunction Test-Example { return $true }",
   };
   assert.equal(hasUsablePrimaryContext(valid), true);
   assert.equal(hasUsablePrimaryContext({ ...valid, repositories: [{ repository: "mouzzlii/Kreislauf", branch: "main" }] }), false);
-  assert.equal(hasUsablePrimaryContext({ ...valid, source: "#### Offline-Modus/Lib/LocalAI.ps1\\n" }), false);
+  assert.equal(hasUsablePrimaryContext({ ...valid, source: "#### Offline-Modus/Lib/LocalAI.ps1\n" }), false);
   assert.equal(hasUsablePrimaryContext({ ...valid, repository: "", source: "content" }), false);
 });
 
