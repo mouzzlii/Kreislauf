@@ -32,6 +32,17 @@ test("source selection prefers coordination, security and real application entry
   assert.equal(selected.some((path) => path.includes("node_modules")), false);
 });
 
+test("portfolio projects expose only their explicitly allowlisted review files", () => {
+  assert.deepEqual(selectSourcePaths([
+    "src/app/studio.tsx", "src/app/api/ai/analyze/route.ts", "src/app/api/ai/status/route.ts", "src/lib/listing-core.js",
+  ]), ["src/app/studio.tsx", "src/app/api/ai/analyze/route.ts", "src/app/api/ai/status/route.ts", "src/lib/listing-core.js"]);
+  assert.deepEqual(selectSourcePaths([
+    "book-your-cook-produkt/README-DE.md", "book-your-cook-produkt/docs/TAX-PRICE-MODELL-UND-FREIGABE.md",
+    "book-your-cook-produkt/supabase/functions/_shared/pricing.js", "book-your-cook-produkt/supabase/functions/stripe-webhook/index.ts",
+  ]), ["book-your-cook-produkt/README-DE.md", "book-your-cook-produkt/docs/TAX-PRICE-MODELL-UND-FREIGABE.md", "book-your-cook-produkt/supabase/functions/_shared/pricing.js", "book-your-cook-produkt/supabase/functions/stripe-webhook/index.ts"]);
+  assert.deepEqual(selectSourcePaths(["Quiz_Neu_verbessert.html", "scripts/check-quiz.mjs"]), ["Quiz_Neu_verbessert.html", "scripts/check-quiz.mjs"]);
+});
+
 test("sensitive tokens, inline secrets and private keys are redacted before context is built", () => {
   const hexSecret = "a".repeat(64);
   const stripeFake = ["sk", "live", "A".repeat(24)].join("_");
