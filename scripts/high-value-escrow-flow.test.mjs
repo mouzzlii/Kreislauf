@@ -143,6 +143,19 @@ test("high-value escrow holds Karma, requires both confirmations, and supports m
       `insert into escrow_cases(id,listing_id,requester_id,moderator_id,reason,status)
        values ('sharing-case-party-guard','sharing-listing-party-guard','escrow-buyer','escrow-mod-1','Sharing-Reservierung','pending')`,
     );
+    // Also cover the independent resolution ballot for standard sharing escrow.
+    await assert.rejects(
+      db.query("insert into escrow_resolution_votes(escrow_id,moderator_id,decision,note) values ('sharing-case-party-guard','escrow-buyer','release','Eigene Sharing-Entscheidung')"),
+      /Tauschparteien dürfen nicht über ihren eigenen Treuhand- oder Streitfall abstimmen/,
+      "the requester must never vote on a standard sharing escrow resolution ballot",
+    );
+    await assert.rejects(
+      db.query("insert into escrow_resolution_votes(escrow_id,moderator_id,decision,note) values ('sharing-case-party-guard','escrow-seller','refund','Eigene Anbieter-Entscheidung')"),
+      /Tauschparteien dürfen nicht über ihren eigenen Treuhand- oder Streitfall abstimmen/,
+      "the listing owner must never vote on a standard sharing escrow resolution ballot",
+    );
+    assert.equal((await db.query("select count(*)::int as n from escrow_resolution_votes where escrow_id='sharing-case-party-guard'")).rows[0].n,0,
+      "party resolution votes must not be persisted");
     await db.query("update profiles set moderator_rank=1 where user_id='escrow-buyer'");
     await db.query("insert into escrow_moderators(escrow_id,moderator_id) values ('sharing-case-party-guard','escrow-buyer')");
     await db.query("update profiles set moderator_rank=1 where user_id='escrow-seller'");
