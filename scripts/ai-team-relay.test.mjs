@@ -66,11 +66,12 @@ assert.equal((relaySource.match(/AI_TEAM_BUDGET_CONFIRMED !== "true"/g) || []).l
 assert.ok(relaySource.includes("const MAX_DAILY_DEBATES = 2;"));
 assert.ok(relaySource.includes("reserveDailyDebate(comment.id)"));
 const contextLoadIndex = relaySource.indexOf("const projectContext = await fetchProjectContext(project);")
-const contextGuardIndex = relaySource.indexOf("const primaryContextLoaded", contextLoadIndex)
+const contextGuardIndex = relaySource.indexOf("if (!hasUsablePrimaryContext(projectContext))", contextLoadIndex)
 const reservationIndex = relaySource.indexOf("const reservation = await reserveDailyDebate(comment.id);")
 const firstProviderIndex = relaySource.indexOf("const initial = await runPhase", reservationIndex)
 assert.ok(contextLoadIndex >= 0 && contextGuardIndex > contextLoadIndex)
 assert.ok(reservationIndex > contextGuardIndex && firstProviderIndex > reservationIndex)
+assert.ok(relaySource.includes("hasUsablePrimaryContext"))
 assert.ok(relaySource.includes("Es wurden keine Provider aufgerufen und kein Tageskontingent reserviert."))
 assert.ok(relaySource.includes("Fehlerphase: ${phase}"));
 assert.ok(relaySource.includes("Tageskontingent bleibt verbraucht"));
