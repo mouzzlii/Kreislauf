@@ -1,6 +1,6 @@
 import process from "node:process";
 import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, selectSourcePaths } from "./ai-team-source-context.mjs";
-import { ANTHROPIC_API_VERSION, buildClaudeMessage, buildLlamaChatCompletion, extractClaudeText, extractLlamaText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
+import { ANTHROPIC_API_VERSION, buildClaudeMessage, buildMetaChatCompletion, buildLlamaChatCompletion, extractClaudeText, extractMetaText, extractLlamaText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 
 const {
   GITHUB_TOKEN,
@@ -8,6 +8,8 @@ const {
   GITHUB_EVENT_PATH,
   OPENAI_API_KEY,
   ANTHROPIC_API_KEY,
+  AI_TEAM_THIRD_PROVIDER,
+  META_MODEL_API_KEY,
   LLAMA_API_KEY,
   LLAMA_API_BASE_URL,
   AI_TEAM_REPO_READ_TOKEN,
@@ -30,6 +32,7 @@ const PROJECT_RELATED_REPOS = {
 // Require explicit, currently supported model IDs; never guess provider defaults.
 const OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || "";
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL?.trim() || "";
+const META_MODEL = process.env.META_MODEL?.trim() || "";
 const LLAMA_MODEL = process.env.LLAMA_MODEL?.trim() || "";
 const AI_TEAM_ALLOWED_USERS = process.env.AI_TEAM_ALLOWED_USERS || "mouzzlii";
 
@@ -113,6 +116,31 @@ async function askClaude(instructions, input) {
   const output = extractClaudeText(data);
   if (!output) throw new Error("Claude returned an empty response.");
   return output;
+}
+
+async function askMeta(instructions, input) {
+  const data = await api("https://api.meta.ai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${META_MODEL_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(buildMetaChatCompletion({
+      model: META_MODEL,
+      instructions,
+      input,
+      maxTokens: MAX_OUTPUT_TOKENS,
+    })),
+  });
+  const output = extractMetaText(data);
+  if (!output) throw new Error("Meta Model API returned an empty response.");
+  return output;
+}
+
+async function askThirdProvider(instructions, input) {
+  if (AI_TEAM_THIRD_PROVIDER === "meta") return askMeta(instructions, input);
+  if (AI_TEAM_THIRD_PROVIDER === "llama") return askLlama(instructions, input);
+  throw new Error("AI_TEAM_THIRD_PROVIDER must be explicitly set to meta or llama.");
 }
 
 async function askLlama(instructions, input) {
@@ -342,6 +370,9 @@ async function main() {
   const { missingSecrets: missing, missingModels } = getMissingProviderConfiguration({
     OPENAI_API_KEY,
     ANTHROPIC_API_KEY,
+    AI_TEAM_THIRD_PROVIDER,
+    META_MODEL_API_KEY,
+    META_MODEL,
     LLAMA_API_KEY,
     LLAMA_API_BASE_URL,
     AI_TEAM_REPO_READ_TOKEN,
@@ -435,14 +466,15 @@ async function main() {
     `${safeContext}\n\nAnalyse von OpenAI/GPT:\n${initial}`,
   ));
 
-  const llama = await runPhase(issue.number, marker, "Llama-Gegenprüfung", () => askLlama(
-    `${baseInstructions} Du bist Llama und bist der unabhängige Gegenprüfer. Prüfe den ursprünglichen Auftrag sowie die beiden Analysen. Identifiziere Denkfehler, Risiken und bessere Alternativen.`,
-    `${safeContext}\n\nAnalyse von OpenAI/GPT:\n${initial}\n\nGegenprüfung von Claude:\n${claude}`,
+  const thirdProviderLabel = AI_TEAM_THIRD_PROVIDER === "meta" ? "Meta Muse" : "Llama";
+  const thirdProvider = await runPhase(issue.number, marker, `${thirdProviderLabel}-Gegenprüfung`, () => askThirdProvider(
+    `${baseInstructions} Du bist ${thirdProviderLabel} und der unabhängige Gegenprüfer. Prüfe den ursprünglichen Auftrag sowie die bisherigen Analysen. Identifiziere Denkfehler, Risiken und bessere Alternativen.`,
+    `${safeContext}\\n\\nAnalyse von OpenAI/GPT:\\n${initial}\\n\\nGegenprüfung von Claude:\\n${claude}`,
   ));
 
   const synthesis = await runPhase(issue.number, marker, "OpenAI/GPT-Synthese", () => askOpenAI(
     `${baseInstructions} Du moderierst die Abschlussrunde. Fasse nur belastbare Übereinstimmungen zusammen, löse Widersprüche begründet auf und liste offene Nachweise. Behaupte nicht, dass Code geändert oder getestet wurde.`,
-    `${safeContext}\n\nGPT-Erstanalyse:\n${initial}\n\nClaude-Gegenprüfung:\n${claude}\n\nLlama-Gegenprüfung:\n${llama}\n\nErstelle die abschließende gemeinsame Empfehlung.`,
+    `${safeContext}\n\nGPT-Erstanalyse:\n${initial}\n\nClaude-Gegenprüfung:\n${claude}\n\nLlama-Gegenprüfung:\n${thirdProvider}\n\nErstelle die abschließende gemeinsame Empfehlung.`,
   ));
 
   const body = [
@@ -453,7 +485,7 @@ async function main() {
     initial,
     "## Claude – Gegenprüfung",
     claude,
-    "## Llama – unabhängige Kritik",
+    "## ${thirdProviderLabel} – unabhängige Kritik",
     llama,
     "## Gemeinsame Synthese",
     synthesis,
