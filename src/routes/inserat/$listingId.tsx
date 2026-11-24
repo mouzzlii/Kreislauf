@@ -79,7 +79,7 @@ function ListingPage() {
       .then((next) => { if (!cancel) setTradeRequests(next); })
       .catch(() => { if (!cancel) setTradeRequests([]); });
     return () => { cancel = true; };
-  }, [listingId, user?.id, version]);
+  }, [listingId, user, version]);
 
   useEffect(() => {
     setQrTarget(`${window.location.origin}/inserat/${listingId}`);
