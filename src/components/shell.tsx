@@ -66,7 +66,7 @@ export function Shell({
       <header className="sticky top-0 z-30 border-b border-line bg-bg/95 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-5xl items-center gap-3 px-4 py-3">
           <Link to="/" className="flex min-w-0 items-center gap-2">
-            <img src="/favicon.svg" alt="" className="h-9 w-9 shrink-0" />
+            <img src="/branding/w-signature.jpg" alt="W-Signatur – Original" className="h-10 w-auto max-w-[72px] shrink-0 object-contain" />
             <span className="truncate font-display text-xl leading-none tracking-tight">Kreislauf</span>
           </Link>
           <nav className="ml-auto hidden items-center gap-1 md:flex">
