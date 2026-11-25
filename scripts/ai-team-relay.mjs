@@ -1,5 +1,5 @@
 import process from "node:process";
-import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
+import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, redactSensitiveText, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { hasTrustedRelayMarker, inspectDailyBudgetPage } from "./ai-team-ledger.mjs";
 import { ANTHROPIC_API_VERSION, buildClaudeMessage, buildMetaChatCompletion, buildLlamaChatCompletion, extractClaudeText, extractMetaText, extractLlamaText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 
@@ -327,7 +327,7 @@ async function runPhase(issueNumber, marker, phase, work) {
   try {
     return await work();
   } catch (error) {
-    const detail = error instanceof Error ? error.message.slice(0, 500) : "Unbekannter Fehler";
+    const detail = redactSensitiveText(error instanceof Error ? error.message.slice(0, 500) : "Unbekannter Fehler");
     const body = [
       marker,
       "### KI-Team-Debatte abgebrochen",
