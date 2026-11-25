@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import {
+  DEFAULT_REGION,
   WELCOME_KARMA,
   type Board,
   type Booking,
