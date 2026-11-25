@@ -3,7 +3,10 @@ import { test } from "node:test";
 import {
   buildSafeProjectContext,
   buildSourceContext,
+  hasNonEmptySourceExcerpt,
   decodeSourceFile,
+  hasUsablePrimaryContext,
+  resolveProjectBranch,
   MAX_SOURCE_CONTEXT_CHARS,
   MAX_SOURCE_FILE_CHARS,
   selectSourcePaths,
@@ -30,6 +33,24 @@ test("source selection prefers coordination, security and real application entry
   ]);
   assert.equal(selected.some((path) => path.includes(".env")), false);
   assert.equal(selected.some((path) => path.includes("node_modules")), false);
+});
+
+test("KI-Arbeitsplatz selects only its bounded roadmap and offline worker sources", () => {
+  const selected = selectSourcePaths([
+    "MASTERWERK-ROADMAP.md",
+    "Offline-Modus/Lib/Common.ps1",
+    "Offline-Modus/Lib/LocalAI.ps1",
+    "Offline-Modus/Worker.ps1",
+    ".env",
+    "Council/BUDGET-APPROVAL.json",
+  ]);
+  assert.deepEqual(selected, [
+    "MASTERWERK-ROADMAP.md",
+    "Offline-Modus/Lib/Common.ps1",
+    "Offline-Modus/Lib/LocalAI.ps1",
+    "Offline-Modus/Worker.ps1",
+  ]);
+  assert.equal(selected.length, 4);
 });
 
 test("portfolio project allowlists take priority over generic shared paths", () => {
@@ -60,6 +81,61 @@ test("portfolio project allowlists take priority over generic shared paths", () 
   assert.deepEqual(selectSourcePaths([
     "package.json", "public/app.js", "Quiz_Neu_verbessert.html", "scripts/check-quiz.mjs",
   ]), ["Quiz_Neu_verbessert.html", "scripts/check-quiz.mjs", "public/app.js", "package.json"]);
+});
+
+
+test("project branch override is validated and defaults to the repository branch", () => {
+  assert.equal(resolveProjectBranch("main", ""), "main");
+  assert.equal(resolveProjectBranch("main", "release/offline-masterwerk-v0.2.1"), "release/offline-masterwerk-v0.2.1");
+  assert.throws(() => resolveProjectBranch("main", "../main"), /Unsafe project branch/);
+  assert.throws(() => resolveProjectBranch("main", "bad branch"), /Unsafe project branch/);
+  assert.throws(() => resolveProjectBranch("main", "release//main"), /Unsafe project branch/);
+});
+
+test("primary repository must itself provide a real source excerpt before Council calls", () => {
+  const valid = {
+    repository: "mouzzlii/KI-Arbeitsplatz",
+    branch: "release/offline-masterwerk-v0.2.1",
+    repositories: [{
+      repository: "mouzzlii/KI-Arbeitsplatz",
+      branch: "release/offline-masterwerk-v0.2.1",
+      hasSourceExcerpt: true,
+    }],
+    source: "#### Offline-Modus/Lib/LocalAI.ps1\\nfunction Test-Example { return $true }",
+  };
+  assert.equal(hasUsablePrimaryContext(valid), true);
+
+  const secondaryOnly = {
+    ...valid,
+    repositories: [
+      { repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", hasSourceExcerpt: false },
+      { repository: "mouzzlii/Fuck", branch: "main", hasSourceExcerpt: true },
+    ],
+    // Secondary Android source may remain in the prompt but cannot satisfy
+    // the canonical gateway repository's own source prerequisite.
+    source: "#### mouzzlii/Fuck/app/src/main/java/MainActivity.kt\\nclass MainActivity",
+  };
+  assert.equal(hasUsablePrimaryContext(secondaryOnly), false);
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", hasSourceExcerpt: false }],
+  }), false);
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "", hasSourceExcerpt: true }],
+  }), false);
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/Kreislauf", branch: "main", hasSourceExcerpt: true }],
+  }), false);
+  assert.equal(hasUsablePrimaryContext({ ...valid, repository: "" }), false);
+});
+
+test("source excerpt detection ignores empty file headings", () => {
+  assert.equal(hasNonEmptySourceExcerpt("#### repo/file.ts\nexport const ok = true;"), true);
+  assert.equal(hasNonEmptySourceExcerpt("#### repo/file.ts\n"), false);
+  assert.equal(hasNonEmptySourceExcerpt("  \n  "), false);
+  assert.equal(hasNonEmptySourceExcerpt(null), false);
 });
 
 test("sensitive tokens, inline secrets and private keys are redacted before context is built", () => {
