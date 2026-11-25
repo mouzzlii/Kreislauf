@@ -47,7 +47,15 @@ function ListingPage() {
   const { version, bump, refreshProfile, profile } = useKreislauf();
   const { user, isPending } = useCurrentUserState();
   const userId = user?.id ?? null;
-  const [detail, setDetail] = useState<ListingDetail | null>(initial);
+  const [detailState, setDetailState] = useState<{
+    listingId: string;
+    source: ListingDetail | null;
+    value: ListingDetail | null;
+  }>({ listingId, source: initial, value: initial });
+  const detail = detailState.listingId === listingId && detailState.source === initial
+    ? detailState.value
+    : initial;
+  const setDetail = (value: ListingDetail | null) => setDetailState({ listingId, source: initial, value });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [meetingPointUrl, setMeetingPointUrl] = useState<string | null>(null);
@@ -75,6 +83,7 @@ function ListingPage() {
       setTradeRequests([]);
       return;
     }
+    setTradeRequests([]);
     let cancel = false;
     getTradeRequests({ data: { id: listingId } })
       .then((next) => { if (!cancel) setTradeRequests(next); })
@@ -87,7 +96,8 @@ function ListingPage() {
   }, [listingId]);
 
   useEffect(() => {
-    if (!userId) { setMeetingPointUrl(null); return; }
+    setMeetingPointUrl(null);
+    if (!userId) return;
     let cancel = false;
     getMeetingPoint({ data: { id: listingId } }).then((result) => {
       if (!cancel) setMeetingPointUrl(result.url);
