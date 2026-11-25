@@ -1,5 +1,6 @@
 import process from "node:process";
 import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
+import { hasTrustedRelayMarker, inspectDailyBudgetPage } from "./ai-team-ledger.mjs";
 import { ANTHROPIC_API_VERSION, buildClaudeMessage, buildMetaChatCompletion, buildLlamaChatCompletion, extractClaudeText, extractMetaText, extractLlamaText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 
 const {
@@ -294,20 +295,14 @@ async function reserveDailyDebate(triggerCommentId) {
     if (!Array.isArray(comments)) {
       throw new Error("Daily budget ledger returned an unexpected response.");
     }
-    let reachedPreviousDay = false;
-    for (const item of comments) {
-      const createdAt = Date.parse(item.created_at || "");
-      if (Number.isFinite(createdAt) && createdAt < dayStart) {
-        reachedPreviousDay = true;
-        break;
-      }
-      const body = String(item.body || "");
-      if (body.includes(`${reservationPrefix}${triggerCommentId} -->`)) {
-        alreadyReserved = true;
-      }
-      if (body.includes(reservationPrefix)) count += 1;
-    }
-    if (reachedPreviousDay || comments.length < 100) break;
+    const pageResult = inspectDailyBudgetPage(comments, {
+      reservationPrefix,
+      triggerCommentId,
+      dayStart,
+    });
+    count += pageResult.count;
+    alreadyReserved ||= pageResult.alreadyReserved;
+    if (pageResult.reachedPreviousDay || comments.length < 100) break;
     if (page === 20) {
       throw new Error("Daily budget ledger scan limit reached; refusing provider calls until the ledger can be checked.");
     }
@@ -374,7 +369,7 @@ async function main() {
 
   const marker = `${MARKER_PREFIX}${comment.id} -->`;
   const existing = await githubRequest(`issues/${issue.number}/comments?per_page=100`);
-  if (existing.some((item) => item.body?.includes(marker))) {
+  if (hasTrustedRelayMarker(existing, marker)) {
     console.log("This trigger comment has already been processed.");
     return;
   }
