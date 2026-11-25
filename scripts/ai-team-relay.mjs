@@ -214,7 +214,7 @@ async function fetchProjectContext(project) {
         .filter((item) => item.type === "blob")
         .map((item) => item.path);
       const paths = allPaths.slice(0, 80);
-      const sourcePaths = selectSourcePaths(allPaths);
+      const sourcePaths = selectSourcePaths(allPaths, undefined, project);
       const sourceFiles = await Promise.all(sourcePaths.map(async (path) => {
         const encodedPath = path.split("/").map(encodeURIComponent).join("/");
         try {
