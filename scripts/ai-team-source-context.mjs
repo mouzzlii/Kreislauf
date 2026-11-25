@@ -122,7 +122,7 @@ export function buildSafeProjectContext({
   return parts.join("");
 }
 
-function hasNonEmptySourceExcerpt(source) {
+export function hasNonEmptySourceExcerpt(source) {
   if (typeof source !== "string") return false;
   return source.replace(/^#### [^\n]+\n/gm, "").trim().length > 0;
 }
