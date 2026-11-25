@@ -87,7 +87,7 @@ function ListingPage() {
   }, [listingId]);
 
   useEffect(() => {
-    if (!user) { setMeetingPointUrl(null); return; }
+    if (!userId) { setMeetingPointUrl(null); return; }
     let cancel = false;
     getMeetingPoint({ data: { id: listingId } }).then((result) => {
       if (!cancel) setMeetingPointUrl(result.url);
