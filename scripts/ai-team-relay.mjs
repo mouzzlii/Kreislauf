@@ -1,5 +1,5 @@
 import process from "node:process";
-import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, redactSensitiveText, selectSourcePaths } from "./ai-team-source-context.mjs";
+import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, redactSensitiveText, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { hasTrustedRelayMarker, inspectDailyBudgetPage } from "./ai-team-ledger.mjs";
 import { ANTHROPIC_API_VERSION, buildClaudeMessage, buildMetaChatCompletion, buildLlamaChatCompletion, extractClaudeText, extractMetaText, extractLlamaText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 
@@ -25,6 +25,7 @@ const PROJECT_REPOS = {
   "INSERAT-PROFI-AI": process.env.PROJECT_REPO_INSERAT_PROFI_AI || "mouzzlii/INSERAT-PROFI-AI",
   "BOOK-YOUR-COOK": process.env.PROJECT_REPO_BOOK_YOUR_COOK || "mouzzlii/book-your-cook",
   "LARA-QUIZ": process.env.PROJECT_REPO_LARA_QUIZ || "mouzzlii/Lara_Quiz",
+  "KI-ARBEITSPLATZ": process.env.PROJECT_REPO_KI_ARBEITSPLATZ || "mouzzlii/KI-Arbeitsplatz",
 };
 
 // The canonical gateway repository holds coordination/architecture docs;
@@ -172,6 +173,7 @@ async function fetchProjectContext(project) {
   if (!repository) {
     return {
       repository: null,
+      branch: "",
       repositories: [],
       note: "Das kanonische GitHub-Repository dieses Projekts ist noch nicht konfiguriert.",
       readme: "",
@@ -183,6 +185,7 @@ async function fetchProjectContext(project) {
   if (!AI_TEAM_REPO_READ_TOKEN) {
     return {
       repository,
+      branch: "",
       repositories: [],
       note: "AI_TEAM_REPO_READ_TOKEN fehlt; Quellkontext wurde nicht aus GitHub geladen.",
       readme: "",
@@ -201,9 +204,10 @@ async function fetchProjectContext(project) {
   const contexts = await Promise.all(repositories.map(async (repo) => {
     try {
       const meta = await api(`https://api.github.com/repos/${repo}`, { headers });
-      const branch = meta.default_branch || "main";
+      const configuredBranch = project === "KI-ARBEITSPLATZ" ? process.env.PROJECT_REPO_KI_ARBEITSPLATZ_REF : "";
+      const branch = resolveProjectBranch(meta.default_branch || "main", configuredBranch);
       const [readmeResult, treeResult] = await Promise.all([
-        api(`https://api.github.com/repos/${repo}/readme`, { headers }),
+        api(`https://api.github.com/repos/${repo}/readme?ref=${encodeURIComponent(branch)}`, { headers }),
         api(`https://api.github.com/repos/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`, { headers }),
       ]);
       const allPaths = (treeResult.tree || [])
@@ -245,9 +249,16 @@ async function fetchProjectContext(project) {
     }
   }));
 
+  const primaryContext = contexts.find((context) => context.repository === repository);
   return {
     repository,
-    repositories: contexts.map(({ repository: repo, branch, note }) => ({ repository: repo, branch, note })),
+    branch: primaryContext?.branch || "",
+    repositories: contexts.map(({ repository: repo, branch, note, source }) => ({
+      repository: repo,
+      branch,
+      note,
+      hasSourceExcerpt: hasNonEmptySourceExcerpt(source),
+    })),
     note: contexts.map((context) => context.note).filter(Boolean).join(" "),
     readme: contexts
       .map((context) => `### Repository: ${context.repository} (${context.branch || "nicht geladen"})\n${context.readme}`)
@@ -343,7 +354,7 @@ async function main() {
   const event = JSON.parse(await (await import("node:fs/promises")).readFile(GITHUB_EVENT_PATH, "utf8"));
   const comment = event.comment;
   const issue = event.issue;
-  if (!comment || !issue || issue.pull_request) return;
+  if (!comment || !issue || issue.pull_request || issue.number !== 11) return;
   if (comment.user?.type === "Bot") return;
 
   const allowed = AI_TEAM_ALLOWED_USERS.split(",").map((x) => x.trim()).filter(Boolean);
@@ -352,7 +363,7 @@ async function main() {
     return;
   }
 
-  const match = comment.body?.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS|INSERAT-PROFI-AI|BOOK-YOUR-COOK|LARA-QUIZ)\s*:\s*([\s\S]+)$/i);
+  const match = comment.body?.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS|INSERAT-PROFI-AI|BOOK-YOUR-COOK|LARA-QUIZ|KI-ARBEITSPLATZ)\s*:\s*([\s\S]+)$/i);
   if (!match) return;
 
   const project = match[1].toUpperCase();
@@ -366,7 +377,7 @@ async function main() {
     return;
   }
 
-  const { missingSecrets: missing, missingModels } = getMissingProviderConfiguration({
+  const { missingSecrets: missing, missingVariables, missingModels } = getMissingProviderConfiguration({
     OPENAI_API_KEY,
     ANTHROPIC_API_KEY,
     AI_TEAM_THIRD_PROVIDER,
@@ -379,13 +390,14 @@ async function main() {
     CLAUDE_MODEL,
     LLAMA_MODEL,
   });
-  if (missing.length || missingModels.length) {
+  if (missing.length || missingVariables.length || missingModels.length) {
     const message = [
       marker,
       "### KI-Team-Relay noch nicht vollständig konfiguriert",
       missing.length ? `Es fehlen GitHub-Actions-Secrets: ${missing.join(", ")}.` : "",
+      missingVariables.length ? `Es fehlen oder sind ungültig die GitHub-Actions-Variablen: ${missingVariables.join(", ")}.` : "",
       missingModels.length ? `Es fehlen GitHub-Actions-Variablen mit ausdrücklich ausgewählten, aktuell unterstützten Modellkennungen: ${missingModels.join(", ")}.` : "",
-      "Bitte Schlüssel ausschließlich unter Repository Settings → Secrets and variables → Actions → Secrets und Modellkennungen unter Variables hinterlegen. Niemals Schlüssel in Issues, Chats oder Quellcode posten.",
+      "Bitte Schlüssel ausschließlich unter Repository Settings → Secrets and variables → Actions → Secrets und Konfigurations-/Modellwerte unter Variables hinterlegen. Niemals Schlüssel in Issues, Chats oder Quellcode posten.",
       "Es werden keine Provider aufgerufen, solange Pflichtangaben fehlen.",
     ].filter(Boolean).join("\n\n");
     await githubRequest(`issues/${issue.number}/comments`, {
@@ -410,6 +422,37 @@ async function main() {
     return;
   }
 
+  const projectContext = await fetchProjectContext(project);
+  const safeContext = buildSafeProjectContext({
+    project,
+    repository: projectContext.repository,
+    branch: projectContext.branch,
+    note: projectContext.note,
+    issueNumber: issue.number,
+    issueTitle: issue.title,
+    request,
+    readme: projectContext.readme,
+    source: projectContext.source,
+    paths: projectContext.paths,
+    maxChars: MAX_CONTEXT_CHARS,
+  });
+
+  if (!hasUsablePrimaryContext(projectContext)) {
+    await githubRequest(`issues/${issue.number}/comments`, {
+      method: "POST",
+      body: JSON.stringify({
+        body: [
+          marker,
+          "### KI-Team-Relay abgebrochen",
+          `Der Quellkontext für ${project} (${projectContext.repository || "Repository nicht konfiguriert"}) konnte nicht vollständig geladen werden.`,
+          "Bitte den Fine-grained AI_TEAM_REPO_READ_TOKEN auf das Projekt-Repository mit Contents: read-only und Metadata-Lesezugriff erweitern.",
+          "Es wurden keine Provider aufgerufen und kein Tageskontingent reserviert.",
+        ].join("\n\n"),
+      }),
+    });
+    return;
+  }
+
   const reservation = await reserveDailyDebate(comment.id);
   if (!reservation.allowed) {
     if (reservation.duplicate) {
@@ -429,21 +472,6 @@ async function main() {
     });
     return;
   }
-
-  const projectContext = await fetchProjectContext(project);
-  const safeContext = buildSafeProjectContext({
-    project,
-    repository: projectContext.repository,
-    branch: projectContext.branch,
-    note: projectContext.note,
-    issueNumber: issue.number,
-    issueTitle: issue.title,
-    request,
-    readme: projectContext.readme,
-    source: projectContext.source,
-    paths: projectContext.paths,
-    maxChars: MAX_CONTEXT_CHARS,
-  });
 
   const baseInstructions = [
     "Du bist Mitglied eines unabhängigen KI-Entwicklungsteams.",
