@@ -46,7 +46,8 @@ export function ListingGallery({
 }) {
   const [index, setIndex] = useState(0);
   const images = listing.images.slice(0, 4);
-  const src = images[index];
+  const safeIndex = Math.min(index, Math.max(images.length - 1, 0));
+  const src = images[safeIndex];
   const Icon = ICONS[listing.category];
   if (!src) {
     return (
@@ -60,16 +61,16 @@ export function ListingGallery({
       <img src={src} alt={listing.title} className="h-full w-full object-cover" />
       {images.length > 1 ? (
         <>
-          <button type="button" aria-label="Vorheriges Foto" onClick={() => setIndex((current) => (current + images.length - 1) % images.length)}
+          <button type="button" aria-label="Vorheriges Foto" onClick={() => setIndex((safeIndex + images.length - 1) % images.length)}
             className="absolute left-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/60 text-white">
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <button type="button" aria-label="Nächstes Foto" onClick={() => setIndex((current) => (current + 1) % images.length)}
+          <button type="button" aria-label="Nächstes Foto" onClick={() => setIndex((safeIndex + 1) % images.length)}
             className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/60 text-white">
             <ChevronRight className="h-5 w-5" />
           </button>
           <span className="absolute bottom-2 right-2 rounded-full bg-black/65 px-2 py-1 text-xs text-white">
-            {index + 1} / {images.length}
+            {safeIndex + 1} / {images.length}
           </span>
         </>
       ) : null}
