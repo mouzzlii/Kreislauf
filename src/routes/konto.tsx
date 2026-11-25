@@ -17,6 +17,7 @@ export const Route = createFileRoute("/konto")({
 function AccountPage() {
   const initial = Route.useLoaderData();
   const { user, isPending } = useCurrentUserState();
+  const userId = user?.id ?? null;
   const { profile, refreshProfile, regionId, hydrated, version } = useKreislauf();
   const [board, setBoard] = useState<Board>(initial);
   const [mine, setMine] = useState<LedgerEntry[] | null>(null);
@@ -39,7 +40,7 @@ function AccountPage() {
   }, [hydrated, initial.region.id, regionId, version]);
 
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setMine(null);
       return;
     }
@@ -54,7 +55,7 @@ function AccountPage() {
     return () => {
       cancel = true;
     };
-  }, [user?.id, profile?.karmaBalance]);
+  }, [userId, profile?.karmaBalance]);
 
   const ledger = user && mine ? mine : board.ledger;
 
