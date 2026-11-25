@@ -1,5 +1,14 @@
 # KREISLAUF – Regionales Tauschsystem Yspertal
 
+<div align="center">
+  <img src="https://raw.githubusercontent.com/mouzzlii/logo-M-glichkeiten-/main/1795645501426.jpg" alt="W-Signatur – Gold-Grün, Original" width="180" />
+  <br />
+  <sub>W — Master Emblem · Gold-Grün · Dachmarke</sub>
+  <br />
+  <sub>Originaldatei unverändert · nur proportionale Skalierung · <a href="https://github.com/mouzzlii/logo-M-glichkeiten-">verbindliche Logo-Regeln</a></sub>
+</div>
+
+
 **Ziel:** Menschen, Vereine, Schulen und Betriebe im Yspertal und entlang der B36 verbinden – durch Tauschen, Teilen, Helfen und ein transparentes Gemeinschaftsguthaben.
 
 ## Aktueller Stand
