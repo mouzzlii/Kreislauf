@@ -13,7 +13,7 @@ Das KI-Team arbeitet als vierstufiger, unabhängiger Rat:
 3. **Dritter Agent – ausdrücklich wählbar:** entweder Meta Muse über Metas gehostete Model API oder ein echtes Llama-Modell über einen eigenen/externen Inference-Host.
 4. **OpenAI / GPT** moderiert die Synthese und dokumentiert begründete Übereinstimmungen, Widersprüche und offene Nachweise.
 
-Jeder Agent erhält denselben begrenzten Projektkontext und die vorherigen Antworten. Der Relay ändert keine Quellcodes, führt keine Merges oder Deployments aus und nimmt keine produktiven Aktionen vor.
+Jeder Agent erhält denselben begrenzten Projektkontext und die vorherigen Antworten. Vorherige Agentenantworten gelten dabei ebenfalls als nicht vertrauenswürdige Inhalte und dürfen keine Sicherheits- oder Systemregeln überschreiben. Der Relay ändert keine Quellcodes, führt keine Merges oder Deployments aus und nimmt keine produktiven Aktionen vor.
 
 ## Dritten Agenten auswählen
 
@@ -89,7 +89,7 @@ API-Schlüssel sind nicht in dieser Sitzung vorhanden und dürfen niemals im Cha
 
 `AI_TEAM_REPO_READ_TOKEN` muss ein Fine-grained GitHub-Token mit ausschließlich `Contents: read-only` und Metadata-Lesezugriff auf alle fünf Projekt-Primärrepositories sowie jedes tatsächlich konfigurierte Zusatzrepository enthalten. Dazu gehört insbesondere `mouzzlii/Fuck` als TRAKUNA-Android-Repository. Für KI-ARBEITSPLATZ muss `mouzzlii/KI-Arbeitsplatz` ausdrücklich in der Repository-Auswahl dieses Tokens enthalten sein; ohne den jeweiligen Zugriff bricht der Relay vor Provider-Aufrufen ab. Es wird ausschließlich zum Laden des begrenzten Quellkontexts verwendet. Das separate Workflow-`GITHUB_TOKEN` kommentiert nur Issue #11; es erhält keine Merge- oder Quellcode-Schreibrechte.
 
-Fehlende Schlüssel, ein fehlender Provider-Wert, eine unbekannte Modellkennung oder eine unsichere Llama-URL führen zum sicheren Abbruch, bevor ein Provider aufgerufen wird. Modellkennungen werden nicht erraten. Meta erhält keine Llama-Anfragen und der Llama-Adapter wird nicht verwendet, wenn `AI_TEAM_THIRD_PROVIDER=meta` gewählt wurde.
+Fehlende Schlüssel, ein fehlender Provider-Wert, eine fehlende Modellkennung oder eine unsichere Llama-URL führen zum sicheren Abbruch, bevor ein Provider aufgerufen wird. Die konfigurierte Modellkennung wird auf Vorhandensein geprüft, aber nicht vorab gegen die Live-Modellliste des Anbieters validiert. Eine nicht verfügbare oder nicht freigegebene Modellkennung kann daher erst der jeweilige Anbieter beim Aufruf zurückweisen; da das Tageskontingent vorher reserviert wird, zählt auch dieser fehlgeschlagene Versuch als Debatte. Modellkennungen werden nicht erraten. Meta erhält keine Llama-Anfragen und der Llama-Adapter wird nicht verwendet, wenn `AI_TEAM_THIRD_PROVIDER=meta` gewählt wurde.
 
 ## Sicherheits- und Kostenregeln
 
