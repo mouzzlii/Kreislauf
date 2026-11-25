@@ -73,6 +73,9 @@ assert.ok(setup.includes("PROJECT_REPO_KI_ARBEITSPLATZ_REF"));
 assert.equal((relaySource.match(/AI_TEAM_BUDGET_CONFIRMED !== "true"/g) || []).length, 1);
 assert.ok(relaySource.includes("const MAX_DAILY_DEBATES = 2;"));
 assert.ok(relaySource.includes("reserveDailyDebate(comment.id)"));
+assert.ok(relaySource.includes("hasTrustedRelayMarker(existing, marker)"));
+assert.ok(relaySource.includes("inspectDailyBudgetPage(comments"));
+assert.ok(relaySource.includes('from "./ai-team-ledger.mjs"'));
 const contextLoadIndex = relaySource.indexOf("const projectContext = await fetchProjectContext(project);")
 const contextGuardIndex = relaySource.indexOf("if (!hasUsablePrimaryContext(projectContext))", contextLoadIndex)
 const reservationIndex = relaySource.indexOf("const reservation = await reserveDailyDebate(comment.id);")
