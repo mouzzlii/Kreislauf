@@ -13,7 +13,7 @@ Das KI-Team arbeitet als vierstufiger, unabhängiger Rat:
 3. **Dritter Agent – ausdrücklich wählbar:** entweder Meta Muse über Metas gehostete Model API oder ein echtes Llama-Modell über einen eigenen/externen Inference-Host.
 4. **OpenAI / GPT** moderiert die Synthese und dokumentiert begründete Übereinstimmungen, Widersprüche und offene Nachweise.
 
-Jeder Agent erhält denselben begrenzten Projektkontext und die vorherigen Antworten. Der Relay ändert keine Quellcodes, führt keine Merges oder Deployments aus und nimmt keine produktiven Aktionen vor.
+Jeder Agent erhält denselben begrenzten Projektkontext und die vorherigen Antworten. Vorherige Agentenantworten sind ebenfalls nicht vertrauenswürdige Daten; darin enthaltene Anweisungen dürfen keine Sicherheits- oder Systemregeln überschreiben. Der Relay ändert keine Quellcodes, führt keine Merges oder Deployments aus und nimmt keine produktiven Aktionen vor.
 
 ## Dritten Agenten auswählen
 
@@ -90,9 +90,10 @@ Fehlende Schlüssel, ein fehlender Provider-Wert, eine fehlende Modellkennung od
 - Nur markierte Kommentare in Issue #11 und nur erlaubte GitHub-Absender verarbeiten; Bot-Kommentare werden ignoriert.
 - Maximal zwei Debatten pro UTC-Kalendertag. Das Kontingent wird vor dem ersten Provider-Aufruf zentral reserviert; auch fehlgeschlagene Aufrufe verbrauchen es.
 - Workflow-Concurrency serialisiert die Budgetreservierung. Bei unvollständigem Budget-Ledger erfolgt ein sicherer Abbruch.
+- Verarbeitungsmarker und Tagesbudget-Reservierungen werden ausschließlich anerkannt, wenn sie von `github-actions[bot]` mit GitHub-Typ `Bot` stammen. Fremde Nutzer und andere Bots können weder Trigger unterdrücken noch das Tageskontingent künstlich verbrauchen.
 - Jede Anfrage ist auf 8.000 Zeichen, der gesamte Projektkontext auf 18.000 Zeichen und jede Modellausgabe auf maximal 1.000 Tokens begrenzt.
 - Der Relay lädt höchstens 80 Dateipfade und bis zu vier Quelltextauszüge je Repository (maximal 1.800 Zeichen je Datei, 6.500 Zeichen pro Repository) aus einer festen Allowlist.
-- Umgebungs-, Secret-, Credential-, Schlüssel-, Lock- und Builddateien werden nicht geladen. Die Secret-Redaktion erkennt gängige Provider-Tokens, PEM-Private-Keys, JWTs, benannte Secret-Zuweisungen und lange Hexwerte. Das ist keine Garantie, dass jedes Geheimnis erkannt wird.
+- Umgebungs-, Secret-, Credential-, Schlüssel-, Lock- und Builddateien werden nicht geladen. Die Secret-Redaktion erkennt gängige Provider-Tokens, Fine-grained GitHub-PATs (`github_pat_`), GitLab-, Hugging-Face-, Meta-, npm-, Supabase- und AWS-Tokenformate, PEM-Private-Keys, JWTs, benannte Secret-Zuweisungen und lange Hexwerte. Das ist keine Garantie, dass jedes Geheimnis erkannt wird.
 - Bei Aktivierung werden die ausgewählten Quelltextauszüge und die Anfrage an OpenAI, Anthropic und den jeweils gewählten dritten Provider übertragen. Keine echten Kundendaten, Sendungsdaten, personenbezogenen Daten oder Geheimnisse in den ausgewählten Dateien speichern.
 - Eingabe- und Ausgabelimits sind keine garantierte Geldobergrenze. Für alle tatsächlich verwendeten Anbieter müssen echte Ausgabenlimits bzw. Kostenkontrollen gesetzt werden.
 - `AI_TEAM_BUDGET_CONFIRMED=true` ist nur die manuelle Bestätigung des Kontoinhabers und prüft Anbieterbudgets nicht automatisch.
