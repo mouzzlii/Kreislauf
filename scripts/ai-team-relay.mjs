@@ -1,5 +1,5 @@
 import process from "node:process";
-import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasUsablePrimaryContext, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
+import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { ANTHROPIC_API_VERSION, buildClaudeMessage, buildMetaChatCompletion, buildLlamaChatCompletion, extractClaudeText, extractMetaText, extractLlamaText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 
 const {
@@ -169,6 +169,7 @@ async function fetchProjectContext(project) {
   if (!repository) {
     return {
       repository: null,
+      branch: "",
       repositories: [],
       note: "Das kanonische GitHub-Repository dieses Projekts ist noch nicht konfiguriert.",
       readme: "",
@@ -180,6 +181,7 @@ async function fetchProjectContext(project) {
   if (!AI_TEAM_REPO_READ_TOKEN) {
     return {
       repository,
+      branch: "",
       repositories: [],
       note: "AI_TEAM_REPO_READ_TOKEN fehlt; Quellkontext wurde nicht aus GitHub geladen.",
       readme: "",
@@ -243,9 +245,16 @@ async function fetchProjectContext(project) {
     }
   }));
 
+  const primaryContext = contexts.find((context) => context.repository === repository);
   return {
     repository,
-    repositories: contexts.map(({ repository: repo, branch, note }) => ({ repository: repo, branch, note })),
+    branch: primaryContext?.branch || "",
+    repositories: contexts.map(({ repository: repo, branch, note, source }) => ({
+      repository: repo,
+      branch,
+      note,
+      hasSourceExcerpt: hasNonEmptySourceExcerpt(source),
+    })),
     note: contexts.map((context) => context.note).filter(Boolean).join(" "),
     readme: contexts
       .map((context) => `### Repository: ${context.repository} (${context.branch || "nicht geladen"})\n${context.readme}`)
@@ -347,7 +356,7 @@ async function main() {
   const event = JSON.parse(await (await import("node:fs/promises")).readFile(GITHUB_EVENT_PATH, "utf8"));
   const comment = event.comment;
   const issue = event.issue;
-  if (!comment || !issue || issue.pull_request) return;
+  if (!comment || !issue || issue.pull_request || issue.number !== 11) return;
   if (comment.user?.type === "Bot") return;
 
   const allowed = AI_TEAM_ALLOWED_USERS.split(",").map((x) => x.trim()).filter(Boolean);
@@ -370,7 +379,7 @@ async function main() {
     return;
   }
 
-  const { missingSecrets: missing, missingModels } = getMissingProviderConfiguration({
+  const { missingSecrets: missing, missingVariables, missingModels } = getMissingProviderConfiguration({
     OPENAI_API_KEY,
     ANTHROPIC_API_KEY,
     AI_TEAM_THIRD_PROVIDER,
@@ -383,13 +392,14 @@ async function main() {
     CLAUDE_MODEL,
     LLAMA_MODEL,
   });
-  if (missing.length || missingModels.length) {
+  if (missing.length || missingVariables.length || missingModels.length) {
     const message = [
       marker,
       "### KI-Team-Relay noch nicht vollständig konfiguriert",
       missing.length ? `Es fehlen GitHub-Actions-Secrets: ${missing.join(", ")}.` : "",
+      missingVariables.length ? `Es fehlen oder sind ungültig die GitHub-Actions-Variablen: ${missingVariables.join(", ")}.` : "",
       missingModels.length ? `Es fehlen GitHub-Actions-Variablen mit ausdrücklich ausgewählten, aktuell unterstützten Modellkennungen: ${missingModels.join(", ")}.` : "",
-      "Bitte Schlüssel ausschließlich unter Repository Settings → Secrets and variables → Actions → Secrets und Modellkennungen unter Variables hinterlegen. Niemals Schlüssel in Issues, Chats oder Quellcode posten.",
+      "Bitte Schlüssel ausschließlich unter Repository Settings → Secrets and variables → Actions → Secrets und Konfigurations-/Modellwerte unter Variables hinterlegen. Niemals Schlüssel in Issues, Chats oder Quellcode posten.",
       "Es werden keine Provider aufgerufen, solange Pflichtangaben fehlen.",
     ].filter(Boolean).join("\n\n");
     await githubRequest(`issues/${issue.number}/comments`, {
