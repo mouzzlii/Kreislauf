@@ -95,6 +95,7 @@ test("Llama endpoint must be an authenticated-provider-compatible HTTPS chat-com
   assert.equal(isSecureLlamaEndpoint("http://inference.example.com/v1/chat/completions"), false);
   assert.equal(isSecureLlamaEndpoint("https://user:pass@inference.example.com/v1/chat/completions"), false);
   assert.equal(isSecureLlamaEndpoint("https://inference.example.com/v1/chat/completions#fragment"), false);
+  assert.equal(isSecureLlamaEndpoint("https://inference.example.com/v1/chat/completions?token=secret"), false);
   assert.equal(isSecureLlamaEndpoint("not-a-url"), false);
 });
 
@@ -110,11 +111,28 @@ test("all three provider credentials, endpoint and selected model IDs are explic
     CLAUDE_MODEL: "",
     LLAMA_MODEL: "llama-model",
   });
-  assert.deepEqual(incomplete.missingSecrets, [
-    "ANTHROPIC_API_KEY",
-    "LLAMA_API_BASE_URL (muss eine HTTPS-URL mit /v1/chat/completions sein)",
+  assert.deepEqual(incomplete.missingSecrets, ["ANTHROPIC_API_KEY"]);
+  assert.deepEqual(incomplete.missingVariables, [
+    "LLAMA_API_BASE_URL (muss eine HTTPS-URL ohne Query/Anmeldedaten mit /v1/chat/completions sein)",
   ]);
   assert.deepEqual(incomplete.missingModels, ["CLAUDE_MODEL"]);
+
+  const missingUrl = getMissingProviderConfiguration({
+    OPENAI_API_KEY: "openai",
+    ANTHROPIC_API_KEY: "claude",
+    AI_TEAM_THIRD_PROVIDER: "llama",
+    LLAMA_API_KEY: "llama",
+    LLAMA_API_BASE_URL: "",
+    AI_TEAM_REPO_READ_TOKEN: "readonly",
+    OPENAI_MODEL: "gpt",
+    CLAUDE_MODEL: "claude",
+    LLAMA_MODEL: "llama",
+  });
+  assert.deepEqual(missingUrl, {
+    missingSecrets: [],
+    missingVariables: ["LLAMA_API_BASE_URL"],
+    missingModels: [],
+  });
 
   const complete = getMissingProviderConfiguration({
     OPENAI_API_KEY: "openai",
@@ -127,7 +145,7 @@ test("all three provider credentials, endpoint and selected model IDs are explic
     CLAUDE_MODEL: "claude",
     LLAMA_MODEL: "llama",
   });
-  assert.deepEqual(complete, { missingSecrets: [], missingModels: [] });
+  assert.deepEqual(complete, { missingSecrets: [], missingVariables: [], missingModels: [] });
 });
 test("Meta mode requires its own key and explicit Muse model but no Llama host", () => {
   const missing = getMissingProviderConfiguration({
@@ -142,6 +160,7 @@ test("Meta mode requires its own key and explicit Muse model but no Llama host",
   });
   assert.deepEqual(missing, {
     missingSecrets: ["META_MODEL_API_KEY"],
+    missingVariables: [],
     missingModels: ["META_MODEL"],
   });
 
@@ -155,7 +174,7 @@ test("Meta mode requires its own key and explicit Muse model but no Llama host",
     CLAUDE_MODEL: "claude",
     META_MODEL: "muse-spark-1.3",
   });
-  assert.deepEqual(complete, { missingSecrets: [], missingModels: [] });
+  assert.deepEqual(complete, { missingSecrets: [], missingVariables: [], missingModels: [] });
 });
 
 test("third-agent selection rejects unknown providers before any provider call", () => {
@@ -167,7 +186,8 @@ test("third-agent selection rejects unknown providers before any provider call",
     OPENAI_MODEL: "gpt",
     CLAUDE_MODEL: "claude",
   });
-  assert.deepEqual(invalid.missingSecrets, [
+  assert.deepEqual(invalid.missingSecrets, []);
+  assert.deepEqual(invalid.missingVariables, [
     "AI_TEAM_THIRD_PROVIDER (muss meta oder llama sein)",
   ]);
   assert.deepEqual(invalid.missingModels, []);
