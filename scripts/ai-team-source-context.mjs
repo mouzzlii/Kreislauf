@@ -56,9 +56,19 @@ export const MAX_SOURCE_FILES_PER_REPO = 4;
 export const MAX_SOURCE_FILE_CHARS = 1_800;
 export const MAX_SOURCE_CONTEXT_CHARS = 6_500;
 
-export function selectSourcePaths(paths, limit = MAX_SOURCE_FILES_PER_REPO) {
+const PROJECT_PRIORITY_PATHS = {
+  "KI-ARBEITSPLATZ": [
+    "MASTERWERK-ROADMAP.md",
+    "Offline-Modus/Lib/Common.ps1",
+    "Offline-Modus/Lib/LocalAI.ps1",
+    "Offline-Modus/Worker.ps1",
+  ],
+};
+
+export function selectSourcePaths(paths, limit = MAX_SOURCE_FILES_PER_REPO, project = "") {
   const available = new Set(paths);
-  return PRIORITY_PATHS.filter((path) => available.has(path)).slice(0, limit);
+  const preferred = [...(PROJECT_PRIORITY_PATHS[project] || []), ...PRIORITY_PATHS];
+  return [...new Set(preferred)].filter((path) => available.has(path)).slice(0, limit);
 }
 
 export function decodeSourceFile(file) {
