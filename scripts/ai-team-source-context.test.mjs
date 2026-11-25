@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
   buildSafeProjectContext,
   buildSourceContext,
+  hasNonEmptySourceExcerpt,
   decodeSourceFile,
   hasUsablePrimaryContext,
   resolveProjectBranch,
@@ -60,16 +61,50 @@ test("project branch override is validated and defaults to the repository branch
   assert.throws(() => resolveProjectBranch("main", "release//main"), /Unsafe project branch/);
 });
 
-test("primary repository and a real source excerpt are required before Council calls", () => {
+test("primary repository must itself provide a real source excerpt before Council calls", () => {
   const valid = {
     repository: "mouzzlii/KI-Arbeitsplatz",
-    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "main" }],
-    source: "#### Offline-Modus/Lib/LocalAI.ps1\nfunction Test-Example { return $true }",
+    branch: "release/offline-masterwerk-v0.2.1",
+    repositories: [{
+      repository: "mouzzlii/KI-Arbeitsplatz",
+      branch: "release/offline-masterwerk-v0.2.1",
+      hasSourceExcerpt: true,
+    }],
+    source: "#### Offline-Modus/Lib/LocalAI.ps1\\nfunction Test-Example { return $true }",
   };
   assert.equal(hasUsablePrimaryContext(valid), true);
-  assert.equal(hasUsablePrimaryContext({ ...valid, repositories: [{ repository: "mouzzlii/Kreislauf", branch: "main" }] }), false);
-  assert.equal(hasUsablePrimaryContext({ ...valid, source: "#### Offline-Modus/Lib/LocalAI.ps1\n" }), false);
-  assert.equal(hasUsablePrimaryContext({ ...valid, repository: "", source: "content" }), false);
+
+  const secondaryOnly = {
+    ...valid,
+    repositories: [
+      { repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", hasSourceExcerpt: false },
+      { repository: "mouzzlii/Fuck", branch: "main", hasSourceExcerpt: true },
+    ],
+    // Secondary Android source may remain in the prompt but cannot satisfy
+    // the canonical gateway repository's own source prerequisite.
+    source: "#### mouzzlii/Fuck/app/src/main/java/MainActivity.kt\\nclass MainActivity",
+  };
+  assert.equal(hasUsablePrimaryContext(secondaryOnly), false);
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", hasSourceExcerpt: false }],
+  }), false);
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "", hasSourceExcerpt: true }],
+  }), false);
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/Kreislauf", branch: "main", hasSourceExcerpt: true }],
+  }), false);
+  assert.equal(hasUsablePrimaryContext({ ...valid, repository: "" }), false);
+});
+
+test("source excerpt detection ignores empty file headings", () => {
+  assert.equal(hasNonEmptySourceExcerpt("#### repo/file.ts\\nexport const ok = true;"), true);
+  assert.equal(hasNonEmptySourceExcerpt("#### repo/file.ts\\n"), false);
+  assert.equal(hasNonEmptySourceExcerpt("  \\n  "), false);
+  assert.equal(hasNonEmptySourceExcerpt(null), false);
 });
 
 test("sensitive tokens, inline secrets and private keys are redacted before context is built", () => {
