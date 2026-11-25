@@ -78,7 +78,7 @@ jobs:
           assert.ok(source.includes("getMissingProviderConfiguration({"));
           const incomplete = getMissingProviderConfiguration({});
           assert.ok(incomplete.missingSecrets.includes("AI_TEAM_REPO_READ_TOKEN"));
-          assert.ok(incomplete.missingSecrets.includes("AI_TEAM_THIRD_PROVIDER (muss meta oder llama sein)"));
+          assert.ok(incomplete.missingVariables.includes("AI_TEAM_THIRD_PROVIDER (muss meta oder llama sein)"));
           assert.ok(incomplete.missingModels.includes("CLAUDE_MODEL"));
           const complete = getMissingProviderConfiguration({
             OPENAI_API_KEY: "test-openai",
@@ -91,7 +91,7 @@ jobs:
             CLAUDE_MODEL: "test-claude",
             LLAMA_MODEL: "test-llama-model",
           });
-          assert.deepEqual(complete, { missingSecrets: [], missingModels: [] });
+          assert.deepEqual(complete, { missingSecrets: [], missingVariables: [], missingModels: [] });
           const metaComplete = getMissingProviderConfiguration({
             OPENAI_API_KEY: "test-openai",
             ANTHROPIC_API_KEY: "test-anthropic",
@@ -102,9 +102,12 @@ jobs:
             CLAUDE_MODEL: "test-claude",
             META_MODEL: "muse-spark-1.3",
           });
-          assert.deepEqual(metaComplete, { missingSecrets: [], missingModels: [] });
+          assert.deepEqual(metaComplete, { missingSecrets: [], missingVariables: [], missingModels: [] });
           assert.ok(source.includes("MAX_DAILY_DEBATES = 2"));
           assert.ok(source.includes("reserveDailyDebate(comment.id)"));
+          assert.ok(source.includes("issue.number !== 11"));
+          assert.ok(source.includes("hasSourceExcerpt: hasNonEmptySourceExcerpt(source)"));
+          assert.ok(source.includes("hasUsablePrimaryContext(projectContext)"));
           assert.ok(source.includes("KI-Team-Debatte abgebrochen"));
           assert.ok(source.includes("Fehlerphase: ${phase}"));
           assert.ok(source.includes("Tageskontingent bleibt verbraucht"));
