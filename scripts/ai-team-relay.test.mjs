@@ -37,6 +37,9 @@ const setup = await readFile(new URL("../AI_TEAM_SETUP.md", import.meta.url), "u
 assert.ok(relaySource.includes('TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway"'));
 assert.ok(relaySource.includes('TRAKUNA: [process.env.PROJECT_REPO_TRAKUNA_ANDROID?.trim() || "mouzzlii/Fuck"]'));
 assert.ok(relaySource.includes("repositories: contexts.map"));
+assert.ok(relaySource.includes("hasSourceExcerpt: hasNonEmptySourceExcerpt(source)"));
+assert.ok(relaySource.includes('branch: primaryContext?.branch || ""'));
+assert.ok(relaySource.includes("issue.number !== 11"));
 assert.ok(relaySource.includes("contexts.flatMap"));
 assert.ok(relaySource.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
 assert.ok(relaySource.includes('"KI-ARBEITSPLATZ": process.env.PROJECT_REPO_KI_ARBEITSPLATZ || "mouzzlii/KI-Arbeitsplatz"'));
@@ -82,6 +85,7 @@ assert.ok(relaySource.includes("Fehlerphase: ${phase}"));
 assert.ok(relaySource.includes("Tageskontingent bleibt verbraucht"));
 assert.equal(isSecureLlamaEndpoint("https://llama.example.com/v1/chat/completions"), true);
 assert.equal(isSecureLlamaEndpoint("http://llama.example.com/v1/chat/completions"), false);
+assert.equal(isSecureLlamaEndpoint("https://llama.example.com/v1/chat/completions?token=secret"), false);
 assert.deepEqual(getMissingProviderConfiguration({
   OPENAI_API_KEY:"openai",
   ANTHROPIC_API_KEY:"claude",
@@ -92,7 +96,7 @@ assert.deepEqual(getMissingProviderConfiguration({
   OPENAI_MODEL:"gpt",
   CLAUDE_MODEL:"claude",
   LLAMA_MODEL:"llama",
-}), { missingSecrets:[], missingModels:[] });
+}), { missingSecrets:[], missingVariables:[], missingModels:[] });
 assert.deepEqual(getMissingProviderConfiguration({
   OPENAI_API_KEY:"openai",
   ANTHROPIC_API_KEY:"claude",
@@ -102,7 +106,54 @@ assert.deepEqual(getMissingProviderConfiguration({
   OPENAI_MODEL:"gpt",
   CLAUDE_MODEL:"claude",
   META_MODEL:"muse-spark-1.3",
-}), { missingSecrets:[], missingModels:[] });
+}), { missingSecrets:[], missingVariables:[], missingModels:[] });
+const missingLlamaUrl = getMissingProviderConfiguration({
+  OPENAI_API_KEY:"openai",
+  ANTHROPIC_API_KEY:"claude",
+  AI_TEAM_THIRD_PROVIDER:"llama",
+  LLAMA_API_KEY:"llama",
+  LLAMA_API_BASE_URL:"",
+  AI_TEAM_REPO_READ_TOKEN:"read-only",
+  OPENAI_MODEL:"gpt",
+  CLAUDE_MODEL:"claude",
+  LLAMA_MODEL:"llama",
+});
+assert.deepEqual(missingLlamaUrl, {
+  missingSecrets:[],
+  missingVariables:["LLAMA_API_BASE_URL"],
+  missingModels:[],
+});
+
+const unsafeLlamaUrl = getMissingProviderConfiguration({
+  OPENAI_API_KEY:"openai",
+  ANTHROPIC_API_KEY:"claude",
+  AI_TEAM_THIRD_PROVIDER:"llama",
+  LLAMA_API_KEY:"llama",
+  LLAMA_API_BASE_URL:"https://llama.example.com/v1/chat/completions?token=secret",
+  AI_TEAM_REPO_READ_TOKEN:"read-only",
+  OPENAI_MODEL:"gpt",
+  CLAUDE_MODEL:"claude",
+  LLAMA_MODEL:"llama",
+});
+assert.deepEqual(unsafeLlamaUrl, {
+  missingSecrets:[],
+  missingVariables:["LLAMA_API_BASE_URL (muss eine HTTPS-URL ohne Query/Anmeldedaten mit /v1/chat/completions sein)"],
+  missingModels:[],
+});
+
+const missingThirdProvider = getMissingProviderConfiguration({
+  OPENAI_API_KEY:"openai",
+  ANTHROPIC_API_KEY:"claude",
+  AI_TEAM_REPO_READ_TOKEN:"read-only",
+  OPENAI_MODEL:"gpt",
+  CLAUDE_MODEL:"claude",
+});
+assert.deepEqual(missingThirdProvider, {
+  missingSecrets:[],
+  missingVariables:["AI_TEAM_THIRD_PROVIDER (muss meta oder llama sein)"],
+  missingModels:[],
+});
+
 assert.deepEqual(buildMetaChatCompletion({
   model:"muse-spark-1.3",
   instructions:"Check.",
