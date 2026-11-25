@@ -84,6 +84,28 @@ test("portfolio project allowlists take priority over generic shared paths", () 
 });
 
 
+test("KI-Arbeitsplatz prefers its roadmap and offline worker sources", () => {
+  const paths = [
+    "docs/PROJECT-COORDINATION.md",
+    ".github/AI-COLLABORATION.md",
+    "AI_TEAM_SETUP.md",
+    "src/lib/db.ts",
+    "MASTERWERK-ROADMAP.md",
+    "Offline-Modus/Lib/Common.ps1",
+    "Offline-Modus/Lib/LocalAI.ps1",
+    "Offline-Modus/Worker.ps1",
+  ];
+  assert.deepEqual(
+    selectSourcePaths(paths, undefined, "KI-ARBEITSPLATZ"),
+    [
+      "MASTERWERK-ROADMAP.md",
+      "Offline-Modus/Lib/Common.ps1",
+      "Offline-Modus/Lib/LocalAI.ps1",
+      "Offline-Modus/Worker.ps1",
+    ],
+  );
+});
+
 test("project branch override is validated and defaults to the repository branch", () => {
   assert.equal(resolveProjectBranch("main", ""), "main");
   assert.equal(resolveProjectBranch("main", "release/offline-masterwerk-v0.2.1"), "release/offline-masterwerk-v0.2.1");
