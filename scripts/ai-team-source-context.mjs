@@ -46,6 +46,10 @@ const PRIORITY_PATHS = [
   "SPEC.md",
   "android/README_DE.md",
   "package.json",
+  "MASTERWERK-ROADMAP.md",
+  "Offline-Modus/Lib/Common.ps1",
+  "Offline-Modus/Lib/LocalAI.ps1",
+  "Offline-Modus/Worker.ps1",
 ];
 
 export const MAX_SOURCE_FILES_PER_REPO = 4;
@@ -126,4 +130,40 @@ export function buildSafeProjectContext({
     remaining -= prefix.length + heading.length + excerpt.length;
   }
   return parts.join("");
+}
+
+export function hasNonEmptySourceExcerpt(source) {
+  if (typeof source !== "string") return false;
+  return source.replace(/^#### [^\n]+\n/gm, "").trim().length > 0;
+}
+
+export function hasUsablePrimaryContext(projectContext) {
+  if (!projectContext || typeof projectContext.repository !== "string" || !projectContext.repository) return false;
+  if (!Array.isArray(projectContext.repositories)) return false;
+  const primary = projectContext.repositories.find((context) =>
+    context &&
+    context.repository === projectContext.repository
+  );
+  return Boolean(
+    primary &&
+    typeof primary.branch === "string" &&
+    primary.branch.trim().length > 0 &&
+    primary.hasSourceExcerpt === true
+  );
+}
+
+export function resolveProjectBranch(defaultBranch, configuredBranch = "") {
+  const fallback = typeof defaultBranch === "string" && defaultBranch ? defaultBranch : "main";
+  if (typeof configuredBranch !== "string" || !configuredBranch.trim()) return fallback;
+  const branch = configuredBranch.trim();
+  if (
+    !/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/.test(branch) ||
+    branch.includes("..") ||
+    branch.startsWith("/") ||
+    branch.endsWith("/") ||
+    branch.includes("//")
+  ) {
+    throw new Error("Unsafe project branch reference.");
+  }
+  return branch;
 }
