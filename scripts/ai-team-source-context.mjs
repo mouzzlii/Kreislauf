@@ -17,6 +17,16 @@ export function redactSensitiveText(value) {
 }
 
 const PRIORITY_PATHS = [
+  "src/app/studio.tsx",
+  "src/app/api/ai/analyze/route.ts",
+  "src/app/api/ai/status/route.ts",
+  "src/lib/listing-core.js",
+  "book-your-cook-produkt/README-DE.md",
+  "book-your-cook-produkt/docs/TAX-PRICE-MODELL-UND-FREIGABE.md",
+  "book-your-cook-produkt/supabase/functions/_shared/pricing.js",
+  "book-your-cook-produkt/supabase/functions/stripe-webhook/index.ts",
+  "Quiz_Neu_verbessert.html",
+  "scripts/check-quiz.mjs",
   "docs/PROJECT-COORDINATION.md",
   ".github/AI-COLLABORATION.md",
   "AI_TEAM_SETUP.md",
@@ -36,16 +46,6 @@ const PRIORITY_PATHS = [
   "SPEC.md",
   "android/README_DE.md",
   "package.json",
-  "src/app/studio.tsx",
-  "src/app/api/ai/analyze/route.ts",
-  "src/app/api/ai/status/route.ts",
-  "src/lib/listing-core.js",
-  "book-your-cook-produkt/README-DE.md",
-  "book-your-cook-produkt/docs/TAX-PRICE-MODELL-UND-FREIGABE.md",
-  "book-your-cook-produkt/supabase/functions/_shared/pricing.js",
-  "book-your-cook-produkt/supabase/functions/stripe-webhook/index.ts",
-  "Quiz_Neu_verbessert.html",
-  "scripts/check-quiz.mjs",
 ];
 
 export const MAX_SOURCE_FILES_PER_REPO = 4;
