@@ -66,6 +66,13 @@ test("sensitive tokens, inline secrets and private keys are redacted before cont
   const hexSecret = "a".repeat(64);
   const stripeFake = ["sk", "live", "A".repeat(24)].join("_");
   const slackFake = ["xoxb", "1234567890", "A".repeat(20)].join("-");
+  const githubPatFake = `github_pat_${"A".repeat(40)}`;
+  const metaFake = `LLM_1234567890_${"B".repeat(24)}`;
+  const gitlabFake = `glpat-${"C".repeat(30)}`;
+  const huggingFaceFake = `hf_${"D".repeat(30)}`;
+  const npmFake = `npm_${"E".repeat(30)}`;
+  const supabaseFake = `sb_secret_${"F".repeat(30)}`;
+  const awsSessionFake = `ASIA${"G".repeat(16)}`;
   const sample = [
     'const OPENAI_API_KEY = "sk-abcdefghijklmnopqrstuvwxyz123456";',
     'const XAI_TOKEN = "xai-abcdefghijklmnopqrstuvwxyz123456";',
@@ -74,6 +81,13 @@ test("sensitive tokens, inline secrets and private keys are redacted before cont
     'const client_secret = "very-private-client-secret-value";',
     `const STRIPE_KEY = "${stripeFake}";`,
     `const SLACK_TOKEN = "${slackFake}";`,
+    githubPatFake,
+    metaFake,
+    gitlabFake,
+    huggingFaceFake,
+    npmFake,
+    supabaseFake,
+    awsSessionFake,
     `const PREVIEW_SHARED = "${hexSecret}";`,
     'Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signaturevalue";',
     "https://example.test/?access_token=very-private-token-value",
@@ -88,6 +102,13 @@ test("sensitive tokens, inline secrets and private keys are redacted before cont
     "very-private-client-secret-value",
     stripeFake,
     slackFake,
+    githubPatFake,
+    metaFake,
+    gitlabFake,
+    huggingFaceFake,
+    npmFake,
+    supabaseFake,
+    awsSessionFake,
     hexSecret,
     "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signaturevalue",
     "very-private-token-value",
