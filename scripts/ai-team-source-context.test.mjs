@@ -101,9 +101,9 @@ test("primary repository must itself provide a real source excerpt before Counci
 });
 
 test("source excerpt detection ignores empty file headings", () => {
-  assert.equal(hasNonEmptySourceExcerpt("#### repo/file.ts\\nexport const ok = true;"), true);
-  assert.equal(hasNonEmptySourceExcerpt("#### repo/file.ts\\n"), false);
-  assert.equal(hasNonEmptySourceExcerpt("  \\n  "), false);
+  assert.equal(hasNonEmptySourceExcerpt("#### repo/file.ts\nexport const ok = true;"), true);
+  assert.equal(hasNonEmptySourceExcerpt("#### repo/file.ts\n"), false);
+  assert.equal(hasNonEmptySourceExcerpt("  \n  "), false);
   assert.equal(hasNonEmptySourceExcerpt(null), false);
 });
 
