@@ -59,7 +59,7 @@ test("portfolio project allowlists take priority over generic shared paths", () 
 
   assert.deepEqual(selectSourcePaths([
     "package.json", "public/app.js", "Quiz_Neu_verbessert.html", "scripts/check-quiz.mjs",
-  ]), ["Quiz_Neu_verbessert.html", "scripts/check-quiz.mjs"]);
+  ]), ["Quiz_Neu_verbessert.html", "scripts/check-quiz.mjs", "public/app.js", "package.json"]);
 });
 
 test("sensitive tokens, inline secrets and private keys are redacted before context is built", () => {
