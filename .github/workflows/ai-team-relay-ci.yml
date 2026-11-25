@@ -6,6 +6,8 @@ on:
     branches:
       - chore/ai-team-communication-foundation
     paths:
+      - "scripts/ai-team-ledger.mjs"
+      - "scripts/ai-team-ledger.test.mjs"
       - "scripts/ai-team-relay.mjs"
       - "scripts/ai-team-relay.test.mjs"
       - "scripts/ai-team-source-context.mjs"
@@ -41,8 +43,11 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check scripts/ai-team-relay.mjs
+          node --check scripts/ai-team-ledger.mjs
           node --check scripts/ai-team-source-context.mjs
           node --check scripts/ai-team-providers.mjs
+      - name: Test trusted relay ledger
+        run: node --test scripts/ai-team-ledger.test.mjs
       - name: Test bounded source context
         run: node --test scripts/ai-team-source-context.test.mjs
       - name: Test Claude, Meta and Llama provider contracts
