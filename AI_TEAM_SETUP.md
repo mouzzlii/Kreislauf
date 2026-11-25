@@ -133,6 +133,8 @@ Der Relay lädt für `KI-ARBEITSPLATZ` nur eine feste, kleine Allowlist aus Road
 - `MASTERWERK-ROADMAP.md`
 - `Offline-Modus/Lib/Common.ps1`
 - `Offline-Modus/Lib/LocalAI.ps1`
-- `Offline-Modus/Worker.ps1` Der Quellcode des aktuellen Offline-Moduls liegt derzeit auf `release/offline-masterwerk-v0.2.1`, während `main` noch das ursprüngliche v1.0.0-ZIP enthält. Für eine Prüfung vor dem Merge muss deshalb die optionale Repository-Variable `PROJECT_REPO_KI_ARBEITSPLATZ_REF=release/offline-masterwerk-v0.2.1` gesetzt werden; ohne sie verwendet der Relay `main` und bricht bei fehlenden Quelltextauszügen sicher ab. Der Relay arbeitet weiterhin ausschließlich lesend: keine Commits, keine Dateien ändern, keine Merges und keine Deployments. Die lokale Windows-Ollama-Funktion bleibt davon getrennt. Der externe Relay ist nur für unabhängige Gegenprüfungen zuständig.
+- `Offline-Modus/Worker.ps1`
+
+Der Quellcode des aktuellen Offline-Moduls liegt derzeit auf `release/offline-masterwerk-v0.2.1`, während `main` noch das ursprüngliche v1.0.0-ZIP enthält. Für eine Prüfung vor dem Merge muss deshalb die optionale Repository-Variable `PROJECT_REPO_KI_ARBEITSPLATZ_REF=release/offline-masterwerk-v0.2.1` gesetzt werden; ohne sie verwendet der Relay `main` und bricht bei fehlenden Quelltextauszügen sicher ab. Der Relay arbeitet weiterhin ausschließlich lesend: keine Commits, keine Dateien ändern, keine Merges und keine Deployments. Die lokale Windows-Ollama-Funktion bleibt davon getrennt. Der externe Relay ist nur für unabhängige Gegenprüfungen zuständig.
 
 Wenn das Repository oder die ausgewählten Quelltexte nicht vollständig gelesen werden können, wird die Debatte vor der Tagesbudgetreservierung abgebrochen. Damit werden keine Provider mit einem unvollständigen oder leeren Projektkontext aufgerufen.
