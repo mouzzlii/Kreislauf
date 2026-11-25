@@ -19,6 +19,8 @@ on:
       - "AI_TEAM_SETUP.md"
   pull_request:
     paths:
+      - "scripts/ai-team-ledger.mjs"
+      - "scripts/ai-team-ledger.test.mjs"
       - "scripts/ai-team-relay.mjs"
       - "scripts/ai-team-relay.test.mjs"
       - "scripts/ai-team-source-context.mjs"
