@@ -1,6 +1,6 @@
 const SECRET_PATTERNS = [
   [/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g, "[REDACTED SECRET]"],
-  [/\b(?:sk-[A-Za-z0-9_-]{20,}|sk_(?:live|test)_[A-Za-z0-9]{16,}|xai-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16})\b/g, "[REDACTED SECRET]"],
+  [/\b(?:sk-[A-Za-z0-9_-]{20,}|sk_(?:live|test)_[A-Za-z0-9]{16,}|xai-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|glpat-[A-Za-z0-9_-]{20,}|hf_[A-Za-z0-9]{20,}|LLM_[0-9]+_[A-Za-z0-9_-]{20,}|npm_[A-Za-z0-9]{20,}|sb_secret_[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16})\b/g, "[REDACTED SECRET]"],
   [/\b[a-f0-9]{64,128}\b/gi, "[REDACTED HIGH-ENTROPY HEX]"],
   [/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, "[REDACTED SECRET]"],
   [/((?:[A-Z0-9_]*(?:SECRET|TOKEN|KEY|PASSWORD|PRIVATE_KEY)[A-Z0-9_]*|clientSecret|apiKey|accessToken|refreshToken)\s*[:=]\s*)(["'\x60])[^"'\x60\r\n]{8,}\2/gi, "$1[REDACTED]"],
