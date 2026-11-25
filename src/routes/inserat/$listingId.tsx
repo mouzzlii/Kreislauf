@@ -46,7 +46,6 @@ function ListingPage() {
   const navigate = useNavigate();
   const { version, bump, refreshProfile, profile } = useKreislauf();
   const { user, isPending } = useCurrentUserState();
-  const userId = user?.id ?? null;
   const [detail, setDetail] = useState<ListingDetail | null>(initial);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -71,7 +70,7 @@ function ListingPage() {
   }, [listingId, version]);
 
   useEffect(() => {
-    if (!userId) {
+    if (!user) {
       setTradeRequests([]);
       return;
     }
@@ -80,20 +79,20 @@ function ListingPage() {
       .then((next) => { if (!cancel) setTradeRequests(next); })
       .catch(() => { if (!cancel) setTradeRequests([]); });
     return () => { cancel = true; };
-  }, [listingId, userId, version]);
+  }, [listingId, user?.id, version]);
 
   useEffect(() => {
     setQrTarget(`${window.location.origin}/inserat/${listingId}`);
   }, [listingId]);
 
   useEffect(() => {
-    if (!userId) { setMeetingPointUrl(null); return; }
+    if (!user) { setMeetingPointUrl(null); return; }
     let cancel = false;
     getMeetingPoint({ data: { id: listingId } }).then((result) => {
       if (!cancel) setMeetingPointUrl(result.url);
     }).catch(() => { if (!cancel) setMeetingPointUrl(null); });
     return () => { cancel = true; };
-  }, [listingId, userId, version]);
+  }, [listingId, user?.id, version]);
 
   if (!detail) {
     return (
