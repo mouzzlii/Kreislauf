@@ -122,18 +122,24 @@ export function buildSafeProjectContext({
   return parts.join("");
 }
 
+function hasNonEmptySourceExcerpt(source) {
+  if (typeof source !== "string") return false;
+  return source.replace(/^#### [^\n]+\n/gm, "").trim().length > 0;
+}
+
 export function hasUsablePrimaryContext(projectContext) {
   if (!projectContext || typeof projectContext.repository !== "string" || !projectContext.repository) return false;
   if (!Array.isArray(projectContext.repositories)) return false;
-  const primaryLoaded = projectContext.repositories.some((context) =>
+  const primary = projectContext.repositories.find((context) =>
     context &&
-    context.repository === projectContext.repository &&
-    typeof context.branch === "string" &&
-    context.branch.length > 0
+    context.repository === projectContext.repository
   );
-  const source = typeof projectContext.source === "string" ? projectContext.source : "";
-  const sourceExcerpt = source.replace(/^#### [^\n]+\n/gm, "").trim();
-  return primaryLoaded && sourceExcerpt.length > 0;
+  return Boolean(
+    primary &&
+    typeof primary.branch === "string" &&
+    primary.branch.trim().length > 0 &&
+    primary.hasSourceExcerpt === true
+  );
 }
 
 export function resolveProjectBranch(defaultBranch, configuredBranch = "") {
