@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - chore/ai-team-communication-foundation
+      - feature/portfolio-council-routing
+      - feature/ai-team-ki-arbeitsplatz-routing
     paths:
       - "scripts/ai-team-ledger.mjs"
       - "scripts/ai-team-ledger.test.mjs"
