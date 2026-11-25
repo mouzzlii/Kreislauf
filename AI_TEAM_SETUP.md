@@ -88,6 +88,8 @@ Fehlende Schlüssel, ein fehlender Provider-Wert, eine fehlende Modellkennung od
 ## Sicherheits- und Kostenregeln
 
 - Nur markierte Kommentare in Issue #11 und nur erlaubte GitHub-Absender verarbeiten; Bot-Kommentare werden ignoriert.
+- Der Relay selbst akzeptiert ausschließlich Issue #11; dieser Guard besteht unabhängig von der Workflow-Auslösung.
+- Vor der Tagesbudget-Reservierung muss das kanonische Hauptrepository einen Branch und mindestens einen echten Quelltextauszug liefern. Zusatzrepositorys (z. B. TRAKUNA Android) können diese Voraussetzung nicht erfüllen.
 - Maximal zwei Debatten pro UTC-Kalendertag. Das Kontingent wird vor dem ersten Provider-Aufruf zentral reserviert; auch fehlgeschlagene Aufrufe verbrauchen es.
 - Workflow-Concurrency serialisiert die Budgetreservierung. Bei unvollständigem Budget-Ledger erfolgt ein sicherer Abbruch.
 - Verarbeitungsmarker und Tagesbudget-Reservierungen werden ausschließlich anerkannt, wenn sie von `github-actions[bot]` mit GitHub-Typ `Bot` stammen. Fremde Nutzer und andere Bots können weder Trigger unterdrücken noch das Tageskontingent künstlich verbrauchen.
@@ -101,13 +103,16 @@ Fehlende Schlüssel, ein fehlender Provider-Wert, eine fehlende Modellkennung od
 
 ## Erweitertes Projektportfolio
 
-Zusätzlich zu den vier ursprünglichen Projekten sind drei eigenständige Repositories für die begrenzte Council-Analyse vorgesehen:
+Zusätzlich zu den vier ursprünglichen Projekten sind vier eigenständige Repositories für die begrenzte Council-Analyse vorgesehen:
 
 - `INSERAT-PROFI-AI` → `mouzzlii/INSERAT-PROFI-AI` (eigenständige App; keine Kopplung oder Änderung an SCAN-PROFIT).
 - `BOOK-YOUR-COOK` → `mouzzlii/book-your-cook` (Finanz-/Steuerlogik bleibt fachlich freigabepflichtig; keine automatischen Änderungen oder verbindlichen Steuerannahmen).
 - `LARA-QUIZ` → `mouzzlii/Lara_Quiz` (lokales Offline-Quiz; keine Cloud-Synchronisierung unterstellen).
+- `KI-ARBEITSPLATZ` → `mouzzlii/KI-Arbeitsplatz` (lokale Offline-/Masterwerk-Entwicklung; Branch wird fest konfiguriert).
 
 Die drei zusätzlichen Repositories werden nur über feste, kleine Quelltext-Allowlists eingebunden. Für BOOK-YOUR-COOK sind insbesondere Steuer-/Preisregeln und Zahlungs-Webhook-Dateien als Prüfkontext markiert, nicht als Erlaubnis, sie ohne fachliche Freigabe zu ändern.
+
+Die KI-ARBEITSPLATZ-Auswahl priorisiert `MASTERWERK-ROADMAP.md`, `Offline-Modus/Lib/Common.ps1`, `Offline-Modus/Lib/LocalAI.ps1` und `Offline-Modus/Worker.ps1`; die KI-Quellprüfung erfolgt gegen genau den konfigurierten Branch.
 
 ## Repository-Zuordnung
 
@@ -118,6 +123,8 @@ Die drei zusätzlichen Repositories werden nur über feste, kleine Quelltext-All
 - `PROJECT_REPO_INSERAT_PROFI_AI=mouzzlii/INSERAT-PROFI-AI`
 - `PROJECT_REPO_BOOK_YOUR_COOK=mouzzlii/book-your-cook`
 - `PROJECT_REPO_LARA_QUIZ=mouzzlii/Lara_Quiz`
+- `PROJECT_REPO_KI_ARBEITSPLATZ=mouzzlii/KI-Arbeitsplatz`
+- `PROJECT_REPO_KI_ARBEITSPLATZ_REF=release/offline-masterwerk-v0.2.1` (Actions Variable; vor Nutzung auf den aktuellen freigegebenen Entwicklungsbranch setzen)
 
 Für TRAKUNA werden Architektur- und Android-Quellrepository gemeinsam geladen; `multi-carrier-gateway-neu` bleibt ein separates Experiment. Der vollständige SCAN-PROFIT-Next.js-Quellbaum ist noch nicht in GitHub importiert; Relay-Analysen dürfen deshalb nicht als vollständige Quellcodeprüfung dieses Zweigs ausgegeben werden.
 
