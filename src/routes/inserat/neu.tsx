@@ -14,7 +14,6 @@ export const Route = createFileRoute("/inserat/neu")({
 
 function NewListing() {
   const { user, isPending } = useCurrentUserState();
-  const userId = user?.id ?? null;
   const { profile, regionId, bump } = useKreislauf();
   const navigate = useNavigate();
   const { reuse } = Route.useSearch();
@@ -32,7 +31,7 @@ function NewListing() {
   const [reuseLoading, setReuseLoading] = useState(false);
 
   useEffect(() => {
-    if (!reuse || !userId) return;
+    if (!reuse || !user) return;
     let cancel = false;
     setReuseLoading(true);
     getItemTemplate({ data: { itemUuid: reuse } }).then((template) => {
@@ -42,7 +41,7 @@ function NewListing() {
     }).catch((error: unknown) => { if (!cancel) setError(error instanceof Error ? error.message : "Artikel konnte nicht übernommen werden"); })
       .finally(() => { if (!cancel) setReuseLoading(false); });
     return () => { cancel = true; };
-  }, [reuse, userId]);
+  }, [reuse, user?.id]);
 
   return (
     <Shell>
