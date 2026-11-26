@@ -34,6 +34,20 @@ KREISLAUF ist eine funktionsfähige Entwicklungsbasis, aber noch keine öffentli
 - Lokale PGlite-Datenbank als Entwicklungsstandard; Neon kann über `DATABASE_URL` angebunden werden
 - **Datenbankhinweis:** Der aktuelle App-Code nutzt PGlite oder Neon/Postgres über `DATABASE_URL`. Die vorhandenen Supabase-Projekte sind aktuell nicht automatisch mit der Anwendung verbunden. Vor einer Supabase-Nutzung müssen Verbindung, Migration-Drift und Auth-Schema ausdrücklich eingerichtet und geprüft werden.
 
+## Weitere bestätigte Produktanforderungen
+
+Die folgenden Punkte stammen aus den späteren Projektentscheidungen und sind als Zielanforderungen zu verstehen. Ihre vollständige Umsetzung ist nicht allein durch die vorhandenen Demo-Funktionen belegt:
+
+- Marktplatzansichten klar nach **In der Nähe**, **Gesuche** und **Angebote** trennen.
+- Inseratdetails sollen weitere Inserate desselben Anbieters direkt erreichbar machen.
+- Produktprofilfoto in der Inseratvorschau anzeigen.
+- Inserat-Medieneditor für Fotos und Kurzvideos; Video-Begrenzung gemäß gewählter Variante: 1 × 60 Sekunden, 2 × 30 Sekunden oder 4 × bis zu 20 Sekunden.
+- Nachrichten vollständig an Inserate, Tauschanfragen, Angebote und den zugehörigen Tauschvorgang binden; neue Angebote sollen passende Benachrichtigungen auslösen.
+- Punktearchitektur mit Gemeinschaftsfonds und Inflationsschutz weiter ausarbeiten; konkrete Berechnungsregeln sind von bestehenden Codewerten zu unterscheiden.
+- Das Gemeinschafts-/Koordinationselement „3 Punkte 1 Ort“ wieder berücksichtigen.
+
+Diese Anforderungen sind keine Behauptung, dass jede Funktion bereits in main oder in der öffentlichen Demo vollständig umgesetzt wurde. Vor Freigabe sind sie einzeln gegen Code, Tests und Ende-zu-Ende-Verhalten abzugleichen.
+
 ## Demo starten
 
 Voraussetzungen: Node.js 22 oder neuer und npm.
