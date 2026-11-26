@@ -184,6 +184,7 @@ export function validateCouncilTaskEnvelope(input, { now = new Date() } = {}) {
     if (expires <= created || expires - created > 24 * 60 * 60 * 1000) {
       add(["expiresAt"], "Expiry must be after creation and no more than 24 hours later.");
     }
+    if (created > now.getTime() + 5 * 60 * 1000) add(["createdAt"], "Creation time is too far in the future.");
     if (expires <= now.getTime()) add(["expiresAt"], "Envelope has expired.");
   }
 
