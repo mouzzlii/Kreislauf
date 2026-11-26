@@ -98,7 +98,7 @@ test("requires every denied operation exactly once", () => {
 });
 
 test("rejects absolute, traversal, backslash and duplicate paths", () => {
-  for (const path of ["../outside", "/etc/passwd", "C:/Users/name", "src\\secret.ps1", "src//file.js", "src/./file.js"]) {
+  for (const path of ["../outside", "/etc/passwd", "C:/Users/name", "src\\secret.ps1", "src//file.js", "src/./file.js", "%2e%2e/outside", "src/%2a.js"]) {
     const message = validEnvelope();
     message.payload.constraints.allowedPaths = [path];
     assert.equal(validateCouncilTaskEnvelope(message, { now: NOW }).success, false, path);
@@ -107,6 +107,17 @@ test("rejects absolute, traversal, backslash and duplicate paths", () => {
   const duplicate = validEnvelope();
   duplicate.payload.constraints.allowedPaths = ["src/file.js", "src/file.js"];
   assert.equal(validateCouncilTaskEnvelope(duplicate, { now: NOW }).success, false);
+});
+
+test("rejects known credential, secret and private-key paths", () => {
+  for (const path of [".env.local", ".aws/credentials", ".ssh/id_ed25519", "src/private-key.pem", "src/api_key.txt", "src/credentials.json"]) {
+    const message = validEnvelope();
+    message.payload.constraints.allowedPaths = [path];
+    assert.equal(validateCouncilTaskEnvelope(message, { now: NOW }).success, false, path);
+  }
+  const ordinary = validEnvelope();
+  ordinary.payload.constraints.allowedPaths = ["MASTERWERK-ROADMAP.md", "Offline-Modus/Lib/Common.ps1"];
+  assert.equal(validateCouncilTaskEnvelope(ordinary, { now: NOW }).success, true);
 });
 
 test("rejects expired envelopes and excessive validity windows", () => {
