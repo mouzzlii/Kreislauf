@@ -256,7 +256,7 @@ export const COUNCIL_TASK_ENVELOPE_VERSION = "1.0.0";
 
 export function parseCouncilTaskComment(body, options = {}) {
   if (typeof body !== "string") return { matched: false };
-  const match = body.match(/^\/ai-team\s+task\s*:\s*([\s\S]+)$/i);
+  const match = body.match(/^\/ai-team\s+task\s*:\s*([\s\S]*)$/i);
   if (!match) return { matched: false };
 
   const raw = match[1].trim();
