@@ -138,3 +138,18 @@ Der Livebetrieb gilt erst als aktiviert, wenn ein synthetischer Ende-zu-Ende-Tes
 5. Fehlende Konfiguration, Provider-Fehler, unsichere Llama-Endpunkte und Kostenlimits werden korrekt behandelt.
 
 Der Relay ist in `main` integriert, aber bis zur Einrichtung der tatsächlichen Konten, Modellkennungen, Provider-Ausgabenlimits, read-only GitHub-Zugriff und einer ausdrücklichen Budgetfreigabe gesperrt. Es wurden in dieser Arbeit keine externen KI-Provider aufgerufen.
+
+
+## Strukturierte, lokale Council-Aufgabe (Draft-Adapter)
+
+Zusätzlich zum normalen Debattenbefehl ist auf diesem Draft-Branch ein strikt begrenzter Task-Eingang vorbereitet. Er akzeptiert ausschließlich einen v1-Envelope für eine schreibgeschützte statische Erstprüfung:
+
+```text
+/ai-team task: { ... vollständiger JSON-Envelope aus der lokalen Council-Outbox ... }
+```
+
+Der JSON-Inhalt muss vollständig und unverändert aus einer lokalen Outbox-Datei stammen. Der Relay prüft Protokollversion, Pflichtfelder, Absender-/Empfängeridentität, UUID- und Task-ID-Korrelation, Ablaufzeit, Idempotenzformat, kanonische Projekt-/Repository-Zuordnung, vollständige Commit-SHA, Read-only-Zwang, alle zehn verweigerten Nebenwirkungen und höchstens vier sichere repository-relative Quellpfade. Die Pfade müssen zusätzlich innerhalb der festen, projektspezifischen Relay-Allowlist liegen; Symlinks werden nicht geladen. Der Quellkontext wird am angegebenen Commit-SHA geladen, nicht an einem beweglichen Branch.
+
+Der Export ist absichtlich auf `project.static_review` begrenzt. Inventar und Hash-Manifeste bleiben deterministische lokale Aufgaben; Backup/Restore und lokale Ollama-Aufgaben werden nicht an Provider übertragen. Derselbe Idempotenzschlüssel wird im vertrauenswürdigen GitHub-Budget-Ledger wiedererkannt, auch über UTC-Tagesgrenzen hinweg. Bei unvollständiger Ledger-Prüfung bricht der Relay fail-closed ab.
+
+**Status:** Validator, Parser, Kommentar-Trigger, Commit-Pinning und Ledger-Deduplizierung sind im Draft-PR vorbereitet und erhalten Regressionstests. Noch keine Freigabe zum Merge, keine echte Provider-Anfrage, kein Live-Task und keine produktive Übertragung. Die KREISLAUF-PR-CI muss vor einer Freigabe vollständig erfolgreich sein; außerdem muss die KI-Arbeitsplatz-Outbox unter Windows real getestet werden.
