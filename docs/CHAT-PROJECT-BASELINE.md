@@ -292,3 +292,41 @@ Diese Regeln ergänzen die projektspezifischen Vorgaben; bei Konflikten gelten d
 - Die Vorab-Lektüre ist nur dann als erfolgt zu melden, wenn die Datei und die relevanten Quellen in diesem Arbeitsdurchgang tatsächlich gelesen wurden.
 - Chatübergreifende Koordination ist eine Arbeitsverpflichtung, keine Behauptung, dass alle Chats technisch automatisch synchronisiert oder vollständig durchsuchbar sind.
 - Keine dauerhafte Hintergrundaktivität vortäuschen. Die Koordination wird bei jeder verfügbaren Aufgabe anhand der zentralen Referenz und der zugänglichen Projektstände fortgesetzt.
+
+
+## 10. KI-Council: Zusammenarbeit, gegenseitige Prüfung und Offline-Arbeitsplatz
+
+### Ziel und Grundsatz
+Der Nutzer hat ausdrücklich einen arbeitenden „Council“ verlangt: „bildet einen council relation. stellt euch gegenseitig fragen und aufgaben. die allerbesten lösungen werden angenommen“. Der Council ist kein bloßes Rollenetikett und keine Sammlung ungeprüfter KI-Antworten. Ziel ist, mehrere tatsächlich verfügbare Denk- und Ausführungsinstanzen unabhängig arbeiten, einander kritisch befragen und die bestbelegte Lösung auswählen zu lassen.
+
+### Rollen und Zusammensetzung
+- **ChatGPT – Leitung und Integration:** Gesamtkoordination, Aufgabenzerlegung, Projekt-/Abhängigkeitsmanagement, Synthese, Qualitätskontrolle und nachvollziehbare Entscheidung. ChatGPT darf durch bessere belegte Gegenargumente anderer Council-Mitglieder überstimmt werden.
+- **Claude – unabhängige Analyse und Prüfung:** Architektur-/Codeanalyse, alternative Lösungswege, kritische Gegenprüfung und Review, sofern eine echte Verbindung verfügbar ist.
+- **Meta/Llama – alternative Lösungsentwicklung und Gegenprüfung:** unabhängige Vorschläge, Red-Team-Fragen, technische Alternativen und Review, sofern eine echte Verbindung verfügbar ist.
+- **Python-KI – Programmierung und technische Analyse:** Codeausführung, Datenanalyse, Tests und technische Hilfsarbeiten, soweit eine reale ausführbare Umgebung/Integration verfügbar ist. Eine lokale Python-Laufzeit ist nicht automatisch eine eigenständige KI.
+- **Lokaler PC / Offline-Node – Ausführung und Betriebsumgebung:** lokale Builds, Tests, Backups, Dokumentation und Offline-Arbeit, sobald der Rechner tatsächlich erreichbar und autorisiert ist. Der PC ist Infrastruktur und nicht automatisch ein KI-Council-Mitglied.
+- **Weitere geeignete Agenten/Tools:** nach Aufgabe ergänzen; nur reale, verfügbare und autorisierte Integrationen einsetzen.
+
+### Council-Arbeitsprotokoll
+1. ChatGPT formuliert einen klaren Auftrag mit Ziel, Kontext, Constraints, erwarteten Ergebnissen und Prüfkriterien.
+2. Wo möglich, erhalten Claude, Meta/Llama und andere verfügbare Systeme unabhängig voneinander denselben Kernauftrag, damit sie nicht bloß die erste Antwort nachahmen.
+3. Council-Mitglieder dürfen einander konkrete Fragen und Gegenaufträge stellen: Annahmen angreifen, Fehler suchen, Sicherheitsrisiken benennen, Alternativen entwickeln und Ergebnisse reproduzierbar prüfen.
+4. Mindestens eine unabhängige Gegenprüfung wird für wesentliche Architektur-, Sicherheits- und Produktentscheidungen eingeplant, sofern eine zweite reale Instanz verfügbar ist.
+5. ChatGPT vergleicht die Ergebnisse anhand Nutzeranforderungen, Belegen, technischer Machbarkeit, Sicherheit/Datenschutz, Kosten, Wartbarkeit, UX und Testbarkeit. Die beste begründete Lösung wird übernommen; gute Teilideen werden kombiniert.
+6. Dissens und verworfene Alternativen werden kurz mit Begründung dokumentiert. Keine Mehrheitsentscheidung ersetzt Fakten, Sicherheitsanforderungen oder Nutzerentscheidungen.
+7. KI-Ausgaben sind Hypothesen/Vorschläge, keine Beweise. Code, Fakten und Testergebnisse müssen unabhängig geprüft werden.
+8. Jede Council-Beteiligung erhält einen nachvollziehbaren Status: **geplant**, **Auftrag vorbereitet**, **tatsächlich gesendet**, **Antwort empfangen**, **unabhängig geprüft**. Nur die letzten drei Zustände dürfen als echte externe Beteiligung dargestellt werden, und „unabhängig geprüft“ setzt einen tatsächlichen Review voraus.
+
+### Verbindungen, Offline-Modus und Ehrlichkeit
+- Vor jedem Council-Einsatz die verfügbaren API-/MCP-/Plugin-Verbindungen und deren Berechtigungen tatsächlich inventarisieren.
+- Keine Verbindung, Antwort, gegenseitige Diskussion, Codeausführung, PC-Erreichbarkeit oder Testergebnisse erfinden. Ein vorbereiteter Prompt ist keine Delegation.
+- Claude und Meta/Llama sind nur dann live beteiligt, wenn eine reale Integration vorhanden ist, die Anfrage erfolgreich übermittelt wurde und die Antwort empfangen wurde. Fehlt die Integration, arbeitet ChatGPT mit internen Perspektiven weiter und kennzeichnet den externen Council als nicht verfügbar.
+- Der Nutzer wünscht den lokalen PC ausdrücklich als Offline-Arbeitsplatz für gemeinsame Projekte und die Python-KI als Teil der Council-Struktur. Dieser Wunsch ist verbindlich für die Zielarchitektur; tatsächliche lokale Verfügbarkeit, Installation, Verbindung und Tests müssen separat nachgewiesen werden.
+- Lokale Ausführung darf keine Internetverbindung voraussetzen, wenn der konkrete Auftrag ausdrücklich offline erfolgen soll. Internetabhängige Schritte (Recherche, GitHub, externe APIs und externe KI-Aufrufe) zuerst erledigen, solange Internet verfügbar ist; unabhängige Arbeiten parallelisieren.
+- Vor Netzwerkzugriff, Tunnel oder Remote-Ausführung Zugriffsschutz, Schlüsselverwaltung, minimale Berechtigungen, Firewall-Beschränkung und Schutz vor öffentlicher Exposition prüfen. Keine Secrets in Prompts, Logs oder Repositories schreiben.
+- Kostenpflichtige Modell-/API-Aufrufe bleiben ohne ausdrückliche Freigabe untersagt.
+
+### Live-Status und Betriebsnachweis
+Für die tatsächliche Council-Besetzung und die Offline-Umgebung ist ein aktuelles Statusprotokoll `COUNCIL_LIVE_STATUS.md` zu führen. Es soll pro Instanz/Verbindung mindestens festhalten: Anbieter/Modell oder lokale Komponente, Verbindungsart, letzter erfolgreicher Verbindungstest, Berechtigungsumfang, Kostenstatus, letzter tatsächlich gesendeter Auftrag, Antwort-/Artefaktverweis, Teststatus und offene Blocker. Keine Zugangsdaten oder Tokens dokumentieren. Veraltete Statusangaben deutlich als historisch kennzeichnen.
+
+**Zum Stand dieser Dokumentationsänderung (26.11.2026):** In den aktuell verfügbaren ChatGPT-Werkzeugen ist keine direkte Claude- oder Meta/Llama-Aufrufintegration nachgewiesen. Ein lokaler PC-/Offline-Node und eine eigenständige Python-KI-Verbindung sind in diesem Arbeitsdurchgang ebenfalls nicht live erreichbar/nachgewiesen. Daher wird aktuell keine externe Council-Antwort und kein lokaler Test als erfolgt behauptet. Die Council-Struktur und das gewünschte Offline-Ziel sind dokumentiert; die technische Aktivierung bleibt eine offene Integrationsaufgabe.
