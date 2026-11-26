@@ -169,6 +169,10 @@ test("parses a structured task comment and rejects malformed JSON", () => {
   assert.equal(parsed.matched, true);
   assert.equal(parsed.success, true);
 
+  const empty = parseCouncilTaskComment("/ai-team task:   ", { now: NOW });
+  assert.equal(empty.matched, true);
+  assert.equal(empty.success, false);
+
   const malformed = parseCouncilTaskComment("/ai-team task: {broken", { now: NOW });
   assert.equal(malformed.matched, true);
   assert.equal(malformed.success, false);
