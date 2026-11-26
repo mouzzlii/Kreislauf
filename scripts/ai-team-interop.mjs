@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DATE_TIME_PATTERN = /(?:Z|[+-]\d{2}:\d{2})$/;
 const SYSTEM_ID_PATTERN = /^[a-z0-9][a-z0-9._-]{1,63}$/;
@@ -83,6 +85,24 @@ function isSafeRepositoryPath(value) {
   return true;
 }
 
+export function createCouncilTaskIdempotencyKey(payload) {
+  const paths = [...payload.constraints.allowedPaths].sort();
+  const parts = [
+    "ki-arbeitsplatz",
+    "queue-v1",
+    payload.inputs.originalQueueTaskId.toLowerCase(),
+    "interop-v1",
+    payload.taskType,
+    payload.inputs.repository.toLowerCase(),
+    payload.inputs.projectId,
+    payload.inputs.commitSha.toLowerCase(),
+    String(paths.length),
+    ...paths,
+  ];
+  const material = parts.map((field) => String(field.length) + ":" + field).join("");
+  return "kia-" + createHash("sha256").update(material, "utf8").digest("hex");
+}
+
 export function validateCouncilTaskEnvelope(input, { now = new Date() } = {}) {
   const issues = [];
   const add = (path, message) => issues.push({ path, message });
@@ -108,6 +128,11 @@ export function validateCouncilTaskEnvelope(input, { now = new Date() } = {}) {
   if (!uuid(input.correlationId)) add(["correlationId"], "Expected a canonical UUID.");
   if (typeof input.idempotencyKey !== "string" || !/^kia-[a-f0-9]{64}$/.test(input.idempotencyKey)) {
     add(["idempotencyKey"], "Expected the local outbox idempotency key format.");
+  }
+  else if (isRecord(input.payload) && isRecord(input.payload.inputs) && isRecord(input.payload.constraints) && Array.isArray(input.payload.constraints.allowedPaths) && typeof input.payload.taskType === "string" && typeof input.payload.inputs.originalQueueTaskId === "string" && typeof input.payload.inputs.repository === "string" && typeof input.payload.inputs.projectId === "string" && typeof input.payload.inputs.commitSha === "string") {
+    if (input.idempotencyKey !== createCouncilTaskIdempotencyKey(input.payload)) {
+      add(["idempotencyKey"], "Idempotency key does not match the canonical task and repository scope.");
+    }
   }
   if (!dateTime(input.expiresAt)) add(["expiresAt"], "Expected an ISO-8601 date-time with an explicit timezone.");
   if (input.dataClassification !== "internal") add(["dataClassification"], "Only internal data is accepted.");
