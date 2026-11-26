@@ -69,6 +69,10 @@ function isSafeRepositoryPath(value) {
     return false;
   }
   if (decoded.startsWith("/") || /^[A-Za-z]:/.test(decoded) || decoded.includes("\\")) return false;
+  for (let index = 0; index < decoded.length; index += 1) {
+    const code = decoded.charCodeAt(index);
+    if (code < 0x20 || code === 0x7f) return false;
+  }
   if (["*", "?", "[", "]"].some((character) => decoded.includes(character))) return false;
 
   const segments = decoded.split("/");
