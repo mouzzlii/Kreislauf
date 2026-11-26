@@ -325,7 +325,8 @@ async function reserveDailyDebate(triggerCommentId, idempotencyKey = "") {
     });
     count += pageResult.count;
     alreadyReserved ||= pageResult.alreadyReserved;
-    if (pageResult.reachedPreviousDay || comments.length < 100) break;
+    if (alreadyReserved) break;
+    if ((pageResult.reachedPreviousDay && !idempotencyKey) || comments.length < 100) break;
     if (page === 20) {
       throw new Error("Daily budget ledger scan limit reached; refusing provider calls until the ledger can be checked.");
     }
