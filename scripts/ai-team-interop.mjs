@@ -285,6 +285,9 @@ export function resolveCouncilTaskProject(envelope, projectRepositories) {
       !Object.hasOwn(projectRepositories, project)) {
     return { success: false, message: "Unknown or unconfigured Council project ID." };
   }
+  if (project !== "KI-ARBEITSPLATZ") {
+    return { success: false, message: "Structured task intake is currently enabled only for KI-ARBEITSPLATZ." };
+  }
   if (projectRepositories[project] !== repository) {
     return { success: false, message: "Repository does not match the canonical repository mapping for this project." };
   }
