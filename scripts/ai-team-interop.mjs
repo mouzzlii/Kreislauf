@@ -141,8 +141,8 @@ export function validateCouncilTaskEnvelope(input, { now = new Date() } = {}) {
   } else {
     if (constraints.readOnly !== true) add(["payload", "constraints", "readOnly"], "Task must be strictly read-only.");
 
-    if (!Array.isArray(constraints.allowedPaths) || constraints.allowedPaths.length < 1 || constraints.allowedPaths.length > 200) {
-      add(["payload", "constraints", "allowedPaths"], "Between 1 and 200 allowed paths are required.");
+    if (!Array.isArray(constraints.allowedPaths) || constraints.allowedPaths.length < 1 || constraints.allowedPaths.length > 4) {
+      add(["payload", "constraints", "allowedPaths"], "Between 1 and 4 approved source paths are required.");
     } else {
       const seen = new Set();
       for (const [index, path] of constraints.allowedPaths.entries()) {
