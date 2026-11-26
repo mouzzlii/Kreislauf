@@ -27,16 +27,13 @@ export function inspectDailyBudgetPage(comments, {
 
   for (const comment of comments) {
     const createdAt = Date.parse(comment?.created_at || "");
-    if (Number.isFinite(createdAt) && createdAt < dayStart) {
-      reachedPreviousDay = true;
-      break;
-    }
+    if (Number.isFinite(createdAt) && createdAt < dayStart) reachedPreviousDay = true;
     if (!isTrustedRelayComment(comment) || typeof comment.body !== "string") continue;
-    if (comment.body.includes(`${reservationPrefix}${triggerCommentId} -->`) ||
-        (idempotencyMarker && comment.body.includes(idempotencyMarker))) {
+    if (idempotencyMarker && comment.body.includes(idempotencyMarker)) alreadyReserved = true;
+    if (!reachedPreviousDay && comment.body.includes(`${reservationPrefix}${triggerCommentId} -->`)) {
       alreadyReserved = true;
     }
-    if (comment.body.includes(reservationPrefix)) count += 1;
+    if (!reachedPreviousDay && comment.body.includes(reservationPrefix)) count += 1;
   }
 
   return { count, alreadyReserved, reachedPreviousDay };
