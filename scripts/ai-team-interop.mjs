@@ -40,6 +40,17 @@ function exactKeys(value, required, optional = []) {
     keys.every((key) => required.includes(key) || optional.includes(key));
 }
 
+const BLOCKED_REPOSITORY_DIRECTORIES = new Set([
+  ".git", "node_modules", ".ssh", ".aws", ".azure", ".kube", ".docker",
+  ".gnupg", ".gcloud", ".pulumi", ".terraform.d", ".venv", "venv",
+  "__pycache__", "vendor", "coverage", "dist", "build",
+]);
+const BLOCKED_REPOSITORY_FILES = new Set([
+  ".env", ".npmrc", ".pypirc", ".netrc", "credentials.json",
+  "service-account.json", "id_rsa", "id_ed25519", "id_ecdsa", "id_dsa",
+  "id_ed25519_sk", "id_ecdsa_sk",
+]);
+
 function isSafeRepositoryPath(value) {
   if (typeof value !== "string" || value.length < 1 || value.length > 1024) return false;
   if (value.startsWith("/") || /^[A-Za-z]:/.test(value) || value.includes("\\")) return false;
@@ -47,7 +58,29 @@ function isSafeRepositoryPath(value) {
     const code = value.charCodeAt(index);
     if (code < 0x20 || code === 0x7f) return false;
   }
-  return !value.split("/").some((part) => part === "." || part === ".." || part === "");
+  if (/[*?\[\]]/.test(value)) return false;
+
+  let decoded;
+  try {
+    decoded = decodeURIComponent(value);
+  } catch {
+    return false;
+  }
+  if (decoded.startsWith("/") || /^[A-Za-z]:/.test(decoded) || decoded.includes("\\")) return false;
+  if (/[*?\[\]]/.test(decoded)) return false;
+
+  const segments = decoded.split("/");
+  if (segments.some((part) => !part || part === "." || part === "..")) return false;
+  if (segments.some((part) => {
+    const lower = part.toLowerCase();
+    return BLOCKED_REPOSITORY_DIRECTORIES.has(lower) || lower.startsWith(".env");
+  })) return false;
+
+  const leaf = segments.at(-1).toLowerCase();
+  if (BLOCKED_REPOSITORY_FILES.has(leaf)) return false;
+  if (/\\.(pem|key|p12|pfx|ppk|jks|keystore|kdbx)$/.test(leaf)) return false;
+  if (/(secret|credential|apikey|api_key|api-key|access[-_]token|refresh[-_]token)/.test(leaf)) return false;
+  return true;
 }
 
 export function validateCouncilTaskEnvelope(input, { now = new Date() } = {}) {
