@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { validateCouncilTaskEnvelope } from "./ai-team-interop.mjs";
+import { parseCouncilTaskComment, resolveCouncilTaskProject, validateCouncilTaskEnvelope } from "./ai-team-interop.mjs";
 
 const NOW = new Date("2026-11-26T10:30:00.000Z");
 
@@ -147,4 +147,35 @@ test("rejects task types outside the explicit read-only allowlist", () => {
   const message = validEnvelope();
   message.payload.taskType = "project.restore";
   assert.equal(validateCouncilTaskEnvelope(message, { now: NOW }).success, false);
+});
+
+
+test("parses a structured task comment and rejects malformed JSON", () => {
+  const valid = validEnvelope();
+  const parsed = parseCouncilTaskComment("/ai-team task: " + JSON.stringify(valid), { now: NOW });
+  assert.equal(parsed.matched, true);
+  assert.equal(parsed.success, true);
+
+  const malformed = parseCouncilTaskComment("/ai-team task: {broken", { now: NOW });
+  assert.equal(malformed.matched, true);
+  assert.equal(malformed.success, false);
+
+  assert.equal(parseCouncilTaskComment("/ai-team debate KREISLAUF: inspect this").matched, false);
+  assert.equal(parseCouncilTaskComment("/ai-team task: " + "x".repeat(12001)).success, false);
+});
+
+test("binds task envelope to the canonical project repository and source-path limit", () => {
+  const message = validEnvelope();
+  const mapping = { "KI-ARBEITSPLATZ": "mouzzlii/KI-Arbeitsplatz" };
+  const result = resolveCouncilTaskProject(message, mapping);
+  assert.equal(result.success, true);
+  assert.equal(result.project, "KI-ARBEITSPLATZ");
+  assert.equal(result.commitSha, "a".repeat(40));
+
+  assert.equal(resolveCouncilTaskProject(message, { "KI-ARBEITSPLATZ": "attacker/other-repo" }).success, false);
+  assert.equal(resolveCouncilTaskProject(message, {}).success, false);
+
+  const tooManyPaths = validEnvelope();
+  tooManyPaths.payload.constraints.allowedPaths = ["a", "b", "c", "d", "e"];
+  assert.equal(resolveCouncilTaskProject(tooManyPaths, mapping).success, false);
 });
