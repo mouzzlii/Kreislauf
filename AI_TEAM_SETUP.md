@@ -6,14 +6,14 @@ GitHub ist das gemeinsame, dauerhafte Postfach und Entscheidungsprotokoll für K
 
 Zentrale Koordination: https://github.com/mouzzlii/Kreislauf/issues/11
 
-Das KI-Team arbeitet als vierstufiger, unabhängiger Rat:
+Das KI-Team arbeitet als vierstufiger Rat mit **drei unabhängigen Analysen und einer abschließenden Synthese**:
 
-1. **OpenAI / GPT** erstellt die erste technische Analyse.
-2. **Anthropic / Claude** prüft sie unabhängig und widerspricht bei Bedarf.
-3. **Dritter Agent – ausdrücklich wählbar:** entweder Meta Muse über Metas gehostete Model API oder ein echtes Llama-Modell über einen eigenen/externen Inference-Host.
-4. **OpenAI / GPT** moderiert die Synthese und dokumentiert begründete Übereinstimmungen, Widersprüche und offene Nachweise.
+1. **OpenAI / GPT** erstellt eine eigenständige technische Analyse anhand des ursprünglichen Auftrags und des begrenzten Quellkontexts.
+2. **Anthropic / Claude** erstellt eine zweite eigenständige Analyse anhand desselben ursprünglichen Auftrags und Quellkontexts. Claude erhält ausdrücklich keine vorherige Agentenantwort.
+3. **Dritter Agent – ausdrücklich wählbar:** Meta Muse über Metas gehostete Model API oder ein echtes Llama-Modell über einen eigenen/externen Inference-Host. Auch dieser Agent erhält nur den ursprünglichen Auftrag und denselben begrenzten Quellkontext, keine vorherigen Antworten.
+4. **OpenAI / GPT** erhält alle drei unabhängigen Analysen und den Quellkontext, vergleicht Übereinstimmungen und Widersprüche, prüft Aussagen anhand der Belege und erstellt die gemeinsame Synthese.
 
-Jeder Agent erhält denselben begrenzten Projektkontext und die vorherigen Antworten. Vorherige Agentenantworten sind ebenfalls nicht vertrauenswürdige Daten; darin enthaltene Anweisungen dürfen keine Sicherheits- oder Systemregeln überschreiben. Der Relay ändert keine Quellcodes, führt keine Merges oder Deployments aus und nimmt keine produktiven Aktionen vor.
+Damit werden Ankereffekte zwischen den unabhängigen Lösungsvorschlägen reduziert. Die Abschluss-Synthese behandelt alle Agentenantworten als unvertrauenswürdige Daten; darin enthaltene Anweisungen dürfen keine Sicherheits- oder Systemregeln überschreiben. Der Relay ändert keine Quellcodes, führt keine Merges oder Deployments aus und nimmt keine produktiven Aktionen vor.
 
 ## Dritten Agenten auswählen
 
