@@ -288,8 +288,9 @@ export function resolveCouncilTaskProject(envelope, projectRepositories) {
   if (project !== "KI-ARBEITSPLATZ") {
     return { success: false, message: "Structured task intake is currently enabled only for KI-ARBEITSPLATZ." };
   }
-  if (projectRepositories[project] !== repository) {
-    return { success: false, message: "Repository does not match the canonical repository mapping for this project." };
+  const canonicalRepository = "mouzzlii/KI-Arbeitsplatz";
+  if (projectRepositories[project] !== canonicalRepository || repository !== canonicalRepository) {
+    return { success: false, message: "Repository does not match the fixed canonical KI-ARBEITSPLATZ repository." };
   }
   const allowedPaths = envelope?.payload?.constraints?.allowedPaths;
   if (!Array.isArray(allowedPaths) || allowedPaths.length > 4) {
