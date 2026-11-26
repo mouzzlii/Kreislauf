@@ -1,13 +1,11 @@
-import { z } from "zod";
-
-const UUID = z.string().uuid();
-const DATE_TIME = z.string().refine((value) =>
-  typeof value === "string" &&
-  /(?:Z|[+-]\d{2}:\d{2})$/.test(value) &&
-  Number.isFinite(Date.parse(value)),
-  "Expected an ISO-8601 date-time with an explicit timezone.",
-);
-
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const DATE_TIME_PATTERN = /(?:Z|[+-]\d{2}:\d{2})$/;
+const SYSTEM_ID_PATTERN = /^[a-z0-9][a-z0-9._-]{1,63}$/;
+const PROJECT_ID_PATTERN = /^[A-Z0-9][A-Z0-9_-]{1,63}$/;
+const COMPONENT_ID_PATTERN = /^[a-z0-9][a-z0-9._-]{1,63}$/;
+const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]{1,100}\/[A-Za-z0-9_.-]{1,100}$/;
+const COMMIT_PATTERN = /^[a-f0-9]{40}$/i;
+const QUEUE_TASK_ID_PATTERN = /^[a-f0-9]{32}$/i;
 const DENIED_OPERATIONS = [
   "modify_source",
   "delete_data",
@@ -20,7 +18,6 @@ const DENIED_OPERATIONS = [
   "purchase",
   "send_external_message",
 ];
-
 const APPROVAL_GATES = [
   "irreversible",
   "external_cost",
@@ -28,19 +25,22 @@ const APPROVAL_GATES = [
   "legal_commitment",
   "personal_data_export",
 ];
-
 const TASKS = {
   "project.inventory": { format: "csv" },
   "project.static_review": { format: "markdown" },
   "project.hash_manifest": { format: "json" },
 };
 
-const IDENTITY = z.object({
-  systemId: z.string().regex(/^[a-z0-9][a-z0-9._-]{1,63}$/),
-  projectId: z.string().regex(/^[A-Z0-9][A-Z0-9_-]{1,63}$/),
-  componentId: z.string().regex(/^[a-z0-9][a-z0-9._-]{1,63}$/),
-  agentId: z.string().regex(/^[a-z0-9][a-z0-9._-]{1,63}$/).optional(),
-}).strict();
+function isRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function exactKeys(value, required, optional = []) {
+  if (!isRecord(value)) return false;
+  const keys = Object.keys(value);
+  return required.every((key) => Object.hasOwn(value, key)) &&
+    keys.every((key) => required.includes(key) || optional.includes(key));
+}
 
 function isSafeRepositoryPath(value) {
   if (typeof value !== "string" || value.length < 1 || value.length > 1024) return false;
@@ -49,112 +49,146 @@ function isSafeRepositoryPath(value) {
   return !value.split("/").some((part) => part === "." || part === ".." || part === "");
 }
 
-const allowedPathsSchema = z.array(z.string().min(1).max(1024)).min(1).max(200)
-  .superRefine((paths, context) => {
-    const seen = new Set();
-    for (const [index, path] of paths.entries()) {
-      if (!isSafeRepositoryPath(path)) {
-        context.addIssue({ code: "custom", path: [index], message: "Path must be a safe repository-relative POSIX path." });
-      }
-      if (seen.has(path)) {
-        context.addIssue({ code: "custom", path: [index], message: "Duplicate allowed path." });
-      }
-      seen.add(path);
-    }
-  });
-
-const taskPayloadSchema = z.object({
-  taskId: UUID,
-  taskType: z.string().regex(/^[a-z][a-z0-9]*(\.[a-z][a-z0-9_-]*){1,4}$/).max(120),
-  instruction: z.string().min(1).max(8000),
-  inputs: z.object({
-    projectId: z.string().regex(/^[A-Z0-9][A-Z0-9_-]{1,63}$/),
-    repository: z.string().regex(/^[A-Za-z0-9_.-]{1,100}\/[A-Za-z0-9_.-]{1,100}$/),
-    commitSha: z.string().regex(/^[a-f0-9]{40}$/i),
-    originalQueueTaskId: z.string().regex(/^[a-f0-9]{32}$/i),
-  }).strict(),
-  constraints: z.object({
-    readOnly: z.literal(true),
-    allowedPaths: allowedPathsSchema,
-    deniedOperations: z.array(z.enum(DENIED_OPERATIONS)).length(10),
-    maxRuntimeSeconds: z.number().int().min(1).max(86400),
-    maxInputBytes: z.number().int().min(1).max(104857600),
-    approvalGates: z.array(z.enum(APPROVAL_GATES)).max(5),
-  }).strict().superRefine((constraints, context) => {
-    if (new Set(constraints.deniedOperations).size !== DENIED_OPERATIONS.length) {
-      context.addIssue({ code: "custom", path: ["deniedOperations"], message: "All ten denied operation classes must be present exactly once." });
-    }
-    if (new Set(constraints.approvalGates).size !== constraints.approvalGates.length) {
-      context.addIssue({ code: "custom", path: ["approvalGates"], message: "Approval gates must be unique." });
-    }
-  }),
-  expectedOutput: z.object({
-    format: z.enum(["markdown", "json", "csv", "artifact"]),
-    maxBytes: z.number().int().min(1).max(104857600),
-  }).strict(),
-}).strict().superRefine((payload, context) => {
-  const expected = TASKS[payload.taskType];
-  if (!expected) {
-    context.addIssue({ code: "custom", path: ["taskType"], message: "Task type is not enabled for this read-only adapter." });
-    return;
-  }
-  if (payload.expectedOutput.format !== expected.format) {
-    context.addIssue({ code: "custom", path: ["expectedOutput", "format"], message: "Output format does not match the approved task type." });
-  }
-  if (payload.taskId.replaceAll("-", "").toLowerCase() !== payload.inputs.originalQueueTaskId.toLowerCase()) {
-    context.addIssue({ code: "custom", path: ["inputs", "originalQueueTaskId"], message: "Original queue task ID does not match the protocol task ID." });
-  }
-});
-
-const envelopeSchema = z.object({
-  protocol: z.literal("ki-interoperability"),
-  version: z.literal("1.0.0"),
-  messageId: UUID,
-  messageType: z.literal("task.request"),
-  createdAt: DATE_TIME,
-  source: IDENTITY,
-  target: IDENTITY,
-  correlationId: UUID,
-  idempotencyKey: z.string().regex(/^kia-[a-f0-9]{64}$/),
-  expiresAt: DATE_TIME,
-  dataClassification: z.enum(["public", "internal", "confidential", "restricted"]),
-  payload: taskPayloadSchema,
-}).strict().superRefine((message, context) => {
-  if (message.source.systemId !== "ki-arbeitsplatz" ||
-      message.source.projectId !== "KI-ARBEITSPLATZ" ||
-      message.source.componentId !== "offline-worker") {
-    context.addIssue({ code: "custom", path: ["source"], message: "Unexpected source identity." });
-  }
-  if (message.target.systemId !== "council-gateway" ||
-      message.target.projectId !== "KREISLAUF" ||
-      message.target.componentId !== "task-router") {
-    context.addIssue({ code: "custom", path: ["target"], message: "Unexpected target identity." });
-  }
-  if (message.dataClassification !== "internal") {
-    context.addIssue({ code: "custom", path: ["dataClassification"], message: "Only internal data is accepted by this adapter." });
-  }
-  const created = Date.parse(message.createdAt);
-  const expires = Date.parse(message.expiresAt);
-  if (expires <= created || expires - created > 24 * 60 * 60 * 1000) {
-    context.addIssue({ code: "custom", path: ["expiresAt"], message: "Expiry must be after creation and no more than 24 hours later." });
-  }
-});
-
 export function validateCouncilTaskEnvelope(input, { now = new Date() } = {}) {
-  const parsed = envelopeSchema.safeParse(input);
-  if (!parsed.success) return parsed;
-  if (Date.parse(parsed.data.expiresAt) <= now.getTime()) {
-    return {
-      success: false,
-      error: new z.ZodError([{
-        code: "custom",
-        path: ["expiresAt"],
-        message: "Envelope has expired.",
-        input: parsed.data.expiresAt,
-      }]),
-    };
+  const issues = [];
+  const add = (path, message) => issues.push({ path, message });
+  const string = (value, min, max) => typeof value === "string" && value.length >= min && value.length <= max;
+  const integer = (value, min, max) => Number.isInteger(value) && value >= min && value <= max;
+  const uuid = (value) => typeof value === "string" && UUID_PATTERN.test(value);
+  const dateTime = (value) => typeof value === "string" && DATE_TIME_PATTERN.test(value) && Number.isFinite(Date.parse(value));
+
+  const envelopeKeys = [
+    "protocol", "version", "messageId", "messageType", "createdAt", "source",
+    "target", "correlationId", "idempotencyKey", "expiresAt", "dataClassification", "payload",
+  ];
+  if (!exactKeys(input, envelopeKeys)) {
+    add([], "Envelope must be an object with exactly the v1 task-request fields.");
+    return { success: false, issues };
   }
-  return parsed;
+
+  if (input.protocol !== "ki-interoperability") add(["protocol"], "Unsupported protocol.");
+  if (input.version !== "1.0.0") add(["version"], "Unsupported protocol version.");
+  if (!uuid(input.messageId)) add(["messageId"], "Expected a canonical UUID.");
+  if (input.messageType !== "task.request") add(["messageType"], "Only task.request is accepted.");
+  if (!dateTime(input.createdAt)) add(["createdAt"], "Expected an ISO-8601 date-time with an explicit timezone.");
+  if (!uuid(input.correlationId)) add(["correlationId"], "Expected a canonical UUID.");
+  if (typeof input.idempotencyKey !== "string" || !/^kia-[a-f0-9]{64}$/.test(input.idempotencyKey)) {
+    add(["idempotencyKey"], "Expected the local outbox idempotency key format.");
+  }
+  if (!dateTime(input.expiresAt)) add(["expiresAt"], "Expected an ISO-8601 date-time with an explicit timezone.");
+  if (input.dataClassification !== "internal") add(["dataClassification"], "Only internal data is accepted.");
+
+  const identity = (value, path) => {
+    if (!exactKeys(value, ["systemId", "projectId", "componentId"], ["agentId"])) {
+      add(path, "Identity has missing or unknown fields.");
+      return;
+    }
+    if (!string(value.systemId, 2, 64) || !SYSTEM_ID_PATTERN.test(value.systemId)) add([...path, "systemId"], "Invalid system ID.");
+    if (!string(value.projectId, 2, 64) || !PROJECT_ID_PATTERN.test(value.projectId)) add([...path, "projectId"], "Invalid project ID.");
+    if (!string(value.componentId, 2, 64) || !COMPONENT_ID_PATTERN.test(value.componentId)) add([...path, "componentId"], "Invalid component ID.");
+    if (value.agentId !== undefined && (!string(value.agentId, 2, 64) || !SYSTEM_ID_PATTERN.test(value.agentId))) {
+      add([...path, "agentId"], "Invalid agent ID.");
+    }
+  };
+
+  identity(input.source, ["source"]);
+  identity(input.target, ["target"]);
+  if (isRecord(input.source) && (
+    input.source.systemId !== "ki-arbeitsplatz" ||
+    input.source.projectId !== "KI-ARBEITSPLATZ" ||
+    input.source.componentId !== "offline-worker"
+  )) add(["source"], "Unexpected source identity.");
+  if (isRecord(input.target) && (
+    input.target.systemId !== "council-gateway" ||
+    input.target.projectId !== "KREISLAUF" ||
+    input.target.componentId !== "task-router"
+  )) add(["target"], "Unexpected target identity.");
+
+  const payload = input.payload;
+  const payloadKeys = ["taskId", "taskType", "instruction", "inputs", "constraints", "expectedOutput"];
+  if (!exactKeys(payload, payloadKeys)) {
+    add(["payload"], "Task payload has missing or unknown fields.");
+    return { success: false, issues };
+  }
+
+  if (!uuid(payload.taskId)) add(["payload", "taskId"], "Expected a canonical UUID.");
+  if (!string(payload.taskType, 1, 120) || !/^[a-z][a-z0-9]*(\.[a-z][a-z0-9_-]*){1,4}$/.test(payload.taskType)) {
+    add(["payload", "taskType"], "Invalid task type.");
+  }
+  if (!string(payload.instruction, 1, 8000)) add(["payload", "instruction"], "Instruction must contain 1 to 8000 characters.");
+
+  const inputs = payload.inputs;
+  if (!exactKeys(inputs, ["projectId", "repository", "commitSha", "originalQueueTaskId"])) {
+    add(["payload", "inputs"], "Inputs have missing or unknown fields.");
+  } else {
+    if (!string(inputs.projectId, 2, 64) || !PROJECT_ID_PATTERN.test(inputs.projectId)) add(["payload", "inputs", "projectId"], "Invalid remote project ID.");
+    if (typeof inputs.repository !== "string" || !REPOSITORY_PATTERN.test(inputs.repository)) add(["payload", "inputs", "repository"], "Invalid owner/repository identifier.");
+    if (typeof inputs.commitSha !== "string" || !COMMIT_PATTERN.test(inputs.commitSha)) add(["payload", "inputs", "commitSha"], "A full 40-character commit SHA is required.");
+    if (typeof inputs.originalQueueTaskId !== "string" || !QUEUE_TASK_ID_PATTERN.test(inputs.originalQueueTaskId)) {
+      add(["payload", "inputs", "originalQueueTaskId"], "Invalid original queue task ID.");
+    }
+    if (uuid(payload.taskId) && QUEUE_TASK_ID_PATTERN.test(inputs.originalQueueTaskId || "") &&
+        payload.taskId.replaceAll("-", "").toLowerCase() !== inputs.originalQueueTaskId.toLowerCase()) {
+      add(["payload", "inputs", "originalQueueTaskId"], "Original queue task ID does not match the protocol task ID.");
+    }
+  }
+
+  const constraints = payload.constraints;
+  const constraintKeys = ["readOnly", "allowedPaths", "deniedOperations", "maxRuntimeSeconds", "maxInputBytes", "approvalGates"];
+  if (!exactKeys(constraints, constraintKeys)) {
+    add(["payload", "constraints"], "Constraints have missing or unknown fields.");
+  } else {
+    if (constraints.readOnly !== true) add(["payload", "constraints", "readOnly"], "Task must be strictly read-only.");
+
+    if (!Array.isArray(constraints.allowedPaths) || constraints.allowedPaths.length < 1 || constraints.allowedPaths.length > 200) {
+      add(["payload", "constraints", "allowedPaths"], "Between 1 and 200 allowed paths are required.");
+    } else {
+      const seen = new Set();
+      for (const [index, path] of constraints.allowedPaths.entries()) {
+        if (!isSafeRepositoryPath(path)) add(["payload", "constraints", "allowedPaths", index], "Path must be a safe repository-relative POSIX path.");
+        if (seen.has(path)) add(["payload", "constraints", "allowedPaths", index], "Duplicate allowed path.");
+        seen.add(path);
+      }
+    }
+
+    if (!Array.isArray(constraints.deniedOperations) ||
+        constraints.deniedOperations.length !== DENIED_OPERATIONS.length ||
+        new Set(constraints.deniedOperations).size !== DENIED_OPERATIONS.length ||
+        constraints.deniedOperations.some((operation) => !DENIED_OPERATIONS.includes(operation))) {
+      add(["payload", "constraints", "deniedOperations"], "All ten denied operation classes must be present exactly once.");
+    }
+    if (!integer(constraints.maxRuntimeSeconds, 1, 86400)) add(["payload", "constraints", "maxRuntimeSeconds"], "Runtime limit is out of range.");
+    if (!integer(constraints.maxInputBytes, 1, 104857600)) add(["payload", "constraints", "maxInputBytes"], "Input byte limit is out of range.");
+    if (!Array.isArray(constraints.approvalGates) || constraints.approvalGates.length > 5 ||
+        new Set(constraints.approvalGates).size !== constraints.approvalGates.length ||
+        constraints.approvalGates.some((gate) => !APPROVAL_GATES.includes(gate))) {
+      add(["payload", "constraints", "approvalGates"], "Approval gates must be unique known values.");
+    }
+  }
+
+  const output = payload.expectedOutput;
+  if (!exactKeys(output, ["format", "maxBytes"])) {
+    add(["payload", "expectedOutput"], "Expected output has missing or unknown fields.");
+  } else {
+    const expected = TASKS[payload.taskType];
+    if (!expected) add(["payload", "taskType"], "Task type is not enabled for this read-only adapter.");
+    else if (output.format !== expected.format) add(["payload", "expectedOutput", "format"], "Output format does not match the approved task type.");
+    if (!["markdown", "json", "csv", "artifact"].includes(output.format)) add(["payload", "expectedOutput", "format"], "Unsupported output format.");
+    if (!integer(output.maxBytes, 1, 104857600)) add(["payload", "expectedOutput", "maxBytes"], "Output byte limit is out of range.");
+  }
+
+  if (dateTime(input.createdAt) && dateTime(input.expiresAt)) {
+    const created = Date.parse(input.createdAt);
+    const expires = Date.parse(input.expiresAt);
+    if (expires <= created || expires - created > 24 * 60 * 60 * 1000) {
+      add(["expiresAt"], "Expiry must be after creation and no more than 24 hours later.");
+    }
+    if (expires <= now.getTime()) add(["expiresAt"], "Envelope has expired.");
+  }
+
+  return issues.length
+    ? { success: false, issues }
+    : { success: true, data: input };
 }
 
 export const COUNCIL_TASK_ENVELOPE_VERSION = "1.0.0";
