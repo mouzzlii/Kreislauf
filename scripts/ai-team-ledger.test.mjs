@@ -92,3 +92,22 @@ test("trusted reservation ledger deduplicates a stable task idempotency marker",
   assert.equal(result.count, 2);
   assert.equal(result.alreadyReserved, true);
 });
+
+
+test("task idempotency markers remain effective across previous UTC days", () => {
+  const prefix = "<!-- ai-team-daily-budget:2026-11-26:";
+  const idempotencyMarker = "<!-- ai-team-idempotency:kia-long-lived-key -->";
+  const comments = [
+    botComment(prefix + "300 -->", "2026-11-26T09:00:00Z"),
+    botComment(idempotencyMarker, "2026-11-20T09:00:00Z"),
+  ];
+  const result = inspectDailyBudgetPage(comments, {
+    reservationPrefix: prefix,
+    triggerCommentId: 999,
+    dayStart: Date.parse("2026-11-26T00:00:00Z"),
+    idempotencyMarker,
+  });
+  assert.equal(result.count, 1);
+  assert.equal(result.alreadyReserved, true);
+  assert.equal(result.reachedPreviousDay, true);
+});
