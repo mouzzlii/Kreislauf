@@ -185,3 +185,10 @@ test("rejects more than four approved source files", () => {
   message.payload.constraints.allowedPaths = ["a.js", "b.js", "c.js", "d.js", "e.js"];
   assert.equal(validateCouncilTaskEnvelope(message, { now: NOW }).success, false);
 });
+
+test("rejects envelopes with a creation timestamp too far in the future", () => {
+  const message = validEnvelope();
+  message.createdAt = "2026-11-26T10:36:00.000Z";
+  message.expiresAt = "2026-11-26T11:00:00.000Z";
+  assert.equal(validateCouncilTaskEnvelope(message, { now: NOW }).success, false);
+});
