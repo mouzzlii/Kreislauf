@@ -114,7 +114,7 @@ export function buildSafeProjectContext({
   const metadata = [
     `Projekt: ${project}`,
     `Projekt-Repository: ${repository || "nicht konfiguriert"}`,
-    `Standardbranch: ${branch || "unbekannt"}`,
+    `Git-Ref (Branch oder Commit): ${branch || "unbekannt"}`,
     `GitHub-Hinweis: ${redactSensitiveText(note || "Projektmetadaten geladen")}`,
   ].join("\n");
   const task = [
