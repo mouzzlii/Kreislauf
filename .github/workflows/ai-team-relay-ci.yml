@@ -8,6 +8,8 @@ on:
       - feature/portfolio-council-routing
       - feature/ai-team-ki-arbeitsplatz-routing
     paths:
+      - "scripts/ai-team-interop.mjs"
+      - "scripts/ai-team-interop.test.mjs"
       - "scripts/ai-team-ledger.mjs"
       - "scripts/ai-team-ledger.test.mjs"
       - "scripts/ai-team-relay.mjs"
@@ -48,10 +50,13 @@ jobs:
           node-version: 22
       - name: Check JavaScript syntax
         run: |
+          node --check scripts/ai-team-interop.mjs
           node --check scripts/ai-team-ledger.mjs
           node --check scripts/ai-team-relay.mjs
           node --check scripts/ai-team-source-context.mjs
           node --check scripts/ai-team-providers.mjs
+      - name: Test council task envelope validation
+        run: node --test scripts/ai-team-interop.test.mjs
       - name: Test trusted relay ledger
         run: node --test scripts/ai-team-ledger.test.mjs
       - name: Test bounded source context
