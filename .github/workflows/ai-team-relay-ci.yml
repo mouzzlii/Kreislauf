@@ -113,7 +113,11 @@ jobs:
           });
           assert.deepEqual(metaComplete, { missingSecrets: [], missingVariables: [], missingModels: [] });
           assert.ok(source.includes("MAX_DAILY_DEBATES = 2"));
-          assert.ok(source.includes("reserveDailyDebate(comment.id)"));
+          assert.ok(source.includes('reserveDailyDebate(comment.id, taskEnvelope?.idempotencyKey || "")'));
+          assert.ok(source.includes("parseCouncilTaskComment(comment.body)"));
+          assert.ok(source.includes("resolveCouncilTaskProject(taskEnvelope, PROJECT_REPOS)"));
+          assert.ok(source.includes("taskEnvelope.payload.inputs.commitSha"));
+          assert.ok(source.includes("taskEnvelope.payload.constraints.allowedPaths"));
           assert.ok(source.includes("issue.number !== 11"));
           assert.ok(source.includes("hasSourceExcerpt: hasNonEmptySourceExcerpt(source)"));
           assert.ok(source.includes("hasUsablePrimaryContext(projectContext)"));
