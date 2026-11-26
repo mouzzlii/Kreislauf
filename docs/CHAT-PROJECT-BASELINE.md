@@ -17,6 +17,10 @@
 - Gemeinsame Module erst nach eigenständigen Tests und Sicherheitsprüfung projektübergreifend wiederverwenden. Projekte mit ausdrücklich unabhängiger Datenhaltung bleiben getrennt.
 - Keine Bilder ungefragt generieren. Für Projekte mit Bildbedarf klare Design-/Illustrationsbriefings erstellen, sofern keine ausdrückliche Bildgenerierung beauftragt ist.
 
+- **Interdisziplinäre Teamarbeit:** Größere/komplexe Aufträge werden in mehrere Arbeitsstränge/Teams mit bewusst gemischten Denkweisen aufgeteilt: Strategie/Produkt, Architektur/Systemdenken, Forschung/Recherche, Kreativität/Innovation, Praxis/Umsetzung, Sicherheit/Datenschutz, Wirtschaftlichkeit, UX/Barrierefreiheit und Qualität/adversariale Prüfung. Teams arbeiten parallel, wo unabhängig, und prüfen sich gegenseitig. ChatGPT koordiniert und synthetisiert. Externe KIs oder Personen zählen nur bei tatsächlicher Verbindung, übermitteltem Auftrag und empfangener Antwort als beteiligt; keine simulierten Reviews.
+- **Dauerhafte Verankerung neuer Befehle:** Jede neue ausdrücklich bestätigte globale Regel wird ab Eingang in der zentralen Grundstruktur und im Entscheidungsregister festgehalten und bis zu Widerruf/Ersatz angewendet. Betroffene Projektbaselines, Spezifikationen, Architektur, Aufgaben und Tests werden bereits ab Planung angepasst. Nur tatsächlich betroffene Projekte erhalten die Regel; keine vertraulichen Informationen in öffentliche Repositories übernehmen.
+- **Auftragsklärung vor größeren Arbeiten:** Zuerst Ziel, bestehende Entscheidungen, Risiken und offene Punkte selbstständig analysieren. Danach alle wirklich notwendigen Nutzerfragen gebündelt und ausschließlich als verständliche Auswahlmöglichkeiten mit Empfehlung stellen. Bekannte Informationen nicht erneut erfragen und technische Entscheidungen selbst recherchieren. Wenn nichts Wesentliches offen ist, ohne künstliche Rückfragen beginnen. Kosten, irreversible Änderungen, Produktionsfreigaben und wesentliche Sicherheits-/Datenschutzrisiken benötigen weiterhin ausdrückliche Freigabe.
+
 ## 2. Projektübersicht – bestätigte Chats und aktueller Repository-Abgleich
 
 ### TRAKUNA – Paketshop- und Multi-Carrier-System
