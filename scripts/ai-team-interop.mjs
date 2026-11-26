@@ -78,7 +78,7 @@ function isSafeRepositoryPath(value) {
 
   const leaf = segments.at(-1).toLowerCase();
   if (BLOCKED_REPOSITORY_FILES.has(leaf)) return false;
-  if (/\\.(pem|key|p12|pfx|ppk|jks|keystore|kdbx)$/.test(leaf)) return false;
+  if (/\.(pem|key|p12|pfx|ppk|jks|keystore|kdbx)$/.test(leaf)) return false;
   if (/(secret|credential|apikey|api_key|api-key|access[-_]token|refresh[-_]token)/.test(leaf)) return false;
   return true;
 }
