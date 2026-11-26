@@ -33,7 +33,7 @@ function validEnvelope() {
         projectId: "KI-ARBEITSPLATZ",
         repository: "mouzzlii/KI-Arbeitsplatz",
         commitSha: "a".repeat(40),
-        originalQueueTaskId: "aaaaaaaaaaaa4aaaaaaaaaaaaaaaaaaa",
+        originalQueueTaskId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa".replaceAll("-", ""),
       },
       constraints: {
         readOnly: true,
