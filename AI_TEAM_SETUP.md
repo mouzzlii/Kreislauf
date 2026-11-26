@@ -153,3 +153,10 @@ Der JSON-Inhalt muss vollständig und unverändert aus einer lokalen Outbox-Date
 Der Export ist absichtlich auf `project.static_review` begrenzt. Inventar und Hash-Manifeste bleiben deterministische lokale Aufgaben; Backup/Restore und lokale Ollama-Aufgaben werden nicht an Provider übertragen. Derselbe Idempotenzschlüssel wird im vertrauenswürdigen GitHub-Budget-Ledger wiedererkannt, auch über UTC-Tagesgrenzen hinweg. Bei unvollständiger Ledger-Prüfung bricht der Relay fail-closed ab.
 
 **Status:** Validator, Parser, Kommentar-Trigger, Commit-Pinning und Ledger-Deduplizierung sind im Draft-PR vorbereitet und erhalten Regressionstests. Noch keine Freigabe zum Merge, keine echte Provider-Anfrage, kein Live-Task und keine produktive Übertragung. Die KREISLAUF-PR-CI muss vor einer Freigabe vollständig erfolgreich sein; außerdem muss die KI-Arbeitsplatz-Outbox unter Windows real getestet werden.
+
+
+## Vorhandene Vercel-EVE-Anwendung – Abgleich 26.11.2026
+
+Das Team besitzt bereits das Vercel-Projekt `collective-intelligence-council` mit einer EVE-Webanwendung und acht Subagent-Rollen. Das Projekt ist jedoch nicht mit GitHub verbunden. Im Deployment verwenden aktuell Root-Agent und alle acht Subagents dasselbe Modell `openai/gpt-6-luna-fast`; die vorhandenen fünf Gateway-Virtual-Models werden im EVE-Quellcode noch nicht rollenbezogen verwendet. Die empfohlene Zuordnung, die Kosten-/Sicherheitsgrenzen und der vollständige Quellcode-Recovery-Blocker sind in [docs/VERCEL-EVE-INTEGRATION.md](docs/VERCEL-EVE-INTEGRATION.md) dokumentiert.
+
+Wichtig: Die Deployment-Datei-Lese-Schnittstelle liefert große Quelltextdateien nur gekürzt. Daher wurde kein unvollständiger Import in GitHub erstellt. Die vorhandenen Sandbox-Sitzungen sind gestoppt; eine Wiederaufnahme wurde wegen möglicher Kosten nicht durchgeführt. Keine Provider-Anfragen, keine neue Vercel-App und keine Änderung der SSO-/Deployment-Einstellungen.
