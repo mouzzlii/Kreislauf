@@ -123,3 +123,37 @@ html.light {
 
 .pin-sharing { background: var(--copper); color: var(--ink); }
 .pin-service { background: var(--elev); color: var(--fg); }
+
+
+/* Fixed, decorative W-signature watermark; the original asset is reused unchanged. */
+body {
+  position: relative;
+  isolation: isolate;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("/branding/w-signature.jpg");
+  background-repeat: no-repeat;
+  background-position: center 54%;
+  background-size: min(68vw, 560px) auto;
+  opacity: 0.035;
+}
+
+@media (max-width: 640px) {
+  body::before {
+    background-size: min(88vw, 420px) auto;
+    background-position: center 48%;
+    opacity: 0.03;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  body::before {
+    opacity: 0.015;
+  }
+}
