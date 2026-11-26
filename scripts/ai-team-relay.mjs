@@ -2,6 +2,7 @@ import process from "node:process";
 import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, redactSensitiveText, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { hasTrustedRelayMarker, inspectDailyBudgetPage } from "./ai-team-ledger.mjs";
 import { ANTHROPIC_API_VERSION, buildClaudeMessage, buildMetaChatCompletion, buildLlamaChatCompletion, extractClaudeText, extractMetaText, extractLlamaText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
+import { parseCouncilTaskComment, resolveCouncilTaskProject } from "./ai-team-interop.mjs";
 
 const {
   GITHUB_TOKEN,
@@ -168,7 +169,7 @@ async function askLlama(instructions, input) {
   return output;
 }
 
-async function fetchProjectContext(project) {
+async function fetchProjectContext(project, taskEnvelope = null) {
   const repository = PROJECT_REPOS[project];
   if (!repository) {
     return {
@@ -205,16 +206,33 @@ async function fetchProjectContext(project) {
     try {
       const meta = await api(`https://api.github.com/repos/${repo}`, { headers });
       const configuredBranch = project === "KI-ARBEITSPLATZ" ? process.env.PROJECT_REPO_KI_ARBEITSPLATZ_REF : "";
-      const branch = resolveProjectBranch(meta.default_branch || "main", configuredBranch);
+      const branch = taskEnvelope
+        ? taskEnvelope.payload.inputs.commitSha
+        : resolveProjectBranch(meta.default_branch || "main", configuredBranch);
       const [readmeResult, treeResult] = await Promise.all([
-        api(`https://api.github.com/repos/${repo}/readme?ref=${encodeURIComponent(branch)}`, { headers }),
+        taskEnvelope
+          ? Promise.resolve({ content: "" })
+          : api(`https://api.github.com/repos/${repo}/readme?ref=${encodeURIComponent(branch)}`, { headers }),
         api(`https://api.github.com/repos/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`, { headers }),
       ]);
-      const allPaths = (treeResult.tree || [])
-        .filter((item) => item.type === "blob")
+      const treeItems = treeResult.tree || [];
+      const allPaths = treeItems
+        .filter((item) => item.type === "blob" && item.mode !== "120000")
         .map((item) => item.path);
-      const paths = allPaths.slice(0, 80);
-      const sourcePaths = selectSourcePaths(allPaths, undefined, project);
+      let paths;
+      let sourcePaths;
+      if (taskEnvelope) {
+        const approvedSourcePaths = new Set(selectSourcePaths(allPaths, 4, project));
+        sourcePaths = taskEnvelope.payload.constraints.allowedPaths;
+        const rejectedPaths = sourcePaths.filter((path) => !approvedSourcePaths.has(path) || !allPaths.includes(path));
+        if (rejectedPaths.length) {
+          throw new Error("Requested source paths are outside the fixed project allowlist or absent at the pinned commit.");
+        }
+        paths = [...sourcePaths];
+      } else {
+        paths = allPaths.slice(0, 80);
+        sourcePaths = selectSourcePaths(allPaths, undefined, project);
+      }
       const sourceFiles = await Promise.all(sourcePaths.map(async (path) => {
         const encodedPath = path.split("/").map(encodeURIComponent).join("/");
         try {
