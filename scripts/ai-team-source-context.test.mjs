@@ -43,7 +43,7 @@ test("KI-Arbeitsplatz selects only its bounded roadmap and offline worker source
     "Offline-Modus/Worker.ps1",
     ".env",
     "Council/BUDGET-APPROVAL.json",
-  ]);
+  ], undefined, "KI-ARBEITSPLATZ");
   assert.deepEqual(selected, [
     "MASTERWERK-ROADMAP.md",
     "Offline-Modus/Lib/Common.ps1",
