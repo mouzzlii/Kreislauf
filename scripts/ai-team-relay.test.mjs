@@ -93,6 +93,20 @@ assert.ok(contextLoadIndex >= 0 && contextGuardIndex > contextLoadIndex)
 assert.ok(reservationIndex > contextGuardIndex && firstProviderIndex > reservationIndex)
 assert.ok(relaySource.includes("hasUsablePrimaryContext"))
 
+const claudeStart = relaySource.indexOf("const claude = await runPhase");
+const thirdStart = relaySource.indexOf("const thirdProvider = await runPhase", claudeStart);
+const synthesisStart = relaySource.indexOf("const synthesis = await runPhase", thirdStart);
+const bodyStart = relaySource.indexOf("const body = [", synthesisStart);
+assert.ok(claudeStart >= 0 && thirdStart > claudeStart && synthesisStart > thirdStart && bodyStart > synthesisStart);
+const claudePhase = relaySource.slice(claudeStart, thirdStart);
+const thirdPhase = relaySource.slice(thirdStart, synthesisStart);
+const synthesisPhase = relaySource.slice(synthesisStart, bodyStart);
+assert.ok(claudePhase.includes("safeContext,"));
+assert.ok(!claudePhase.includes("${initial}"), "Claude must not receive GPT's analysis");
+assert.ok(thirdPhase.includes("safeContext,"));
+assert.ok(!thirdPhase.includes("${initial}") && !thirdPhase.includes("${claude}"), "Third provider must not receive earlier analyses");
+assert.ok(synthesisPhase.includes("${initial}") && synthesisPhase.includes("${claude}") && synthesisPhase.includes("${thirdProvider}"), "GPT synthesis must compare all three independent analyses");
+
 assert.ok(relaySource.includes("parseCouncilTaskComment(comment.body)"));
 assert.ok(relaySource.includes("resolveCouncilTaskProject(taskEnvelope, PROJECT_REPOS)"));
 assert.ok(relaySource.includes("taskEnvelope.payload.inputs.commitSha"));
