@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { parseCouncilTaskComment, resolveCouncilTaskProject, validateCouncilTaskEnvelope } from "./ai-team-interop.mjs";
+import { createCouncilTaskIdempotencyKey, parseCouncilTaskComment, resolveCouncilTaskProject, validateCouncilTaskEnvelope } from "./ai-team-interop.mjs";
 
 const NOW = new Date("2026-11-26T10:30:00.000Z");
 
 function validEnvelope() {
-  return {
+  const envelope = {
     protocol: "ki-interoperability",
     version: "1.0.0",
     messageId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
@@ -22,7 +22,7 @@ function validEnvelope() {
       componentId: "task-router",
     },
     correlationId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
-    idempotencyKey: "kia-" + "a".repeat(64),
+    idempotencyKey: "",
     expiresAt: "2026-11-26T11:00:00.000Z",
     dataClassification: "internal",
     payload: {
@@ -63,6 +63,8 @@ function validEnvelope() {
       expectedOutput: { format: "markdown", maxBytes: 10485760 },
     },
   };
+  envelope.idempotencyKey = createCouncilTaskIdempotencyKey(envelope.payload);
+  return envelope;
 }
 
 test("accepts a valid, unexpired, read-only local task envelope", () => {
@@ -202,4 +204,17 @@ test("rejects envelopes with a creation timestamp too far in the future", () => 
   message.createdAt = "2026-11-26T10:36:00.000Z";
   message.expiresAt = "2026-11-26T11:00:00.000Z";
   assert.equal(validateCouncilTaskEnvelope(message, { now: NOW }).success, false);
+});
+
+test("rejects a syntactically valid but scope-mismatched idempotency key", () => {
+  const message = validEnvelope();
+  message.idempotencyKey = "kia-" + "f".repeat(64);
+  assert.equal(validateCouncilTaskEnvelope(message, { now: NOW }).success, false);
+});
+
+test("canonical idempotency key is independent of allowed-path ordering", () => {
+  const message = validEnvelope();
+  const original = message.idempotencyKey;
+  message.payload.constraints.allowedPaths.reverse();
+  assert.equal(createCouncilTaskIdempotencyKey(message.payload), original);
 });
