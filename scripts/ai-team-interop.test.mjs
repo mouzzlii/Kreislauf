@@ -100,7 +100,7 @@ test("requires every denied operation exactly once", () => {
 });
 
 test("rejects absolute, traversal, backslash and duplicate paths", () => {
-  for (const path of ["../outside", "/etc/passwd", "C:/Users/name", "src\\secret.ps1", "src//file.js", "src/./file.js", "%2e%2e/outside", "src/%2a.js"]) {
+  for (const path of ["../outside", "/etc/passwd", "C:/Users/name", "src\\secret.ps1", "src//file.js", "src/./file.js", "%2e%2e/outside", "src/%2a.js", "src/%00secret.txt"]) {
     const message = validEnvelope();
     message.payload.constraints.allowedPaths = [path];
     assert.equal(validateCouncilTaskEnvelope(message, { now: NOW }).success, false, path);
