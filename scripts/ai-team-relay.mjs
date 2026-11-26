@@ -195,7 +195,9 @@ async function fetchProjectContext(project, taskEnvelope = null) {
     };
   }
 
-  const repositories = [...new Set([repository, ...(PROJECT_RELATED_REPOS[project] || [])])];
+  const repositories = taskEnvelope
+    ? [repository]
+    : [...new Set([repository, ...(PROJECT_RELATED_REPOS[project] || [])])];
   const headers = {
     Accept: "application/vnd.github+json",
     Authorization: `Bearer ${AI_TEAM_REPO_READ_TOKEN}`,
