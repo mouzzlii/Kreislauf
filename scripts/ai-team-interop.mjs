@@ -193,3 +193,47 @@ export function validateCouncilTaskEnvelope(input, { now = new Date() } = {}) {
 }
 
 export const COUNCIL_TASK_ENVELOPE_VERSION = "1.0.0";
+
+
+export function parseCouncilTaskComment(body, options = {}) {
+  if (typeof body !== "string") return { matched: false };
+  const match = body.match(/^\/ai-team\s+task\s*:\s*([\s\S]+)$/i);
+  if (!match) return { matched: false };
+
+  const raw = match[1].trim();
+  if (!raw || raw.length > 12_000) {
+    return { matched: true, success: false, issues: [{ path: [], message: "Task envelope comment is empty or exceeds 12000 characters." }] };
+  }
+
+  let envelope;
+  try {
+    envelope = JSON.parse(raw);
+  } catch {
+    return { matched: true, success: false, issues: [{ path: [], message: "Task envelope is not valid JSON." }] };
+  }
+
+  return { matched: true, ...validateCouncilTaskEnvelope(envelope, options) };
+}
+
+export function resolveCouncilTaskProject(envelope, projectRepositories) {
+  const project = envelope?.payload?.inputs?.projectId;
+  const repository = envelope?.payload?.inputs?.repository;
+  if (!isRecord(projectRepositories) || typeof project !== "string" ||
+      !Object.hasOwn(projectRepositories, project)) {
+    return { success: false, message: "Unknown or unconfigured Council project ID." };
+  }
+  if (projectRepositories[project] !== repository) {
+    return { success: false, message: "Repository does not match the canonical repository mapping for this project." };
+  }
+  const allowedPaths = envelope?.payload?.constraints?.allowedPaths;
+  if (!Array.isArray(allowedPaths) || allowedPaths.length > 4) {
+    return { success: false, message: "Council task may select at most four approved source files." };
+  }
+  return {
+    success: true,
+    project,
+    repository,
+    commitSha: envelope.payload.inputs.commitSha,
+    allowedPaths: [...allowedPaths],
+  };
+}
