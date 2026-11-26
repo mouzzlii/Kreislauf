@@ -300,10 +300,11 @@ async function githubRequest(path, options = {}) {
   });
 }
 
-async function reserveDailyDebate(triggerCommentId) {
+async function reserveDailyDebate(triggerCommentId, idempotencyKey = "") {
   const today = new Date().toISOString().slice(0, 10);
   const dayStart = Date.parse(`${today}T00:00:00.000Z`);
   const reservationPrefix = `<!-- ai-team-daily-budget:${today}:`;
+  const idempotencyMarker = idempotencyKey ? `<!-- ai-team-idempotency:${idempotencyKey} -->` : "";
   let count = 0;
   let alreadyReserved = false;
 
@@ -320,6 +321,7 @@ async function reserveDailyDebate(triggerCommentId) {
       reservationPrefix,
       triggerCommentId,
       dayStart,
+      idempotencyMarker,
     });
     count += pageResult.count;
     alreadyReserved ||= pageResult.alreadyReserved;
@@ -334,6 +336,7 @@ async function reserveDailyDebate(triggerCommentId) {
 
   const body = [
     `${reservationPrefix}${triggerCommentId} -->`,
+    ...(idempotencyMarker ? [idempotencyMarker] : []),
     `Reservierung für KI-Team-Debatte am ${today} (UTC).`,
     "Das Tageskontingent wird vor Provider-Aufrufen reserviert; auch fehlgeschlagene Debatten verbrauchen einen Platz.",
   ].join("\n\n");
