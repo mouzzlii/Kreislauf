@@ -45,7 +45,10 @@ function exactKeys(value, required, optional = []) {
 function isSafeRepositoryPath(value) {
   if (typeof value !== "string" || value.length < 1 || value.length > 1024) return false;
   if (value.startsWith("/") || /^[A-Za-z]:/.test(value) || value.includes("\\")) return false;
-  if (/[\x00-\x1f]/.test(value)) return false;
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    if (code < 0x20 || code === 0x7f) return false;
+  }
   return !value.split("/").some((part) => part === "." || part === ".." || part === "");
 }
 
