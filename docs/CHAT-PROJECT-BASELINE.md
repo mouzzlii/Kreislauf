@@ -45,8 +45,8 @@ DPD, GLS, Hermes, UPS, Österreichische Post, DHL Express, FedEx und LogoiX. Die
 
 **Aktueller GitHub-Stand**
 - Gateway PR #4 und #5: beide geschlossen und gemergt; das kanonische Gateway-Repository enthält Architektur, Adaptervertrag, Carrier-Registry und Ein-Drucker-Zielarchitektur.
-- Gateway PR #7: offener Dokumentations-PR; aktualisiert Registry und README auf App-Version 1.55 und dokumentiert die QR-Domain-Allowlist sowie die Grenzen der Browser-Portalweiterleitung. Head `a588bcebe3957df84fff438455de60bd9767d4ca`; zwei Dateien geändert, keine Code-/Backend-Änderung.
-- App PR #25: Draft/offen, nicht gemergt; zuletzt getesteter Code-Commit `2e4ae2435c29bed959662e4a1734f6826d508244`; Android-Build/Unit-Tests/Lint/Sicherheitsprüfungen erfolgreich ([45902341310](https://github.com/mouzzlii/Fuck/actions/runs/45902341310)); API-35-Emulator **15/15 Instrumentierungstests bestanden** ([45902341262](https://github.com/mouzzlii/Fuck/actions/runs/45902341262)). QR-Pfad-IDs werden nur bei offiziellen Carrier-Domains übernommen. Debug-Artefakt vorhanden, keine Produktionssignatur.
+- Gateway PR #7: offener Dokumentations-PR; aktualisiert Registry und README auf App-Version 1.55 und dokumentiert die QR-Domain-Allowlist sowie die Grenzen der Browser-Portalweiterleitung. Head `628e4879907a9a304a282f58b6d7dceaccca07ba`; zwei Dateien geändert, keine Code-/Backend-Änderung.
+- App PR #25: Draft/offen, nicht gemergt; aktueller PR-Head `3da8dbeb571e4b2421ce375ccbb854e6171dd2b0` (Dokumentation); zuletzt getesteter Code-Commit `2e4ae2435c29bed959662e4a1734f6826d508244`; Android-Build/Unit-Tests/Lint/Sicherheitsprüfungen erfolgreich ([45902341310](https://github.com/mouzzlii/Fuck/actions/runs/45902341310)); API-35-Emulator **15/15 Instrumentierungstests bestanden** ([45902341262](https://github.com/mouzzlii/Fuck/actions/runs/45902341262)). QR-Pfad-IDs werden nur bei offiziellen Carrier-Domains übernommen. Debug-Artefakt vorhanden, keine Produktionssignatur.
 - App-Version 1.55 erkennt offizielle Anbieter-QR-Domains und öffnet ein vom Betreiber konfiguriertes HTTPS-Portal. Dabei werden keine Sendungsnummer/Kundendaten übertragen und keine Buchungen ausgelöst; native Partner-App-Übergabe bleibt im Shadow Mode.
 - App PR #33 ist geschlossen; keine aktive Integrationsgrundlage.
 - Echte Kamera-/Autofokus-, Shopportal-, Drucker-, Backup-Restore- und Carrier-Live-Tests bleiben offen. Kein vollständiger produktiver Carrier-Backend-Dienst und keine bestätigte Live-Carrier-Buchung behaupten.
@@ -160,7 +160,7 @@ Bestehendes Projekt „KI-Arbeitsplatz – Meisterwerk Edition v1.0.0“ fortfü
 
 **Tatsächlicher GitHub-Stand beim Audit**
 - Repository-Root auf `main` enthält weiterhin .github/ und KI-Arbeitsplatz-Meisterwerk-v1.0.0.zip; die neue README- und Masterprompt-Dokumentation liegt im offenen PR #11 und ist noch nicht gemergt.
-- PR #11: Masterprompt 1.2, Konsolidierungs-/Dateihygiene-Regeln und korrigierte TRAKUNA-Statusübersicht; Head `2e3259a021466635a736da93c2cfe2eab2c736d0`, drei beabsichtigte Dateidifferenzen, GitHub-Mergeability `clean`.
+- PR #11: Masterprompt 1.2, Konsolidierungs-/Dateihygiene-Regeln und korrigierte TRAKUNA-Statusübersicht; Head `7f16b977e6286dac954dd437417494c6f9acbf81`, drei beabsichtigte Dateidifferenzen (`.github/workflows/blank.yml` entfernt, README aktualisiert, Masterprompt neu hinzugefügt); keine Änderung an `main`.
 - PR #5 Quellwiederherstellung bleibt Draft und ausdrücklich nicht mergefähig für eine Übernahme; unvollständige Quellkopien sind kein Original-Recovery-Nachweis.
 - Fünf Vercel-AI-Gateway-Modell-Aliase sind konfiguriert; tatsächliche Modellaufrufe/Antworten und unabhängige Council-Reviews sind weiterhin nicht nachgewiesen. Im letzten geprüften Zeitraum gab es keine Gateway-Requests; kostenpflichtige Aufrufe bleiben gesperrt, bis eine Freigabe vorliegt.
 - Funktionsfähiger autonomer Agent, Android-Betrieb und End-to-End-Tests sind damit nicht nachgewiesen.
