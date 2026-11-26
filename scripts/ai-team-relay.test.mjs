@@ -97,6 +97,8 @@ assert.ok(relaySource.includes("parseCouncilTaskComment(comment.body)"));
 assert.ok(relaySource.includes("resolveCouncilTaskProject(taskEnvelope, PROJECT_REPOS)"));
 assert.ok(relaySource.includes("taskEnvelope.payload.inputs.commitSha"));
 assert.ok(relaySource.includes("taskEnvelope.payload.constraints.allowedPaths"));
+assert.ok(relaySource.includes("taskEnvelope\n    ? [repository]"));
+assert.ok(relaySource.includes("taskEnvelope\n          ? Promise.resolve({ content: \"\" })"));
 assert.ok(relaySource.includes('item.mode !== "120000"'));
 assert.ok(relaySource.includes("ai-team-idempotency:"));
 assert.ok(relaySource.includes("Es wurden keine Provider aufgerufen und kein Tageskontingent reserviert."))
