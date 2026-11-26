@@ -24,6 +24,8 @@ on:
       - "docs/PROJECT-COORDINATION.md"
   pull_request:
     paths:
+      - "scripts/ai-team-interop.mjs"
+      - "scripts/ai-team-interop.test.mjs"
       - "scripts/ai-team-ledger.mjs"
       - "scripts/ai-team-ledger.test.mjs"
       - "scripts/ai-team-relay.mjs"
