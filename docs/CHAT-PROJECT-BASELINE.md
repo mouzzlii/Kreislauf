@@ -268,3 +268,27 @@ Vor und nach Änderungen:
 Arbeiten mit hohem Wiederverwendungswert zuerst erledigen: zentrale Projekt-/Anforderungsbaseline, Repository-Inventar, Sicherheits- und Entwicklungsgrundlage, CI/Testautomatisierung, Schnittstellen-/Delegationsverträge, Backup-/Restore-Verfahren und gemeinsame Qualitätsregeln. Danach abhängige Produktfunktionen in der jeweils projektspezifischen Reihenfolge umsetzen. Langfristige Forschungsprojekte ressourcenschonend parallel beobachten, ohne vorschnell Prototypen oder Kosten auszulösen.
 
 Diese Regeln ergänzen die projektspezifischen Vorgaben; bei Konflikten gelten die neueste ausdrücklich bestätigte Nutzerentscheidung und die engeren Sicherheits-/Datenregeln des betroffenen Projekts.
+
+
+## 9. Zentrale Chat-Koordination und verpflichtender Vorab-Abgleich
+
+### Eine gemeinsame Arbeitswahrheit
+- Alle Chats, die dasselbe Projekt, dieselbe Funktion, denselben Fehler, dieselbe Recherche oder dieselbe Entscheidung betreffen, sind als zusammenhängende Arbeitsstränge zu koordinieren.
+- Vor Beginn einer Aufgabe prüfen: zentrale Master-Arbeitsgrundlage, betroffene Projektbaseline, jüngste bestätigte Nutzerentscheidungen, Projektstatus, offene Aufgaben, relevante Issues/PRs/Branches/Commits und vorhandene Testergebnisse.
+- Gleiche oder überlappende Aufgaben identifizieren, Dubletten zusammenführen und einen kanonischen Aufgabenstand führen. Bereits erledigte Arbeit nicht erneut starten; offene Teilaufgaben, Abhängigkeiten, Entscheidungen und Belege beim Zusammenführen erhalten.
+- Widersprüche nicht stillschweigend überschreiben: neueste ausdrückliche Nutzerentscheidung hat Vorrang; ungeklärte wesentliche Konflikte werden mit den Auswirkungen transparent gemacht.
+- Neue globale Nutzerbefehle sofort in dieser zentralen Grundlage und im verfügbaren Memory verankern. Projektbezogene Auswirkungen von Beginn an in den jeweils betroffenen Spezifikationen, Aufgaben und Tests abbilden. Nur betroffene Projekte ändern.
+- Wenn ein früherer Chat oder ein Projektstand nicht zugänglich ist, diese Lücke benennen und nicht behaupten, den Inhalt geprüft zu haben. Zusammenfassungen und Suchtreffer sind keine vollständige Sicht auf alle historischen Nachrichten.
+
+### Pflichtablauf vor jeder Aufgabe an den Nutzer
+1. Diese Master-Arbeitsgrundlage und den verfügbaren Memory-Kontext lesen.
+2. Den aktuellen Stand der betroffenen Projekte und die jüngsten Änderungen aus zugänglichen Quellen abrufen.
+3. Bereits laufende/erledigte Aufgaben, parallele Chats, PRs, Issues und Abhängigkeiten auf Überschneidungen prüfen.
+4. Bestehende Nutzerentscheidungen und Grenzen anwenden; bekannte Informationen nicht erneut erfragen.
+5. Erst danach eine notwendige Rückfrage stellen oder die Arbeit beginnen. Rückfragen nur bei tatsächlich fehlenden, wesentlichen Informationen; Fragen bündeln und als klare Auswahlmöglichkeiten mit begründeter Empfehlung formulieren.
+
+### Grenzen und Nachweis
+- Der verborgene Modell-/Systemcode von ChatGPT kann nicht durch eine Repository-Änderung umgeschrieben werden. Diese Datei ist die sichtbare, versionierte Arbeitsreferenz; sie ergänzt, ersetzt aber nicht die tatsächlich verfügbaren Produkt-/Systemfunktionen.
+- Die Vorab-Lektüre ist nur dann als erfolgt zu melden, wenn die Datei und die relevanten Quellen in diesem Arbeitsdurchgang tatsächlich gelesen wurden.
+- Chatübergreifende Koordination ist eine Arbeitsverpflichtung, keine Behauptung, dass alle Chats technisch automatisch synchronisiert oder vollständig durchsuchbar sind.
+- Keine dauerhafte Hintergrundaktivität vortäuschen. Die Koordination wird bei jeder verfügbaren Aufgabe anhand der zentralen Referenz und der zugänglichen Projektstände fortgesetzt.
