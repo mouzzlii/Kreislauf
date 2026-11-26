@@ -16,6 +16,7 @@ export function inspectDailyBudgetPage(comments, {
   reservationPrefix,
   triggerCommentId,
   dayStart,
+  idempotencyMarker = "",
 }) {
   let count = 0;
   let alreadyReserved = false;
@@ -31,7 +32,8 @@ export function inspectDailyBudgetPage(comments, {
       break;
     }
     if (!isTrustedRelayComment(comment) || typeof comment.body !== "string") continue;
-    if (comment.body.includes(`${reservationPrefix}${triggerCommentId} -->`)) {
+    if (comment.body.includes(`${reservationPrefix}${triggerCommentId} -->`) ||
+        (idempotencyMarker && comment.body.includes(idempotencyMarker))) {
       alreadyReserved = true;
     }
     if (comment.body.includes(reservationPrefix)) count += 1;
