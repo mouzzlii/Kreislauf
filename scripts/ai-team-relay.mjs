@@ -381,17 +381,78 @@ async function main() {
     return;
   }
 
-  const match = comment.body?.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS|INSERAT-PROFI-AI|BOOK-YOUR-COOK|LARA-QUIZ|KI-ARBEITSPLATZ)\s*:\s*([\s\S]+)$/i);
-  if (!match) return;
+  const taskCommand = parseCouncilTaskComment(comment.body);
+  const debateMatch = comment.body?.match(/^\/ai-team\s+debate\s+(KREISLAUF|TRAKUNA|SCAN-PROFIT|CHRONOS|INSERAT-PROFI-AI|BOOK-YOUR-COOK|LARA-QUIZ|KI-ARBEITSPLATZ)\s*:\s*([\s\S]+)$/i);
+  if (!taskCommand.matched && !debateMatch) return;
 
-  const project = match[1].toUpperCase();
-  const request = match[2].trim().slice(0, MAX_INPUT_CHARS);
-  if (!request) return;
+  const marker = MARKER_PREFIX + String(comment.id) + " -->";
+  let taskEnvelope = null;
+  let project;
+  let request;
 
-  const marker = `${MARKER_PREFIX}${comment.id} -->`;
-  const existing = await githubRequest(`issues/${issue.number}/comments?per_page=100`);
-  if (hasTrustedRelayMarker(existing, marker)) {
-    console.log("This trigger comment has already been processed.");
+  if (taskCommand.matched) {
+    if (!taskCommand.success) {
+      const detail = taskCommand.issues.map((item) =>
+        (item.path.length ? item.path.join(".") : "Envelope") + ": " + item.message
+      ).join("\n");
+      await githubRequest("issues/" + issue.number + "/comments", {
+        method: "POST",
+        body: JSON.stringify({ body: [
+          marker,
+          "### Council-Task abgelehnt",
+          detail,
+          "Keine Provider wurden aufgerufen und kein Tageskontingent reserviert.",
+        ].join("\n\n") }),
+      });
+      return;
+    }
+    taskEnvelope = taskCommand.data;
+    const binding = resolveCouncilTaskProject(taskEnvelope, PROJECT_REPOS);
+    if (!binding.success) {
+      await githubRequest("issues/" + issue.number + "/comments", {
+        method: "POST",
+        body: JSON.stringify({ body: [
+          marker,
+          "### Council-Task abgelehnt",
+          binding.message,
+          "Keine Provider wurden aufgerufen und kein Tageskontingent reserviert.",
+        ].join("\n\n") }),
+      });
+      return;
+    }
+    project = binding.project;
+    request = [
+      "Aufgabentyp: " + taskEnvelope.payload.taskType,
+      "Anweisung: " + taskEnvelope.payload.instruction,
+      "Erwartetes Ausgabeformat: " + taskEnvelope.payload.expectedOutput.format,
+      "Fixierter Commit: " + binding.commitSha,
+      "Freigegebene Pfade: " + binding.allowedPaths.join(", "),
+    ].join("\n");
+  } else {
+    project = debateMatch[1].toUpperCase();
+    request = debateMatch[2].trim();
+  }
+
+  if (!request || request.length > MAX_INPUT_CHARS) {
+    await githubRequest("issues/" + issue.number + "/comments", {
+      method: "POST",
+      body: JSON.stringify({ body: [
+        marker,
+        "### KI-Team-Auftrag abgelehnt",
+        "Der Auftrag muss zwischen 1 und " + MAX_INPUT_CHARS + " Zeichen lang sein.",
+        "Keine Provider wurden aufgerufen und kein Tageskontingent reserviert.",
+      ].join("\n\n") }),
+    });
+    return;
+  }
+
+  const idempotencyMarker = taskEnvelope
+    ? "<!-- ai-team-idempotency:" + taskEnvelope.idempotencyKey + " -->"
+    : "";
+  const existing = await githubRequest("issues/" + issue.number + "/comments?per_page=100");
+  if (hasTrustedRelayMarker(existing, marker) ||
+      (idempotencyMarker && hasTrustedRelayMarker(existing, idempotencyMarker))) {
+    console.log("This trigger comment or task idempotency key has already been processed.");
     return;
   }
 
@@ -440,7 +501,7 @@ async function main() {
     return;
   }
 
-  const projectContext = await fetchProjectContext(project);
+  const projectContext = await fetchProjectContext(project, taskEnvelope);
   const safeContext = buildSafeProjectContext({
     project,
     repository: projectContext.repository,
@@ -471,7 +532,7 @@ async function main() {
     return;
   }
 
-  const reservation = await reserveDailyDebate(comment.id);
+  const reservation = await reserveDailyDebate(comment.id, taskEnvelope?.idempotencyKey || "");
   if (!reservation.allowed) {
     if (reservation.duplicate) {
       console.log("This trigger comment already has a daily budget reservation.");
@@ -525,7 +586,8 @@ async function main() {
 
   const body = [
     marker,
-    `# KI-Team-Debatte: ${project}`,
+    ...(idempotencyMarker ? [idempotencyMarker] : []),
+    taskEnvelope ? `# KI-Team-Task: ${project}` : `# KI-Team-Debatte: ${project}`,
     `Ausgelöst von @${comment.user.login} · Kommentar-ID ${comment.id}`,
     "## OpenAI / GPT – unabhängige Erstanalyse",
     initial,
