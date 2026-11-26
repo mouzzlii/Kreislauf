@@ -5,7 +5,13 @@ on:
   push:
     branches:
       - chore/ai-team-communication-foundation
+      - feature/portfolio-council-routing
+      - feature/ai-team-ki-arbeitsplatz-routing
     paths:
+      - "scripts/ai-team-interop.mjs"
+      - "scripts/ai-team-interop.test.mjs"
+      - "scripts/ai-team-ledger.mjs"
+      - "scripts/ai-team-ledger.test.mjs"
       - "scripts/ai-team-relay.mjs"
       - "scripts/ai-team-relay.test.mjs"
       - "scripts/ai-team-source-context.mjs"
@@ -15,8 +21,13 @@ on:
       - ".github/workflows/ai-team-communication.yml"
       - ".github/workflows/ai-team-relay-ci.yml"
       - "AI_TEAM_SETUP.md"
+      - "docs/PROJECT-COORDINATION.md"
   pull_request:
     paths:
+      - "scripts/ai-team-interop.mjs"
+      - "scripts/ai-team-interop.test.mjs"
+      - "scripts/ai-team-ledger.mjs"
+      - "scripts/ai-team-ledger.test.mjs"
       - "scripts/ai-team-relay.mjs"
       - "scripts/ai-team-relay.test.mjs"
       - "scripts/ai-team-source-context.mjs"
@@ -26,6 +37,7 @@ on:
       - ".github/workflows/ai-team-communication.yml"
       - ".github/workflows/ai-team-relay-ci.yml"
       - "AI_TEAM_SETUP.md"
+      - "docs/PROJECT-COORDINATION.md"
 
 permissions:
   contents: read
@@ -40,9 +52,15 @@ jobs:
           node-version: 22
       - name: Check JavaScript syntax
         run: |
+          node --check scripts/ai-team-interop.mjs
+          node --check scripts/ai-team-ledger.mjs
           node --check scripts/ai-team-relay.mjs
           node --check scripts/ai-team-source-context.mjs
           node --check scripts/ai-team-providers.mjs
+      - name: Test council task envelope validation
+        run: node --test scripts/ai-team-interop.test.mjs
+      - name: Test trusted relay ledger
+        run: node --test scripts/ai-team-ledger.test.mjs
       - name: Test bounded source context
         run: node --test scripts/ai-team-source-context.test.mjs
       - name: Test Claude, Meta and Llama provider contracts
@@ -60,10 +78,16 @@ jobs:
           const workflow = readFileSync(".github/workflows/ai-team-communication.yml", "utf8");
           assert.ok(source.includes('TRAKUNA: process.env.PROJECT_REPO_TRAKUNA || "mouzzlii/multi-carrier-gateway"'));
           assert.ok(source.includes('"SCAN-PROFIT": process.env.PROJECT_REPO_SCAN_PROFIT || "mouzzlii/SCAN-PROFIT"'));
+          assert.ok(source.includes('"INSERAT-PROFI-AI": process.env.PROJECT_REPO_INSERAT_PROFI_AI || "mouzzlii/INSERAT-PROFI-AI"'));
+          assert.ok(source.includes('"BOOK-YOUR-COOK": process.env.PROJECT_REPO_BOOK_YOUR_COOK || "mouzzlii/book-your-cook"'));
+          assert.ok(source.includes('"LARA-QUIZ": process.env.PROJECT_REPO_LARA_QUIZ || "mouzzlii/Lara_Quiz"'));
+          assert.ok(workflow.includes("PROJECT_REPO_INSERAT_PROFI_AI"));
+          assert.ok(workflow.includes("PROJECT_REPO_BOOK_YOUR_COOK"));
+          assert.ok(workflow.includes("PROJECT_REPO_LARA_QUIZ"));
           assert.ok(source.includes("getMissingProviderConfiguration({"));
           const incomplete = getMissingProviderConfiguration({});
           assert.ok(incomplete.missingSecrets.includes("AI_TEAM_REPO_READ_TOKEN"));
-          assert.ok(incomplete.missingSecrets.includes("AI_TEAM_THIRD_PROVIDER (muss meta oder llama sein)"));
+          assert.ok(incomplete.missingVariables.includes("AI_TEAM_THIRD_PROVIDER (muss meta oder llama sein)"));
           assert.ok(incomplete.missingModels.includes("CLAUDE_MODEL"));
           const complete = getMissingProviderConfiguration({
             OPENAI_API_KEY: "test-openai",
@@ -76,7 +100,7 @@ jobs:
             CLAUDE_MODEL: "test-claude",
             LLAMA_MODEL: "test-llama-model",
           });
-          assert.deepEqual(complete, { missingSecrets: [], missingModels: [] });
+          assert.deepEqual(complete, { missingSecrets: [], missingVariables: [], missingModels: [] });
           const metaComplete = getMissingProviderConfiguration({
             OPENAI_API_KEY: "test-openai",
             ANTHROPIC_API_KEY: "test-anthropic",
@@ -87,9 +111,16 @@ jobs:
             CLAUDE_MODEL: "test-claude",
             META_MODEL: "muse-spark-1.3",
           });
-          assert.deepEqual(metaComplete, { missingSecrets: [], missingModels: [] });
+          assert.deepEqual(metaComplete, { missingSecrets: [], missingVariables: [], missingModels: [] });
           assert.ok(source.includes("MAX_DAILY_DEBATES = 2"));
-          assert.ok(source.includes("reserveDailyDebate(comment.id)"));
+          assert.ok(source.includes('reserveDailyDebate(comment.id, taskEnvelope?.idempotencyKey || "")'));
+          assert.ok(source.includes("parseCouncilTaskComment(comment.body)"));
+          assert.ok(source.includes("resolveCouncilTaskProject(taskEnvelope, PROJECT_REPOS)"));
+          assert.ok(source.includes("taskEnvelope.payload.inputs.commitSha"));
+          assert.ok(source.includes("taskEnvelope.payload.constraints.allowedPaths"));
+          assert.ok(source.includes("issue.number !== 11"));
+          assert.ok(source.includes("hasSourceExcerpt: hasNonEmptySourceExcerpt(source)"));
+          assert.ok(source.includes("hasUsablePrimaryContext(projectContext)"));
           assert.ok(source.includes("KI-Team-Debatte abgebrochen"));
           assert.ok(source.includes("Fehlerphase: ${phase}"));
           assert.ok(source.includes("Tageskontingent bleibt verbraucht"));

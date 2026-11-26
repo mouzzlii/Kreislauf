@@ -62,6 +62,7 @@ export function isSecureLlamaEndpoint(value) {
     return url.protocol === "https:" &&
       !url.username &&
       !url.password &&
+      !url.search &&
       !url.hash &&
       url.pathname.replace(/\/+$/, "").endsWith("/v1/chat/completions");
   } catch {
@@ -75,6 +76,10 @@ export function getMissingProviderConfiguration(env) {
     !env.OPENAI_API_KEY && "OPENAI_API_KEY",
     !env.ANTHROPIC_API_KEY && "ANTHROPIC_API_KEY",
     !env.AI_TEAM_REPO_READ_TOKEN && "AI_TEAM_REPO_READ_TOKEN",
+    thirdProvider === "meta" && !env.META_MODEL_API_KEY && "META_MODEL_API_KEY",
+    thirdProvider === "llama" && !env.LLAMA_API_KEY && "LLAMA_API_KEY",
+  ].filter(Boolean);
+  const missingVariables = [
     !["meta", "llama"].includes(thirdProvider) && "AI_TEAM_THIRD_PROVIDER (muss meta oder llama sein)",
   ].filter(Boolean);
   const missingModels = [
@@ -83,15 +88,13 @@ export function getMissingProviderConfiguration(env) {
   ].filter(Boolean);
 
   if (thirdProvider === "meta") {
-    if (!env.META_MODEL_API_KEY) missingSecrets.push("META_MODEL_API_KEY");
     if (!env.META_MODEL) missingModels.push("META_MODEL");
   } else if (thirdProvider === "llama") {
-    if (!env.LLAMA_API_KEY) missingSecrets.push("LLAMA_API_KEY");
-    if (!env.LLAMA_API_BASE_URL) missingSecrets.push("LLAMA_API_BASE_URL");
+    if (!env.LLAMA_API_BASE_URL) missingVariables.push("LLAMA_API_BASE_URL");
     if (!env.LLAMA_MODEL) missingModels.push("LLAMA_MODEL");
     if (env.LLAMA_API_BASE_URL && !isSecureLlamaEndpoint(env.LLAMA_API_BASE_URL)) {
-      missingSecrets.push("LLAMA_API_BASE_URL (muss eine HTTPS-URL mit /v1/chat/completions sein)");
+      missingVariables.push("LLAMA_API_BASE_URL (muss eine HTTPS-URL ohne Query/Anmeldedaten mit /v1/chat/completions sein)");
     }
   }
-  return { missingSecrets, missingModels };
+  return { missingSecrets, missingVariables, missingModels };
 }

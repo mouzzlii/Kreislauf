@@ -18,7 +18,10 @@ jobs:
       github.event.issue.pull_request == null &&
       github.event.issue.number == 11 &&
       github.event.comment.user.type != 'Bot' &&
-      startsWith(github.event.comment.body, '/ai-team debate ')
+      (
+        startsWith(github.event.comment.body, '/ai-team debate ') ||
+        startsWith(github.event.comment.body, '/ai-team task:')
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -57,3 +60,8 @@ jobs:
           PROJECT_REPO_TRAKUNA_ANDROID: ${{ vars.PROJECT_REPO_TRAKUNA_ANDROID }}
           PROJECT_REPO_SCAN_PROFIT: ${{ vars.PROJECT_REPO_SCAN_PROFIT }}
           PROJECT_REPO_CHRONOS: ${{ vars.PROJECT_REPO_CHRONOS }}
+          PROJECT_REPO_INSERAT_PROFI_AI: ${{ vars.PROJECT_REPO_INSERAT_PROFI_AI }}
+          PROJECT_REPO_BOOK_YOUR_COOK: ${{ vars.PROJECT_REPO_BOOK_YOUR_COOK }}
+          PROJECT_REPO_LARA_QUIZ: ${{ vars.PROJECT_REPO_LARA_QUIZ }}
+          PROJECT_REPO_KI_ARBEITSPLATZ: ${{ vars.PROJECT_REPO_KI_ARBEITSPLATZ }}
+          PROJECT_REPO_KI_ARBEITSPLATZ_REF: ${{ vars.PROJECT_REPO_KI_ARBEITSPLATZ_REF }}
