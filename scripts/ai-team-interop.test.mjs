@@ -222,3 +222,9 @@ test("canonical idempotency key is independent of allowed-path ordering", () => 
   message.payload.constraints.allowedPaths.reverse();
   assert.equal(createCouncilTaskIdempotencyKey(message.payload), original);
 });
+
+
+test("matches the cross-runtime PowerShell canonical idempotency test vector", () => {
+  const message = validEnvelope();
+  assert.equal(message.idempotencyKey, "kia-190616e6244d6fefac474d3e9dbc38bb62c0efd595bde1f1118d1da6b5f42f9b");
+});
