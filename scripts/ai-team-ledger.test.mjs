@@ -73,3 +73,22 @@ test("ledger scan stops at the first previous-day comment", () => {
     reachedPreviousDay: true,
   });
 });
+
+
+test("trusted reservation ledger deduplicates a stable task idempotency marker", () => {
+  const prefix = "<!-- ai-team-daily-budget:2026-11-25:";
+  const idempotencyMarker = "<!-- ai-team-idempotency:kia-stable-key -->";
+  const comments = [
+    botComment(prefix + "100 -->\n\n" + idempotencyMarker),
+    botComment(prefix + "200 -->"),
+    { ...botComment(idempotencyMarker), user: { login: "attacker", type: "User" } },
+  ];
+  const result = inspectDailyBudgetPage(comments, {
+    reservationPrefix: prefix,
+    triggerCommentId: 999,
+    dayStart: Date.parse("2026-11-25T00:00:00Z"),
+    idempotencyMarker,
+  });
+  assert.equal(result.count, 2);
+  assert.equal(result.alreadyReserved, true);
+});
