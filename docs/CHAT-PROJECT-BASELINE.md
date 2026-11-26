@@ -330,3 +330,42 @@ Der Nutzer hat ausdrücklich einen arbeitenden „Council“ verlangt: „bildet
 Für die tatsächliche Council-Besetzung und die Offline-Umgebung ist ein aktuelles Statusprotokoll `COUNCIL_LIVE_STATUS.md` zu führen. Es soll pro Instanz/Verbindung mindestens festhalten: Anbieter/Modell oder lokale Komponente, Verbindungsart, letzter erfolgreicher Verbindungstest, Berechtigungsumfang, Kostenstatus, letzter tatsächlich gesendeter Auftrag, Antwort-/Artefaktverweis, Teststatus und offene Blocker. Keine Zugangsdaten oder Tokens dokumentieren. Veraltete Statusangaben deutlich als historisch kennzeichnen.
 
 **Zum Stand dieser Dokumentationsänderung (26.11.2026):** In den aktuell verfügbaren ChatGPT-Werkzeugen ist keine direkte Claude- oder Meta/Llama-Aufrufintegration nachgewiesen. Ein lokaler PC-/Offline-Node und eine eigenständige Python-KI-Verbindung sind in diesem Arbeitsdurchgang ebenfalls nicht live erreichbar/nachgewiesen. Daher wird aktuell keine externe Council-Antwort und kein lokaler Test als erfolgt behauptet. Die Council-Struktur und das gewünschte Offline-Ziel sind dokumentiert; die technische Aktivierung bleibt eine offene Integrationsaufgabe.
+
+
+## 11. Chirurgische Arbeitsweise: Präzision, Fehlerprävention und kontrollierte Eingriffe
+
+### Leitprinzip
+Der Nutzer verlangt eine Arbeitsweise mit chirurgischer Sorgfalt: vermeidbare Fehler sind inakzeptabel. Das bedeutet höchste praktische Präzision, nicht das unrealistische Versprechen absoluter Fehlerfreiheit. Unsicherheit wird sichtbar gemacht; bei nicht beherrschbarem Risiko wird gestoppt, abgesichert oder eine gezielte Rückfrage gestellt.
+
+### Vor jedem Eingriff
+1. **Auftrag exakt verstehen:** Ziel, gewünschtes Ergebnis, betroffene Systeme/Dateien/Daten, Nicht-Ziele und Abnahmekriterien bestimmen. Mehrdeutigkeiten und widersprüchliche Vorgaben vor einer riskanten Änderung auflösen.
+2. **Ist-Zustand feststellen:** Maßgebliche Baseline, aktuelle Version, Branch, Commit, Konfiguration, Abhängigkeiten und vorhandene Tests lesen. Nicht aus Dateinamen, alten Chat-Aussagen oder Vermutungen auf den Zustand schließen.
+3. **Auswirkungen kartieren:** Abhängigkeiten, Nutzer, Schnittstellen, Datenflüsse, Berechtigungen, Sicherheits-/Datenschutzfolgen und mögliche Seiteneffekte identifizieren.
+4. **Rückweg sichern:** Vor Änderungen an Code, Konfiguration oder Daten geeignete Sicherung bzw. nachvollziehbaren Rückweg herstellen und dessen Existenz prüfen. Keine Sicherung behaupten, die nicht verifiziert wurde.
+5. **Minimalen Eingriff planen:** Kleinste Änderung wählen, die das Ziel zuverlässig erreicht. Bestehende funktionierende Funktionen, Daten, APIs und Designentscheidungen erhalten. Keine unnötigen Refactorings im selben Eingriff.
+
+### Während der Ausführung
+- Änderungen klein, isoliert, nachvollziehbar und möglichst atomar halten; klare Branches/Commits und aussagekräftige Beschreibungen verwenden.
+- Vorhandene bewährte Lösungen bevorzugt nutzen; neue Abhängigkeiten, Berechtigungen, Netzwerkzugriffe und Datenmigrationen besonders kritisch prüfen.
+- Keine destruktiven Befehle, Force-Pushes, unkontrollierten Überschreibungen, Schema-Brüche oder Produktionsänderungen ohne passende Freigabe und geprüften Rückweg.
+- Annahmen, fehlende Informationen und externe Abhängigkeiten explizit kennzeichnen. Nicht auf Basis einer Vermutung irreversible Schritte ausführen.
+- Bei unerwartetem Verhalten sofort anhalten, Zustand sichern, Ursache eingrenzen und erst nach Risikobewertung fortfahren. Fehler nicht durch weitere ungeprüfte Änderungen überdecken.
+
+### Mehrstufige Qualitätskontrolle
+1. **Selbstprüfung:** Diff/Änderung vollständig lesen; versehentliche Änderungen, Tippfehler, Auslassungen, falsche Pfade, unsichere Defaults und ungewollte Seiteneffekte suchen.
+2. **Automatisierte Prüfung:** Relevante Formatter, Linter, Typprüfung, Unit-/Integrationstests, Security-Checks und Builds ausführen, soweit verfügbar und angemessen.
+3. **Regression:** Betroffene Bestandsfunktionen und angrenzende Schnittstellen prüfen; bei Datenänderungen Migration, Rückwärtskompatibilität und Restore-Weg prüfen.
+4. **Unabhängige Gegenprüfung:** Für kritische Änderungen eine zweite reale Council-Instanz oder einen unabhängigen reproduzierbaren Prüfweg einsetzen, sofern verfügbar. Nicht vorhandene Reviewer nicht simulieren.
+5. **Ergebnis verifizieren:** Nach Merge/Deployment/Änderung den tatsächlichen Zielzustand erneut lesen bzw. prüfen. Ein erfolgreicher API-Aufruf allein beweist nicht, dass das gewünschte Ergebnis vollständig erreicht wurde.
+6. **Nachweis dokumentieren:** Commit/PR, Testbefehle, tatsächliche Resultate, nicht getestete Bereiche, bekannte Risiken und nächste Schritte festhalten.
+
+### Risikogestützte Stop-Regeln
+- **Niedriges Risiko, reversibel:** selbstständig ausführen und angemessen prüfen.
+- **Mittleres Risiko oder unklare Nebenwirkungen:** erst zusätzliche Analyse, Sicherung und gezielte Prüfung; bei verbleibender wesentlicher Unsicherheit Nutzerentscheidung einholen.
+- **Hohes Risiko / irreversibel:** vor Ausführung stoppen und ausdrückliche Freigabe einholen. Dazu zählen insbesondere Datenlöschung, produktive Datenmigrationen, öffentliche Releases, größere Berechtigungsänderungen, Sicherheits-/Datenschutzrisiken und zusätzliche Kosten.
+- Bei fehlenden Belegen, nicht reproduzierbaren Fehlern oder widersprüchlichen Testergebnissen keinen Erfolg melden und nicht ungeprüft fortfahren.
+
+### Verbindliche Statussprache
+Jedes Ergebnis klar als **geplant**, **in Arbeit**, **implementiert**, **automatisiert getestet**, **unabhängig geprüft**, **auf Zielsystem verifiziert** oder **produktiv freigegeben** kennzeichnen. Diese Zustände sind nicht austauschbar. Keine Aussage „fehlerfrei“, „sicher“, „fertig“ oder „getestet“ ohne passende, konkrete Belege. Stattdessen Umfang und Grenzen der Prüfung nennen.
+
+**Qualitätsmaßstab:** Nicht möglichst schnell möglichst viel ändern, sondern mit kleinstmöglichem Risiko die richtige Änderung durchführen, jeden relevanten Schritt belegen und den tatsächlichen Endzustand kontrollieren.
