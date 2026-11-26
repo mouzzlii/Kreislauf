@@ -34,6 +34,20 @@ KREISLAUF ist eine funktionsfähige Entwicklungsbasis, aber noch keine öffentli
 - Lokale PGlite-Datenbank als Entwicklungsstandard; Neon kann über `DATABASE_URL` angebunden werden
 - **Datenbankhinweis:** Der aktuelle App-Code nutzt PGlite oder Neon/Postgres über `DATABASE_URL`. Die vorhandenen Supabase-Projekte sind aktuell nicht automatisch mit der Anwendung verbunden. Vor einer Supabase-Nutzung müssen Verbindung, Migration-Drift und Auth-Schema ausdrücklich eingerichtet und geprüft werden.
 
+## Weitere bestätigte Produktanforderungen
+
+Die folgenden Punkte stammen aus den späteren Projektentscheidungen und sind als Zielanforderungen zu verstehen. Ihre vollständige Umsetzung ist nicht allein durch die vorhandenen Demo-Funktionen belegt:
+
+- Marktplatzansichten klar nach **In der Nähe**, **Gesuche** und **Angebote** trennen.
+- Inseratdetails sollen weitere Inserate desselben Anbieters direkt erreichbar machen.
+- Produktprofilfoto in der Inseratvorschau anzeigen.
+- Inserat-Medieneditor für Fotos und Kurzvideos; Video-Begrenzung gemäß gewählter Variante: 1 × 60 Sekunden, 2 × 30 Sekunden oder 4 × bis zu 20 Sekunden.
+- Nachrichten vollständig an Inserate, Tauschanfragen, Angebote und den zugehörigen Tauschvorgang binden; neue Angebote sollen passende Benachrichtigungen auslösen.
+- Punktearchitektur mit Gemeinschaftsfonds und Inflationsschutz weiter ausarbeiten; konkrete Berechnungsregeln sind von bestehenden Codewerten zu unterscheiden.
+- Das Gemeinschafts-/Koordinationselement „3 Punkte 1 Ort“ wieder berücksichtigen.
+
+Diese Anforderungen sind keine Behauptung, dass jede Funktion bereits in main oder in der öffentlichen Demo vollständig umgesetzt wurde. Vor Freigabe sind sie einzeln gegen Code, Tests und Ende-zu-Ende-Verhalten abzugleichen.
+
 ## Demo starten
 
 Voraussetzungen: Node.js 22 oder neuer und npm.
@@ -77,6 +91,9 @@ npm run build
 **Sicherheitsregel:** Die lokale Demo mit deaktivierter Authentifizierung darf nicht öffentlich betrieben werden. Vor einem öffentlichen Start müssen Authentifizierung aktiviert, eine geeignete produktive Datenbank und Backups eingerichtet und die Sicherheits-/Datenschutzprüfung abgeschlossen sein.
 
 ## Gemeinsame Projektkoordination
+
+Die chatübergreifende Projekt- und Entscheidungsreferenz ist in [docs/CHAT-PROJECT-BASELINE.md](docs/CHAT-PROJECT-BASELINE.md) gepflegt. Sie bündelt bestätigte Nutzerentscheidungen, kanonische Repositories, Statusgrenzen und offene Aufgaben aller zugeordneten Projekte. Die operative Kurzkoordination steht in [docs/PROJECT-COORDINATION.md](docs/PROJECT-COORDINATION.md).
+
 
 Die KI-Team-Koordination für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS läuft über das zentrale [Koordinations-Issue](https://github.com/mouzzlii/Kreislauf/issues/11). Der sichere Relay ist in `main` integriert: GPT → Claude → dritter Agent (Meta Muse über Meta Model API oder echtes Llama über einen eigenen HTTPS-Inference-Host) → GPT. Er bleibt bis zur Einrichtung der passenden Provider-Secrets, Modellkennungen, Llama-Endpoint bei Bedarf, Anbieter-Ausgabenlimits und ausdrücklichen Budgetfreigabe gesperrt.
 
