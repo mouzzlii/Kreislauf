@@ -68,6 +68,7 @@ assert.ok(workflowSource.includes("LLAMA_API_KEY"));
 assert.ok(workflowSource.includes("LLAMA_API_BASE_URL"));
 assert.ok(workflowSource.includes("PROJECT_REPO_KI_ARBEITSPLATZ"));
 assert.ok(workflowSource.includes("PROJECT_REPO_KI_ARBEITSPLATZ_REF"));
+assert.ok(workflowSource.includes("startsWith(github.event.comment.body, '/ai-team task:')"));
 assert.ok(setup.includes("Claude"));
 assert.ok(setup.includes("Llama"));
 assert.ok(setup.includes("Meta Model API"));
