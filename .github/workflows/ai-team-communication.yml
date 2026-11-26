@@ -18,7 +18,10 @@ jobs:
       github.event.issue.pull_request == null &&
       github.event.issue.number == 11 &&
       github.event.comment.user.type != 'Bot' &&
-      startsWith(github.event.comment.body, '/ai-team debate ')
+      (
+        startsWith(github.event.comment.body, '/ai-team debate ') ||
+        startsWith(github.event.comment.body, '/ai-team task:')
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
