@@ -129,7 +129,7 @@ export function validateCouncilTaskEnvelope(input, { now = new Date() } = {}) {
   if (typeof input.idempotencyKey !== "string" || !/^kia-[a-f0-9]{64}$/.test(input.idempotencyKey)) {
     add(["idempotencyKey"], "Expected the local outbox idempotency key format.");
   }
-  else if (isRecord(input.payload) && isRecord(input.payload.inputs) && isRecord(input.payload.constraints) && Array.isArray(input.payload.constraints.allowedPaths) && typeof input.payload.taskType === "string" && typeof input.payload.inputs.originalQueueTaskId === "string" && typeof input.payload.inputs.repository === "string" && typeof input.payload.inputs.projectId === "string" && typeof input.payload.inputs.commitSha === "string") {
+  else if (isRecord(input.payload) && isRecord(input.payload.inputs) && isRecord(input.payload.constraints) && Array.isArray(input.payload.constraints.allowedPaths) && input.payload.constraints.allowedPaths.every((path) => typeof path === "string") && typeof input.payload.taskType === "string" && typeof input.payload.inputs.originalQueueTaskId === "string" && typeof input.payload.inputs.repository === "string" && typeof input.payload.inputs.projectId === "string" && typeof input.payload.inputs.commitSha === "string") {
     if (input.idempotencyKey !== createCouncilTaskIdempotencyKey(input.payload)) {
       add(["idempotencyKey"], "Idempotency key does not match the canonical task and repository scope.");
     }
