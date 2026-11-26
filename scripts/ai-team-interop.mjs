@@ -3,7 +3,7 @@ import { z } from "zod";
 const UUID = z.string().uuid();
 const DATE_TIME = z.string().refine((value) =>
   typeof value === "string" &&
-  /(?:Z|[+-]\\d{2}:\\d{2})$/.test(value) &&
+  /(?:Z|[+-]\d{2}:\d{2})$/.test(value) &&
   Number.isFinite(Date.parse(value)),
   "Expected an ISO-8601 date-time with an explicit timezone.",
 );
@@ -44,8 +44,8 @@ const IDENTITY = z.object({
 
 function isSafeRepositoryPath(value) {
   if (typeof value !== "string" || value.length < 1 || value.length > 1024) return false;
-  if (value.startsWith("/") || /^[A-Za-z]:/.test(value) || value.includes("\\\\")) return false;
-  if (/[\\x00-\\x1f]/.test(value)) return false;
+  if (value.startsWith("/") || /^[A-Za-z]:/.test(value) || value.includes("\\")) return false;
+  if (/[\x00-\x1f]/.test(value)) return false;
   return !value.split("/").some((part) => part === "." || part === ".." || part === "");
 }
 
@@ -65,11 +65,11 @@ const allowedPathsSchema = z.array(z.string().min(1).max(1024)).min(1).max(200)
 
 const taskPayloadSchema = z.object({
   taskId: UUID,
-  taskType: z.string().regex(/^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_-]*){1,4}$/).max(120),
+  taskType: z.string().regex(/^[a-z][a-z0-9]*(\.[a-z][a-z0-9_-]*){1,4}$/).max(120),
   instruction: z.string().min(1).max(8000),
   inputs: z.object({
     projectId: z.string().regex(/^[A-Z0-9][A-Z0-9_-]{1,63}$/),
-    repository: z.string().regex(/^[A-Za-z0-9_.-]{1,100}\\/[A-Za-z0-9_.-]{1,100}$/),
+    repository: z.string().regex(/^[A-Za-z0-9_.-]{1,100}\/[A-Za-z0-9_.-]{1,100}$/),
     commitSha: z.string().regex(/^[a-f0-9]{40}$/i),
     originalQueueTaskId: z.string().regex(/^[a-f0-9]{32}$/i),
   }).strict(),
