@@ -1,58 +1,63 @@
 # Gemeinsame Projektsteuerung
 
-Stand: 2026-11-24
+**Stand:** 26.11.2026
 
-Dieses Dokument koordiniert die vier Entwicklungsprojekte. Es ersetzt keine projektspezifischen Anforderungen, Tests oder Betreiberfreigaben. Statusangaben unterscheiden strikt zwischen vorhandenem Code, automatisierten Prüfungen, externen Tests und Produktionsfreigabe.
+Diese Datei ist die kurze operative Koordinationsseite. Die chatbasierte Projekt- und Entscheidungsreferenz liegt in [CHAT-PROJECT-BASELINE.md](CHAT-PROJECT-BASELINE.md). Dort sind die bestätigten Ziele, Repository-Zuordnungen, Statusgrenzen und offenen Punkte der Projektfamilie zusammengeführt.
 
 ## Gemeinsame Regeln
 
-- GitHub ist die verbindliche Quelle für eingecheckten Code und dokumentierte Entscheidungen.
-- Änderungen erfolgen grundsätzlich auf Aufgaben-Branches und werden über Pull Requests integriert.
-- Keine parallelen Änderungen an denselben Dateien ohne vorherige Abstimmung.
-- Vor jeder Änderung: aktuellen Stand, README, Projektanweisungen, offene Issues und CI lesen.
-- Nach jeder Änderung: passende Tests ausführen und Ergebnisse samt Commit-SHA dokumentieren.
-- Keine Zugangsdaten, Kundendaten, privaten Fotos, Produktionsdatenbanken oder echten `.env`-Dateien committen.
-- Externe Dienste gelten erst nach erfolgreicher Integration und echtem Ende-zu-Ende-Test als einsatzbereit.
-- Ein grüner CI-Lauf beweist nur die darin ausgeführten automatisierten Prüfungen, nicht die Produktionsreife.
-- Keine kostenpflichtigen Provider-Aufrufe, produktiven Buchungen oder externen Freigaben ohne ausdrückliche Autorisierung.
+- Neueste ausdrücklich bestätigte Nutzerentscheidung hat Vorrang vor älteren Annahmen.
+- GitHub-main bleibt unverändert, wenn die Dokumentation aktuell ist. Veraltete oder fehlende bestätigte Entscheidungen werden kontrolliert über Branch und PR aktualisiert.
+- Vor jeder Änderung aktuellen Stand, Projektanweisungen, offene PRs/Issues und CI lesen.
+- Keine parallelen Änderungen an denselben Dateien ohne Abstimmung; TRAKUNA bearbeitet genau ein priorisiertes Ticket gleichzeitig.
+- Nach jeder Änderung passende Tests ausführen und Ergebnisse mit exakter Commit-SHA dokumentieren.
+- Keine Secrets, Zugangsdaten, Kundendaten, privaten Fotos oder Produktionsdaten committen.
+- Keine kostenpflichtigen Provider-Aufrufe, API-Nutzung, produktiven Buchungen oder Deployments ohne ausdrückliche Kosten-/Aktionsfreigabe.
+- Bestehende Open-Source-/Kommerziellösungen vor Eigenentwicklung prüfen; Lizenz, Sicherheit, Wartbarkeit und Android-Kompatibilität bewerten.
+- Projektübergreifende Module erst nach eigenständigen Tests und Sicherheitsprüfung wiederverwenden.
+- Code vorhanden, CI erfolgreich, reales Gerät getestet, externer Anbieter integriert und produktionsbereit sind getrennte Status.
 
-## Projektübersicht
+## Operative Projektübersicht
 
-| Projekt | Quellcode / Repository | Verifizierter Stand und offene Grenzen |
+| Projekt | Kanonische Quelle | Aktueller bestätigter Fokus / Grenze |
 |---|---|---|
-| **TRAKUNA** | Architektur/Koordination: [mouzzlii/multi-carrier-gateway](https://github.com/mouzzlii/multi-carrier-gateway); Android-App: [mouzzlii/Fuck](https://github.com/mouzzlii/Fuck). | Version 1.53 / versionCode 54. Build-CI 45293451483 erfolgreich; Debug-APK-Archiv und APK-Container sind intakt, SHA-256 stimmt mit der Prüfsummendatei überein. PR #12 gemergt (Commit `a537c81`): aktive Emulatorläufe werden nicht automatisch durch neuere Runs abgebrochen. PR #13 gemergt (Commit `fe3314e`): KVM-Zugriffsregel auf Linux-Runnern plus TCG-Fallback und Diagnose. Android-15-Emulatorlauf 45307309795 auf PR-Head und alle fünf Instrumentierungstests erfolgreich (0 fehlgeschlagen/übersprungen); getestet wurden AES-GCM-Storage, verschlüsselter Übergabe-Cache, Fail-Closed-Verhalten und Backup-Wiederherstellung. Main-Push-Wiederholung 45308245723 läuft nach Merge noch. Kein echter Shopgerätetest; Hermes bleibt Pflichtintegration ohne produktiven Carrier-/Betreiberzugang. |
-| **SCAN-PROFIT** | [mouzzlii/SCAN-PROFIT](https://github.com/mouzzlii/SCAN-PROFIT) | Version 2.0.66-Prüfpaket lokal mit 155/155 Tests, statischem Build und Smoke-Test erfolgreich; Static-release-CI 45294526404 auf aktuellem Main grün. Live-Production ist weiterhin READY auf einem älteren Commit (`bf6af8d`), nicht auf dem aktuellen GitHub-Stand. Das Vercel-Free-Tier-Buildlimit verhindert derzeit ein neues Production-Deployment. Separater Quellzweig `source/next-app-2.0.66` enthält das Next.js-Manifest und das generierte Lockfile; Workflow 45305505334 bestand mit `npm ci` und `npm audit --audit-level=high` (400 Paket-Einträge, kein High-/Critical-Blocker). Vollständiger Next.js-Quellbaum ist weiterhin im lokalen Prüfpaket/Download-ZIP, nicht vollständig in GitHub importiert; Next.js-Build/ESLint und Android-Praxisprüfung sind damit offen. |
-| **KREISLAUF** | [mouzzlii/Kreislauf](https://github.com/mouzzlii/Kreislauf) | Sicherheits-PR #22 gemergt (Commit `a92e5ab`); das zuvor eingebettete Preview-OAuth-Secret ist aus Main entfernt, der Broker-Schlüssel muss separat durch den Broker-Betreiber widerrufen/rotiert werden. PR #29 gemergt (Commit `7ff64cb`): begrenzte Quelltext-Allowlist und Secret-Redaktion. PR #31 für direkten und kombinierten Tausch gemergt (Commit `bd749a9`): konkrete Gegenleistung, beidseitige Abschlussbestätigung, Karma-Ausgleich erst danach und inseratgebundene Nachrichten. PR #30 ergänzt im getrennten Demo-Zweig einen Datenbank-Guard gegen Stimmen von Transaktionsparteien bei beiden Treuhand-Abstimmungen; gemergt in `demo/local-auth-off` (Commit `c46c5f2`), CI Run 45305494236 grün. PR #32 gemergt (Commit `f1bd274`): GPT → Claude → Llama Basis. PR #33 gemergt (Commit `e559f68`): der dritte Agent ist ausdrücklich wählbar – Meta Muse über Meta Model API oder echtes Llama über einen separat gehosteten HTTPS-Inference-Endpunkt. Relay-CI Run 45308167302 und vollständige PR-Build-CI Run 45308167341 erfolgreich; Main-Push-CI nach letztem Merge 45308317170 läuft noch. Keine Provider-Aufrufe, keine Schlüssel oder Modellvariablen eingerichtet, Live-Relay bleibt bis zu Kostenlimits und Budgetfreigabe gesperrt. Runtime-DB bleibt PGlite oder Neon/Postgres über `DATABASE_URL`, nicht automatisch Supabase. Öffentliche Auth-/Moderations-/Mehrbenutzerabnahme offen. |
-| **CHRONOS** | [mouzzlii/CHRONOS](https://github.com/mouzzlii/CHRONOS) | Main bleibt lokaler Fotoarchiv-Prototyp Milestone 0.5. Python-/Android-CI einschließlich Robolectric-SQLite-Tests ist dokumentiert erfolgreich. Das separate Face-Hardening-Paket 0.2.0 besteht lokal 11/11 Tests (inkl. Multi-Prozess-Lock und lokaler API-Prüfung), ist aber nicht in den Hauptquellbaum integriert und darf wegen abweichendem Datenbankschema, fehlender Benutzer-Authentifizierung und biometrischer Datenschutzanforderungen nicht öffentlich bereitgestellt werden. Echte Android-Geräte-, Backup/Restore-, Verschlüsselungs- und Großbibliothekstests bleiben offen. |
+| TRAKUNA | [Android-App](https://github.com/mouzzlii/Fuck) · [Gateway](https://github.com/mouzzlii/multi-carrier-gateway) | Smartphone, ein Drucker, WLAN + Bluetooth, alle acht Carrier-Profile. Gateway PR #4 und App PR #25/#33 sind offen; keine reale Drucker-/Carrier-Abnahme. Gateway PR #5 aktualisierte am 26.11.2026 die Gateway-main-Dokumentation. |
+| KREISLAUF | [mouzzlii/Kreislauf](https://github.com/mouzzlii/Kreislauf) | Demo-/Entwicklungsbasis. Marktplatz, Tausch, Punkte, inseratgebundene Nachrichten, Moderation und Treuhand-Zielbild. Preview-Funktionen nicht als Main-/Produktionsabnahme ausgeben; Supabase ist nicht automatisch angebunden. |
+| SCAN-PROFIT | [mouzzlii/SCAN-PROFIT](https://github.com/mouzzlii/SCAN-PROFIT) | Version 2.0.66; Release-Dokumentation belegt 155/155 Tests und Vercel READY für den dokumentierten Commit. Direkte aktuelle HTTP-Prüfung und Android-Praxistest bleiben offen. |
+| INSERAT-PROFI AI | [mouzzlii/INSERAT-PROFI-AI](https://github.com/mouzzlii/INSERAT-PROFI-AI) | Eigenständige Next.js-PWA; lokale Foto-/Entwurfsverwaltung und optionale serverseitige KI. Keine automatische willhaben-Veröffentlichung oder bestätigte Import-API. |
+| CHRONOS | [mouzzlii/CHRONOS](https://github.com/mouzzlii/CHRONOS) | Privates lokales Fotoarchiv, Milestone 0.5. Desktop und Android getrennt; keine Sync-/Produktionsfreigabe. Nicht mit KRONOS 01 verwechseln. |
+| KI-Arbeitsplatz | [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz) | Zentrales Agent-/Koordinationsziel. GitHub-main enthält beim Audit nur das v1.0.0-ZIP und .github; kein editierbarer Quellbaum oder funktionierender Android-Agent nachgewiesen. |
+| Menschheitsfamilie | [mouzzlii/Gemeinwohl](https://github.com/mouzzlii/Gemeinwohl) | Eigenständige Community-Konzeption; Repo enthält derzeit ZIP-Artefakt, kein verifizierter vollständiger Quellbaum. Daten-/Berechtigungsgrenzen zu KREISLAUF bleiben getrennt. |
 
-## KI-Team-Zusammenarbeit
+Weitere Konzept- und Forschungsstränge (KRONOS 01, KREISLAUF ReFlex/VacMail, VR-SCENT, KREISLAUF AIRLESS und Implosionsmotor) sind in der Projektbaseline aufgeführt. Vertrauliche technische Erfindungsdetails gehören nicht in dieses öffentliche Repository.
 
-- Die sichere GitHub-Relay-Basis ist in KREISLAUF `main` integriert. PR #29 erweiterte sie um begrenzte Quelltextauszüge und Secret-Redaktion. Der Relay reagiert nur auf einen ausdrücklich markierten Kommentar in Issue #11 und ändert selbst keinen Quellcode.
-- PR #32 und PR #33 sind in Main integriert (Commits `f1bd274` und `e559f68`). Die Rollenfolge lautet GPT → Claude → dritter Agent → GPT. Claude nutzt die Anthropic Messages API. Der dritte Agent kann über `AI_TEAM_THIRD_PROVIDER=meta` Meta Muse via gehostete Meta Model API ausführen oder über `AI_TEAM_THIRD_PROVIDER=llama` ein echtes Llama-Modell via separat gehostetem HTTPS-Inference-Endpunkt. Relay-CI Run 45308167302 und vollständige PR-Build-CI Run 45308167341 erfolgreich; Main-Push-CI nach PR #33 läuft noch.
-- **Meta-/Llama-Grenze:** Die gehostete Meta Model API stellt Muse-Modelle bereit, nicht Llama-Gewichte. Llama bleibt deshalb ein getrennt gehostetes Open-Weight-Modell. Die Auswahl ist explizit und fail-closed; ohne passenden Secret-/Modell-/Endpoint-Satz wird kein Provider aufgerufen.
-- Der Relay lädt README, höchstens 80 Dateipfade und bis zu vier ausgewählte Quelltextauszüge pro Repository (maximal 1.800 Zeichen je Datei und 6.500 Zeichen pro Repository) aus einer festen Allowlist. Secret-Dateien, Umgebungsdateien, Credential-, Schlüssel-, Lock- und Builddateien sind nicht Teil der Auswahl.
-- Die Redaktion deckt bekannte Provider-Token, PEM-Private-Keys, JWTs, benannte Secret-Zuweisungen und 64–128-stellige Hexwerte ab. Das ist eine zusätzliche Schutzschicht, keine Garantie, dass beliebige Geheimnisse niemals erkannt werden. Daher dürfen ausgewählte Dateien weiterhin keine echten Kundendaten, Sendungsdaten oder Geheimnisse enthalten.
-- Bei Aktivierung werden ausgewählte Quelltextauszüge zusammen mit der Anfrage an OpenAI, Anthropic und den ausgewählten Llama-Inference-Anbieter übertragen. Es wurden keine Provider aufgerufen und keine Schlüssel eingerichtet.
-- Ein täglicher Deckel von zwei Debatten reserviert vor Provider-Aufrufen ein Kontingent im zentralen Issue #11. Das Gespräch verwendet maximal 1.000 Ausgabetokens je Modellschritt.
-- Live-Freigabe bleibt ausstehend: Provider-Secrets, tatsächlich unterstützte Modellkennungen, sichere Llama-HTTPS-Adresse, read-only GitHub-Token, echte Anbieter-Ausgabenlimits und `AI_TEAM_BUDGET_CONFIRMED=true` müssen durch den Kontoinhaber eingerichtet und geprüft werden. Die Variable ist eine manuelle Bestätigung und prüft Anbieterbudgets nicht automatisch.
+## KI-Team und externe Provider
 
-## Abnahme-Gates je Projekt
+- Gewünschte Rollenfolge: ChatGPT koordiniert; Claude und Meta/Llama sollen unabhängig entwickeln und prüfen.
+- Nur tatsächlich ausgeführte API-/MCP-Aufrufe und empfangene Antworten als Council-Arbeit ausgeben.
+- Eine vorhandene Relay-Basis ist nicht gleichbedeutend mit einem aktivierten Council. Provider-Secrets, Modellkennungen, sichere Endpunkte, echte Ausgabenlimits und ausdrückliche Budgetfreigabe sind Voraussetzungen.
+- Ohne echte Provider-Aufrufe keine unabhängigen Claude-/Meta-/Llama-Reviews behaupten.
+- Keine Zugangsdaten im Chat oder Repository ablegen.
+
+## Abnahme-Gates
 
 1. Anforderungen und Nicht-Ziele dokumentiert.
-2. Vollständiger, reproduzierbarer Quellcode und Abhängigkeiten versioniert.
+2. Reproduzierbarer Quellcode und Abhängigkeiten versioniert.
 3. Automatisierte Tests und Produktionsbuild erfolgreich.
 4. Sicherheits- und Datenschutzprüfung abgeschlossen.
 5. Ende-zu-Ende-Prüfung auf realistischen Geräten/Umgebungen abgeschlossen.
-6. Externe Anbieter-/API-Freigaben und produktive Zugangsdaten rechtmäßig eingerichtet.
-7. Wiederherstellung, Backup, Fehlerbehandlung und Monitoring dokumentiert.
-8. Release-Artefakt, Installationsanleitung und Rollback-Verfahren erstellt.
-9. Offene Einschränkungen transparent dokumentiert; keine kritischen Blocker.
+6. Externe Anbieter-/API-Freigaben rechtmäßig eingerichtet.
+7. Backup, Wiederherstellung und Fehlerbehandlung geprüft.
+8. Release-Artefakt, Installationsanleitung und Rollback-Verfahren vorhanden.
+9. Offene Einschränkungen transparent dokumentiert.
 
 ## Statussprache
 
-- **Implementiert:** Code ist vorhanden.
-- **Automatisiert geprüft:** konkrete CI-/Testläufe sind erfolgreich.
-- **Extern geprüft:** realer Anbieter-/Geräte-/Produktionsablauf wurde tatsächlich getestet.
-- **Produktionsbereit:** alle Abnahme-Gates sind erfüllt und nötige Betreiberfreigaben liegen vor.
+- **Entschieden:** ausdrücklich vom Nutzer festgelegt.
+- **Geplant:** noch nicht implementiert.
+- **Implementiert:** Code oder Dokumentation ist im genannten Branch vorhanden.
+- **Automatisiert geprüft:** konkrete Tests/CI-Läufe für den exakten Commit erfolgreich.
+- **Extern geprüft:** realer Geräte-/Anbieter-/Produktionsablauf tatsächlich getestet.
+- **Produktionsbereit:** alle erforderlichen Abnahme-Gates erfüllt.
 
-Nie einen dieser Status aus einem anderen ableiten.
+Nie einen Status aus einem anderen ableiten.
