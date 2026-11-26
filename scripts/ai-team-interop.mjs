@@ -26,9 +26,7 @@ const APPROVAL_GATES = [
   "personal_data_export",
 ];
 const TASKS = {
-  "project.inventory": { format: "csv" },
   "project.static_review": { format: "markdown" },
-  "project.hash_manifest": { format: "json" },
 };
 
 function isRecord(value) {
