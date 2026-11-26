@@ -44,12 +44,13 @@
 DPD, GLS, Hermes, UPS, Österreichische Post, DHL Express, FedEx und LogoiX. Diese Profile sind keine bestätigten produktiven Carrier-Integrationen. API-/Partnerzugang, Verträge und Labelbereitstellung müssen je Anbieter nachgewiesen werden.
 
 **Aktueller GitHub-Stand**
-- Gateway PR #4: offene Architekturänderungen; Smartphone-/Ein-Drucker-Konzept und Spezifikation sind dort dokumentiert, nicht in main gemergt.
-- Gateway PR #5: Dokumentationskorrektur am 26.11.2026 in main gemergt (Commit c1e0f244ff38c699bc3b01e9c818273da1d529cd); README und Projektkoordination enthalten das bestätigte Ein-Drucker-Ziel und den damaligen CI-Status.
-- App PR #25: Draft/offen, nicht gemergt; Head-SHA c631fc4f8f977a312f1810101a4805dd386a1124. Build-Run [45868812214](https://github.com/mouzzlii/Fuck/actions/runs/45868812214) und Emulator-Instrumentierungs-Run [45868812255](https://github.com/mouzzlii/Fuck/actions/runs/45868812255) waren für exakt diesen Commit erfolgreich. Kein physischer Zebra-, Smartphone- oder Druckertest daraus ableiten.
-- App PR #33: Draft/offen; Abhängigkeiten zum Gateway beachten.
-- Kein vollständiger produktiver Carrier-Backend-Dienst und keine bestätigte Live-Carrier-Buchung behaupten.
-- Vorhandene Scanner-/DataWedge-Arbeit in offenen PRs nicht unkontrolliert löschen; nach der neuen Produktentscheidung separat auf Relevanz prüfen.
+- Gateway PR #4 und #5: beide geschlossen und gemergt; das kanonische Gateway-Repository enthält Architektur, Adaptervertrag, Carrier-Registry und Ein-Drucker-Zielarchitektur.
+- Gateway PR #7: offener Dokumentations-PR; aktualisiert Registry und README auf App-Version 1.55 und dokumentiert die QR-Domain-Allowlist sowie die Grenzen der Browser-Portalweiterleitung. Head `628e4879907a9a304a282f58b6d7dceaccca07ba`; zwei Dateien geändert, keine Code-/Backend-Änderung.
+- App PR #25: Draft/offen, nicht gemergt; aktueller PR-Head `3da8dbeb571e4b2421ce375ccbb854e6171dd2b0`. Für exakt diesen Head sind die neuesten GitHub-Checks vom 26.11.2026 erfolgreich: Android-Build/Unit-Tests/Lint/Sicherheitsprüfungen und Debug-APK ([45902838085](https://github.com/mouzzlii/Fuck/actions/runs/45902838085)); Android-Emulator-Instrumentierung ([45902838084](https://github.com/mouzzlii/Fuck/actions/runs/45902838084)). Der Emulator-Job endete erfolgreich; aus den abrufbaren Logs ist hier keine neue numerische Testanzahl belegt. Release-Signierung wurde mangels Betreiber-Secrets übersprungen. Debug-Artefakt, keine Produktionssignatur. QR-Pfad-IDs werden nur bei offiziellen Carrier-Domains übernommen.
+- App-Version 1.55 erkennt offizielle Anbieter-QR-Domains und öffnet ein vom Betreiber konfiguriertes HTTPS-Portal. Dabei werden keine Sendungsnummer/Kundendaten übertragen und keine Buchungen ausgelöst; native Partner-App-Übergabe bleibt im Shadow Mode.
+- App PR #33 ist geschlossen; keine aktive Integrationsgrundlage.
+- Echte Kamera-/Autofokus-, Shopportal-, Drucker-, Backup-Restore- und Carrier-Live-Tests bleiben offen. Kein vollständiger produktiver Carrier-Backend-Dienst und keine bestätigte Live-Carrier-Buchung behaupten.
+- Vorhandener DataWedge-Empfangscode bleibt Legacy; die neue Zielarchitektur sieht keine neue Zebra-/DataWedge-Hardwareintegration vor.
 
 **Offen**
 - Konkretes Smartphone-/Android-Modell und Druckermodell/Firmware/Protokolle prüfen.
@@ -109,9 +110,11 @@ Eigenständiges, deutschsprachiges und Österreich-fokussiertes mobiles Reseller
 Barcode-/Produkteingabe, Einkaufskalkulation, Bestand, Käufe/Verkäufe, Gewinn-/Lageranalyse, Suchradar, JSON-Backup und CSV-Export. Local-first ohne Benutzerkonto und ohne Cloud-Synchronisierung.
 
 **Nachweisbarer Stand**
-- Repository-README führt Version 2.0.66.
+- Repository-README führt Version 2.0.66; die statische Android-freundliche PWA ist die derzeit am weitesten nutzbare Produktversion.
 - Release-Verifikation vom 25.11.2026 dokumentiert 155/155 Tests, statischen Build und Smoke-Test als bestanden.
-- Production-Deployment wurde für Commit a40045f168289c3a43e13c90935a5150fc41010b als Vercel READY dokumentiert.
+- **Produktiv:** Alias `https://scan-profit-app.vercel.app` zeigt auf Vercel-Deployment `dpl_BJpW7oHNZoT3Q5fqAJ3t1LUsgzpW`, `READY`, Ziel `production`, Git-Commit `d5e9d15a1492217167136c9cd996a8417e82ade8` auf `main`.
+- Offener Draft-PR #16 ergänzt einen Next.js-Quellbaum 2.0.66 unter `next-app/`. GitHub-Actions-Läufe und Wiederholungen endeten ohne Job-Steps/Logs (`BlobNotFound`); damit ist kein konkreter Codefehler belegt, aber auch kein erfolgreicher Next.js-Build nachgewiesen. Das Vercel-Preview `dpl_3DqKbomvaG8CqC9eDjxNPgMYW5UM` ist zwar `READY`, baut jedoch weiterhin die Root-PWA (`echo 'SCAN-PROFIT: no dependencies required'`, `sh build-static.sh`, `dist`) und **nicht** die Next.js-App in `next-app/`. Für die Next.js-Abnahme ist ein eigener Build-Schritt/Preview-Root erforderlich; die Produktionskonfiguration darf dafür nicht verändert werden. PR-Head `6dd11675fced69446eee04ce8d68080e9828a9c6`, Draft, nicht gemergt.
+- Ein zweites Vercel-Projekt `scan-profit` ist ein Legacy-Duplikat: `live=false`, SSO-Schutz aktiv, zwei Deployments fehlgeschlagen (`NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`, fehlendes Root Directory `static-deploy`). Nicht ohne gesonderte Prüfung/Freigabe löschen; die aktive Produktionsquelle bleibt `scan-profit-app`.
 - Direkter unabhängiger Abruf der aktuellen Production-Ressourcen/HTTP-Header sowie Android-Praxis- und Live-Schnittstellentests waren laut Release-Dokument noch offen.
 - Ein erwähntes 2.0.67-Quellpaket darf ohne tatsächlich vorliegendes und geprüftes Archiv nicht als vorhandener Release ausgegeben werden.
 
@@ -130,6 +133,7 @@ Eigenständige App zur Erstellung und Verwaltung vieler Produktinserate; eigene 
 - Gruppierungsvorschläge anhand Dateinamen sind nicht gleichbedeutend mit vollautomatischer KI-Bilderkennung.
 - CSV ist kein bestätigtes willhaben-Importformat. Automatisches willhaben-Veröffentlichen ist nicht implementiert.
 - Lokale Browserdaten sind kein Cloud-Backup. Android-Praxistest und produktive KI-Kostenprüfung bleiben offen.
+- Draft-PR #2 (`feature/controlled-ai-photo-grouping`, Head `eec1b5891e562ac1c9c2d2d5088a3e34c48720ee`) bündelt kontrollierte KI-Foto-Gruppierung, manuelle Freigabe und serverseitige Zugangssicherung. PR ist aktuell nicht mergeable; die letzten sichtbaren CI-Läufe sind fehlgeschlagen, ohne einen bestätigten grünen Lauf für den aktuellen Head. KI bleibt standardmäßig deaktiviert; Kosten-/Tagesbudget und echte Android-Abnahme sind offen.
 
 ### CHRONOS – privates Fotoarchiv
 
@@ -143,8 +147,9 @@ Eigenständige App zur Erstellung und Verwaltung vieler Produktinserate; eigene 
 - Read-only-Scan, SHA-256-Duplikate, EXIF-/Metadaten, lokale Vorschaubilder, vorsichtige Ähnlichkeitskandidaten, Tages-Zeitleiste und heuristische Ereignisvorschläge.
 - Originalfotos werden nicht verändert oder gelöscht.
 - Lokale API ist nur für Loopback vorgesehen; keine Authentifizierung/TLS für Mehrbenutzerbetrieb.
-- Desktop-Backup enthält Indexdaten und Vorschaubilder, keine Originalfotos; ZIP ist nicht verschlüsselt.
-- Python-CI und Android-/Robolectric-Prüfungen sind in der Statusdokumentation belegt. Echte Android-Geräte-, Prozessabbruch-, Backup-/Restore- und Großbibliothekstests bleiben offen.
+- Desktop-Backup enthält Indexdaten und Vorschaubilder, keine Originalfotos; das aktuelle main-ZIP ist nicht verschlüsselt.
+- Draft-PR #62 ergänzt optionale AES-256-GCM-Backups mit PBKDF2-HMAC-SHA256 (600.000 Iterationen), Streaming und Restore erst nach erfolgreicher Authentifizierung. PR-Head `3c28fcc5c7a25952d5951bd888aabbcb11f6d72a`; frühere Version bestand 63 Tests je Python 3.11–3.13, aber der aktuelle Head hat keinen bestätigten grünen CI-Lauf. Die letzten Läufe endeten ohne verwertbare Job-Logs; aktuelle Codeänderungen bleiben ungeprüft.
+- Python-CI und Android-/Robolectric-Prüfungen sind in der Statusdokumentation für ältere Stände belegt. Echte Android-Geräte-, Prozessabbruch-, Backup-/Restore- und Großbibliothekstests bleiben offen.
 - Gesichtserkennung ist nicht enthalten und darf nicht ohne ausdrückliche Einwilligung sowie Datenschutz-/Rechtsprüfung ergänzt werden.
 
 ### KI-ARBEITSPLATZ – zentrale Entwicklungs-/Koordinationshilfe
@@ -154,8 +159,10 @@ Eigenständige App zur Erstellung und Verwaltung vieler Produktinserate; eigene 
 Bestehendes Projekt „KI-Arbeitsplatz – Meisterwerk Edition v1.0.0“ fortführen statt doppelt entwickeln. Android-Smartphone ist die maßgebliche Nutzerplattform; ursprüngliche Windows-Annahmen sind nicht mehr passend. Vorgesehen sind zentrale Auftragsverwaltung, Projektkoordination, sichere GitHub-Arbeit, Tests/Fehlerprotokolle und Wiederherstellung.
 
 **Tatsächlicher GitHub-Stand beim Audit**
-- Repository-Root enthält aktuell .github/ und KI-Arbeitsplatz-Meisterwerk-v1.0.0.zip.
-- Kein README und kein aus dem Root-Inventar erkennbarer editierbarer Quellbaum.
+- Repository-Root auf `main` enthält weiterhin .github/ und KI-Arbeitsplatz-Meisterwerk-v1.0.0.zip; die neue README- und Masterprompt-Dokumentation liegt im offenen PR #11 und ist noch nicht gemergt.
+- PR #11: Masterprompt 1.2, Konsolidierungs-/Dateihygiene-Regeln und korrigierte TRAKUNA-Statusübersicht; Head `7f16b977e6286dac954dd437417494c6f9acbf81`, drei beabsichtigte Dateidifferenzen (`.github/workflows/blank.yml` entfernt, README aktualisiert, Masterprompt neu hinzugefügt); keine Änderung an `main`.
+- PR #5 Quellwiederherstellung bleibt Draft und ausdrücklich nicht mergefähig für eine Übernahme; unvollständige Quellkopien sind kein Original-Recovery-Nachweis.
+- Fünf Vercel-AI-Gateway-Modell-Aliase sind konfiguriert; tatsächliche Modellaufrufe/Antworten und unabhängige Council-Reviews sind weiterhin nicht nachgewiesen. Im letzten geprüften Zeitraum gab es keine Gateway-Requests; kostenpflichtige Aufrufe bleiben gesperrt, bis eine Freigabe vorliegt.
 - Funktionsfähiger autonomer Agent, Android-Betrieb und End-to-End-Tests sind damit nicht nachgewiesen.
 - Keine zweite parallele Implementierung beginnen, bevor das vorhandene ZIP vollständig geprüft und der Quellstand geklärt wurde.
 
@@ -168,7 +175,7 @@ Die folgenden Projekte wurden in Chats besprochen. Sie werden als eigene Projekt
 - **VR-SCENT:** eigenständiger Forschungs-/Produktstrang; modulare Erweiterbarkeit und Betrieb mit VR oder Steuerungs-App sind bestätigte Richtungen. Speicherung und konkrete technische Umsetzung bleiben Prüfaufgaben.
 - **KREISLAUF AIRLESS:** langfristiger Forschungsstrang; Kosten-Nutzen, Rollwiderstand und Lebensdauer vor Prototypenbau prüfen.
 - **Implosionsmotor:** langfristiger, paralleler Forschungsstrang; zunächst Theorie, technische Plausibilität und wirtschaftliche Bewertung, keine vorschnellen Prototypen.
-- **Weitere Repositories/Projekte:** Pakete, Pakete-neu, Paketescanner, ShopScannerNeu, Pakete-Scanner, book-your-cook, Lara_Quiz und logo-M-glichkeiten- sind im GitHub-Konto vorhanden. Wo die Chat-Zuordnung oder der aktuelle fachliche Auftrag nicht eindeutig belegt ist, keine Projektziele erfinden oder Änderungen vornehmen. Das Logo-Repository ist die verbindliche Quelle der W-Signatur.
+- **Weitere Repositories/Projekte:** Pakete, Pakete-neu, Paketescanner, ShopScannerNeu und Pakete-Scanner sind ältere/alternative Paket-Scanner-Repositories; sie sind nicht die kanonische TRAKUNA-Android-Quelle. Kanonisch ist `mouzzlii/Fuck`, ergänzt durch `mouzzlii/multi-carrier-gateway`. Andere Repositories wie book-your-cook, Lara_Quiz und logo-M-glichkeiten- bleiben eigenständige Projekte bzw. Ressourcen. Wo Chat-Zuordnung oder aktueller fachlicher Auftrag nicht eindeutig belegt ist, keine Projektziele erfinden oder Änderungen vornehmen. Das Logo-Repository ist die verbindliche Quelle der W-Signatur.
 
 ## 3. Gemeinsames Branding
 
@@ -183,6 +190,7 @@ Das Repository [logo-M-glichkeiten-](https://github.com/mouzzlii/logo-M-glichkei
 ## 4. KI-Council und externe Dienste
 
 - Gewünschter Arbeitsablauf: ChatGPT koordiniert; Claude und Meta/Llama entwickeln unabhängig und prüfen gegenseitig.
+- Vercel-AI-Gateway-Aliase für Claude, Gemini, GPT, Grok und Meta/Llama sind eingerichtet und mit Zero-Data-Retention/No-Prompt-Training konfiguriert; das ist noch kein Nachweis tatsächlicher Modellaufrufe.
 - Nur echte API-/MCP-Verbindungen und tatsächlich empfangene Antworten als Council-Ergebnis ausgeben.
 - Die in KREISLAUF vorhandene Relay-Basis ist nicht gleichbedeutend mit einem aktuell aktiven Council. Provider-Secrets, Modellkennungen, sichere Endpunkte, Kostenlimits und ausdrückliche Budgetfreigabe sind Voraussetzungen.
 - Ohne echte Provider-Aufrufe keine Claude-/Meta-/Llama-Antworten oder unabhängige Reviews behaupten.
@@ -190,7 +198,7 @@ Das Repository [logo-M-glichkeiten-](https://github.com/mouzzlii/logo-M-glichkei
 
 ## 5. Priorisierung und Arbeitsmodus
 
-- TRAKUNA ist derzeit eine hohe Umsetzungspriorität; innerhalb von TRAKUNA gilt die projektspezifische Regel: genau ein priorisiertes Ticket gleichzeitig.
+- **TRAKUNA und KI-Council haben gleichrangig höchste Umsetzungspriorität.** Innerhalb von TRAKUNA gilt die projektspezifische Regel: genau ein priorisiertes Ticket gleichzeitig.
 - KREISLAUF und Menschheitsfamilie fachlich verbunden, aber mit getrennten Daten- und Berechtigungsgrenzen.
 - SCAN-PROFIT und INSERAT-PROFI AI bleiben eigenständige Produkte ohne gegenseitige Laufzeitabhängigkeit.
 - KI-Arbeitsplatz soll langfristig zentrale Entwicklungs- und Koordinationshilfe werden; zunächst vorhandenen ZIP-Stand prüfen.
