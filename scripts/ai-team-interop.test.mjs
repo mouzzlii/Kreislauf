@@ -179,3 +179,9 @@ test("binds task envelope to the canonical project repository and source-path li
   tooManyPaths.payload.constraints.allowedPaths = ["a", "b", "c", "d", "e"];
   assert.equal(resolveCouncilTaskProject(tooManyPaths, mapping).success, false);
 });
+
+test("rejects more than four approved source files", () => {
+  const message = validEnvelope();
+  message.payload.constraints.allowedPaths = ["a.js", "b.js", "c.js", "d.js", "e.js"];
+  assert.equal(validateCouncilTaskEnvelope(message, { now: NOW }).success, false);
+});
