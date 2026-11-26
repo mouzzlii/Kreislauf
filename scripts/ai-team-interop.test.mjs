@@ -191,6 +191,10 @@ test("binds task envelope to the canonical project repository and source-path li
 
   assert.equal(resolveCouncilTaskProject(message, { "KI-ARBEITSPLATZ": "attacker/other-repo" }).success, false);
   assert.equal(resolveCouncilTaskProject(message, {}).success, false);
+  const otherProject = validEnvelope();
+  otherProject.payload.inputs.projectId = "BOOK-YOUR-COOK";
+  otherProject.payload.inputs.repository = "mouzzlii/book-your-cook";
+  assert.equal(resolveCouncilTaskProject(otherProject, { "BOOK-YOUR-COOK": "mouzzlii/book-your-cook" }).success, false);
 
   const tooManyPaths = validEnvelope();
   tooManyPaths.payload.constraints.allowedPaths = ["a", "b", "c", "d", "e"];
