@@ -60,7 +60,7 @@ function isSafeRepositoryPath(value) {
     const code = value.charCodeAt(index);
     if (code < 0x20 || code === 0x7f) return false;
   }
-  if (/[*?\[\]]/.test(value)) return false;
+  if (["*", "?", "[", "]"].some((character) => value.includes(character))) return false;
 
   let decoded;
   try {
@@ -69,7 +69,7 @@ function isSafeRepositoryPath(value) {
     return false;
   }
   if (decoded.startsWith("/") || /^[A-Za-z]:/.test(decoded) || decoded.includes("\\")) return false;
-  if (/[*?\[\]]/.test(decoded)) return false;
+  if (["*", "?", "[", "]"].some((character) => decoded.includes(character))) return false;
 
   const segments = decoded.split("/");
   if (segments.some((part) => !part || part === "." || part === "..")) return false;
