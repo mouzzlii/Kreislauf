@@ -27,7 +27,7 @@ function validEnvelope() {
     dataClassification: "internal",
     payload: {
       taskId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-      taskType: "project.inventory",
+      taskType: "project.static_review",
       instruction: "Create a read-only inventory for the approved repository paths.",
       inputs: {
         projectId: "KI-ARBEITSPLATZ",
@@ -60,7 +60,7 @@ function validEnvelope() {
           "personal_data_export",
         ],
       },
-      expectedOutput: { format: "csv", maxBytes: 10485760 },
+      expectedOutput: { format: "markdown", maxBytes: 10485760 },
     },
   };
 }
@@ -68,7 +68,7 @@ function validEnvelope() {
 test("accepts a valid, unexpired, read-only local task envelope", () => {
   const result = validateCouncilTaskEnvelope(validEnvelope(), { now: NOW });
   assert.equal(result.success, true);
-  assert.equal(result.data.payload.taskType, "project.inventory");
+  assert.equal(result.data.payload.taskType, "project.static_review");
 });
 
 test("rejects unknown envelope fields and unsupported protocol versions", () => {
