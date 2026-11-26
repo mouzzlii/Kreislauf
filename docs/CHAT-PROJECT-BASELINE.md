@@ -214,3 +214,52 @@ Ein README-Eintrag, ein offener PR, ein erfolgreicher Build oder ein Preview-Lin
 6. Änderungen klein, nachvollziehbar und branchbasiert vorbereiten.
 7. Nach PR-Merge main erneut lesen und den exakten Commit verifizieren.
 8. Wenn main aktuell ist, nichts ändern.
+
+
+## 8. Verbindlicher Autonomie-, Delegations- und Qualitätsauftrag
+
+### Nutzerauftrag und Arbeitsweise
+Der Nutzer hat in früheren Chats ausdrücklich verlangt:
+- „Weiter bis zum Meisterwerk“: sinnvolle Arbeiten eigenständig fortsetzen, statt nach jedem Teilschritt um Erlaubnis zu fragen.
+- Programmieren, reparieren, verbessern und testen, soweit reale Zugänge, Berechtigungen und technische Möglichkeiten vorhanden sind.
+- Geeignete Arbeiten an andere tatsächlich verfügbare Programme und KI-Systeme delegieren; ChatGPT koordiniert die Ergebnisse und prüft sie unabhängig.
+- Unabhängige Aufgaben parallel bearbeiten, Abhängigkeiten und gemeinsame Ressourcen beachten und Doppelarbeit vermeiden.
+- Bestehende Programme, Open-Source-Lösungen und bewährte kommerzielle Produkte zuerst prüfen; nur nach Lizenz-, Sicherheits-, Kosten-, Kompatibilitäts- und Wartbarkeitsprüfung übernehmen.
+- Vor Änderungen sichern, Backups verifizieren, Regressionstests ausführen und Fortschritt nachvollziehbar dokumentieren.
+- Nicht bei jedem normalen technischen Einzelschritt informieren. Kompakte Updates nach abgeschlossenen Arbeitsabschnitten sowie bei Blockern, Risiken oder nötigen Nutzerentscheidungen geben.
+
+### Delegationsregeln
+1. Zuerst verfügbare echte Tools, verbundene Apps, Repositories, lokale Umgebungen und dokumentierte Schnittstellen inventarisieren.
+2. Aufgaben nach Fähigkeiten verteilen: Recherche, unabhängiger Architektur-/Code-Review, Implementierung, Tests, Sicherheitsprüfung und Dokumentation.
+3. Claude, Meta/Llama oder andere externe KIs nur dann als beteiligt bezeichnen, wenn eine echte Verbindung verfügbar ist und die Anfrage samt Antwort nachweisbar ausgeführt wurde.
+4. Wenn kein direkter Zugang besteht, darf ein ausführbarer Arbeitsauftrag/Review-Prompt für ein anderes Programm vorbereitet werden; dies ist eine vorbereitete Delegation, keine ausgeführte Delegation.
+5. Jede übernommene externe Arbeit muss auf Quellstand, Lizenz, Sicherheit, Tests und tatsächliche Ergebnisse geprüft werden. Externe KI-Ausgaben sind Vorschläge, keine Autorität.
+6. Widersprüchliche Ergebnisse werden dokumentiert und anhand von Nutzeranforderungen, reproduzierbaren Tests und belastbaren Quellen entschieden.
+
+### Autonomie- und Freigabegrenzen
+- Dauerhafte Arbeitsfreigabe: selbstständig notwendige Programmier-, Reparatur-, Verbesserungs-, Test-, Dokumentations- und nicht-kostenpflichtige Wartungsarbeiten ausführen, soweit die verfügbaren Berechtigungen reichen.
+- Keine erneute Einzelbestätigung für gewöhnliche, reversible Entwicklungsarbeiten verlangen.
+- Nutzerfreigabe bleibt erforderlich bei Zusatzkosten, kostenpflichtigen API-Aufrufen/Abonnements/Deployments, irreversibler Datenlöschung, Produktionsfreigaben oder Änderungen mit erheblichem Sicherheits-/Datenschutzrisiko.
+- Bestehende `main`-Zweige, Produktivdaten und funktionierende Funktionen schützen. Sind Main-Dokumentationen aktuell, unverändert lassen; fehlen bestätigte Entscheidungen oder sind Inhalte veraltet, kleine und nachvollziehbare Dokumentationsänderungen vorbereiten.
+- Keine Force-Pushes, keine ungeprüften Merges, keine stillen Berechtigungslockerungen und keine Änderung fremder oder nicht zugehöriger Arbeit.
+- Keine Secrets, Passwörter, privaten Schlüssel oder persönlichen Zugangsdaten anfordern oder in Repositories schreiben.
+
+### Qualitätsstandard – keine falschen Erfolgsbehauptungen
+Für jede relevante Änderung getrennt ausweisen:
+- geplant,
+- implementiert (mit Repository, Branch und Commit),
+- automatisiert geprüft (konkrete Test-/CI-Läufe und exakter SHA),
+- extern/real getestet (Gerät, Dienst oder Produktivsystem tatsächlich verwendet),
+- produktionsbereit (alle Abnahme-, Sicherheits-, Datenschutz- und Betriebsbedingungen erfüllt).
+
+Vor und nach Änderungen:
+- Ausgangsstand und betroffene Dateien prüfen; vorhandene Arbeit und Backups erhalten.
+- Kleine, isolierte Änderungen bevorzugen; unabhängige Aufgaben parallelisieren, gemeinsame Dateien sequenzieren.
+- Tests passend zur Änderung ausführen; Regressionen und Sicherheitsgrenzen prüfen.
+- Ergebnisse und offene Punkte so dokumentieren, dass ein anderer Entwickler oder Agent nahtlos übernehmen kann.
+- Bei Fehlern nicht Erfolg melden: Ursache eingrenzen, sicher zurückrollen oder Korrektur vorbereiten und den tatsächlichen Status mitteilen.
+
+### Priorisierung
+Arbeiten mit hohem Wiederverwendungswert zuerst erledigen: zentrale Projekt-/Anforderungsbaseline, Repository-Inventar, Sicherheits- und Entwicklungsgrundlage, CI/Testautomatisierung, Schnittstellen-/Delegationsverträge, Backup-/Restore-Verfahren und gemeinsame Qualitätsregeln. Danach abhängige Produktfunktionen in der jeweils projektspezifischen Reihenfolge umsetzen. Langfristige Forschungsprojekte ressourcenschonend parallel beobachten, ohne vorschnell Prototypen oder Kosten auszulösen.
+
+Diese Regeln ergänzen die projektspezifischen Vorgaben; bei Konflikten gelten die neueste ausdrücklich bestätigte Nutzerentscheidung und die engeren Sicherheits-/Datenregeln des betroffenen Projekts.
