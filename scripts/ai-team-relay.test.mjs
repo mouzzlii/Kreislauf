@@ -44,6 +44,10 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   assert.ok(setup.includes("Vercel AI Gateway"));
   assert.ok(setup.includes("Gemini"));
   assert.ok(setup.includes("Grok"));
+  assert.ok(setup.includes("Vercel AI Gateway"));
+  assert.ok(setup.includes("AI_GATEWAY_API_KEY"));
+  assert.ok(setup.includes("AI_TEAM_REPO_READ_TOKEN"));
+  assert.doesNotMatch(setup, /OPENAI_API_KEY|ANTHROPIC_API_KEY|META_MODEL_API_KEY|LLAMA_API_KEY|AI_TEAM_THIRD_PROVIDER/);
 
   assert.ok(relaySource.includes("const MAX_DAILY_DEBATES = 2;"));
   assert.ok(relaySource.includes("AI_TEAM_BUDGET_CONFIRMED !== \"true\""));
