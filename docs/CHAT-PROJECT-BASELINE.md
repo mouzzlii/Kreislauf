@@ -419,3 +419,10 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 - Vor Audit/Antwort werden Orchestrator-Ergebnisse auf erlaubte Statuswerte, sichere Run-ID und begrenzte Array-Strukturen validiert. Ungültige Rückgaben werden nicht an Clients serialisiert.
 - Testquellstand: 18 Orchestrator- und 12 HTTP-Fälle. Historisch vor den neuesten Ergänzungen 17/17 bzw. 9/9 lokal bestanden; die neuen Härtungsfälle sind noch nicht ausgeführt. GitHub Actions hat für den aktuellen Head keinen Lauf geliefert.
 - Server-Council-README, Root-README, PR-Beschreibung und Council-Integrationsgrenze aktualisiert. Keine echte Auth-/CSRF-/Audit-/Budgetanbindung, keine Provideradapter, keine echten Modellaufrufe, kein Deployment, keine Kosten. PR bleibt Draft.
+
+
+### KI-ARBEITSPLATZ – strikte verschachtelte API-Antwortprüfung (27.11.2026)
+- Draft-PR #12 Head: 941198b4474c32bfe6ed40c0b3525889770d3a1f; offen, Draft, ungemergt.
+- HTTP-Handler validiert nun das vollständige Antwortschema, Provider-/Review-Einträge, Identitätsmetadaten, Fehlercodes, Preflight und Synthesestatus. Unbekannte verschachtelte Felder werden vor der Clientantwort abgewiesen; zusätzlicher Test deckt versehentliche Schlüssel-/Metadatenweitergabe ab.
+- Testquellstand: 18 Orchestrator- und 13 HTTP-Fälle. Historisch 17/17 bzw. 9/9 vor den jüngsten Ergänzungen lokal bestanden; neue Härtungsfälle nicht ausgeführt. Kein GitHub-Actions-Lauf für den aktuellen Head.
+- Kein Live-Aufruf, Deployment, API-Schlüssel oder Kosten. Echte Auth-/CSRF-/Freigabe-/Audit-/Budgetdienste und API-Route fehlen weiterhin.
