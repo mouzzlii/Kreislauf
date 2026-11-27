@@ -43,7 +43,7 @@ const MARKER_PREFIX = "<!-- ai-team-relay:";
 // environment mapping or a related-repository setting points to it.
 const EXCLUDED_REPOSITORIES = new Set(["mouzzlii/ki-arbeitsplatz"]);
 const isExcludedRepository = (repository) => EXCLUDED_REPOSITORIES.has(
-  String(repository || "").trim().replace(/\\/+$/, "").toLowerCase(),
+  String(repository || "").trim().split("/").filter(Boolean).join("/").toLowerCase(),
 );
 
 function fail(message) {
