@@ -22,6 +22,15 @@
 
 Die Vercel-Usage-Abfrage für die letzten sieben Tage (20.–27.11.2026 UTC) lieferte keine Nutzungszeilen. Ein bestehendes projektbezogenes AI-Gateway-Budget zeigt 5 USD monatlich und 0 USD aktuelle Nutzung; es ist keine Freigabe für Kosten und ersetzt nicht das Nutzerlimit von 0 EUR Zusatzbudget. Es sind keine Team- oder Default-Budgets gesetzt. Es wurden keine API-Keys erstellt, keine Regeln/Aliase/Budgets geändert und keine Modellanfragen gesendet. Die aktuelle ChatGPT-Werkzeugliste enthält Verwaltungs-/Katalogaktionen, aber keine direkte AI-Gateway-Inferenzaktion. Daher bleibt Live-Council nicht verfügbar/nicht nachgewiesen.
 
+## Technischer Relay – Main-Stand und offene Gateway-Umstellung (27.11.2026)
+
+- Auf `main` existieren ein GitHub-Actions-Workflow und ein Relay-Skript. Der Workflow reagiert ausschließlich auf einen neuen Kommentar im Issue #11 mit dem Präfix `/ai-team debate `; er ist kein ChatGPT-seitiger direkter Modellaufruf.
+- Der Main-Relay ruft laut Quelltext OpenAI Responses API, Anthropic Messages API und genau einen konfigurierten dritten Provider (Meta Muse oder echtes Llama über HTTPS) auf. Unabhängige GPT-Erstanalyse, Claude-Gegenprüfung, dritte Gegenprüfung und GPT-Synthese sind im Ablauf vorgesehen. Das ist implementierter Code, kein Nachweis eines erfolgreichen Live-Durchlaufs.
+- Vor Provider-Aufrufen verlangt der Code alle nötigen Secrets und expliziten Modellkennungen sowie `AI_TEAM_BUDGET_CONFIRMED=true`. Diese Variable ist laut Code/Setup nur eine manuelle Bestätigung und prüft Anbieterbudgets nicht automatisch. Das Skript reserviert maximal zwei Debatten pro UTC-Tag vor dem ersten Provider-Aufruf und bricht bei unvollständiger Ledger-Prüfung ab. Keine tatsächliche Geldobergrenze oder aktive Provider-Ausgabenlimits wurden in dieser Prüfung nachgewiesen.
+- Die benötigten GitHub-Actions-Secrets/Variablen wurden nicht ausgelesen. Deshalb ist unbekannt, ob sie vollständig eingerichtet sind oder der Workflow einen Live-Aufruf aktuell passieren lassen würde. Keine Testkommentare ausgelöst und keine Provider-Aufrufe vorgenommen.
+- PR [#38](https://github.com/mouzzlii/Kreislauf/pull/38) bleibt Draft/offen und `mergeable=false`; sein aktueller Head `d29f2605c35e61a690e06623f019dbcda3aa5daa` enthält eine Gateway-Umstellung auf die Vercel-Aliase. Diese Branch-Implementierung ist nicht in `main` integriert und darf nicht als aktiver Main-Relay ausgegeben werden.
+- Ein Read-only-Audit der fünf Gateway-Aliase belegt aktive Konfigurationen, aber keine Provider-Anfragen. Der aktuelle ChatGPT-Werkzeugbestand bietet Verwaltungs-/Katalogaktionen, jedoch keinen direkten AI-Gateway-Inferenzaufruf. Der Nutzer-Kostenrahmen bleibt 0 EUR; es wurde nichts kostenpflichtig ausgelöst.
+
 ## Verbindliche Statusbegriffe
 
 - **Geplant:** Rolle oder Verbindung ist vorgesehen, aber nicht eingerichtet/nachgewiesen.
