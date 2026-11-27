@@ -633,3 +633,35 @@ Der Nutzer hat ausdrücklich angewiesen, laufende Projekte ohne wiederholte Zust
 - Aktueller Readback: Das README bezeichnet das Projekt als „Android-Debug-APK build pipeline“ und verweist auf `INSTALLATION-ANDROID.md`; genau diese Datei ist auf `main` nicht abrufbar (404). `package.json` ist ebenfalls nicht abrufbar (404). Damit sind weder eine vollständige App-Struktur noch ein reproduzierbarer APK-Build oder ein APK-Artefakt nachgewiesen; das README allein ist kein Implementierungsnachweis.
 - Keine funktionsfähige Plattform, Android-App, Datenbankanbindung oder produktive Bereitstellung behaupten, solange diese Artefakte nicht im aktuellen Repository-Stand verifiziert sind.
 - Nächster sinnvoller Schritt: vollständiges Repository-Inventar, Architektur-/Sicherheitsprüfung und klare Abgrenzung zwischen vorhandenem Code, Konzept und noch fehlender Implementierung. Keine Neuentwicklung parallel zu einem eventuell vorhandenen, noch nicht geprüften Quellstand beginnen.
+
+## Aktueller Portfolio-Nachtrag – verifizierter Stand 27.11.2026
+
+Dieser Nachtrag ergänzt die vorstehenden Projektentscheidungen um den zuletzt direkt aus GitHub/Vercel gelesenen Status. Ältere Einträge bleiben als Historie erhalten.
+
+### TRAKUNA – Android-App
+- Offener Draft-PR [mouzzlii/Fuck #25](https://github.com/mouzzlii/Fuck/pull/25), Head `64e108a552ddbcaa997f49c346b54a9e10c62c4f); `main` unverändert.
+- Android Build [Run 46009974496](https://github.com/mouzzlii/Fuck/actions/runs/46009974496): vollständig erfolgreich; Unit-Tests, Android-Lint, APK-Build, Manifest-/Offline-Prüfungen und Artefaktbereitstellung abgeschlossen.
+- API-35-Emulator-Instrumentierung [Run 46009974511](https://github.com/mouzzlii/Fuck/actions/runs/46009974511): vollständig erfolgreich.
+- Betreiber-Release-Signierung wurde mangels Secrets korrekt übersprungen. Kein signiertes Produktionsrelease.
+- Physische Smartphone-Kamera-/Autofokus-, echte Etiketten-, CSV-Responsivitäts- und Backup-/Restore-Abnahme bleiben offen. Emulator-Erfolg ersetzt diese Praxistests nicht.
+
+### KI-Council – tatsächliche Einsatzfähigkeit
+- Fünf aktive Vercel-AI-Gateway-Aliase für Claude, Gemini, GPT, Grok und Meta/Llama wurden read-only geprüft. Die Konfigurationen verlangen Zero Data Retention und kein Prompt-Training.
+- Claude ist auf EU-Provider Bedrock/Vertex Anthropic beschränkt. Für Llama ist keine EU-Inferenzregion nachgewiesen; Llama daher weiterhin ausschließlich mit öffentlichen, synthetischen oder anonymisierten Daten.
+- Team- und Projekt-Nutzungsabfragen für die letzten sieben Tage meldeten 0 Gateway-Requests und 0 Eve-Agent-Runs.
+- In der aktuellen ChatGPT-Toolverbindung ist keine direkte Inferenzaktion für diese Aliase verfügbar. Es wurde kein Modellaufruf ausgelöst; keine unabhängigen Claude-/Llama-/Gemini-/Grok-Antworten oder Peer-Reviews behaupten.
+- Live-Aufrufe bleiben deaktiviert; keine API-Kosten, neuen Schlüssel oder Budgetänderungen.
+
+### KI-Arbeitsplatz – Masterprompt und Befehlsregister
+- PR [#11](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/11) ist offen, aber GitHub meldet `mergeable_state: dirty` (Merge-Konflikt). Nicht erzwingen; insbesondere die darin enthaltene Entfernung des bestehenden Archivintegritäts-Workflows darf nicht unbesehen übernommen werden.
+- Die Nutzerregel zu klaren Antwortmöglichkeiten wurde minimal auf einem frischen, direkt von `main` abgezweigten Branch in Master-Prompt und Register ergänzt: Draft-PR [#13](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/13), Head `6b74dd34127e9742e154365e1a3e5ad39d37642a`. Beide Dateien wurden nach dem Schreiben erneut abgerufen und die Ergänzungen bestätigt.
+- PR #13 bleibt Draft und ist noch nicht in `main` integriert.
+
+### Book Your Cook – Demo-Sicherheit und Leistungsübersicht
+- Basis-Draft-PR [#5](https://github.com/mouzzlii/book-your-cook/pull/5), Head `01b0d3a263db0ac89c3af7ab37e14a4c7f4ad8f8`; öffentlicher Buchungs-Gate bleibt serverseitig standardmäßig geschlossen. Keine Supabase-Migration ausgeführt.
+- Gestapelter Draft-PR [#6](https://github.com/mouzzlii/book-your-cook/pull/6), Head `c2cfcbf90000f6e6a1d17a4c10be3aa57cdf9a42`, baut auf PR #5 auf und ergänzt die Leistungsübersicht. Events/Catering, Firmenkunden und Foodtruck sind transparent als in Vorbereitung gekennzeichnet; „Nur Koch“ bleibt bis zur Rechtsprüfung gesperrt.
+- CI-Läufe #5 [46018410914] (Versuch 2) und #6 [46020349591] (Versuch 2) endeten erneut innerhalb weniger Sekunden mit `runner_id: 0` und `steps: []`. Es wurde kein Testschritt ausgeführt. Dies ist ein Runner-/Plattformhindernis, kein belegter Testfehler und keinesfalls ein grüner CI-Nachweis.
+- Vercel Preview weiterhin durch `api-deployments-free-per-day`-Kontingent abgelehnt. Keine Kontingentumgehung, Aufrüstung oder kostenpflichtige Aktion.
+- Beide PRs bleiben Draft; keine Produktionsänderung, kein Live-Buchungsgate, keine Migration und keine Zahlungsabnahme.
+
+**Portfolio-Schutzstatus:** Alle genannten Änderungen befinden sich in offenen Draft-PRs bzw. Arbeitsbranches. Keine der hier genannten PR-Änderungen wurde durch diesen Nachtrag in einen Hauptbranch oder eine Produktionsumgebung übernommen.
