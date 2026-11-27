@@ -11,7 +11,7 @@ Der folgende Abschnitt beschreibt den tatsächlich aktiven Stand auf `main` und 
 - Das Vercel-Projekt enthält `AI_GATEWAY_API_KEY` nur für Preview und Development. Diese Variable wird nicht automatisch an GitHub Actions weitergereicht. Der Wert wurde nicht abgerufen.
 - Das bestehende Vercel-Projektbudget von 5 USD/Monat ist laut Vercel ein **Soft Cap**: Ein Request, der die Grenze überschreitet, kann noch abgeschlossen werden. Es ist daher keine harte Kostenobergrenze. Usage vom 20. bis 27.11.2026: 0 Requests, 0 USD.
 - Der Gateway-Umbau in PR #38 ist nicht in `main` integriert und bleibt Draft. Keine echten Provider-Aufrufe, keine Kostenfreigabe und kein Live-Council sind nachgewiesen.
-- MAINPROMPT 2.0.7 bleibt maßgeblich: Zusatzbudget 0 EUR, Live-Council AUS. Keine Provider-Anfragen ohne ausdrückliche Budgetfreigabe und belastbare harte Kostenkontrolle.
+- MAINPROMPT 2.0.7 bleibt maßgeblich: Zusatzbudget 0 EUR, Live-Council AUS. Der GitHub-Actions-Job ist zusätzlich technisch mit `false &&` hart deaktiviert; selbst eine versehentlich gesetzte `AI_TEAM_BUDGET_CONFIRMED=true`-Variable kann keinen Lauf starten. Keine Provider-Anfragen ohne ausdrückliche neue Budgetfreigabe und belastbare numerische Kostenkontrolle.
 
 Die verifizierte Modell-, Regions-, Credential- und Kostenübersicht steht in [docs/COUNCIL_LIVE_STATUS.md](docs/COUNCIL_LIVE_STATUS.md).
 
@@ -110,7 +110,7 @@ Fehlende Schlüssel, ein fehlender Provider-Wert, eine unbekannte Modellkennung 
 - Umgebungs-, Secret-, Credential-, Schlüssel-, Lock- und Builddateien werden nicht geladen. Die Secret-Redaktion erkennt gängige Provider-Tokens, PEM-Private-Keys, JWTs, benannte Secret-Zuweisungen und lange Hexwerte. Das ist keine Garantie, dass jedes Geheimnis erkannt wird.
 - Bei Aktivierung werden die ausgewählten Quelltextauszüge und die Anfrage an OpenAI, Anthropic und den jeweils gewählten dritten Provider übertragen. Keine echten Kundendaten, Sendungsdaten, personenbezogenen Daten oder Geheimnisse in den ausgewählten Dateien speichern.
 - Eingabe- und Ausgabelimits sind keine garantierte Geldobergrenze. Für alle tatsächlich verwendeten Anbieter müssen echte Ausgabenlimits bzw. Kostenkontrollen gesetzt werden.
-- `AI_TEAM_BUDGET_CONFIRMED=true` ist nur die manuelle Bestätigung des Kontoinhabers und prüft Anbieterbudgets nicht automatisch.
+- `AI_TEAM_BUDGET_CONFIRMED=true` ist nur die manuelle Bestätigung des Kontoinhabers und prüft Anbieterbudgets nicht automatisch. Bei der geltenden Zusatzbudgetgrenze von 0 EUR darf die Variable nicht auf `true` gesetzt werden; der Workflow bleibt zusätzlich im YAML hart deaktiviert.
 - Keine Secrets ausgeben oder anfordern; keine Produktivdatenbanken, Carrier-Systeme oder produktiven Buchungen verändern.
 
 ## Repository-Zuordnung
@@ -132,3 +132,8 @@ Der Livebetrieb gilt erst als aktiviert, wenn ein synthetischer Ende-zu-Ende-Tes
 5. Fehlende Konfiguration, Provider-Fehler, unsichere Llama-Endpunkte und Kostenlimits werden korrekt behandelt.
 
 Der Relay ist in `main` integriert, aber bis zur Einrichtung der tatsächlichen Konten, Modellkennungen, Provider-Ausgabenlimits, read-only GitHub-Zugriff und einer ausdrücklichen Budgetfreigabe gesperrt. Es wurden in dieser Arbeit keine externen KI-Provider aufgerufen.
+
+
+## Verbindliche Kosten- und Aktivierungssperre
+
+Derzeit gilt ein zusätzliches Ausgabenlimit von **0 EUR**. Der aktive `main`-Workflow ist deshalb unabhängig von Secrets und Repository-Variablen durch die Job-Bedingung `false && ...` deaktiviert. Die boolesche Variable `AI_TEAM_BUDGET_CONFIRMED` ist keine Kostenobergrenze und darf die technische Sperre nicht ersetzen. Eine spätere Aktivierung erfordert eine neue ausdrückliche Budgetfreigabe sowie einen nachweislich anbieterübergreifenden numerischen Hard Cap mit Preisgrundlage, atomarer Reservierung, tatsächlicher Nutzungs-/Kostenprüfung und Fail-Closed-Verhalten. Das bestehende Vercel-Soft-Cap von 5 USD/Monat erfüllt diese Anforderungen nicht.
