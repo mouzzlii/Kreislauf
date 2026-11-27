@@ -1,3 +1,5 @@
+> **Sicherheitsstatus 27.11.2026 – 0 EUR Zusatzbudget:** Der bisherige direkte Provider-Relay auf `main` darf bis zur ausdrücklichen Freigabe nicht ausgelöst werden. Dieser Branch ergänzt zwei unabhängige harte Sperren: `false &&` im GitHub-Actions-Workflow und `RELAY_LIVE_ENABLED = false` vor Event-Lesen und Netzwerkaktivität im Programm. Solange diese Änderung nicht in `main` integriert ist, Issue #11 nicht mit `/ai-team debate` kommentieren. Keine Secrets einrichten und `AI_TEAM_BUDGET_CONFIRMED` nicht auf `true` setzen.
+
 # KI-Team-Kommunikation für vier Projekte
 
 **Geltungsbereich:** Dieses Dokument beschreibt ausschließlich den technischen Relay und die Council-Zusammenarbeit für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS. Globale Arbeitsweise, Kosten- und Freigabegrenzen richten sich nach [MAINPROMPT 2.0.7](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md); dieses Dokument ist keine zweite globale Arbeitsverfassung.

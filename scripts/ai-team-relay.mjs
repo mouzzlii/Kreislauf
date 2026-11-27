@@ -2,6 +2,8 @@ import process from "node:process";
 import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { ANTHROPIC_API_VERSION, buildClaudeMessage, buildMetaChatCompletion, buildLlamaChatCompletion, extractClaudeText, extractMetaText, extractLlamaText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 
+const RELAY_LIVE_ENABLED = false; // Requires explicit code review and budget authorization to enable.
+
 const {
   GITHUB_TOKEN,
   GITHUB_REPOSITORY,
@@ -338,6 +340,10 @@ async function runPhase(issueNumber, marker, phase, work) {
 }
 
 async function main() {
+  if (!RELAY_LIVE_ENABLED) {
+    console.log("Legacy Council relay is hard-disabled; no GitHub API or model requests were made.");
+    return;
+  }
   if (!GITHUB_TOKEN || !GITHUB_REPOSITORY || !GITHUB_EVENT_PATH) {
     throw new Error("Missing GitHub Actions event configuration.");
   }

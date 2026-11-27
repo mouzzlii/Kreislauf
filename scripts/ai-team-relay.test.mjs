@@ -93,3 +93,13 @@ assert.deepEqual(buildMetaChatCompletion({
   {role:"user",content:"Review."},
 ]);
 console.log("AI team routing, Meta/Llama selection, provider credentials, secure endpoint and budget-gate tests passed.");
+
+
+assert.ok(relaySource.includes("const RELAY_LIVE_ENABLED = false;"));
+const mainEntry = relaySource.indexOf("async function main()");
+const runtimeGate = relaySource.indexOf("if (!RELAY_LIVE_ENABLED)", mainEntry);
+const eventRead = relaySource.indexOf("readFile(GITHUB_EVENT_PATH", mainEntry);
+assert.ok(mainEntry >= 0 && runtimeGate > mainEntry && eventRead > runtimeGate,
+  "legacy relay must exit before reading the event or performing network work");
+assert.ok(workflowSource.includes("false &&"));
+console.log("Legacy main relay hard-disable checks passed.");
