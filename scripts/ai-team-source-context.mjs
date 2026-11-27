@@ -148,7 +148,12 @@ export function hasNonEmptySourceExcerpt(source) {
 }
 
 export function isPublicRepositoryMetadata(metadata) {
-  return Boolean(metadata && typeof metadata === "object" && metadata.visibility === "public");
+  return Boolean(
+    metadata &&
+    typeof metadata === "object" &&
+    metadata.visibility === "public" &&
+    metadata.private === false
+  );
 }
 
 export function hasUsablePrimaryContext(projectContext) {
