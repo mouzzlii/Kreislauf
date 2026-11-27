@@ -509,3 +509,10 @@ Der Nutzer hat ausdrücklich angewiesen, laufende Projekte ohne wiederholte Zust
 - Nach den abschließenden Testplan-/Integrationsdokumentations-Commits ist der aktuelle PR-#12-Head **`1e777f4a17cec698955ce6be431a564b7ae820ca`** (48 Commits, 10 geänderte Dateien). Dieser Wert ersetzt den vorherigen Head `de658fdf0b59c18855de850051515c6f77ad65e2` aus dem unmittelbar vorangegangenen Nachtrag.
 - Die aktuelle Engine-Quellfassung `b8cbe31140841d473933fa998a5ba394f801409c` besteht 22/22 gezielte isolierte Prüfungen; `app.js` und `sw.js` sind zusätzlich syntaktisch geparst. Die abschließende Dokumentation wurde im PR aktualisiert und per Readback bestätigt.
 - Neuester bislang zurückgegebener Actions-Lauf #20 (`45964517995`) betrifft einen älteren Zwischen-Head und scheiterte wieder vor dem ersten Schritt (`runner_id=0`, `steps=[]`). Für den endgültigen PR-Head wurde noch kein ausgeführter Testlauf nachgewiesen. Daher bleibt der vollständige CI-Lauf offen.
+
+
+### KI-ARBEITSPLATZ – Nachprüfung Actions #21 und PR-Status (27.11.2026)
+- PR #12 wurde per GitHub-Readback bestätigt: offen, Draft, ungemergt; Head `1e777f4a17cec698955ce6be431a564b7ae820ca`, 48 Commits, 10 geänderte Dateien.
+- Neuer Actions-Lauf #21 (`45964746728`) für diesen dokumentierten Head endete mit `failure`. Der Job `140390646224` lieferte `steps=[]`, keine Logs und damit keinen ausgeführten Testschritt. Das ist weiterhin ein Jobstart-/Runner-Infrastrukturblocker; kein Code-Testfehler und kein bestandener CI-Lauf.
+- Der kombinierte Commit-Status meldet den Vercel-Check aktuell als `success`. Das belegt nur den Statuscheck, nicht die Browser-/Android-Abnahme. Die bekannte Preview bleibt SSO-geschützt; kein neuer Gerätetest ist nachgewiesen.
+- PR-Beschreibung wurde bereinigt und auf diese Prüfgrenzen aktualisiert. Keine neuen Deployments, keine Workflow-Retries, kein Merge und keine Live-Modellaufrufe ausgelöst.
