@@ -571,8 +571,10 @@ async function main() {
     synthesis,
     "## Technische Modellnachweise",
     ...modelAudit.map((entry) => {
-      const tokens = entry.usage.totalTokens === null ? "unbekannt" : String(entry.usage.totalTokens);
-      return "- Aufruf " + entry.callNumber + ": angeforderter Alias " + entry.requestedAlias + "; Antwort-ID " + (entry.responseId || "nicht geliefert") + "; zurückgegebenes Modell " + (entry.returnedModel || "nicht geliefert") + "; Provider " + (entry.providerReported || "im Response nicht ausgewiesen") + "; Tokens " + tokens + ".";
+      const promptTokens = entry.usage.promptTokens === null ? "unbekannt" : String(entry.usage.promptTokens);
+      const completionTokens = entry.usage.completionTokens === null ? "unbekannt" : String(entry.usage.completionTokens);
+      const totalTokens = entry.usage.totalTokens === null ? "unbekannt" : String(entry.usage.totalTokens);
+      return "- Aufruf " + entry.callNumber + ": angeforderter Alias " + entry.requestedAlias + "; Antwort-ID " + (entry.responseId || "nicht geliefert") + "; zurückgegebenes Modell " + (entry.returnedModel || "nicht geliefert") + "; Provider " + (entry.providerReported || "im Response nicht ausgewiesen") + "; Input-Tokens " + promptTokens + "; Output-Tokens " + completionTokens + "; Gesamt-Tokens " + totalTokens + ".";
     }),
     "Provider- und Kostenangaben werden nur als bestätigt ausgewiesen, wenn sie tatsächlich von der Schnittstelle geliefert werden. Die Gateway-Nutzungsansicht bleibt für die endgültige Provider-/Kostenprüfung maßgeblich.",
     "---",

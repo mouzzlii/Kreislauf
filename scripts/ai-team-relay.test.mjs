@@ -44,6 +44,9 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   assert.ok(providerSource.includes("export function extractGatewayResponseMetadata"));
   assert.ok(relaySource.includes("modelAudit.push"));
   assert.ok(relaySource.includes("Technische Modellnachweise"));
+  assert.ok(relaySource.includes("entry.usage.promptTokens"));
+  assert.ok(relaySource.includes("entry.usage.completionTokens"));
+  assert.ok(relaySource.includes("entry.usage.totalTokens"));
   assert.ok(relaySource.includes("Provider- und Kostenangaben werden nur als bestätigt ausgewiesen"));
   assert.ok(relaySource.includes("AI_GATEWAY_API_KEY"));
   assert.ok(workflowSource.includes("AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}"));
