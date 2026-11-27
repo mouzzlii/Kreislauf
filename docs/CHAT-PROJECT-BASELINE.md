@@ -5,7 +5,7 @@
 
 ## 1. Rolle dieser Projektbaseline und Abgrenzung zum MAINPROMPT
 
-Die globale Arbeits- und Projektverfassung ist ausschließlich **MAINPROMPT 2.0.4** im privaten Repository [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz), Datei `docs/MAINPROMPT.md`. Sie regelt chatübergreifend Arbeitsweise, Autonomie, Recherche, KI-Council, Kosten, Sicherheit, GitHub-Schutz, Qualität und Ergebnislieferung.
+Die globale Arbeits- und Projektverfassung ist ausschließlich **MAINPROMPT 2.0.5** im privaten Repository [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz), Datei `docs/MAINPROMPT.md`. Sie regelt chatübergreifend Arbeitsweise, Autonomie, Recherche, KI-Council, Kosten, Sicherheit, GitHub-Schutz, Qualität und Ergebnislieferung.
 
 Diese Datei ist dagegen die **KREISLAUF-Projekt- und Portfolio-Baseline**. Sie dokumentiert bestätigte Projektentscheidungen, Repository-Zuordnungen, Abhängigkeiten, Statusnachweise und offene Punkte. Sie ist keine zweite globale Arbeitsverfassung und überschreibt den MAINPROMPT nicht.
 
@@ -189,7 +189,7 @@ Das Repository [logo-M-glichkeiten-](https://github.com/mouzzlii/logo-M-glichkei
 - Dieser Relay ist für vier Projekte in `main` verdrahtet. PR #38 ist ein offener Draft für die Erweiterung auf acht Projekte einschließlich KI-ARBEITSPLATZ und strukturierte Task-Envelopes; diese Erweiterung ist nicht als in `main` integriert zu behandeln.
 - Provider-Secrets, explizite Modellkennungen, read-only GitHub-Kontextzugriff, echte Anbieter-Ausgabenlimits und ausdrückliche Budgetfreigabe sind Voraussetzungen. Die vorhandenen Vertrags-/Mock-Tests beweisen keine Live-Inferenz.
 - Die Vercel-Aliase `council-claude`, `council-gemini`, `council-gpt`, `council-grok` und `council-llama` belegen nur Modellkonfiguration. Das separate Vercel-Projekt `collective-intelligence-council` hat ein READY-Deployment, ist aber durch SSO für alle Deployment-Zugriffe geschützt; eine öffentliche Erreichbarkeit oder eine nachgewiesene Quellcode-/Inferenzintegration folgt daraus nicht.
-- Aktueller Freigabestand: keine kostenpflichtigen Modellaufrufe ohne ausdrückliche Budgetfreigabe; der im zentralen MAINPROMPT 2.0.4 festgelegte Zusatzkostenrahmen beträgt 0 EUR. Llama bleibt auf öffentliche, synthetische oder anonymisierte Daten beschränkt, solange geeignete EU-Verarbeitung nicht nachgewiesen ist.
+- Aktueller Freigabestand: keine kostenpflichtigen Modellaufrufe ohne ausdrückliche Budgetfreigabe; der im zentralen MAINPROMPT 2.0.5 festgelegte Zusatzkostenrahmen beträgt 0 EUR. Llama bleibt auf öffentliche, synthetische oder anonymisierte Daten beschränkt, solange geeignete EU-Verarbeitung nicht nachgewiesen ist.
 - Ohne echte Provider-Aufrufe keine Claude-/Meta-/Llama-Antworten oder unabhängige Reviews behaupten. Der PWA-Mock-Testplatz in KI-Arbeitsplatz PR #12 ist nur ein lokaler Ablauf-/Schema-Test und keine Council-Inferenz. Keine Secrets oder persönlichen Zugangsdaten im Chat oder in GitHub ablegen.
 
 ## 5. Priorisierung und Arbeitsmodus
@@ -485,7 +485,7 @@ Mindestens festhalten: Datum/Uhrzeit, Projekt und Testumgebung, Provider und exa
 
 
 ### Historischer Entscheidungsnachweis – autonomer Qualitätsauftrag (27.11.2026)
-Der Nutzerauftrag zur eigenständigen Fortsetzung reversibler Arbeiten und zum Qualitätsziel „Meisterwerk“ ist in die globale Arbeitsverfassung **MAINPROMPT 2.0.4**, Abschnitt 3, konsolidiert. Dieser Eintrag bleibt als Herkunfts-/Historiennachweis erhalten und ist keine zweite operative Regelquelle. Freigabepflichtige Grenzen bleiben dort verbindlich geregelt.
+Der Nutzerauftrag zur eigenständigen Fortsetzung reversibler Arbeiten und zum Qualitätsziel „Meisterwerk“ ist in die globale Arbeitsverfassung **MAINPROMPT 2.0.5**, Abschnitt 3, konsolidiert. Dieser Eintrag bleibt als Herkunfts-/Historiennachweis erhalten und ist keine zweite operative Regelquelle. Freigabepflichtige Grenzen bleiben dort verbindlich geregelt.
 
 
 ## KI-ARBEITSPLATZ – Arbeitsnachtrag 27.11.2026 (Fortsetzung PR #12)
