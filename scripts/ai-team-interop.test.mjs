@@ -24,7 +24,7 @@ function validEnvelope() {
     correlationId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
     idempotencyKey: "",
     expiresAt: "2026-11-26T11:00:00.000Z",
-    dataClassification: "internal",
+    dataClassification: "public",
     payload: {
       taskId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
       taskType: "project.static_review",
@@ -142,7 +142,7 @@ test("binds task type to its expected output format and local task ID", () => {
   assert.equal(validateCouncilTaskEnvelope(id, { now: NOW }).success, false);
 });
 
-test("rejects incorrect source or target identities and non-internal data", () => {
+test("rejects incorrect source or target identities and non-public data", () => {
   const source = validEnvelope();
   source.source.projectId = "OTHER";
   assert.equal(validateCouncilTaskEnvelope(source, { now: NOW }).success, false);
@@ -151,9 +151,16 @@ test("rejects incorrect source or target identities and non-internal data", () =
   target.target.componentId = "other";
   assert.equal(validateCouncilTaskEnvelope(target, { now: NOW }).success, false);
 
-  const classification = validEnvelope();
-  classification.dataClassification = "confidential";
-  assert.equal(validateCouncilTaskEnvelope(classification, { now: NOW }).success, false);
+  for (const dataClassification of ["internal", "confidential", "personal", "secret"]) {
+    const classification = validEnvelope();
+    classification.dataClassification = dataClassification;
+    assert.equal(validateCouncilTaskEnvelope(classification, { now: NOW }).success, false, dataClassification);
+  }
+  for (const dataClassification of ["public", "synthetic", "anonymized"]) {
+    const classification = validEnvelope();
+    classification.dataClassification = dataClassification;
+    assert.equal(validateCouncilTaskEnvelope(classification, { now: NOW }).success, true, dataClassification);
+  }
 });
 
 test("rejects task types outside the explicit read-only allowlist", () => {
