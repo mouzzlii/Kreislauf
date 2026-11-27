@@ -29,11 +29,14 @@ Weitere Konzept- und Forschungsstränge (KRONOS 01, KREISLAUF ReFlex/VacMail, VR
 
 ## KI-Team und externe Provider
 
-- Gewünschte Rollenfolge: ChatGPT koordiniert; Claude und Meta/Llama sollen unabhängig entwickeln und prüfen.
-- Nur tatsächlich ausgeführte API-/MCP-Aufrufe und empfangene Antworten als Council-Arbeit ausgeben.
-- Eine vorhandene Relay-Basis ist nicht gleichbedeutend mit einem aktivierten Council. Provider-Secrets, Modellkennungen, sichere Endpunkte, echte Ausgabenlimits und ausdrückliche Budgetfreigabe sind Voraussetzungen.
-- Ohne echte Provider-Aufrufe keine unabhängigen Claude-/Meta-/Llama-Reviews behaupten.
-- Keine Zugangsdaten im Chat oder Repository ablegen.
+- **Ziel:** ChatGPT koordiniert; Claude, Gemini, OpenAI/GPT und Grok sollen nachweislich unabhängig arbeiten und einander prüfen. Llama bleibt bis zu einer gesonderten EU-Datenschutzprüfung ausgeschlossen.
+- **Aktiver KREISLAUF-`main`-Relay:** Issue #11 startet derzeit GPT (direkt), Claude (direkt), wahlweise Meta Muse oder Llama (direkt) und anschließend GPT-Synthese. Gemini und Grok sind im aktiven Relay nicht eingebunden.
+- **Gateway-Konfiguration:** Fünf aktive Vercel-Aliase für GPT-5, Claude Sonnet 4.6, Gemini 3 Flash, Grok 4.7 und Llama 4 Maverick sind read-only bestätigt. Alle führen ZDR und No-Prompt-Training. Nur Claude ist explizit auf EU-Bedrock/Vertex-Routen beschränkt; Llama bleibt auf öffentliche, synthetische oder anonymisierte Daten begrenzt.
+- **Wichtige Trennung:** Der Gateway-Umbau in KREISLAUF PR #38 ist Draft und nicht in `main` integriert. Der aktuelle `main`-Workflow übergibt keinen `AI_GATEWAY_API_KEY`; der im Vercel-Projekt vorhandene Schlüssel ist nur für Preview/Development hinterlegt und wird nicht automatisch an GitHub Actions weitergereicht.
+- **Kosten:** Gateway-Projektbudget 5 USD/Monat, zuletzt 0 USD Verbrauch und 0 Requests im Sieben-Tage-Fenster. Dieses Vercel-Budget ist ein Soft Cap, keine harte Geldobergrenze; ein Request, der die Grenze überschreitet, kann noch abgeschlossen werden. MAINPROMPT 2.0.7 setzt Zusatzbudget weiterhin auf 0 EUR. Keine kostenpflichtigen Inferenzaufrufe ohne ausdrückliche Freigabe und harte anwendungsseitige Kostenkontrolle.
+- **KI-Arbeitsplatz PR #12:** Lokale PWA-Mock-Workbench und isolierte serverseitige Orchestrierungs-/HTTP-Bausteine sind im Draft-Branch vorhanden. Die aktuelle Testquelle enthält 18 Orchestrator- und 12 HTTP-Fälle; die zuletzt hinzugefügten Härtungsfälle sind noch nicht ausgeführt. Es fehlen eine deploybare Route, echte Auth-/CSRF-/Freigabe-/Audit-/Budgetdienste, Provideradapter und ChatGPT-Synthese. PR bleibt Draft; kein Live-Council.
+- **Status:** Keine echten Provider-Aufrufe, keine unabhängigen externen Modellantworten und kein nachgewiesener Council-Durchlauf. Keine Secrets ausgelesen, keine Inferenzkosten, keine Budgetänderung.
+- **Maßgebliche Nachweise:** [Council Live Status](COUNCIL_LIVE_STATUS.md), [Council Setup](../AI_TEAM_SETUP.md), [KI-Arbeitsplatz MAINPROMPT 2.0.7](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md) und [chatbasierte Projektbaseline](CHAT-PROJECT-BASELINE.md).
 
 ## Abnahme-Gates
 
