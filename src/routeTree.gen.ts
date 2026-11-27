@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as KarteRouteImport } from './routes/karte'
+import { Route as KoordinatorRouteImport } from './routes/koordinator'
 import { Route as KontoRouteImport } from './routes/konto'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NachrichtenRouteImport } from './routes/nachrichten'
@@ -27,6 +28,11 @@ const IndexRoute = IndexRouteImport.update({
 const KarteRoute = KarteRouteImport.update({
   id: '/karte',
   path: '/karte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KoordinatorRoute = KoordinatorRouteImport.update({
+  id: '/koordinator',
+  path: '/koordinator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KontoRoute = KontoRouteImport.update({
@@ -68,6 +74,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/karte': typeof KarteRoute
+  '/koordinator': typeof KoordinatorRoute
   '/konto': typeof KontoRoute
   '/login': typeof LoginRoute
   '/nachrichten': typeof NachrichtenRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/karte': typeof KarteRoute
+  '/koordinator': typeof KoordinatorRoute
   '/konto': typeof KontoRoute
   '/login': typeof LoginRoute
   '/nachrichten': typeof NachrichtenRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/karte': typeof KarteRoute
+  '/koordinator': typeof KoordinatorRoute
   '/konto': typeof KontoRoute
   '/login': typeof LoginRoute
   '/nachrichten': typeof NachrichtenRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/karte'
+    | '/koordinator'
     | '/konto'
     | '/login'
     | '/nachrichten'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/karte'
+    | '/koordinator'
     | '/konto'
     | '/login'
     | '/nachrichten'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/karte'
+    | '/koordinator'
     | '/konto'
     | '/login'
     | '/nachrichten'
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   KarteRoute: typeof KarteRoute
+  KoordinatorRoute: typeof KoordinatorRoute
   KontoRoute: typeof KontoRoute
   LoginRoute: typeof LoginRoute
   NachrichtenRoute: typeof NachrichtenRoute
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/karte'
       fullPath: '/karte'
       preLoaderRoute: typeof KarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/koordinator': {
+      id: '/koordinator'
+      path: '/koordinator'
+      fullPath: '/koordinator'
+      preLoaderRoute: typeof KoordinatorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/konto': {
@@ -218,6 +238,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   KarteRoute: KarteRoute,
+  KoordinatorRoute: KoordinatorRoute,
   KontoRoute: KontoRoute,
   LoginRoute: LoginRoute,
   NachrichtenRoute: NachrichtenRoute,
