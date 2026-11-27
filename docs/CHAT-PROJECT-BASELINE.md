@@ -479,10 +479,10 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 
 
 ### KI-ARBEITSPLATZ – Budget-/Run-Lifecycle-Spezifikation und PR-Abgleich (27.11.2026)
-- Draft-PR #12 ist weiterhin offen und nicht gemergt. Aktueller Head nach Readback: `1540fa0caba0987122db54d93c4c0456484756e5`; 18 geänderte Dateien. [PR #12](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/12).
+- Draft-PR #12 ist weiterhin offen und nicht gemergt. Aktueller Head nach Readback: `ea20e6eb8e9f9b17688972b04b534232f054d696`; 18 geänderte Dateien. [PR #12](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/12).
 - Neu ergänzt: `docs/COUNCIL-BUDGET-LIFECYCLE.md` definiert einen transaktionalen Startvertrag für Freigabe, Idempotenz, Budgetreservierung, Run-/Audit-Anlage, Provider-Dispatch-Zustände, Crash-Recovery, Usage-Reconciliation und idempotente Kostenfinalisierung. Der Vertrag ist Spezifikation, keine implementierte Datenbank-/Auth-/Budgetlösung.
 - Die bestehende serverseitige Grenze hat eine offene Designlücke: Der aktuelle Handler verbraucht eine Einmalfreigabe und schreibt danach Audit; ohne gemeinsame Transaktion könnte ein Audit-Ausfall eine Freigabe verbrauchen, obwohl kein Dispatch stattfindet. Vor Live-Betrieb muss dies durch `prepareRunAtomically` oder eine gleichwertige Transaktion ersetzt werden.
-- PR-Abgleich meldet Branch-Divergenz: 105 Commits ahead und 36 behind gegenüber `main`; PR ist nicht mergeable. Keine Rebase-/Merge-Aktion vorgenommen. Erst Baseline-/Konfliktanalyse und erneute Prüfung aller Änderungen, bevor eine Integration erwogen wird.
+- PR-Abgleich meldet Branch-Divergenz: 106 Commits ahead und 36 behind gegenüber `main`; PR ist nicht mergeable. Keine Rebase-/Merge-Aktion vorgenommen. Erst Baseline-/Konfliktanalyse und erneute Prüfung aller Änderungen, bevor eine Integration erwogen wird.
 - GitHub Actions für den aktuellen Head lieferte 0 PR-Workflow-Runs; Reviews und Review-Threads: 0. Das ist kein Testnachweis. Historische 17/17 bzw. 9/9 Testläufe beziehen sich auf einen älteren Quellstand; 18 Orchestrator- und 15 HTTP-Testfälle sind vorhanden, die jüngsten Härtungsfälle sind nicht ausgeführt.
 - Vercel-Deployment bleibt blockiert durch das zuvor dokumentierte Free-Tier-Limit; kein neuer Deploymentversuch. Keine Browser-/Android-Abnahme, keine Provideradapter, keine Live-Aufrufe, keine Kosten.
 - Keine vorhandene KREISLAUF-Supabase-Datenbank ungeprüft wiederverwendet; kein konkreter Speicher-/Auth-Anbieter festgelegt.
