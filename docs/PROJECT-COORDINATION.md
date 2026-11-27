@@ -77,3 +77,8 @@ Dieses Dokument koordiniert die verifizierten Entwicklungsprojekte und kennzeich
 - **Produktionsbereit:** alle Abnahme-Gates sind erfüllt und nötige Betreiberfreigaben liegen vor.
 
 Nie einen dieser Status aus einem anderen ableiten.
+
+
+### Council-Entscheidung 27.11.2026 – verbindlicher Zielzustand
+
+Der frühere optionale dritte Agent (Meta Muse oder Llama) wird für das Council-Relay durch vier unabhängig aufgerufene Modelle über die vorhandenen Vercel-Gateway-Aliase ersetzt: GPT, Claude, Gemini und Grok. GPT erstellt nach vier unabhängigen Analysen die Synthese. Die Codeumstellung liegt im Draft PR #38; ein erfolgreicher Vertragstest belegt noch keine echten Modellaufrufe. Das GitHub-Actions-Secret `AI_GATEWAY_API_KEY` muss separat vorhanden sein; das Vercel-Projekt-Secret ist nicht automatisch in GitHub verfügbar. Llama bleibt bis zum Nachweis einer EU-Verarbeitung von privaten/vertraulichen Daten ausgeschlossen. Keine bezahlten Smoke-Tests ohne ausdrückliche Kostenfreigabe.
