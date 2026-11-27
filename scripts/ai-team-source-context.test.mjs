@@ -128,8 +128,8 @@ test("primary repository must itself provide a real source excerpt before Counci
     source: "#### Offline-Modus/Lib/LocalAI.ps1\\nfunction Test-Example { return $true }",
   };
   assert.equal(hasUsablePrimaryContext(valid), true);
-  assert.equal(isPublicRepositoryMetadata({ visibility: "public" }), true);
-  for (const metadata of [{ visibility: "private" }, { visibility: "internal" }, { private: true }, {}, null]) {
+  assert.equal(isPublicRepositoryMetadata({ visibility: "public", private: false }), true);
+  for (const metadata of [{ visibility: "private", private: true }, { visibility: "internal", private: false }, { visibility: "public", private: true }, { private: false }, {}, null]) {
     assert.equal(isPublicRepositoryMetadata(metadata), false);
   }
   assert.equal(hasUsablePrimaryContext({
