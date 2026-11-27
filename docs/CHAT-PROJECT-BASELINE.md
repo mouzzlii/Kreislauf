@@ -137,9 +137,23 @@ Eigenständige App zur Erstellung und Verwaltung vieler Produktinserate; eigene 
 - Read-only-Scan, SHA-256-Duplikate, EXIF-/Metadaten, lokale Vorschaubilder, vorsichtige Ähnlichkeitskandidaten, Tages-Zeitleiste und heuristische Ereignisvorschläge.
 - Originalfotos werden nicht verändert oder gelöscht.
 - Lokale API ist nur für Loopback vorgesehen; keine Authentifizierung/TLS für Mehrbenutzerbetrieb.
-- Desktop-Backup enthält Indexdaten und Vorschaubilder, keine Originalfotos. main verwendet weiterhin das unverschlüsselte Legacy-ZIP-Format. Draft-PR [#62](https://github.com/mouzzlii/CHRONOS/pull/62) ergänzt optionale AES-256-GCM-Backups und Restore-Härtung (Windows-Gerätenamen, nachgestellte Punkte/Leerzeichen und normalisierte Pfadkollisionen); aktueller Head `1f3ad23b6c4dd1cdf90104b56a1868880cd9f5ad`. CI-Lauf `46010378138` endete für alle drei Python-Matrixjobs vor dem ersten Schritt (keine Steps/Logs); die neuen Änderungen sind daher nicht automatisiert getestet. Explizite Windows-DACL-Erstellung und -Verifikation bleibt ein Sicherheits-/Release-Blocker; Windows-ACL-Privatheit nicht behaupten.
+- Desktop-Backup enthält Indexdaten und Vorschaubilder, keine Originalfotos. main verwendet weiterhin das unverschlüsselte Legacy-ZIP-Format. Draft-PR [#62](https://github.com/mouzzlii/CHRONOS/pull/62) ergänzt optionale AES-256-GCM-Backups, Restore-Härtung (Windows-Gerätenamen, nachgestellte Punkte/Leerzeichen und normalisierte Pfadkollisionen) sowie eine Fail-closed-Sperre an fünf Windows-Backup-/Restore-Einstiegspunkten. Aktueller PR-Head `dbbd9cddf548be29385187cca1c846948439d849` (zusätzlich unveränderliche GitHub-Action-Pins; keine Änderung der Laufzeitlogik). CI-Run [46032122163](https://github.com/mouzzlii/CHRONOS/actions/runs/46032122163) endete für alle vier Jobs (Python 3.11/3.12/3.13 und Windows-Gate) vor dem ersten Schritt (`steps=[]`); keine Tests wurden ausgeführt und kein Codefehler ist damit belegt. Explizite Windows-DACL-Erstellung und Read-back-Verifikation fehlen weiterhin; Windows-Backup/Restore bleibt gesperrt. Kein erfolgreicher Testnachweis für den aktuellen Head.
 - Python-CI und Android-/Robolectric-Prüfungen sind in der Statusdokumentation belegt. Echte Android-Geräte-, Prozessabbruch-, Backup-/Restore- und Großbibliothekstests bleiben offen.
 - Gesichtserkennung ist nicht enthalten und darf nicht ohne ausdrückliche Einwilligung sowie Datenschutz-/Rechtsprüfung ergänzt werden.
+
+### BOOK YOUR COOK – Buchungsplattform
+
+**Repository:** [mouzzlii/book-your-cook](https://github.com/mouzzlii/book-your-cook)
+
+**Abgrenzung:** Eigenständiges Buchungsprodukt; keine Laufzeitabhängigkeit zu KREISLAUF oder Menschheitsfamilie.
+
+**Aktueller PR-Stand**
+- Draft PR [#2](https://github.com/mouzzlii/book-your-cook/pull/2), Branch `security/stripe-refund-monotonic-state`, aktueller Head `2f132ce960130cfa879d0e86c3be43557f209c61`.
+- Enthält monotone kumulative Stripe-Refund-Verarbeitung, robuste PaymentIntent-/Payment-Zuordnung, WebCrypto-Signaturprüfung, additive Datenbankmigration und Compare-and-Set-Schutz gegen veraltete Admin-Updates.
+- Stornierungsablauf speichert den Admin-Status zuerst per CAS und versucht erst danach, eine offene Stripe-Checkout-Session zu deaktivieren. Bezahlte und noch ungeklärte Sessions werden getrennt behandelt. Bei noch offenem Checkout-Cleanup bleiben Stornierung und Gast-/Admin-Hinweis sichtbar; die Oberfläche lädt den aktuellen Cloud-Stand erneut.
+- GitHub Actions Runs [46032097922](https://github.com/mouzzlii/book-your-cook/actions/runs/46032097922) und [46032105885](https://github.com/mouzzlii/book-your-cook/actions/runs/46032105885) endeten beide vor dem ersten Schritt (`steps=[]`); keine Tests wurden ausgeführt und kein Codefehler ist damit belegt. Workflow-Action-Pins sind auf unveränderliche Commit-SHAs umgestellt, aber wegen des Runner-Ausfalls noch nicht durch CI ausgeführt.
+- Keine Live-Supabase-, Stripe- oder Resend-Aktion, keine Migration und keine Zahlung geändert. PR bleibt Draft und ungemergt.
+- Offene Abnahme: echte Edge-Function-/Stripe-Webhook-Tests mit synthetischen Testfixtures, Checkout-Expiry-/Webhook-Race-E2E und fachliche/steuerliche Freigabe der Brutto-/Netto-Preislogik. Keine produktive Zahlungsreife behaupten.
 
 ### KI-ARBEITSPLATZ – zentrale Entwicklungs-/Koordinationshilfe
 **Repository:** [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz)
