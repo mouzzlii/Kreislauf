@@ -2,7 +2,7 @@ import process from "node:process";
 import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, isPublicRepositoryMetadata, redactSensitiveText, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { hasTrustedRelayMarker, inspectDailyBudgetPage } from "./ai-team-ledger.mjs";
 import { COUNCIL_MODELS, VERCEL_AI_GATEWAY_URL, buildGatewayChatCompletion, extractGatewayText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
-import { parseCouncilTaskComment, resolveCouncilTaskProject } from "./ai-team-interop.mjs";
+import { parseCouncilTaskComment, parsePublicDebateRequest, resolveCouncilTaskProject } from "./ai-team-interop.mjs";
 
 const {
   GITHUB_TOKEN,
@@ -325,6 +325,7 @@ async function main() {
   let taskEnvelope = null;
   let project;
   let request;
+  let dataClassification;
 
   if (taskCommand.matched) {
     if (!taskCommand.success) {
@@ -357,7 +358,9 @@ async function main() {
       return;
     }
     project = binding.project;
+    dataClassification = taskEnvelope.dataClassification;
     request = [
+      "Datenklassifikation: " + dataClassification,
       "Aufgabentyp: " + taskEnvelope.payload.taskType,
       "Anweisung: " + taskEnvelope.payload.instruction,
       "Erwartetes Ausgabeformat: " + taskEnvelope.payload.expectedOutput.format,
@@ -366,7 +369,21 @@ async function main() {
     ].join("\n");
   } else {
     project = debateMatch[1].toUpperCase();
-    request = debateMatch[2].trim();
+    const classifiedRequest = parsePublicDebateRequest(debateMatch[2].trim());
+    if (!classifiedRequest.success) {
+      await githubRequest("issues/" + issue.number + "/comments", {
+        method: "POST",
+        body: JSON.stringify({ body: [
+          marker,
+          "### KI-Team-Auftrag abgelehnt",
+          classifiedRequest.message,
+          "Keine Provider wurden aufgerufen und kein Tageskontingent reserviert.",
+        ].join("\\n\\n") }),
+      });
+      return;
+    }
+    dataClassification = classifiedRequest.dataClassification;
+    request = "Datenklassifikation: " + dataClassification + "\\nAuftrag: " + classifiedRequest.instruction;
   }
 
   if (!request || request.length > MAX_INPUT_CHARS) {
