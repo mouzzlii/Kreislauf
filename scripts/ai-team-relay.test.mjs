@@ -30,6 +30,8 @@ test("debate command parser accepts supported projects and rejects malformed com
 test("relay and workflow use the same fixed four-model Gateway contract", async () => {
   const relaySource = await readFile(new URL("./ai-team-relay.mjs", import.meta.url), "utf8");
   const providerSource = await readFile(new URL("./ai-team-providers.mjs", import.meta.url), "utf8");
+  const sourceContextSource = await readFile(new URL("./ai-team-source-context.mjs", import.meta.url), "utf8");
+  const interopSource = await readFile(new URL("./ai-team-interop.mjs", import.meta.url), "utf8");
   const workflowSource = await readFile(new URL("../.github/workflows/ai-team-communication.yml", import.meta.url), "utf8");
   const ciWorkflowSource = await readFile(new URL("../.github/workflows/ai-team-relay-ci.yml", import.meta.url), "utf8");
   const setup = await readFile(new URL("../AI_TEAM_SETUP.md", import.meta.url), "utf8");
@@ -58,6 +60,14 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   assert.ok(relaySource.includes("const MAX_DAILY_DEBATES = 2;"));
   assert.ok(relaySource.includes("AI_TEAM_BUDGET_CONFIRMED !== \"true\""));
   assert.ok(relaySource.includes("hasUsablePrimaryContext(projectContext)"));
+  assert.ok(relaySource.includes("isPublicRepositoryMetadata(meta)"));
+  assert.ok(sourceContextSource.includes('primary.visibility === "public"'));
+  assert.ok(interopSource.includes('["public", "synthetic", "anonymized"]'));
+  const publicVisibilityGuard = relaySource.indexOf("if (!isPublicRepositoryMetadata(meta))");
+  const readmeFetch = relaySource.indexOf("/readme?ref=", publicVisibilityGuard);
+  const treeFetch = relaySource.indexOf("/git/trees/", publicVisibilityGuard);
+  assert.ok(publicVisibilityGuard >= 0 && readmeFetch > publicVisibilityGuard && treeFetch > publicVisibilityGuard,
+    "repository visibility must be checked before README/tree/source content is fetched");
   assert.ok(relaySource.includes('reserveDailyDebate(comment.id, taskEnvelope?.idempotencyKey || "")'));
   assert.ok(relaySource.includes("hasTrustedRelayMarker(existing, marker)"));
   assert.ok(relaySource.includes("inspectDailyBudgetPage(comments"));
