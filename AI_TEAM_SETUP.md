@@ -88,3 +88,8 @@ Die Budgetvariable ist ein manueller Freigabeschalter, keine automatische Kosten
 Die lokalen Vertragstests prüfen die feste Gateway-Aliasliste, Nachrichtenform, Antwortauswertung, Quellkontextgrenzen, Task-Envelope-Validierung, Ledger-Schutz und die Befehlsverarbeitung. Solche Tests beweisen keine echte Provider-Verbindung.
 
 Für einen realen Council-Lauf müssen zusätzlich die beiden GitHub-Secrets und die manuelle Budgetfreigabe eingerichtet sein. Es wurde bislang kein bezahlter Modellaufruf durch diese Dokumentations-/Codeprüfung ausgelöst. Die Live-Konfiguration der Vercel-Aliase allein beweist weder eine GitHub-Actions-Verbindung noch eine erfolgreiche Mehrmodell-Debatte.
+
+
+## Verbindliche Kosten- und Aktivierungssperre
+
+Unter der geltenden Zusatzbudgetgrenze von **0 EUR** bleibt der Gateway-Relay technisch deaktiviert: Der GitHub-Actions-Job enthält eine feste `false && ...`-Bedingung. Auch `AI_TEAM_BUDGET_CONFIRMED=true` kann diese Sperre nicht übersteuern. Das vorhandene Vercel-Soft-Cap von 5 USD/Monat ist keine harte Kostenobergrenze. Eine spätere Aktivierung erfordert eine neue ausdrückliche Budgetfreigabe sowie einen nachweislich anbieterübergreifenden numerischen Hard Cap mit Preisgrundlage, atomarer Reservierung, tatsächlicher Nutzungs-/Kostenprüfung und Fail-Closed-Verhalten. Bis dahin keine Provider-Aufrufe und keine Live-Council-Debatte.
