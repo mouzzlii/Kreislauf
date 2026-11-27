@@ -64,3 +64,13 @@ Weitere Konzept- und Forschungsstränge (KRONOS 01, KREISLAUF ReFlex/VacMail, VR
 - **Produktionsbereit:** alle erforderlichen Abnahme-Gates erfüllt.
 
 Nie einen Status aus einem anderen ableiten.
+
+
+## Aktualisierung: Council-Relay auf aktuellem Mainline-Stand – 27.11.2026
+
+- **Sauberer Integrationszweig:** `integration/council-relay-mainline`, PR [#63](https://github.com/mouzzlii/Kreislauf/pull/63). Direkt von `main` erstellt; aktueller Branch-Vergleich: 15 Commits voraus, 0 zurück. GitHub meldet den PR als zusammenführbar. Der alte PR #38 bleibt Draft und unverändert; sein Zweig ist weiterhin 163 Commits voraus und 98 zurück und wird nicht blind zusammengeführt.
+- **Übernommener Umfang:** feste Gateway-Aliase für GPT, Claude, Gemini und Grok, Interop-Envelope, Idempotenz-/Tagesbudget-Ledger, Public-only-Quellkontext, Secret-Redaktion, Parser und gezielte Tests. Die aktuelle globale Prompt-Referenz und bestehende Projektübersicht wurden beim Portieren nicht durch ältere Branch-Dokumentation ersetzt.
+- **Automatisiert geprüft – exakter Relay-Commit `78e31b5d044b11904096bffd50ab2a04172b60af`:** GitHub Actions `KI-Team-Relay CI` Run #366 erfolgreich; Syntax, Envelope-, Ledger-, Source-Context-, Provider-Vertrags- und Parsertests sowie Mapping-/Budgetprüfungen erfolgreich. KREISLAUF-Build/Test Run #1270 ebenfalls erfolgreich; TypeScript, automatisierte Tests, Code-Qualität und Produktionsbuild erfolgreich.
+- **Vercel:** Status meldet weiterhin `build-rate-limit`. Dies ist ein separates Deployment-/Preview-Problem; es wurde kein Vercel-Deployment ausgelöst oder als erfolgreich gewertet.
+- **Kosten-/Live-Sperre:** Der Issue-Comment-Workflow bleibt durch `false && ...` deaktiviert. Keine externen Modellaufrufe, keine Council-Antworten, keine Inferenzkosten. Die technische Implementierung und Vertragstests beweisen keine aktive Providerverbindung.
+- **Nächster Gate:** Code-Review des neuen PR #63, Prüfung der Branch-Änderungen gegen die aktuelle Projektbaseline und erneute CI nach jeder Korrektur. Kein Merge oder Livebetrieb ohne ausdrückliche Freigabe und harte Kostenkontrolle.
