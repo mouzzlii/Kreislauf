@@ -1,5 +1,5 @@
 import process from "node:process";
-import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, redactSensitiveText, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
+import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, isPublicRepositoryMetadata, redactSensitiveText, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { hasTrustedRelayMarker, inspectDailyBudgetPage } from "./ai-team-ledger.mjs";
 import { COUNCIL_MODELS, VERCEL_AI_GATEWAY_URL, buildGatewayChatCompletion, extractGatewayText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 import { parseCouncilTaskComment, resolveCouncilTaskProject } from "./ai-team-interop.mjs";
@@ -127,8 +127,13 @@ async function fetchProjectContext(project, taskEnvelope = null) {
   };
 
   const contexts = await Promise.all(repositories.map(async (repo) => {
+    let visibility = "unknown";
     try {
       const meta = await api(`https://api.github.com/repos/${repo}`, { headers });
+      visibility = typeof meta.visibility === "string" ? meta.visibility : (meta.private === true ? "private" : "unknown");
+      if (!isPublicRepositoryMetadata(meta)) {
+        throw new Error("External Council context is restricted to public repositories; private/internal/unknown visibility is blocked.");
+      }
       const configuredBranch = project === "KI-ARBEITSPLATZ" ? process.env.PROJECT_REPO_KI_ARBEITSPLATZ_REF : "";
       const branch = taskEnvelope
         ? taskEnvelope.payload.inputs.commitSha
@@ -175,6 +180,7 @@ async function fetchProjectContext(project, taskEnvelope = null) {
       return {
         repository: repo,
         branch,
+        visibility,
         readme,
         source: buildSourceContext(repo, sourceFiles),
         paths,
@@ -183,6 +189,7 @@ async function fetchProjectContext(project, taskEnvelope = null) {
     } catch (error) {
       return {
         repository: repo,
+        visibility,
         note: `Projektkontext konnte nicht geladen werden: ${error instanceof Error ? error.message.slice(0, 250) : "unbekannter GitHub-Fehler"}`,
         readme: "",
         source: "",
@@ -195,9 +202,10 @@ async function fetchProjectContext(project, taskEnvelope = null) {
   return {
     repository,
     branch: primaryContext?.branch || "",
-    repositories: contexts.map(({ repository: repo, branch, note, source }) => ({
+    repositories: contexts.map(({ repository: repo, branch, visibility, note, source }) => ({
       repository: repo,
       branch,
+      visibility,
       note,
       hasSourceExcerpt: hasNonEmptySourceExcerpt(source),
     })),
@@ -444,7 +452,7 @@ async function main() {
           marker,
           "### KI-Team-Relay abgebrochen",
           `Der Quellkontext für ${project} (${projectContext.repository || "Repository nicht konfiguriert"}) konnte nicht vollständig geladen werden.`,
-          "Bitte den Fine-grained AI_TEAM_REPO_READ_TOKEN auf das Projekt-Repository mit Contents: read-only und Metadata-Lesezugriff erweitern.",
+          "Der Relay übermittelt ausschließlich Quellkontext aus öffentlich sichtbaren Repositorys. Private, interne oder nicht eindeutig klassifizierte Repositorys werden vor Budgetreservierung und Provider-Aufruf blockiert. Zusätzlich muss das read-only Token Metadata- und Contents-Lesezugriff auf das öffentliche Repository besitzen.",
           "Es wurden keine Provider aufgerufen und kein Tageskontingent reserviert.",
         ].join("\n\n"),
       }),
