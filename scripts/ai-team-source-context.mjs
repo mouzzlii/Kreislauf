@@ -1,6 +1,6 @@
 const SECRET_PATTERNS = [
   [/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g, "[REDACTED SECRET]"],
-  [/\b(?:sk-[A-Za-z0-9_-]{20,}|sk_(?:live|test)_[A-Za-z0-9]{16,}|xai-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16})\b/g, "[REDACTED SECRET]"],
+  [/\b(?:sk-[A-Za-z0-9_-]{20,}|sk_(?:live|test)_[A-Za-z0-9]{16,}|xai-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|glpat-[A-Za-z0-9_-]{20,}|hf_[A-Za-z0-9]{20,}|LLM_[0-9]+_[A-Za-z0-9_-]{20,}|npm_[A-Za-z0-9]{20,}|sb_secret_[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16})\b/g, "[REDACTED SECRET]"],
   [/\b[a-f0-9]{64,128}\b/gi, "[REDACTED HIGH-ENTROPY HEX]"],
   [/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, "[REDACTED SECRET]"],
   [/((?:[A-Z0-9_]*(?:SECRET|TOKEN|KEY|PASSWORD|PRIVATE_KEY)[A-Z0-9_]*|clientSecret|apiKey|accessToken|refreshToken)\s*[:=]\s*)(["'\x60])[^"'\x60\r\n]{8,}\2/gi, "$1[REDACTED]"],
@@ -17,6 +17,16 @@ export function redactSensitiveText(value) {
 }
 
 const PRIORITY_PATHS = [
+  "src/app/studio.tsx",
+  "src/app/api/ai/analyze/route.ts",
+  "src/app/api/ai/status/route.ts",
+  "src/lib/listing-core.js",
+  "book-your-cook-produkt/README-DE.md",
+  "book-your-cook-produkt/docs/TAX-PRICE-MODELL-UND-FREIGABE.md",
+  "book-your-cook-produkt/supabase/functions/_shared/pricing.js",
+  "book-your-cook-produkt/supabase/functions/stripe-webhook/index.ts",
+  "Quiz_Neu_verbessert.html",
+  "scripts/check-quiz.mjs",
   "docs/PROJECT-COORDINATION.md",
   ".github/AI-COLLABORATION.md",
   "AI_TEAM_SETUP.md",
@@ -36,15 +46,29 @@ const PRIORITY_PATHS = [
   "SPEC.md",
   "android/README_DE.md",
   "package.json",
+  "MASTERWERK-ROADMAP.md",
+  "Offline-Modus/Lib/Common.ps1",
+  "Offline-Modus/Lib/LocalAI.ps1",
+  "Offline-Modus/Worker.ps1",
 ];
 
 export const MAX_SOURCE_FILES_PER_REPO = 4;
 export const MAX_SOURCE_FILE_CHARS = 1_800;
 export const MAX_SOURCE_CONTEXT_CHARS = 6_500;
 
-export function selectSourcePaths(paths, limit = MAX_SOURCE_FILES_PER_REPO) {
+const PROJECT_PRIORITY_PATHS = {
+  "KI-ARBEITSPLATZ": [
+    "MASTERWERK-ROADMAP.md",
+    "Offline-Modus/Lib/Common.ps1",
+    "Offline-Modus/Lib/LocalAI.ps1",
+    "Offline-Modus/Worker.ps1",
+  ],
+};
+
+export function selectSourcePaths(paths, limit = MAX_SOURCE_FILES_PER_REPO, project = "") {
   const available = new Set(paths);
-  return PRIORITY_PATHS.filter((path) => available.has(path)).slice(0, limit);
+  const preferred = [...(PROJECT_PRIORITY_PATHS[project] || []), ...PRIORITY_PATHS];
+  return [...new Set(preferred)].filter((path) => available.has(path)).slice(0, limit);
 }
 
 export function decodeSourceFile(file) {
@@ -90,7 +114,7 @@ export function buildSafeProjectContext({
   const metadata = [
     `Projekt: ${project}`,
     `Projekt-Repository: ${repository || "nicht konfiguriert"}`,
-    `Standardbranch: ${branch || "unbekannt"}`,
+    `Git-Ref (Branch oder Commit): ${branch || "unbekannt"}`,
     `GitHub-Hinweis: ${redactSensitiveText(note || "Projektmetadaten geladen")}`,
   ].join("\n");
   const task = [
@@ -116,4 +140,50 @@ export function buildSafeProjectContext({
     remaining -= prefix.length + heading.length + excerpt.length;
   }
   return parts.join("");
+}
+
+export function hasNonEmptySourceExcerpt(source) {
+  if (typeof source !== "string") return false;
+  return source.replace(/^#### [^\n]+\n/gm, "").trim().length > 0;
+}
+
+export function isPublicRepositoryMetadata(metadata) {
+  return Boolean(
+    metadata &&
+    typeof metadata === "object" &&
+    metadata.visibility === "public" &&
+    metadata.private === false
+  );
+}
+
+export function hasUsablePrimaryContext(projectContext) {
+  if (!projectContext || typeof projectContext.repository !== "string" || !projectContext.repository) return false;
+  if (!Array.isArray(projectContext.repositories)) return false;
+  const primary = projectContext.repositories.find((context) =>
+    context &&
+    context.repository === projectContext.repository
+  );
+  return Boolean(
+    primary &&
+    primary.visibility === "public" &&
+    typeof primary.branch === "string" &&
+    primary.branch.trim().length > 0 &&
+    primary.hasSourceExcerpt === true
+  );
+}
+
+export function resolveProjectBranch(defaultBranch, configuredBranch = "") {
+  const fallback = typeof defaultBranch === "string" && defaultBranch ? defaultBranch : "main";
+  if (typeof configuredBranch !== "string" || !configuredBranch.trim()) return fallback;
+  const branch = configuredBranch.trim();
+  if (
+    !/^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$/.test(branch) ||
+    branch.includes("..") ||
+    branch.startsWith("/") ||
+    branch.endsWith("/") ||
+    branch.includes("//")
+  ) {
+    throw new Error("Unsafe project branch reference.");
+  }
+  return branch;
 }

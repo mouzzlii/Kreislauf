@@ -14,19 +14,25 @@ concurrency:
 
 jobs:
   debate:
+    # Hard-disabled under the current 0 EUR additional-spend authorization.
+    # The legacy boolean budget flag is not a numeric hard cost limit.
     if: >-
+      false &&
       github.event.issue.pull_request == null &&
       github.event.issue.number == 11 &&
       github.event.comment.user.type != 'Bot' &&
-      startsWith(github.event.comment.body, '/ai-team debate ')
+      (
+        startsWith(github.event.comment.body, '/ai-team debate ') ||
+        startsWith(github.event.comment.body, '/ai-team task:')
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
       - name: Checkout coordination scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 22
 
@@ -39,21 +45,17 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          AI_TEAM_THIRD_PROVIDER: ${{ vars.AI_TEAM_THIRD_PROVIDER }}
-          META_MODEL_API_KEY: ${{ secrets.META_MODEL_API_KEY }}
-          META_MODEL: ${{ vars.META_MODEL }}
-          LLAMA_API_KEY: ${{ secrets.LLAMA_API_KEY }}
-          LLAMA_API_BASE_URL: ${{ vars.LLAMA_API_BASE_URL }}
+          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
           AI_TEAM_REPO_READ_TOKEN: ${{ secrets.AI_TEAM_REPO_READ_TOKEN }}
           AI_TEAM_BUDGET_CONFIRMED: ${{ vars.AI_TEAM_BUDGET_CONFIRMED }}
-          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
-          CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}
-          LLAMA_MODEL: ${{ vars.LLAMA_MODEL }}
           AI_TEAM_ALLOWED_USERS: ${{ vars.AI_TEAM_ALLOWED_USERS }}
           PROJECT_REPO_KREISLAUF: ${{ vars.PROJECT_REPO_KREISLAUF }}
           PROJECT_REPO_TRAKUNA: ${{ vars.PROJECT_REPO_TRAKUNA }}
           PROJECT_REPO_TRAKUNA_ANDROID: ${{ vars.PROJECT_REPO_TRAKUNA_ANDROID }}
           PROJECT_REPO_SCAN_PROFIT: ${{ vars.PROJECT_REPO_SCAN_PROFIT }}
           PROJECT_REPO_CHRONOS: ${{ vars.PROJECT_REPO_CHRONOS }}
+          PROJECT_REPO_INSERAT_PROFI_AI: ${{ vars.PROJECT_REPO_INSERAT_PROFI_AI }}
+          PROJECT_REPO_BOOK_YOUR_COOK: ${{ vars.PROJECT_REPO_BOOK_YOUR_COOK }}
+          PROJECT_REPO_LARA_QUIZ: ${{ vars.PROJECT_REPO_LARA_QUIZ }}
+          PROJECT_REPO_KI_ARBEITSPLATZ: ${{ vars.PROJECT_REPO_KI_ARBEITSPLATZ }}
+          PROJECT_REPO_KI_ARBEITSPLATZ_REF: ${{ vars.PROJECT_REPO_KI_ARBEITSPLATZ_REF }}
