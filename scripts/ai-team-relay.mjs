@@ -1,7 +1,7 @@
 import process from "node:process";
 import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, isPublicRepositoryMetadata, redactSensitiveText, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { hasTrustedRelayMarker, inspectDailyBudgetPage } from "./ai-team-ledger.mjs";
-import { COUNCIL_MODELS, VERCEL_AI_GATEWAY_URL, buildGatewayChatCompletion, extractGatewayText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
+import { COUNCIL_MODELS, VERCEL_AI_GATEWAY_URL, buildGatewayChatCompletion, extractGatewayResponseMetadata, extractGatewayText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 import { createTaskExecutionBudget, isWithinUtf8ByteLimit, parseCouncilTaskComment, parsePublicDebateRequest, resolveCouncilTaskProject } from "./ai-team-interop.mjs";
 
 const RELAY_LIVE_ENABLED = false; // Requires explicit code review and budget authorization to enable.
@@ -41,6 +41,7 @@ const MAX_OUTPUT_TOKENS = 1000;
 const MAX_DAILY_DEBATES = 2;
 const MARKER_PREFIX = "<!-- ai-team-relay:";
 let taskExecutionBudget = null;
+const modelAudit = [];
 
 function fail(message) {
   console.error(message);
@@ -87,6 +88,10 @@ async function askCouncilModel(model, instructions, input) {
     body: JSON.stringify(buildGatewayChatCompletion({ model, instructions, input, maxTokens: MAX_OUTPUT_TOKENS })),
   });
   const output = extractGatewayText(data);
+  modelAudit.push({
+    callNumber: modelAudit.length + 1,
+    ...extractGatewayResponseMetadata(data, model),
+  });
   if (!output) throw new Error(`Council model ${model} returned an empty response.`);
   return output;
 }
@@ -564,6 +569,12 @@ async function main() {
     grok,
     "## Gemeinsame Synthese",
     synthesis,
+    "## Technische Modellnachweise",
+    ...modelAudit.map((entry) => {
+      const tokens = entry.usage.totalTokens === null ? "unbekannt" : String(entry.usage.totalTokens);
+      return "- Aufruf " + entry.callNumber + ": angeforderter Alias " + entry.requestedAlias + "; Antwort-ID " + (entry.responseId || "nicht geliefert") + "; zurückgegebenes Modell " + (entry.returnedModel || "nicht geliefert") + "; Provider " + (entry.providerReported || "im Response nicht ausgewiesen") + "; Tokens " + tokens + ".";
+    }),
+    "Provider- und Kostenangaben werden nur als bestätigt ausgewiesen, wenn sie tatsächlich von der Schnittstelle geliefert werden. Die Gateway-Nutzungsansicht bleibt für die endgültige Provider-/Kostenprüfung maßgeblich.",
     "---",
     "_Automatisch erzeugte Analyse. Keine Codeänderung, kein Merge und kein Praxistest wurde durch diesen Relay-Lauf ausgeführt._",
   ].join("\n\n");
