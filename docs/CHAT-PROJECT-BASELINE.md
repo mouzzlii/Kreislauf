@@ -5,6 +5,8 @@
 
 ## 1. Verbindliche Arbeitsregeln für alle Projekte
 
+- **Main-Referenz vor jedem Denk- und Arbeitsschritt:** Bevor ChatGPT einen neuen Auftrag analysiert, plant, recherchiert, entscheidet oder ausführt, muss zuerst die aktuelle zentrale Main-Datei `docs/CHAT-PROJECT-BASELINE.md` im Repository `mouzzlii/Kreislauf` aus dem Branch `main` gelesen werden. Danach sind die für den Auftrag relevanten Projektdateien, offenen Aufgaben, Issues/PRs und aktuellen Zustände zu prüfen. Diese Reihenfolge gilt chatübergreifend und auch bei kurzen Folgeaufträgen. Frühere Chat-Aussagen oder gespeicherte Zusammenfassungen ersetzen nicht das erneute Lesen der aktuellen Main-Referenz. Ist GitHub/Main nicht erreichbar, darf nicht so getan werden, als sei die Regelbasis geprüft worden; die Zugriffssperre ist transparent zu benennen und bis zur Wiederherstellung ist nur auf Basis ausdrücklich verfügbarer Informationen mit entsprechendem Vorbehalt weiterzuarbeiten.
+
 - Die bisherigen Chats sind die Anforderungs- und Entscheidungshistorie. Bei widersprüchlichen Angaben gilt die zeitlich neueste ausdrücklich bestätigte Nutzerentscheidung; ältere Entscheidungen bleiben als Historie erkennbar, wenn sie noch relevant sind.
 - Nutzerentscheidungen, technische Vorschläge, implementierter Code, automatisierte Tests, reale Gerätetests und Produktionsfreigaben sind getrennt auszuweisen.
 - Nie eine frühere Assistentenbehauptung als Beweis behandeln. Externe APIs, KI-Council-Antworten, Builds, Deployments und Hardwaretests nur mit tatsächlichem Nachweis melden.
