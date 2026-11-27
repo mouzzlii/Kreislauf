@@ -19,7 +19,7 @@ Er nutzt ausschließlich diese fest allowlisteten Virtual-Model-Aliase:
 
 Alle vier Modelle erhalten denselben ursprünglichen Auftrag und denselben begrenzten, redigierten Quellkontext. Die drei Gegenanalysen erhalten keine vorherigen Agentenantworten. Erst danach erhält GPT die vier Analysen zur Synthese. Es werden keine Provider-Tools oder Schreibaktionen übergeben.
 
-Die Aliase wurden in der verbundenen Vercel-Teamkonfiguration als aktiv und mit Zero Data Retention sowie deaktiviertem Prompt-Training ausgelesen. Das ist **keine EU-Datenresidenz-Garantie**: Nur Claude ist derzeit ausdrücklich auf EU-Provider-Routen beschränkt. Für GPT, Gemini und Grok ist keine explizite EU-Inferenzregion nachgewiesen. Deshalb dürfen über diesen Relay keine personenbezogenen, vertraulichen, Kunden-, Gesundheits-, Zahlungs-, Zugangsdaten oder privaten Inhalte übertragen werden. Nur freigegebene, redigierte und für die jeweiligen Provider geeignete Quellkontexte verwenden. Die Secret-Redaktion erkennt bekannte Muster, ist aber keine vollständige PII-/Secret-Erkennung.
+Die Aliase wurden in der verbundenen Vercel-Teamkonfiguration als aktiv und mit Zero Data Retention sowie deaktiviertem Prompt-Training ausgelesen. Das ist **keine EU-Datenresidenz-Garantie**: Nur Claude ist derzeit ausdrücklich auf EU-Provider-Routen beschränkt. Für GPT, Gemini und Grok ist keine explizite EU-Inferenzregion nachgewiesen. Deshalb dürfen über diesen Relay keine personenbezogenen, vertraulichen, Kunden-, Gesundheits-, Zahlungs-, Zugangsdaten oder privaten Inhalte übertragen werden. Zusätzlich gilt jetzt eine technische Public-only-Sperre: Vor dem Lesen von README, Dateibaum oder Quelltext wird GitHub-Metadatenfeld `visibility` geprüft; nur `visibility=public` zusammen mit `private=false` ist zulässig. Private, interne oder nicht eindeutig klassifizierte Repositorys werden fail-closed abgewiesen. Die Primärquelle muss ebenfalls öffentlich sein; private Sekundärrepositorys liefern keinen Quelltext. Die Prüfung erfolgt vor Tagesbudgetreservierung und Provider-Aufrufen. Die Secret-Redaktion erkennt bekannte Muster, ist aber keine vollständige PII-/Secret-Erkennung.
 
 Llama wird nicht aufgerufen, bis eine geeignete EU-Datenverarbeitung nachgewiesen ist. Meta Muse ist ebenfalls nicht Teil dieses aktiven Vier-Modell-Ablaufs.
 
@@ -44,7 +44,7 @@ Zulässige Projektkennungen für Debatten:
 - `LARA-QUIZ`
 - `KI-ARBEITSPLATZ`
 
-Der strukturierte Task-Eingang verwendet `/ai-team task:` gefolgt von einem JSON-Envelope. Er ist derzeit ausschließlich für `KI-ARBEITSPLATZ` und den Task-Typ `project.static_review` freigegeben. Er verlangt einen fixierten 40-stelligen Commit-SHA, 1–4 freigegebene Repository-Pfade und `readOnly: true`. Der Adapter darf nur Quelltext lesen und eine begrenzte Markdown-Analyse zurückgeben. Schreib-, Lösch-, Merge-, Deploy-, Veröffentlichungs-, Kauf- und externe Nachrichtenoperationen sind ausdrücklich gesperrt. Ungültige, abgelaufene oder nicht exakt passende Envelopes werden vor Provider-Aufrufen abgewiesen.
+Der strukturierte Task-Eingang verwendet `/ai-team task:` gefolgt von einem JSON-Envelope. Er ist derzeit ausschließlich für `KI-ARBEITSPLATZ` und den Task-Typ `project.static_review` freigegeben. Er verlangt einen fixierten 40-stelligen Commit-SHA, 1–4 freigegebene Repository-Pfade, `readOnly: true` und `dataClassification` exakt aus `public`, `synthetic` oder `anonymized`. `internal`, `confidential`, `personal` und `secret` werden abgewiesen. Wichtig: Das kanonische Repository `mouzzlii/KI-Arbeitsplatz` ist privat; deshalb wird der strukturierte Task-Eingang derzeit bei der Public-only-Prüfung gestoppt und kann keine privaten Quellen an Modelle senden. Er bleibt bis zu einer ausdrücklich freigegebenen öffentlichen/synthetischen Quelle nicht operativ nutzbar. Das Repository darf nicht nur zur Aktivierung öffentlich gemacht werden. Der Adapter darf nur freigegebene öffentliche Quelltexte lesen und eine begrenzte Markdown-Analyse zurückgeben. Schreib-, Lösch-, Merge-, Deploy-, Veröffentlichungs-, Kauf- und externe Nachrichtenoperationen sind ausdrücklich gesperrt. Ungültige, abgelaufene oder nicht exakt passende Envelopes werden vor Provider-Aufrufen abgewiesen.
 
 ## GitHub-Actions-Einrichtung
 
@@ -55,7 +55,7 @@ Der Workflow benötigt genau diese beiden Repository-Secrets:
 | `AI_GATEWAY_API_KEY` | Authentifizierung am Vercel AI Gateway |
 | `AI_TEAM_REPO_READ_TOKEN` | Fine-grained GitHub-Token zum Lesen der freigegebenen Projektquellen |
 
-`AI_TEAM_REPO_READ_TOKEN` benötigt ausschließlich Metadata-Lesezugriff und `Contents: read-only` auf die tatsächlich konfigurierten Projekt-Primärrepositories sowie die erforderlichen Zusatzrepositories (insbesondere `mouzzlii/Fuck` als TRAKUNA-Android-Quelle). Es erhält keine Schreibrechte.
+`AI_TEAM_REPO_READ_TOKEN` benötigt ausschließlich Metadata-Lesezugriff und `Contents: read-only` auf die ausdrücklich freigegebenen, öffentlich sichtbaren Quellrepositorys. Es erhält keine Schreibrechte. Private oder interne Repositorys werden unabhängig von Token-Berechtigungen nicht gelesen; der Token sollte dafür keine unnötigen privaten Content-Rechte besitzen.
 
 Wichtig: Ein in Vercel gespeichertes `AI_GATEWAY_API_KEY`-Environment-Secret wird **nicht automatisch** an GitHub Actions weitergereicht. Die GitHub-Repository-Secret-Konfiguration ist eine getrennte Einrichtung. Der geheime Wert darf weder in Issues noch in Chats oder Quellcode gepostet werden. Es ist nicht erforderlich, ihn ChatGPT mitzuteilen.
 
@@ -74,7 +74,7 @@ Die Budgetvariable ist ein manueller Freigabeschalter, keine automatische Kosten
 
 - Ausschließlich Issue #11, erlaubte Absender und explizite Befehle.
 - Feste Modell-Alias-Allowlist; keine freie Modellkennung aus Kommentartext.
-- Begrenzter Quellkontext mit projektspezifischer Pfadpriorität und bekannten Secret-Redaktionsmustern.
+- Begrenzter Quellkontext mit projektspezifischer Pfadpriorität, Public-only-Metadatenprüfung und bekannten Secret-Redaktionsmustern; die Public-only-Prüfung ist eine zusätzliche Sperre, kein Ersatz für PII-Prüfung.
 - Das kanonische Primärrepository selbst muss einen Branch und einen nichtleeren Quelltextauszug liefern. Ein sekundäres Repository kann diese Prüfung nicht ersetzen.
 - Maximal zwei Debatten pro UTC-Kalendertag. Der globale Workflow-Concurrency-Block serialisiert Reservierungen; der zentrale Kommentar-Ledger wird vor dem ersten Provider-Aufruf geprüft.
 - Reservierungen und Verarbeitungsmarker werden nur von `github-actions[bot]` mit GitHub-Typ `Bot` anerkannt. Fremde Nutzer und andere Bots können keine Reservierung fälschen.
