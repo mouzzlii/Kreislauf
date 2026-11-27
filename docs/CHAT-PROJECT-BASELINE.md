@@ -665,3 +665,9 @@ Dieser Nachtrag ergänzt die vorstehenden Projektentscheidungen um den zuletzt d
 - Beide PRs bleiben Draft; keine Produktionsänderung, kein Live-Buchungsgate, keine Migration und keine Zahlungsabnahme.
 
 **Portfolio-Schutzstatus:** Alle genannten Änderungen befinden sich in offenen Draft-PRs bzw. Arbeitsbranches. Keine der hier genannten PR-Änderungen wurde durch diesen Nachtrag in einen Hauptbranch oder eine Produktionsumgebung übernommen.
+
+### Korrektur – kanonischer MAINPROMPT und PR-Status (27.11.2026)
+- Die maßgebliche globale Arbeitsverfassung ist ausschließlich `mouzzlii/KI-Arbeitsplatz/docs/MAINPROMPT.md`, derzeit auf `main` Version 2.0.7. Die ältere Datei `docs/MASTER-ARBEITS-PROMPT.md` und ein separates Befehls-/Entscheidungsregister sind laut MAINPROMPT 2.0.7 nicht mehr die kanonische Quelle.
+- Der zuvor angelegte PR #13 wurde geschlossen, da er nur die alten Prompt-/Registerdateien änderte und nicht die kanonische Arbeitsverfassung.
+- Die Antwortoptionen-Regel ist nun stattdessen korrekt in MAINPROMPT 2.0.8 und dem README-Versionsverweis vorbereitet: Draft-PR [#15](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/15), Head `d331ea323159b323daefdc83a16e28684f7bed27`. Beide Dateien wurden auf dem Branch erneut gelesen; §3 und Versionshistorie enthalten die Regel, README verweist auf 2.0.8. PR ist konfliktfrei gemeldet, bleibt Draft und ist noch nicht in `main`.
+- PR #11 bleibt offen und Draft mit bestätigtem Merge-Konflikt; nicht erzwingen. Es wird nicht als kanonische Arbeitsgrundlage verwendet.
