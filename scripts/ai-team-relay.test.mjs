@@ -93,3 +93,9 @@ assert.deepEqual(buildMetaChatCompletion({
   {role:"user",content:"Review."},
 ]);
 console.log("AI team routing, Meta/Llama selection, provider credentials, secure endpoint and budget-gate tests passed.");
+
+
+// Keep the live relay disabled while the authorized additional-spend limit is 0 EUR.
+assert.ok(workflowSource.includes("false &&"));
+assert.ok(setup.includes("0 EUR"));
+assert.ok(setup.includes("numerischen Hard Cap"));
