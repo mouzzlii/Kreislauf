@@ -1,6 +1,6 @@
 # KI-Team-Kommunikation für vier Projekte
 
-**Geltungsbereich:** Dieses Dokument beschreibt ausschließlich den technischen Relay und die Council-Zusammenarbeit für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS. Globale Arbeitsweise, Kosten- und Freigabegrenzen richten sich nach [MAINPROMPT 2.0.7](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md); dieses Dokument ist keine zweite globale Arbeitsverfassung.
+**Geltungsbereich:** Dieses Dokument beschreibt ausschließlich den technischen Relay und die Council-Zusammenarbeit für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS. Globale Arbeitsweise, Kosten- und Freigabegrenzen richten sich nach [MAINPROMPT 2.0.8](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md); dieses Dokument ist keine zweite globale Arbeitsverfassung.
 
 ## Aktueller Abgleich – 27.11.2026
 
@@ -11,7 +11,7 @@ Der folgende Abschnitt beschreibt den tatsächlich aktiven Stand auf `main` und 
 - Das Vercel-Projekt enthält `AI_GATEWAY_API_KEY` nur für Preview und Development. Diese Variable wird nicht automatisch an GitHub Actions weitergereicht. Der Wert wurde nicht abgerufen.
 - Das bestehende Vercel-Projektbudget von 5 USD/Monat ist laut Vercel ein **Soft Cap**: Ein Request, der die Grenze überschreitet, kann noch abgeschlossen werden. Es ist daher keine harte Kostenobergrenze. Usage vom 20. bis 27.11.2026: 0 Requests, 0 USD.
 - Der Gateway-Umbau in PR #38 ist nicht in `main` integriert und bleibt Draft. Keine echten Provider-Aufrufe, keine Kostenfreigabe und kein Live-Council sind nachgewiesen.
-- MAINPROMPT 2.0.7 bleibt maßgeblich: Zusatzbudget 0 EUR, Live-Council AUS. Keine Provider-Anfragen ohne ausdrückliche Budgetfreigabe und belastbare harte Kostenkontrolle.
+- MAINPROMPT 2.0.8 bleibt maßgeblich: Zusatzbudget 0 EUR, Live-Council AUS. Keine Provider-Anfragen ohne ausdrückliche Budgetfreigabe und belastbare harte Kostenkontrolle.
 
 Die verifizierte Modell-, Regions-, Credential- und Kostenübersicht steht in [docs/COUNCIL_LIVE_STATUS.md](docs/COUNCIL_LIVE_STATUS.md).
 
