@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createCouncilTaskIdempotencyKey, parseCouncilTaskComment, resolveCouncilTaskProject, validateCouncilTaskEnvelope } from "./ai-team-interop.mjs";
+import { createCouncilTaskIdempotencyKey, parseCouncilTaskComment, parsePublicDebateRequest, resolveCouncilTaskProject, validateCouncilTaskEnvelope } from "./ai-team-interop.mjs";
 
 const NOW = new Date("2026-11-26T10:30:00.000Z");
 
@@ -238,4 +238,24 @@ test("canonical idempotency key is independent of allowed-path ordering", () => 
 test("matches the cross-runtime PowerShell canonical idempotency test vector", () => {
   const message = validEnvelope();
   assert.equal(message.idempotencyKey, "kia-190616e6244d6fefac474d3e9dbc38bb62c0efd595bde1f1118d1da6b5f42f9b");
+});
+
+
+test("requires explicit safe data classification for free Council debate requests", () => {
+  assert.deepEqual(parsePublicDebateRequest("[public] Review the public API contract"), {
+    success: true,
+    dataClassification: "public",
+    instruction: "Review the public API contract",
+  });
+  assert.equal(parsePublicDebateRequest("[SYNTHETIC] Check the mock workflow").dataClassification, "synthetic");
+  assert.equal(parsePublicDebateRequest("[anonymized] Review sanitized sample data").success, true);
+  for (const value of [
+    "Review the repository",
+    "[internal] Inspect the source",
+    "[confidential] Customer details",
+    "[personal] User data",
+    "[secret] Token",
+    "[public]   ",
+    null,
+  ]) assert.equal(parsePublicDebateRequest(value).success, false, String(value));
 });
