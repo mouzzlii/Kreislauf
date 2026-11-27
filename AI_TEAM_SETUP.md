@@ -132,3 +132,8 @@ Der Livebetrieb gilt erst als aktiviert, wenn ein synthetischer Ende-zu-Ende-Tes
 5. Fehlende Konfiguration, Provider-Fehler, unsichere Llama-Endpunkte und Kostenlimits werden korrekt behandelt.
 
 Der Relay ist in `main` integriert, aber bis zur Einrichtung der tatsächlichen Konten, Modellkennungen, Provider-Ausgabenlimits, read-only GitHub-Zugriff und einer ausdrücklichen Budgetfreigabe gesperrt. Es wurden in dieser Arbeit keine externen KI-Provider aufgerufen.
+
+
+## Verbindliche Kosten- und Aktivierungssperre
+
+Derzeit gilt ein zusätzliches Ausgabenlimit von **0 EUR**. Dieser Workflow-Job ist deshalb unabhängig von Secrets und Repository-Variablen durch die Job-Bedingung `false && ...` hart deaktiviert. Selbst `AI_TEAM_BUDGET_CONFIRMED=true` kann keinen Provider-Aufruf auslösen. Die boolesche Variable ist keine Kostenobergrenze. Eine spätere Aktivierung erfordert eine neue ausdrückliche Budgetfreigabe sowie einen nachweislich anbieterübergreifenden numerischen Hard Cap mit Preisgrundlage, atomarer Reservierung, tatsächlicher Nutzungs-/Kostenprüfung und Fail-Closed-Verhalten. Das bestehende Vercel-Soft-Cap von 5 USD/Monat erfüllt diese Anforderungen nicht.
