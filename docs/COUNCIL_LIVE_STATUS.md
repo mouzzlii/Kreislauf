@@ -1,16 +1,19 @@
 # KI-Council – Live- und Integrationsstatus
 
-**Letzte Prüfung:** 26.11.2026  
+**Letzte Prüfung:** 27.11.2026  
 **Zweck:** Nachweisbare Übersicht der tatsächlich verfügbaren Council-Instanzen und Verbindungen. Keine Zugangsdaten, Tokens oder Secrets eintragen.
 
 | Instanz | Vorgesehene Aufgabe | Verbindungsstatus bei letzter Prüfung | Tatsächlicher Nachweis / Blocker |
 |---|---|---|---|
-| ChatGPT | Leitung, Koordination, Synthese, Qualitätskontrolle | Verfügbar in dieser Sitzung | GitHub MCP wurde für Dokumentationsänderungen tatsächlich verwendet |
-| Claude | Unabhängige Analyse, alternative Lösungen, Gegenprüfung | Nicht live verbunden/nicht nachgewiesen | Keine Claude-Aufrufaktion in den aktuell verfügbaren Integrationen gefunden |
-| Meta/Llama | Alternative Lösungsentwicklung, Red-Team und Gegenprüfung | Nicht live verbunden/nicht nachgewiesen | Keine Meta-/Llama-Aufrufaktion in den aktuell verfügbaren Integrationen gefunden |
-| Python-KI | Programmierung, Codeanalyse, Datenanalyse, Tests | Eigenständige KI-Integration nicht nachgewiesen | Eine lokale Python-Laufzeit ist nicht automatisch eine unabhängige KI-Instanz |
+| ChatGPT | Leitung, Koordination, Synthese, Qualitätskontrolle | Verfügbar in dieser Sitzung | GitHub-Verbindung wurde am 27.11.2026 für tatsächliche Repository-Lese- und Schreibvorgänge verwendet; dies ist keine externe Modell-Inferenz |
+| Claude | Unabhängige Analyse, alternative Lösungen, Gegenprüfung | Nicht live verbunden/nicht nachgewiesen | Bei der Tool-Inventur am 27.11.2026 wurde keine direkte Claude-Inferenzaktion gefunden; kein Claude-Aufruf ausgeführt |
+| Meta/Llama | Alternative Lösungsentwicklung, Red-Team und Gegenprüfung | Nicht live verbunden/nicht nachgewiesen | Bei der Tool-Inventur am 27.11.2026 wurde keine direkte Meta-/Llama-Inferenzaktion gefunden; kein Modellaufruf ausgeführt |
+| Python-KI | Programmierung, Codeanalyse, Datenanalyse, Tests | Eigenständige KI-Integration nicht nachgewiesen | Die verfügbare Python-Laufzeit ist ein Werkzeug zur Codeausführung, keine nachgewiesene eigenständige KI-Instanz |
 | Lokaler PC / Offline-Node | Offline-Ausführung, Builds, Tests, Backups, Dokumentation | Nicht erreichbar/nicht live geprüft | Frühere Notiz: Windows OpenSSH-Dienst war gestoppt; aktueller Zustand muss bei realem Zugriff neu geprüft werden |
 | Weitere Tools/Agenten | Aufgabenbezogene Spezialarbeit | Jeweils einzeln zu prüfen | Nur tatsächlich verfügbare und autorisierte Integrationen verwenden |
+
+
+**Prüfgrenze 27.11.2026:** Die aktuelle Tool-Inventur ergab keine direkte Claude-, Meta-Muse- oder Llama-Inferenzaktion. Vercel-Modellkataloge, Aliase oder Konfigurationsdaten sind kein Live-Aufrufnachweis. Es wurden keine Provider-API-Aufrufe, keine Secrets und keine kostenpflichtigen Inferenzaufrufe ausgelöst.
 
 ## Verbindliche Statusbegriffe
 
