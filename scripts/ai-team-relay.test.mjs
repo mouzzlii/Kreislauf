@@ -41,6 +41,10 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
     assert.ok(relaySource.includes(`COUNCIL_MODELS.${model}`), `relay does not call ${model}`);
   }
   assert.ok(providerSource.includes("https://ai-gateway.vercel.sh/v1/chat/completions"));
+  assert.ok(providerSource.includes("export function extractGatewayResponseMetadata"));
+  assert.ok(relaySource.includes("modelAudit.push"));
+  assert.ok(relaySource.includes("Technische Modellnachweise"));
+  assert.ok(relaySource.includes("Provider- und Kostenangaben werden nur als bestätigt ausgewiesen"));
   assert.ok(relaySource.includes("AI_GATEWAY_API_KEY"));
   assert.ok(workflowSource.includes("AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}"));
   assert.ok(workflowSource.includes("AI_TEAM_REPO_READ_TOKEN: ${{ secrets.AI_TEAM_REPO_READ_TOKEN }}"));
