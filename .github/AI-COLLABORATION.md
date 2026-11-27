@@ -1,5 +1,7 @@
 # AI collaboration protocol
 
+**Global working constitution:** Follow [MAINPROMPT 2.0.7](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md) for cross-project autonomy, command semantics, costs, approvals, quality and evidence. This file remains the stricter repository-scoped collaboration workflow; its branch/PR and no-merge rules continue to apply.
+
 This repository may be worked on by multiple AI coding tools and human contributors.
 
 ## Source of truth
