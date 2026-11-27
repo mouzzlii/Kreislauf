@@ -155,11 +155,14 @@ Eigenständige App zur Erstellung und Verwaltung vieler Produktinserate; eigene 
 **Bestätigtes Ziel**
 Bestehendes Projekt „KI-Arbeitsplatz – Meisterwerk Edition v1.0.0“ fortführen statt doppelt entwickeln. Android-Smartphone ist die maßgebliche Nutzerplattform; ursprüngliche Windows-Annahmen sind nicht mehr passend. Vorgesehen sind zentrale Auftragsverwaltung, Projektkoordination, sichere GitHub-Arbeit, Tests/Fehlerprotokolle und Wiederherstellung.
 
-**Tatsächlicher GitHub-Stand beim Audit**
-- Repository-Root enthält aktuell .github/ und KI-Arbeitsplatz-Meisterwerk-v1.0.0.zip.
-- Kein README und kein aus dem Root-Inventar erkennbarer editierbarer Quellbaum.
-- Funktionsfähiger autonomer Agent, Android-Betrieb und End-to-End-Tests sind damit nicht nachgewiesen.
-- Keine zweite parallele Implementierung beginnen, bevor das vorhandene ZIP vollständig geprüft und der Quellstand geklärt wurde.
+**Tatsächlicher GitHub-Stand (erneut geprüft am 27.11.2026)**
+- Repository-Root enthält das unveränderte Originalarchiv `KI-Arbeitsplatz-Meisterwerk-v1.0.0.zip`, `README.md`, `app/`, `docs/`, `src/windows/` und GitHub-Workflowdateien.
+- Das ZIP wurde laut Repository-Audit vollständig inventarisiert; zehn Textdateien wurden extrahiert und gelesen. Die separat versionierte Windows-Quellfassung enthält ausgewählte Sicherheitskorrekturen 1.0.1; das Originalarchiv v1.0.0 blieb unverändert. Windows-Laufzeittests und ein neues Installationspaket sind nicht nachgewiesen.
+- Unter `app/` liegt ein statischer Android-PWA-Prototyp mit Projektkatalog, Service Worker und dokumentiertem Testplan. Browser-/Android-Installation, Offlineverhalten und End-to-End-Betrieb sind noch nicht als erfolgreich abgenommen.
+- Die Windows-Quellfassung ist eine lokale PowerShell-/CMD-Anwendung, keine autonome Agentenplattform und kein Council.
+- `docs/COUNCIL-INTEGRATION-BOUNDARY.md` beschreibt die getrennte Zielarchitektur. Eine produktive Council-Engine, ihre Integration in die PWA und echte Provider-Aufrufe sind nicht nachgewiesen.
+- Der GitHub-Actions-Runner war laut README beim letzten dokumentierten Audit vor Ausführung eines Schritts ausgefallen; CI-Erfolg darf daraus nicht abgeleitet werden.
+- Keine parallele Agentenbasis aufbauen: vorhandene Windows-Quelle, PWA und Council-Architektur getrennt weiterprüfen und gezielt integrieren.
 
 ### Weitere Konzept- und Forschungsprojekte
 
@@ -184,18 +187,20 @@ Das Repository [logo-M-glichkeiten-](https://github.com/mouzzlii/logo-M-glichkei
 
 ## 4. KI-Council und externe Dienste
 
-- Gewünschter Arbeitsablauf: ChatGPT koordiniert; Claude und Meta/Llama entwickeln unabhängig und prüfen gegenseitig.
-- Nur echte API-/MCP-Verbindungen und tatsächlich empfangene Antworten als Council-Ergebnis ausgeben.
-- Die in KREISLAUF vorhandene Relay-Basis ist nicht gleichbedeutend mit einem aktuell aktiven Council. Provider-Secrets, Modellkennungen, sichere Endpunkte, Kostenlimits und ausdrückliche Budgetfreigabe sind Voraussetzungen.
-- Ohne echte Provider-Aufrufe keine Claude-/Meta-/Llama-Antworten oder unabhängige Reviews behaupten.
-- Keine Secrets oder persönlichen Zugangsdaten im Chat oder in GitHub ablegen.
+- Gewünschter Arbeitsablauf: ChatGPT koordiniert; Claude, Gemini, Grok und Meta/Llama entwickeln unabhängig und prüfen gegenseitig, sobald die jeweiligen Verbindungen real verfügbar und freigegeben sind.
+- In `mouzzlii/Kreislauf` ist auf `main` ein GitHub-Actions-Relay implementiert: OpenAI Responses API, Anthropic Messages API und genau ein wählbarer dritter Provider (Meta Muse oder echtes Llama). Der aktive Workflow wird über ausdrücklich markierte Kommentare in Issue #11 gestartet; Quellkontext, Nutzer-Allowlist, Secret-Redaktion und Tageslimit sind vorgesehen.
+- Dieser Relay ist für vier Projekte in `main` verdrahtet. PR #38 ist ein offener Draft für die Erweiterung auf acht Projekte einschließlich KI-ARBEITSPLATZ und strukturierte Task-Envelopes; diese Erweiterung ist nicht als in `main` integriert zu behandeln.
+- Provider-Secrets, explizite Modellkennungen, read-only GitHub-Kontextzugriff, echte Anbieter-Ausgabenlimits und ausdrückliche Budgetfreigabe sind Voraussetzungen. Die vorhandenen Vertrags-/Mock-Tests beweisen keine Live-Inferenz.
+- Die Vercel-Aliase `council-claude`, `council-gemini`, `council-gpt`, `council-grok` und `council-llama` belegen nur Modellkonfiguration. Das separate Vercel-Projekt `collective-intelligence-council` hat ein READY-Deployment, ist aber durch SSO für alle Deployment-Zugriffe geschützt; eine öffentliche Erreichbarkeit oder eine nachgewiesene Quellcode-/Inferenzintegration folgt daraus nicht.
+- Aktueller Freigabestand: keine kostenpflichtigen Modellaufrufe ohne ausdrückliche Budgetfreigabe; der im KI-Arbeitsplatz-Master-Prompt dokumentierte Kostenrahmen beträgt 0 EUR. Llama bleibt auf öffentliche, synthetische oder anonymisierte Daten beschränkt, solange geeignete EU-Verarbeitung nicht nachgewiesen ist.
+- Ohne echte Provider-Aufrufe keine Claude-/Meta-/Llama-Antworten oder unabhängige Reviews behaupten. Keine Secrets oder persönlichen Zugangsdaten im Chat oder in GitHub ablegen.
 
 ## 5. Priorisierung und Arbeitsmodus
 
 - TRAKUNA ist derzeit eine hohe Umsetzungspriorität; innerhalb von TRAKUNA gilt die projektspezifische Regel: genau ein priorisiertes Ticket gleichzeitig.
 - KREISLAUF und Menschheitsfamilie fachlich verbunden, aber mit getrennten Daten- und Berechtigungsgrenzen.
 - SCAN-PROFIT und INSERAT-PROFI AI bleiben eigenständige Produkte ohne gegenseitige Laufzeitabhängigkeit.
-- KI-Arbeitsplatz soll langfristig zentrale Entwicklungs- und Koordinationshilfe werden; zunächst vorhandenen ZIP-Stand prüfen.
+- KI-Arbeitsplatz soll langfristig zentrale Entwicklungs- und Koordinationshilfe werden; vorhandenes Windows-Cockpit, PWA-Prototyp und getrennte Council-Engine-Architektur gezielt weiterprüfen und integrieren, ohne eine parallele Agentenbasis aufzubauen.
 - AIRLESS und Implosionsmotor als langfristige Hintergrundstränge mit geringem Ressourcenverbrauch verfolgen.
 - Vor Umsetzung zuerst Bestand, bewährte Open-Source-/Kommerziellösungen, Lizenz, Sicherheit, Kosten und Android-Tauglichkeit prüfen.
 
