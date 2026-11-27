@@ -577,3 +577,13 @@ Der Nutzer hat ausdrücklich angewiesen, laufende Projekte ohne wiederholte Zust
 - Server-README bestätigt 9/9 lokal bestandene HTTP-Grenztests inklusive Einmalfreigabe-Replay-Sperre. Lokaler Node-Lauf erneut: 9/9 bestanden; Syntaxprüfung der neuen Handler- und Testdateien bestanden.
 - GitHub-Check-Runs für diesen Head: 0. Vorherige Actions-Läufe scheiterten vor Job-Schritten; daher keine CI-Bestätigung. Der Vercel-Status für den aktuellen Stand meldet Free-Tier-Deployment-Limit (mehr als 100 Deployments/Tag); kein Deployment erfolgt.
 - Keine echte Provideranfrage, kein Schlüssel, keine Kosten, keine produktive Auth-/CSRF-/Freigabe-/Audit-/Budgetdienst-Anbindung. Keine Browser- oder Android-Abnahme.
+
+
+### KI-Council – Kosten-Gate des bestehenden Relay-PR #38 (27.11.2026)
+
+- Der aktuelle Relay-Branch `feature/portfolio-council-routing` ruft OpenAI, Anthropic und optional Meta/Llama direkt auf. Die fünf vorhandenen Vercel-AI-Gateway-Virtual-Model-Aliase werden von diesem Relay nicht verwendet; Gemini und Grok sind darin keine auswählbaren Council-Sitze.
+- `AI_TEAM_BUDGET_CONFIRMED` ist nur ein boolescher manueller Schalter. Der Relay besitzt keine numerische, programmatische Kostenobergrenze pro Debatte und keine verifizierte Preis-Vorprüfung. Tageslimit und Tokenlimit begrenzen die Nutzung, sind aber kein Geldlimit.
+- Das vorhandene Vercel-Projektbudget von 5 USD/Monat gilt nicht für direkte OpenAI-/Anthropic-/Meta-/Llama-Aufrufe des GitHub-Relays. Vercel Gateway-Budgets sind außerdem kein Ersatz für ein hartes anwendungsseitiges Limit, da ein bereits gestarteter Request die Grenze überschreiten kann.
+- **Verbindliche Sperre:** `AI_TEAM_BUDGET_CONFIRMED` nicht auf `true` setzen und keine Live-Aufrufe aktivieren, solange verifizierte Providerpreise, numerische Worst-Case-Kostenschätzung, auftragsgebundene Freigabe und atomare Budgetreservierung mit Fail-Closed-Verhalten fehlen.
+- Die vorhandene Council-Grundlage in `mouzzlii/KI-Arbeitsplatz/server/council/policy.mjs` ist der bevorzugte Ausgangspunkt: Live standardmäßig aus, 0 EUR, verifizierte Preisdaten, explizite Freigabe und verpflichtender atomarer Budgetreservierer. Sie besitzt noch keine produktiv angeschlossene Budgetdatenbank oder Provideradapter.
+- Stand dieser Prüfung: keine Provider-Aufrufe, keine Secrets, keine Kosten, keine Änderungen an Produktionssystemen.
