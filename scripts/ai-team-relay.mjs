@@ -4,6 +4,8 @@ import { hasTrustedRelayMarker, inspectDailyBudgetPage } from "./ai-team-ledger.
 import { COUNCIL_MODELS, VERCEL_AI_GATEWAY_URL, buildGatewayChatCompletion, extractGatewayText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 import { createTaskExecutionBudget, isWithinUtf8ByteLimit, parseCouncilTaskComment, parsePublicDebateRequest, resolveCouncilTaskProject } from "./ai-team-interop.mjs";
 
+const RELAY_LIVE_ENABLED = false; // Requires explicit code review and budget authorization to enable.
+
 const {
   GITHUB_TOKEN,
   GITHUB_REPOSITORY,
@@ -309,6 +311,10 @@ async function runPhase(issueNumber, marker, phase, work) {
 }
 
 async function main() {
+  if (!RELAY_LIVE_ENABLED) {
+    console.log("Council relay is hard-disabled; no GitHub API or model requests were made.");
+    return;
+  }
   if (!GITHUB_TOKEN || !GITHUB_REPOSITORY || !GITHUB_EVENT_PATH) {
     throw new Error("Missing GitHub Actions event configuration.");
   }
