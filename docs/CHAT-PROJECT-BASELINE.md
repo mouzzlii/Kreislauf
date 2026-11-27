@@ -436,3 +436,11 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 - Council-Ablauf: vier unabhängige Erstanalysen laufen nacheinander; danach GPT-Synthese. Eine Peer-Review-Runde durch die anderen Modelle fehlt. Erstanalysen sollen parallelisiert und anschließend gegeneinander geprüft werden.
 - PR #38 bleibt Draft/ungemergt und divergiert gegenüber `main` (128 Commits voraus, 61 zurück; Merge-Base `71fb0e07740150be13d40b1aef10ba269fe264b8`). GitHub meldete zuletzt `mergeable=false`; Vercel-Preview scheiterte wegen `build-rate-limit`. Keine Integration ohne kontrollierte Konsolidierung und erneute Prüfung.
 - Keine Secrets gelesen/geändert, keine API-/Gateway-Requests, keine Kosten, kein Merge und kein Deployment.
+
+### KI-ARBEITSPLATZ PR #12 – strikte verschachtelte Antwortvalidierung (27.11.2026)
+
+- Draft-PR #12, Branch `feat/offline-council-workbench`, Head `941198b4474c32bfe6ed40c0b3525889770d3a1f`; weiterhin offen, Draft und ungemergt.
+- Der HTTP-Handler validiert nun das vollständige Antwortschema einschließlich verschachtelter Provider-/Review-Einträge, Identitätsmetadaten, Fehlercodes, Preflight und Synthesestatus. Unbekannte verschachtelte Felder werden vor der Clientantwort abgewiesen; zusätzliche Regression deckt unerwartete Schlüssel-/Metadatenweitergabe ab.
+- Testquellstand: 18 Orchestrator- und 13 HTTP-Fälle. Die jüngsten Härtungsfälle sind noch nicht ausgeführt; für den exakten Head liefert die GitHub-Abfrage keinen Actions-Lauf. Frühere 17/17 bzw. 9/9 lokale Ergebnisse gelten nicht für die neuen Fälle.
+- Branch ist gegenüber `main` divergiert (Merge-Base `259644f87b0de1fbb96233fcd46488a6c6ebdc1d`); Ahead-/Behind-Zahlen sind dynamisch und vor einer Konsolidierung neu zu prüfen.
+- Keine Provideradapter, echte API-Route, produktive Auth-/CSRF-/Freigabe-/Audit-/Budgetdienste, ChatGPT-Synthese, Live-Aufrufe, Deployment oder Kosten.
