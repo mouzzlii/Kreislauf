@@ -437,3 +437,44 @@ Für TRAKUNA gilt zusätzlich:
 - Kein Mitarbeiter soll echte Kundendaten, echte Buchungen oder produktive Zugangsdaten für einen nicht freigegebenen Test verwenden. Testdaten und organisatorische Zustimmung des Paketshops müssen vor Ort geklärt sein.
 
 **Status:** Als verbindliche globale Testmethodik beschlossen; konkrete technische Umsetzung ist je Projekt separat zu planen, zu implementieren und nachzuweisen.
+
+
+## 13. KI-Council: verbindlicher technischer Funktions- und Erfolgsnachweis
+
+**Gültig ab:** 27.11.2026  
+**Geltungsbereich:** Alle Projekte, KI-Council-Integrationen, Modell-Gateways, Agenten und externen KI-Dienste.
+
+### Verbindliche Nachweisregel
+Eine konfigurierte Modellverbindung, ein aktiver Modell-Alias, ein vorhandener API-Key, eine erfolgreiche Verwaltungsabfrage, ein vorhandenes Deployment oder ein erfolgreicher Build beweist für sich allein **keine funktionierende Modell-Inferenz und keine aktive Council-Zusammenarbeit**.
+
+Vor einer Erfolgsmeldung sind die folgenden Ebenen getrennt zu prüfen und zu dokumentieren:
+
+1. **Konfiguration:** Anbieter, Modellkennung/Alias, Routing, Region, Datenschutz-/Retention-Einstellungen, Berechtigungen und Kostenlimits wurden tatsächlich ausgelesen.
+2. **Quellcode und Architektur:** Der relevante Quellcode, die API-Routen, Aufrufpfade, Fehlerbehandlung und Konfiguration wurden im maßgeblichen Repository/Deployment tatsächlich geprüft. Fehlender Quellcodezugriff ist als Blocker auszuweisen.
+3. **Deployment und Erreichbarkeit:** Build-/Deployment-Status, Zugriffsschutz (z. B. SSO), Endpunkt-Erreichbarkeit und Laufzeitverhalten sind getrennt nachgewiesen. Ein SSO-geschütztes Preview gilt nicht als öffentlich erreichbarer Testendpunkt.
+4. **Echte Modell-Inferenz:** Für jedes als live gemeldete Modell wurde ein realer, autorisierter Testprompt erfolgreich über den vorgesehenen Inferenzpfad gesendet und eine tatsächliche Modellantwort empfangen. Verwaltungs-, Listen-, Konfigurations- und Usage-Endpunkte sind kein Inferenznachweis.
+5. **Unabhängigkeit:** Die Modelle erhalten den vereinbarten Kernauftrag unabhängig voneinander. Eine Antwort, die lediglich weitergereicht, kopiert oder durch ein anderes Modell erzeugt wurde, zählt nicht als unabhängige Modellantwort.
+6. **Council-Ablauf:** Gegenseitige Kritik/Rückfragen, Antwortzuordnung, Vergleich, Synthese und dokumentierte Entscheidung werden anhand tatsächlicher Aufträge und Antworten nachgewiesen. Ein Rollenplan oder vorbereiteter Prompt ist noch kein durchgeführter Council.
+7. **Qualität und Sicherheit:** Ergebnisse werden fachlich und technisch geprüft. Datenschutz, Datenminimierung, EU-Verarbeitung, Provider-Routing, Logging und Kosten werden vor Übermittlung sensibler Inhalte kontrolliert.
+
+### Statuskennzeichnung
+Für jede Modellinstanz und den Council-Gesamtablauf ist einer dieser Zustände zu verwenden:
+
+- **Konfiguriert:** Einstellungen/Alias sind vorhanden; Inferenz nicht nachgewiesen.
+- **Aufrufweg implementiert:** Quellcode/Route ist vorhanden; erfolgreicher Live-Aufruf nicht nachgewiesen.
+- **Live-Aufruf getestet:** Ein tatsächlicher Aufruf und eine empfangene Antwort sind mit Zeit, Modellkennung und redigiertem Nachweis dokumentiert.
+- **Unabhängig geprüft:** Antwort wurde durch eine weitere tatsächlich verfügbare Instanz oder einen reproduzierbaren Prüfweg bewertet.
+- **Council-Durchlauf nachgewiesen:** Mindestens zwei unabhängige Modellantworten sowie tatsächliche Gegenprüfung und abschließende Synthese sind dokumentiert.
+- **Blockiert / nicht verfügbar:** Fehlende Berechtigung, Inferenzschnittstelle, Quellcode, Budgetfreigabe, Regionseignung oder ein anderer konkreter Blocker ist benannt.
+
+### Datenschutz, Kosten und Grenzen
+- Keine kostenpflichtigen Modellaufrufe ohne die dafür erforderliche ausdrückliche Kostenfreigabe; vorhandene Budgets oder Limits sind nicht automatisch eine Ausgabefreigabe.
+- Llama/Meta erhält ausschließlich öffentliche, synthetische oder hinreichend anonymisierte Daten, solange eine geeignete EU-Verarbeitung nicht nachweislich bestätigt ist.
+- Keine Secrets, privaten Zugangsdaten, personenbezogenen oder vertraulichen Projektdaten in Modellprompts, Logs oder Repositories übertragen, sofern die konkrete Verarbeitung nicht ausdrücklich geprüft und autorisiert ist.
+- Provider-, Regions- und Retention-Angaben nur als Konfigurationsnachweis darstellen; sie ersetzen keinen tatsächlichen Inferenztest.
+- Keine nicht vorhandenen API-/MCP-Verbindungen, Modellantworten, Reviews, Diskussionen oder Testergebnisse simulieren oder als real ausgeben.
+
+### Pflichtdokumentation eines Tests
+Mindestens festhalten: Datum/Uhrzeit, Projekt und Testumgebung, Provider und exakte Modellkennung, verwendeter Aufrufpfad, redigierter Testauftrag, Erfolg/Fehler, tatsächliche Antwort empfangen (ja/nein), Laufzeit soweit verfügbar, Kostenstatus, Datenschutz-/Regionsstatus, unabhängiger Review und offene Einschränkungen. Keine Tokens, Secrets oder unnötigen personenbezogenen Daten speichern.
+
+**Entscheidungsregel:** Erst wenn die tatsächlichen Modellaufrufe und der vereinbarte unabhängige Council-Ablauf nachgewiesen sind, darf der Council als funktionsfähig bzw. aktiv bezeichnet werden. Bis dahin sind Konfiguration, Implementierung und Live-Betrieb ausdrücklich getrennt auszuweisen. Bei fehlendem Quellcodezugriff, SSO-Sperren oder fehlender Inferenzschnittstelle nicht stehenbleiben: zulässige alternative Zugriffs- und Testwege prüfen, bestehende Daten und Hauptzweige schützen und den konkreten Blocker samt nächstem sicheren Schritt dokumentieren.
