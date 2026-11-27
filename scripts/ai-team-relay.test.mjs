@@ -93,6 +93,12 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
 
   assert.doesNotMatch(relaySource, /api\.openai\.com|api\.anthropic\.com|askMeta|askLlama|META_MODEL_API_KEY|LLAMA_API_KEY/);
   assert.ok(workflowSource.includes("false &&"));
+  assert.ok(relaySource.includes("const RELAY_LIVE_ENABLED = false;"));
+  const mainEntry = relaySource.indexOf("async function main()");
+  const runtimeGate = relaySource.indexOf("if (!RELAY_LIVE_ENABLED)", mainEntry);
+  const eventRead = relaySource.indexOf("readFile(GITHUB_EVENT_PATH", mainEntry);
+  assert.ok(mainEntry >= 0 && runtimeGate > mainEntry && eventRead > runtimeGate,
+    "runtime hard-disable must return before reading the event or performing network work");
   assert.ok(setup.includes("AI_TEAM_BUDGET_CONFIRMED"));
   assert.ok(setup.includes("0 EUR"));
 });
