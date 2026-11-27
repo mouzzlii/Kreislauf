@@ -136,7 +136,7 @@ Der Relay ist in `main` integriert, aber bis zur Einrichtung der tatsächlichen 
 
 ## Gateway-Relay – Integrationszweig
 
-Der neue Integrationszweig `integration/council-relay-mainline` enthält den Vercel-AI-Gateway-Relay mit einer festen Alias-Allowlist:
+Der neue Integrationszweig nutzt **Vercel AI Gateway** als gemeinsamen OpenAI-kompatiblen Endpunkt. Er `integration/council-relay-mainline` enthält den Vercel-AI-Gateway-Relay mit einer festen Alias-Allowlist:
 
 - GPT: `vmc/council-gpt`
 - Claude: `vmc/council-claude`
