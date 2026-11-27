@@ -6,6 +6,7 @@ import {
   hasNonEmptySourceExcerpt,
   decodeSourceFile,
   hasUsablePrimaryContext,
+  isPublicRepositoryMetadata,
   resolveProjectBranch,
   MAX_SOURCE_CONTEXT_CHARS,
   MAX_SOURCE_FILE_CHARS,
@@ -121,17 +122,30 @@ test("primary repository must itself provide a real source excerpt before Counci
     repositories: [{
       repository: "mouzzlii/KI-Arbeitsplatz",
       branch: "release/offline-masterwerk-v0.2.1",
+      visibility: "public",
       hasSourceExcerpt: true,
     }],
     source: "#### Offline-Modus/Lib/LocalAI.ps1\\nfunction Test-Example { return $true }",
   };
   assert.equal(hasUsablePrimaryContext(valid), true);
+  assert.equal(isPublicRepositoryMetadata({ visibility: "public" }), true);
+  for (const metadata of [{ visibility: "private" }, { visibility: "internal" }, { private: true }, {}, null]) {
+    assert.equal(isPublicRepositoryMetadata(metadata), false);
+  }
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", visibility: "private", hasSourceExcerpt: true }],
+  }), false);
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", hasSourceExcerpt: true }],
+  }), false);
 
   const secondaryOnly = {
     ...valid,
     repositories: [
-      { repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", hasSourceExcerpt: false },
-      { repository: "mouzzlii/Fuck", branch: "main", hasSourceExcerpt: true },
+      { repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", visibility: "public", hasSourceExcerpt: false },
+      { repository: "mouzzlii/Fuck", branch: "main", visibility: "public", hasSourceExcerpt: true },
     ],
     // Secondary Android source may remain in the prompt but cannot satisfy
     // the canonical gateway repository's own source prerequisite.
