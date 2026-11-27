@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createCouncilTaskIdempotencyKey, createTaskExecutionBudget, isWithinUtf8ByteLimit, parseCouncilTaskComment, resolveCouncilTaskProject, validateCouncilTaskEnvelope } from "./ai-team-interop.mjs";
+import { createCouncilTaskIdempotencyKey, createTaskExecutionBudget, isWithinUtf8ByteLimit, parseCouncilTaskComment, parsePublicDebateRequest, resolveCouncilTaskProject, validateCouncilTaskEnvelope } from "./ai-team-interop.mjs";
 
 const NOW = new Date("2026-11-26T10:30:00.000Z");
 
@@ -264,4 +264,23 @@ test("task byte limits count UTF-8 bytes rather than JavaScript characters", () 
   assert.equal(isWithinUtf8ByteLimit("ä", 1), false);
   assert.equal(isWithinUtf8ByteLimit("ok", 2), true);
   assert.equal(isWithinUtf8ByteLimit("too long", 2), false);
+});
+
+test("requires explicit safe data classification for free Council debate requests", () => {
+  assert.deepEqual(parsePublicDebateRequest("[public] Review the public API contract"), {
+    success: true,
+    dataClassification: "public",
+    instruction: "Review the public API contract",
+  });
+  assert.equal(parsePublicDebateRequest("[SYNTHETIC] Check the mock workflow").dataClassification, "synthetic");
+  assert.equal(parsePublicDebateRequest("[anonymized] Review sanitized sample data").success, true);
+  for (const value of [
+    "Review the repository",
+    "[internal] Inspect the source",
+    "[confidential] Customer details",
+    "[personal] User data",
+    "[secret] Token",
+    "[public]   ",
+    null,
+  ]) assert.equal(parsePublicDebateRequest(value).success, false, String(value));
 });
