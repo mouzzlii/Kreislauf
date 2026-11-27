@@ -588,3 +588,31 @@ Der Nutzer hat ausdrücklich angewiesen, laufende Projekte ohne wiederholte Zust
 - Die vorhandene Council-Grundlage in `mouzzlii/KI-Arbeitsplatz/server/council/policy.mjs` ist der bevorzugte Ausgangspunkt: Live standardmäßig aus, 0 EUR, verifizierte Preisdaten, explizite Freigabe und verpflichtender atomarer Budgetreservierer. Sie besitzt noch keine produktiv angeschlossene Budgetdatenbank oder Provideradapter.
 - Das separate Vercel-Testprojekt `ki-arbeitsplatz-test` hat bei einer Metadatenabfrage keine Environment-Variablen zurückgegeben; dort ist derzeit kein `AI_GATEWAY_API_KEY` konfiguriert. Die vorhandene Gateway-Key-Variable liegt nur im anderen Projekt `collective-intelligence-council` für Preview/Development und wird nicht automatisch an GitHub Actions oder das PWA-Testprojekt übertragen.
 - Stand dieser Prüfung: keine Provider-Aufrufe, keine Secret-Werte gelesen, keine Kosten, keine Änderungen an Produktionssystemen.
+
+
+### BOOK YOUR COOK – Geschäftsmodell und aktueller Arbeitsstand (27.11.2026)
+
+**Repository:** [mouzzlii/book-your-cook](https://github.com/mouzzlii/book-your-cook)
+
+**Bestätigte Angebotsstruktur**
+- Drei kombinierbare, separat kalkulierte Varianten: **Komplett**, **nur Koch** und **nur Foodtruck**.
+- Komplett ist die bevorzugte Hauptvariante für den Start.
+- Nur Koch bleibt bis zur rechtlichen Klärung der konkreten gewerbe-, lebensmittel-, arbeits- und haftungsrechtlichen Voraussetzungen gesperrt.
+- Nur Foodtruck wird anfangs über Miete oder Kooperation mit einem bestehenden Betreiber abgebildet; ein eigener Foodtruck wird erst nach nachgewiesener Auslastung und Wirtschaftlichkeit erwogen.
+- Operative Personalbaseline: Kernteam plus flexible Aushilfen. Die frühere Personalmodell-Frage 4 ist erledigt.
+- Zielgruppen/Einsatzfelder: Privatkunden, Firmenkunden, Events, Foodtruck-Einsätze und Institutionen. Mobiler, auftragsbezogener Start mit stufenweisem Wachstum.
+
+**Kalkulationsstandard**
+- Jede Variante und Zielgruppe erhält eine getrennte Vollkosten- und Deckungsbeitragsrechnung.
+- Wareneinsatz, Personal inklusive Vor-/Nachbereitung und Lohnnebenkosten, Miete/Kooperation, Fahrt/Logistik, Stand-/Energiekosten, Verbrauchsmaterial, Versicherungen, Zahlungsgebühren, Fixkosten, Ausfallrisiko, Steuern/SVS und Unternehmerlohn berücksichtigen.
+- Unbelegte Beträge bleiben klar markierte Planungsannahmen. Keine Steuer- oder Rechtswerte raten.
+
+**Rechtliche Sperrpunkte**
+- Österreichische Gewerbe-/Gastgewerbe-/Catering-Abgrenzung, Lebensmittelhygiene/HACCP, Allergeninformation, Rückverfolgbarkeit, Betriebs-/Standort- und Veranstaltungsanforderungen, Arbeitsrecht, Haftung/Versicherung, Steuern/SVS und Vertrags-/Stornobedingungen sind vor dem jeweiligen Betriebsstart zu prüfen.
+- Dies ist eine Prüfliste, keine Rechtsberatung und kein Nachweis vorhandener Genehmigungen.
+
+**Technikstatus**
+- PR [#2](https://github.com/mouzzlii/book-your-cook/pull/2) bleibt Draft/offen/ungemergt; Head zum Prüfzeitpunkt: 837cfa701fec274c9e1fe2e458c4ff8864dda74c.
+- Stripe-Refund-Härtung umfasst kumulative monotone Refund-Beträge, WebCrypto-Signaturprüfung, PaymentIntent-Zuordnungs-Fallback und additive Migration.
+- Actions-Läufe scheiterten vor Runnerstart (runner_id=0, steps=[]); kein CI-Testlauf für diesen Head belegt. Keine reale Datenbankmigration und kein Stripe-E2E-Test ausgeführt.
+- Neue verbindliche Detailbaseline wurde unter mouzzlii/book-your-cook/docs/PROJECT-BASELINE.md auf main angelegt (Commit 63085568dc6224b7cd9cd5ae103656ca546f5448).
