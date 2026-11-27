@@ -1,7 +1,7 @@
-# Chatbasierte Projekt- und Main-Referenz
+# Projektportfolio und chatbasierter Projektkontext
 
 **Stand:** 27.11.2026  
-**Zweck:** Diese Übersicht überführt bestätigte Nutzerentscheidungen aus den bisherigen Projekt-Chats in eine nachvollziehbare, chatübergreifende Referenz. Sie ist ein Navigations- und Koordinationsdokument, kein Ersatz für projektspezifische Spezifikationen, Quellcode, Tests oder Freigaben.
+**Zweck:** Diese Übersicht bündelt bestätigte Projektentscheidungen, kanonische Repositories, Abhängigkeiten, Statusnachweise und offene Aufgaben. Sie ist ein Navigations- und Koordinationsdokument, keine globale Arbeitsverfassung und kein Ersatz für projektspezifische Spezifikationen, Quellcode, Tests oder Freigaben.
 
 ## 1. Rolle dieser Projektbaseline und Abgrenzung zum MAINPROMPT
 
@@ -189,7 +189,7 @@ Das Repository [logo-M-glichkeiten-](https://github.com/mouzzlii/logo-M-glichkei
 - Dieser Relay ist für vier Projekte in `main` verdrahtet. PR #38 ist ein offener Draft für die Erweiterung auf acht Projekte einschließlich KI-ARBEITSPLATZ und strukturierte Task-Envelopes; diese Erweiterung ist nicht als in `main` integriert zu behandeln.
 - Provider-Secrets, explizite Modellkennungen, read-only GitHub-Kontextzugriff, echte Anbieter-Ausgabenlimits und ausdrückliche Budgetfreigabe sind Voraussetzungen. Die vorhandenen Vertrags-/Mock-Tests beweisen keine Live-Inferenz.
 - Die Vercel-Aliase `council-claude`, `council-gemini`, `council-gpt`, `council-grok` und `council-llama` belegen nur Modellkonfiguration. Das separate Vercel-Projekt `collective-intelligence-council` hat ein READY-Deployment, ist aber durch SSO für alle Deployment-Zugriffe geschützt; eine öffentliche Erreichbarkeit oder eine nachgewiesene Quellcode-/Inferenzintegration folgt daraus nicht.
-- Aktueller Freigabestand: keine kostenpflichtigen Modellaufrufe ohne ausdrückliche Budgetfreigabe; der im KI-Arbeitsplatz-Master-Prompt dokumentierte Kostenrahmen beträgt 0 EUR. Llama bleibt auf öffentliche, synthetische oder anonymisierte Daten beschränkt, solange geeignete EU-Verarbeitung nicht nachgewiesen ist.
+- Aktueller Freigabestand: keine kostenpflichtigen Modellaufrufe ohne ausdrückliche Budgetfreigabe; der im zentralen MAINPROMPT 2.0.3 festgelegte Zusatzkostenrahmen beträgt 0 EUR. Llama bleibt auf öffentliche, synthetische oder anonymisierte Daten beschränkt, solange geeignete EU-Verarbeitung nicht nachgewiesen ist.
 - Ohne echte Provider-Aufrufe keine Claude-/Meta-/Llama-Antworten oder unabhängige Reviews behaupten. Der PWA-Mock-Testplatz in KI-Arbeitsplatz PR #12 ist nur ein lokaler Ablauf-/Schema-Test und keine Council-Inferenz. Keine Secrets oder persönlichen Zugangsdaten im Chat oder in GitHub ablegen.
 
 ## 5. Priorisierung und Arbeitsmodus
@@ -484,8 +484,8 @@ Mindestens festhalten: Datum/Uhrzeit, Projekt und Testumgebung, Provider und exa
 **Entscheidungsregel:** Erst wenn die tatsächlichen Modellaufrufe und der vereinbarte unabhängige Council-Ablauf nachgewiesen sind, darf der Council als funktionsfähig bzw. aktiv bezeichnet werden. Bis dahin sind Konfiguration, Implementierung und Live-Betrieb ausdrücklich getrennt auszuweisen. Bei fehlendem Quellcodezugriff, SSO-Sperren oder fehlender Inferenzschnittstelle nicht stehenbleiben: zulässige alternative Zugriffs- und Testwege prüfen, bestehende Daten und Hauptzweige schützen und den konkreten Blocker samt nächstem sicheren Schritt dokumentieren.
 
 
-### Globale Arbeitsregel – autonomer Qualitätsauftrag (27.11.2026)
-Der Nutzer hat ausdrücklich angewiesen, laufende Projekte ohne wiederholte Zustimmung bis zum bestmöglichen Qualitätsziel weiterzuentwickeln. Gewöhnliche reversible Arbeiten (Recherche, Bestandsaufnahme, Dokumentation, lokale Tests, sichere Codeverbesserungen) werden selbstständig fortgesetzt. Das Qualitätsziel „Meisterwerk“ ist kein Versprechen absoluter Fehlerfreiheit und keine dauerhafte Hintergrundausführung. Kosten, Datenschutz/Recht, Secrets, Datenverlust, irreversible Aktionen, Berechtigungsänderungen, produktive/öffentliche Deployments und Hochrisiko-Merges bleiben gesondert freigabepflichtig. Bei Blockaden werden zulässige Alternativen ohne Zusatzkosten geprüft; erfolglose Wiederholungen werden vermieden. Nur belastbare Zwischenstände und echte Blockaden werden gebündelt gemeldet.
+### Historischer Entscheidungsnachweis – autonomer Qualitätsauftrag (27.11.2026)
+Der Nutzerauftrag zur eigenständigen Fortsetzung reversibler Arbeiten und zum Qualitätsziel „Meisterwerk“ ist in die globale Arbeitsverfassung **MAINPROMPT 2.0.3**, Abschnitt 3, konsolidiert. Dieser Eintrag bleibt als Herkunfts-/Historiennachweis erhalten und ist keine zweite operative Regelquelle. Freigabepflichtige Grenzen bleiben dort verbindlich geregelt.
 
 
 ## KI-ARBEITSPLATZ – Arbeitsnachtrag 27.11.2026 (Fortsetzung PR #12)
