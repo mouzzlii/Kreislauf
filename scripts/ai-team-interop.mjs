@@ -310,7 +310,7 @@ export function resolveCouncilTaskProject(envelope, projectRepositories) {
 
 export function parsePublicDebateRequest(value) {
   if (typeof value !== "string") return { success: false, message: "Auftrag muss als Text vorliegen." };
-  const match = value.match(/^\\[(public|synthetic|anonymized)\\]\\s+([\\s\\S]+)$/i);
+  const match = value.match(/^\[(public|synthetic|anonymized)\]\s+([\s\S]+)$/i);
   if (!match) {
     return {
       success: false,
