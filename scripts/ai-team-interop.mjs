@@ -139,7 +139,9 @@ export function validateCouncilTaskEnvelope(input, { now = new Date() } = {}) {
     }
   }
   if (!dateTime(input.expiresAt)) add(["expiresAt"], "Expected an ISO-8601 date-time with an explicit timezone.");
-  if (input.dataClassification !== "internal") add(["dataClassification"], "Only internal data is accepted.");
+  if (!["public", "synthetic", "anonymized"].includes(input.dataClassification)) {
+    add(["dataClassification"], "Only public, synthetic or anonymized data may be transmitted to external Council providers.");
+  }
 
   const identity = (value, path) => {
     if (!exactKeys(value, ["systemId", "projectId", "componentId"], ["agentId"])) {
