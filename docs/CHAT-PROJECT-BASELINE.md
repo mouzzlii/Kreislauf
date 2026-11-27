@@ -451,3 +451,11 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 - HTTP-Antwortvalidator bindet Analysen an exakt genehmigte Provider, weist doppelte/fremde Sitze, Selbstreviews, fehlende/doppelte Review-Paare, inkonsistente Statuswerte sowie Null-/Malformed-Einträge ab. Review-Anzahl und Call-/Kosten-Preflight werden gegen die genehmigte Auswahl geprüft.
 - Testquellstand: 18 Orchestrator- und 15 HTTP-Fälle. Historisch 17/17 bzw. 9/9 vor den jüngsten Ergänzungen lokal bestanden; alle neuen Härtungsfälle bleiben ungeprüft. Node.js 22.16 ist in der Arbeitsumgebung vorhanden, aber das private Repository konnte wegen fehlender Netzwerkauflösung nicht in den lokalen Testcontainer geladen werden; für den aktuellen Head liegt auch kein Actions-Lauf vor.
 - Keine echte Auth-/CSRF-/Freigabe-/Audit-/Budgetdienst-Anbindung, keine Provideradapter, kein Live-Aufruf, kein Deployment und keine Kosten.
+
+
+### KI-ARBEITSPLATZ – finaler Stand dieses GO-Zyklus (27.11.2026)
+- Draft-PR #12 aktueller Head nach Readback: 18a26a791bed28259935e2f030eed85f1d759085; offen, Draft, ungemergt. Geänderte Dateien: 17.
+- Serverseitige Council-Grenze wurde zusätzlich gehärtet: log-sichere Auftragskennungen, kanonische HTTPS-Origin-Allowlist, Kontrolle von Auth-Subject-IDs ohne unnötige Einschränkung opaker IDs, striktes vollständiges Ergebnis-/Identitätsschema, exakte Bindung aller Analyse-Sitze an genehmigte Provider und vollständige gerichtete Peer-Review-Paare.
+- Testquellstand: 18 Orchestrator- und 15 HTTP-Fälle. Historisch waren 17/17 bzw. 9/9 vor den jüngsten Ergänzungen lokal bestanden; neue Härtungsfälle nicht ausgeführt. Node.js 22.16 ist verfügbar, aber das private Repository konnte wegen fehlender DNS-/Netzwerkauflösung nicht in den lokalen Testcontainer geladen werden.
+- GitHub Actions hat für den aktuellen Head keinen Lauf geliefert. Vercel-Statuscheck bleibt wegen Free-Tier-Deployment-Limit auf failure; kein erneuter Deploymentversuch.
+- Keine echte Server-Komposition, persistente Auth-/CSRF-/Freigabe-/Audit-/Budgetdienste, Provideradapter, Synthese, Live-Inferenz, Deployment, Browser-/Android-Abnahme oder Kosten. PR bleibt Draft.
