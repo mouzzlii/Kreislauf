@@ -92,7 +92,7 @@ npm run build
 
 ## Gemeinsame Projektkoordination
 
-Die chatübergreifende Projekt- und Entscheidungsreferenz ist in [docs/CHAT-PROJECT-BASELINE.md](docs/CHAT-PROJECT-BASELINE.md) gepflegt. Sie bündelt bestätigte Nutzerentscheidungen, kanonische Repositories, Statusgrenzen und offene Aufgaben aller zugeordneten Projekte. Die operative Kurzkoordination steht in [docs/PROJECT-COORDINATION.md](docs/PROJECT-COORDINATION.md).
+Die zentrale Projektportfolio- und Entscheidungsübersicht liegt in [docs/CHAT-PROJECT-BASELINE.md](docs/CHAT-PROJECT-BASELINE.md). Sie bündelt bestätigte Projektentscheidungen, kanonische Repositories, Statusgrenzen und offene Aufgaben. Die globale Arbeitsverfassung ist ausschließlich der MAINPROMPT im Repository KI-Arbeitsplatz; die operative KREISLAUF-Kurzkoordination steht in [docs/PROJECT-COORDINATION.md](docs/PROJECT-COORDINATION.md).
 
 
 Die KI-Team-Koordination für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS läuft über das zentrale [Koordinations-Issue](https://github.com/mouzzlii/Kreislauf/issues/11). Der sichere Relay ist in `main` integriert: GPT → Claude → dritter Agent (Meta Muse über Meta Model API oder echtes Llama über einen eigenen HTTPS-Inference-Host) → GPT. Er bleibt bis zur Einrichtung der passenden Provider-Secrets, Modellkennungen, Llama-Endpoint bei Bedarf, Anbieter-Ausgabenlimits und ausdrücklichen Budgetfreigabe gesperrt.
