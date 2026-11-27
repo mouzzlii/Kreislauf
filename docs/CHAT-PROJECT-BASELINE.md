@@ -184,7 +184,7 @@ Das Repository [logo-M-glichkeiten-](https://github.com/mouzzlii/logo-M-glichkei
 
 ## 4. KI-Council und externe Dienste
 
-- Gewünschter Arbeitsablauf: ChatGPT koordiniert; Claude, Gemini, Grok und Meta/Llama entwickeln unabhängig und prüfen gegenseitig, sobald die jeweiligen Verbindungen real verfügbar und freigegeben sind.
+- Gewünschter Arbeitsablauf: ChatGPT koordiniert; Claude und Meta/Llama sind die bevorzugten unabhängigen Council-Partner. Gemini, Grok und weitere geeignete Anbieter können bei konkretem Nutzen ergänzen, sobald die jeweiligen Verbindungen real verfügbar und freigegeben sind.
 - In `mouzzlii/Kreislauf` ist auf `main` ein GitHub-Actions-Relay implementiert: OpenAI Responses API, Anthropic Messages API und genau ein wählbarer dritter Provider (Meta Muse oder echtes Llama). Der aktive Workflow wird über ausdrücklich markierte Kommentare in Issue #11 gestartet; Quellkontext, Nutzer-Allowlist, Secret-Redaktion und Tageslimit sind vorgesehen.
 - Dieser Relay ist für vier Projekte in `main` verdrahtet. PR #38 ist ein offener Draft für die Erweiterung auf acht Projekte einschließlich KI-ARBEITSPLATZ und strukturierte Task-Envelopes; diese Erweiterung ist nicht als in `main` integriert zu behandeln.
 - Provider-Secrets, explizite Modellkennungen, read-only GitHub-Kontextzugriff, echte Anbieter-Ausgabenlimits und ausdrückliche Budgetfreigabe sind Voraussetzungen. Die vorhandenen Vertrags-/Mock-Tests beweisen keine Live-Inferenz.
@@ -270,18 +270,6 @@ Für den TRAKUNA-Paketshop-Pilot gelten zusätzlich zu MAINPROMPT 2.0.7 und den 
 - Kein Mitarbeiter soll echte Kundendaten, echte Buchungen oder produktive Zugangsdaten für einen nicht freigegebenen Test verwenden. Testdaten und organisatorische Zustimmung des Paketshops müssen vor Ort geklärt sein.
 
 Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale Testmethodik. Die allgemeine Testmethodik und die Hard-Gate-Regeln stehen im MAINPROMPT 2.0.7 § 7.2.
-
-### Historischer Entscheidungsnachweis – chirurgische Arbeitsweise und Qualitätskontrolle
-
-Die früheren globalen Regeln zur präzisen Bestandsaufnahme, Auswirkungsanalyse, Sicherung/Rollback, minimalen Änderung, mehrstufigen Selbst-/Automatik-/Regression-/Unabhängigkeitsprüfung und risikogestützten Stop-Regeln sind in **MAINPROMPT 2.0.7 §§ 6.1 und 7.1** konsolidiert. Dieser Eintrag bewahrt die Herkunft; er ist keine zweite operative Regelquelle.
-
-### Historischer Entscheidungsnachweis – allgemeiner Realbetrieb- und Praxisteststandard
-
-Der frühere projektübergreifende Teststandard (Offline-/Unit-Test, Integration/Emulator, Shadow Mode, begrenzter Praxistest, Produktionsbetrieb; Hard Gates; Testlauf-IDs; redigierte Nachweise; Fehler-/Wiederanlaufpfade; Freigabekriterien und Testablage) ist in **MAINPROMPT 2.0.7 § 7.2** konsolidiert. Die TRAKUNA-spezifischen Pilotbedingungen stehen weiterhin in Abschnitt 10 dieser Baseline. Dieser Eintrag ist keine zweite globale Testregelquelle.
-
-### Historischer Entscheidungsnachweis – technischer Council-Funktions- und Erfolgsnachweis
-
-Die früheren globalen Nachweiskriterien für Konfiguration, Quellcode/Aufrufpfad, Deployment/Erreichbarkeit, echte Inferenz, Unabhängigkeit, Council-Ablauf, Datenschutz/Kosten, Statuskennzeichnung und Testprotokoll sind in **MAINPROMPT 2.0.7 § 4.3** konsolidiert. Konkrete projektfamilienbezogene Verbindungs- und Statusdaten bleiben in `COUNCIL_LIVE_STATUS.md` und den technischen Relay-Unterlagen. Dieser Eintrag ist keine zweite globale Council-Regelquelle.
 
 ## KI-ARBEITSPLATZ – Arbeitsnachtrag 27.11.2026 (Fortsetzung PR #12)
 
