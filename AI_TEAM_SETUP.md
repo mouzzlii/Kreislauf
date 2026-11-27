@@ -132,3 +132,21 @@ Der Livebetrieb gilt erst als aktiviert, wenn ein synthetischer Ende-zu-Ende-Tes
 5. Fehlende Konfiguration, Provider-Fehler, unsichere Llama-Endpunkte und Kostenlimits werden korrekt behandelt.
 
 Der Relay ist in `main` integriert, aber bis zur Einrichtung der tatsächlichen Konten, Modellkennungen, Provider-Ausgabenlimits, read-only GitHub-Zugriff und einer ausdrücklichen Budgetfreigabe gesperrt. Es wurden in dieser Arbeit keine externen KI-Provider aufgerufen.
+
+
+## Gateway-Relay – Integrationszweig
+
+Der neue Integrationszweig `integration/council-relay-mainline` enthält den Vercel-AI-Gateway-Relay mit einer festen Alias-Allowlist:
+
+- GPT: `vmc/council-gpt`
+- Claude: `vmc/council-claude`
+- Gemini: `vmc/council-gemini`
+- Grok: `vmc/council-grok`
+
+Die vier Gegenprüfungen erhalten denselben begrenzten ursprünglichen Auftrag und Quellkontext; erst danach erstellt GPT die Synthese. Das ist eine implementierte Ablaufstruktur, aber noch kein Nachweis echter Provider-Aufrufe. Die vier Alias-Konfigurationen allein belegen weder eine erfolgreiche GitHub-Actions-Verbindung noch eine EU-Datenresidenz. Für GPT, Gemini und Grok ist keine explizite EU-Inferenzregion nachgewiesen; daher ausschließlich öffentliche, synthetische oder wirksam anonymisierte Inhalte verwenden. Llama bleibt bis zum Nachweis einer geeigneten EU-Datenverarbeitung ausgeschlossen.
+
+Der Relay prüft vor dem Lesen von README, Dateibaum oder Quelltext die Repository-Sichtbarkeit und blockiert private, interne sowie unbekannte Repositories. Die Secret-Redaktion ist ergänzend, aber keine vollständige PII-Erkennung. Insbesondere wird das private Repository `mouzzlii/KI-Arbeitsplatz` nicht als Quellkontext an externe Modelle übermittelt.
+
+**Kosten- und Aktivierungsstatus:** Der Issue-Comment-Workflow enthält eine feste `false && ...`-Sperre. Sie kann nicht durch `AI_TEAM_BUDGET_CONFIRMED` übersteuert werden. Unter der geltenden Zusatzbudgetgrenze von 0 EUR bleiben alle Modellaufrufe deaktiviert. Das Vercel-Projektbudget von 5 USD/Monat ist ein Soft Cap und keine harte Kostenobergrenze. Ein späterer Livebetrieb benötigt eine neue ausdrückliche Freigabe und eine nachweisbare anbieterübergreifende Hard-Cap-Kontrolle.
+
+GitHub Actions benötigt die getrennten Repository-Secrets `AI_GATEWAY_API_KEY` und `AI_TEAM_REPO_READ_TOKEN`; ein Vercel-Projekt-Secret wird nicht automatisch an GitHub Actions weitergereicht. Keine Schlüssel im Chat oder Repository veröffentlichen.
