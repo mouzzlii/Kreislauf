@@ -5,7 +5,7 @@
 
 ## 1. Rolle dieser Projektbaseline und Abgrenzung zum MAINPROMPT
 
-Die globale Arbeits- und Projektverfassung ist ausschließlich **MAINPROMPT 2.0.0** im privaten Repository [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz), Datei `docs/MAINPROMPT.md`. Sie regelt chatübergreifend Arbeitsweise, Autonomie, Recherche, KI-Council, Kosten, Sicherheit, GitHub-Schutz, Qualität und Ergebnislieferung.
+Die globale Arbeits- und Projektverfassung ist ausschließlich **MAINPROMPT 2.0.2** im privaten Repository [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz), Datei `docs/MAINPROMPT.md`. Sie regelt chatübergreifend Arbeitsweise, Autonomie, Recherche, KI-Council, Kosten, Sicherheit, GitHub-Schutz, Qualität und Ergebnislieferung.
 
 Diese Datei ist dagegen die **KREISLAUF-Projekt- und Portfolio-Baseline**. Sie dokumentiert bestätigte Projektentscheidungen, Repository-Zuordnungen, Abhängigkeiten, Statusnachweise und offene Punkte. Sie ist keine zweite globale Arbeitsverfassung und überschreibt den MAINPROMPT nicht.
 
