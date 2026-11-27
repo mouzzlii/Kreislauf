@@ -87,3 +87,17 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   assert.ok(setup.includes("AI_TEAM_BUDGET_CONFIRMED"));
   assert.ok(setup.includes("0 EUR"));
 });
+
+
+test("task envelope runtime and byte limits are enforced at relay boundaries", async () => {
+  const relaySource = await readFile(new URL("./ai-team-relay.mjs", import.meta.url), "utf8");
+  const interopSource = await readFile(new URL("./ai-team-interop.mjs", import.meta.url), "utf8");
+  assert.ok(relaySource.includes("createTaskExecutionBudget("));
+  assert.ok(relaySource.includes("taskExecutionBudget.deadlineAt"));
+  assert.ok(relaySource.includes("taskExecutionBudget.maxInputBytes"));
+  assert.ok(relaySource.includes("taskExecutionBudget.maxOutputBytes"));
+  assert.ok(relaySource.includes("taskBudgeted: Boolean(taskExecutionBudget)"));
+  assert.ok(relaySource.includes("AbortSignal.timeout(timeoutMs)"));
+  assert.ok(interopSource.includes("workflowMaxRuntimeSeconds = 420"));
+  assert.ok(interopSource.includes("Buffer.byteLength(value, \"utf8\")"));
+});
