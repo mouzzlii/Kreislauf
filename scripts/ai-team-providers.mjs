@@ -43,3 +43,19 @@ export function getMissingProviderConfiguration(env) {
   ].filter(Boolean);
   return { missingSecrets, missingVariables: [], missingModels: [] };
 }
+
+export function extractGatewayResponseMetadata(response, requestedAlias) {
+  const usage = response?.usage;
+  const tokenCount = (value) => Number.isSafeInteger(value) && value >= 0 ? value : null;
+  return {
+    requestedAlias: typeof requestedAlias === "string" ? requestedAlias : null,
+    responseId: typeof response?.id === "string" ? response.id : null,
+    returnedModel: typeof response?.model === "string" ? response.model : null,
+    providerReported: typeof response?.provider === "string" ? response.provider : null,
+    usage: {
+      promptTokens: tokenCount(usage?.prompt_tokens),
+      completionTokens: tokenCount(usage?.completion_tokens),
+      totalTokens: tokenCount(usage?.total_tokens),
+    },
+  };
+}
