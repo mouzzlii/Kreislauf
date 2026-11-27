@@ -99,5 +99,7 @@ test("task envelope runtime and byte limits are enforced at relay boundaries", a
   assert.ok(relaySource.includes("taskBudgeted: Boolean(taskExecutionBudget)"));
   assert.ok(relaySource.includes("AbortSignal.timeout(timeoutMs)"));
   assert.ok(interopSource.includes("workflowMaxRuntimeSeconds = 420"));
+  assert.ok(relaySource.includes("const missingSourcePaths = sourceFiles.filter((file) => !file.content).map((file) => file.path);"));
+  assert.ok(relaySource.includes("Council task source files could not all be loaded"));
   assert.ok(interopSource.includes("Buffer.byteLength(value, \"utf8\")"));
 });

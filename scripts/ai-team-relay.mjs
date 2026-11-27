@@ -176,6 +176,12 @@ async function fetchProjectContext(project, taskEnvelope = null) {
           return { path, content: "" };
         }
       }));
+      if (taskEnvelope) {
+        const missingSourcePaths = sourceFiles.filter((file) => !file.content).map((file) => file.path);
+        if (missingSourcePaths.length) {
+          throw new Error(`Council task source files could not all be loaded: ${missingSourcePaths.join(", ")}`);
+        }
+      }
       const readme = readmeResult.content
         ? Buffer.from(readmeResult.content, "base64").toString("utf8").slice(0, 3500)
         : "";
