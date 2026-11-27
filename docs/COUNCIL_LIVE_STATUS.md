@@ -100,3 +100,13 @@ Der Workflow übergibt **kein** `AI_GATEWAY_API_KEY`; die fünf Vercel-Virtual-M
 - **Council-Durchlauf nachgewiesen:** mindestens zwei unabhängige Modellantworten sowie tatsächliche Gegenprüfung und Synthese dokumentiert.
 - **Blockiert / nicht verfügbar:** konkrete fehlende Berechtigung, Schnittstelle, Kostenfreigabe, Regionseignung oder anderer Blocker benannt.
 
+
+
+## KI-Arbeitsplatz PR #12 – aktueller Nachtrag (27.11.2026)
+
+- Draft PR [#12](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/12), Branch `feat/offline-council-workbench`, Head `8498028a621126382e74044d5f586b028f4e18e1`; offen, Draft, ungemergt. 18 Dateien geändert; Branch-Vergleich gegenüber `main`: 106 Commits voraus, 38 zurück; GitHub meldet `mergeable=false`. Kein Merge.
+- Serverseitiger Orchestrator verlangt jetzt zusätzlich zum atomaren Reservierer einen injizierten `settleBudget()`-Dienst. Vor sicherem Nicht-Dispatch kann freigegeben werden; nach möglichem Provider-Dispatch bleibt das Budget `pending_reconciliation`, bis vertrauenswürdige Usage-Reconciliation erfolgt. Persistente Transaktion, Crash-Recovery und Usage-Abgleich sind weiterhin nicht implementiert.
+- HTTP-Handler ordnet `budget_settlement_failed` jetzt HTTP 503 statt HTTP 409 zu. Der neue synthetische Regressionstest ist Teil des Quellstands.
+- Exakte Quellzählung: 22 Orchestrator- und 16 HTTP-Testfälle. Für Head `8498028a621126382e74044d5f586b028f4e18e1` liefert die GitHub-Abfrage keinen Actions-Lauf; der neue Test wurde daher nicht als ausgeführt bestätigt. Commit-Status enthält nur den fehlgeschlagenen Vercel-Check.
+- Vercel-Bot-Kommentare melden ausdrücklich `api-deployments-free-per-day` und mehr als 100 Deployments in 24 Stunden. Das Tageslimit ist damit als aktueller Deployment-Blocker belegt. Keine weiteren Deployments und kein Upgrade ohne ausdrückliche Freigabe.
+- Keine Provideradapter, echte Modellaufrufe, Produktionsroute, echte Auth-/CSRF-/Audit-/Budgetdienste, Browser-/Android-Abnahme oder Live-Council-Synthese. Keine Kosten und keine Secrets.
