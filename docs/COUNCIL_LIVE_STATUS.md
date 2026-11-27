@@ -61,8 +61,8 @@ Der Workflow übergibt **kein** `AI_GATEWAY_API_KEY`; die fünf Vercel-Virtual-M
 ## PR #38 – Gateway-Branch, Sicherheitskorrekturen und CI-Nachweis (27.11.2026)
 
 - Draft PR [#38](https://github.com/mouzzlii/Kreislauf/pull/38) enthält den gemeinsamen Vercel-AI-Gateway-Aufrufweg für die vier fest allowlisteten Aliase GPT, Claude, Gemini und Grok. Der aktive `main`-Relay oben bleibt davon unberührt und verwendet weiterhin die zuvor dokumentierten direkten Provider-Clients.
-- **Aktueller PR-Head:** `264478a441ea8eee5f65051650383e285c0bf71c` (Dokumentations-Commit nach dem geprüften Parser-Code-Head `290a6ef9073573fcdde2083a00e3d98effe72881`).
-- **Erfolgreiche synthetische Relay-CI:** Run [46032510358](https://github.com/mouzzlii/Kreislauf/actions/runs/46032510358) auf exakt diesem Head (nachfolgender Dokumentations-Commit). Alle Schritte erfolgreich: Syntax, Task-Envelope (17 Tests), Ledger (6), Source-Context (12), Gateway-Provider-Verträge (4), Parser/Integration (2) und Projekt-/Tagesbudgetprüfung. Insgesamt 42 Node-Tests bestanden, 0 fehlgeschlagen. Beide Workflows verwenden verifizierte unveränderliche Commit-SHAs für `actions/checkout` v7 und `actions/setup-node` v6.
+- **Aktueller PR-Head:** `78f83010f08feb7b7434b9fdec351f0f8772a684` (Dokumentations-Commit nach dem geprüften Parser-Code-Head `290a6ef9073573fcdde2083a00e3d98effe72881`).
+- **Erfolgreiche synthetische Relay-CI:** Run [46032713685](https://github.com/mouzzlii/Kreislauf/actions/runs/46032713685) auf exakt diesem Head (nachfolgender Dokumentations-Commit). Alle Schritte erfolgreich: Syntax, Task-Envelope (17 Tests), Ledger (6), Source-Context (12), Gateway-Provider-Verträge (4), Parser/Integration (2) und Projekt-/Tagesbudgetprüfung. Insgesamt 42 Node-Tests bestanden, 0 fehlgeschlagen. Beide Workflows verwenden verifizierte unveränderliche Commit-SHAs für `actions/checkout` v7 und `actions/setup-node` v6.
 - Vercel-Preview-Check auf dem PR-Head ist wegen `build-rate-limit` fehlgeschlagen; keine aktuelle Preview-Bereitstellung daraus ableiten.
 - PR #38 bleibt Draft und ungemergt. Der Branch ist gegenüber `main` deutlich divergiert; GitHub meldet `mergeable=false`. Ahead-/Behind-Zahlen ändern sich mit jedem Main-Commit und müssen unmittelbar vor einer kontrollierten Konsolidierung neu ermittelt werden. Keine Integration ohne erneute vollständige Prüfung.
 
@@ -100,3 +100,13 @@ Der Workflow übergibt **kein** `AI_GATEWAY_API_KEY`; die fünf Vercel-Virtual-M
 - **Council-Durchlauf nachgewiesen:** mindestens zwei unabhängige Modellantworten sowie tatsächliche Gegenprüfung und Synthese dokumentiert.
 - **Blockiert / nicht verfügbar:** konkrete fehlende Berechtigung, Schnittstelle, Kostenfreigabe, Regionseignung oder anderer Blocker benannt.
 
+
+
+## KI-Arbeitsplatz PR #12 – aktueller Nachtrag (27.11.2026)
+
+- Draft PR [#12](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/12), Branch `feat/offline-council-workbench`, Head `8498028a621126382e74044d5f586b028f4e18e1`; offen, Draft, ungemergt. 18 Dateien geändert; Branch-Vergleich gegenüber `main`: 106 Commits voraus, 38 zurück; GitHub meldet `mergeable=false`. Kein Merge.
+- Serverseitiger Orchestrator verlangt jetzt zusätzlich zum atomaren Reservierer einen injizierten `settleBudget()`-Dienst. Vor sicherem Nicht-Dispatch kann freigegeben werden; nach möglichem Provider-Dispatch bleibt das Budget `pending_reconciliation`, bis vertrauenswürdige Usage-Reconciliation erfolgt. Persistente Transaktion, Crash-Recovery und Usage-Abgleich sind weiterhin nicht implementiert.
+- HTTP-Handler ordnet `budget_settlement_failed` jetzt HTTP 503 statt HTTP 409 zu. Der neue synthetische Regressionstest ist Teil des Quellstands.
+- Exakte Quellzählung: 22 Orchestrator- und 16 HTTP-Testfälle. Für Head `8498028a621126382e74044d5f586b028f4e18e1` liefert die GitHub-Abfrage keinen Actions-Lauf; der neue Test wurde daher nicht als ausgeführt bestätigt. Commit-Status enthält nur den fehlgeschlagenen Vercel-Check.
+- Vercel-Bot-Kommentare melden ausdrücklich `api-deployments-free-per-day` und mehr als 100 Deployments in 24 Stunden. Das Tageslimit ist damit als aktueller Deployment-Blocker belegt. Keine weiteren Deployments und kein Upgrade ohne ausdrückliche Freigabe.
+- Keine Provideradapter, echte Modellaufrufe, Produktionsroute, echte Auth-/CSRF-/Audit-/Budgetdienste, Browser-/Android-Abnahme oder Live-Council-Synthese. Keine Kosten und keine Secrets.
