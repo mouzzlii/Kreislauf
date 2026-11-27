@@ -564,3 +564,9 @@ Der Nutzer hat ausdrücklich angewiesen, laufende Projekte ohne wiederholte Zust
 - Neue HTTP-Grenztests: 8/8 lokal mit Node.js bestanden; Syntaxprüfung der beiden neuen Dateien ebenfalls bestanden. Die Tests verwenden Fake-Sicherheitsdienste und Fake-Orchestrator; sie beweisen keine reale Authentifizierung, CSRF-Absicherung, persistente Freigabe/Audit, Live-Budgetreservierung oder Providerverbindung.
 - Workflow `.github/workflows/pwa-council-tests.yml` enthält jetzt Syntaxchecks sowie PWA-, Orchestrator- und HTTP-Regressionstests. Für den aktuellen Head wurde bei der GitHub-Abfrage noch kein Actions-Lauf zurückgegeben; daher kein aktueller CI-Nachweis.
 - Server-README, Root-README und PR-Beschreibung wurden um den tatsächlichen Implementierungsstand und die offenen Grenzen ergänzt. PR bleibt Draft. Kein Merge, kein Deployment, keine echten Modellaufrufe, keine API-Schlüssel und keine Kosten.
+
+
+### KI-ARBEITSPLATZ – Einmalfreigabe-Replay-Test ergänzt (27.11.2026)
+- Draft-PR #12 Head nach Readback: `4d196cc8488c03f94075f77d8c0431401efa44ea`; offen, Draft, ungemergt.
+- HTTP-Grenztests erweitert: Wiederverwendung derselben Einmal-Freigabe muss beim zweiten Versuch abgewiesen werden, ohne einen zweiten Orchestratorlauf auszulösen. Ergebnis: 9/9 lokale HTTP-Tests bestanden.
+- README, PR-Beschreibung und Serverdokumentation aktualisiert. Weiterhin keine echte Auth-/CSRF-/Freigabe-/Audit-/Budgetdienst-Anbindung, keine Provideradapter, kein CI-Nachweis für den aktuellen Head, kein Deployment und keine Live-Aufrufe.
