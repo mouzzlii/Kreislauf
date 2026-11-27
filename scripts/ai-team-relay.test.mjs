@@ -63,6 +63,7 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   assert.ok(relaySource.includes("isPublicRepositoryMetadata(meta)"));
   assert.ok(sourceContextSource.includes('primary.visibility === "public"'));
   assert.ok(interopSource.includes('["public", "synthetic", "anonymized"]'));
+  assert.ok(interopSource.includes("export function parsePublicDebateRequest(value)"));
   const publicVisibilityGuard = relaySource.indexOf("if (!isPublicRepositoryMetadata(meta))");
   const readmeFetch = relaySource.indexOf("/readme?ref=", publicVisibilityGuard);
   const treeFetch = relaySource.indexOf("/git/trees/", publicVisibilityGuard);
@@ -72,6 +73,14 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   assert.ok(relaySource.includes("hasTrustedRelayMarker(existing, marker)"));
   assert.ok(relaySource.includes("inspectDailyBudgetPage(comments"));
   assert.ok(relaySource.includes("parseCouncilTaskComment(comment.body)"));
+  assert.ok(relaySource.includes("parsePublicDebateRequest(debateMatch[2])"));
+  const classificationParse = relaySource.indexOf("parsePublicDebateRequest(debateMatch[2])");
+  const classificationReject = relaySource.indexOf("if (!classifiedRequest.success)", classificationParse);
+  const contextFetch = relaySource.indexOf("const projectContext = await fetchProjectContext");
+  const budgetReservation = relaySource.indexOf("const reservation = await reserveDailyDebate");
+  assert.ok(classificationParse >= 0 && classificationReject > classificationParse &&
+    contextFetch > classificationReject && budgetReservation > classificationReject,
+  "unclassified free debate requests must be rejected before context loading and budget reservation");
   assert.ok(relaySource.includes("resolveCouncilTaskProject(taskEnvelope, PROJECT_REPOS)"));
   assert.ok(relaySource.includes("taskEnvelope.payload.inputs.commitSha"));
   assert.ok(relaySource.includes("taskEnvelope.payload.constraints.allowedPaths"));
