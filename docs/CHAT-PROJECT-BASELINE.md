@@ -454,7 +454,7 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 
 
 ### KI-ARBEITSPLATZ – finaler Stand dieses GO-Zyklus (27.11.2026)
-- Draft-PR #12 aktueller Head nach Readback: 18a26a791bed28259935e2f030eed85f1d759085; offen, Draft, ungemergt. Geänderte Dateien: 17.
+- Draft-PR #12 aktueller Head nach Readback: 00c8e5e160b91d97667da56124bc22fb39867b8c; offen, Draft, ungemergt. Geänderte Dateien: 17.
 - Serverseitige Council-Grenze wurde zusätzlich gehärtet: log-sichere Auftragskennungen, kanonische HTTPS-Origin-Allowlist, Kontrolle von Auth-Subject-IDs ohne unnötige Einschränkung opaker IDs, striktes vollständiges Ergebnis-/Identitätsschema, exakte Bindung aller Analyse-Sitze an genehmigte Provider und vollständige gerichtete Peer-Review-Paare.
 - Testquellstand: 18 Orchestrator- und 15 HTTP-Fälle. Historisch waren 17/17 bzw. 9/9 vor den jüngsten Ergänzungen lokal bestanden; neue Härtungsfälle nicht ausgeführt. Node.js 22.16 ist verfügbar, aber das private Repository konnte wegen fehlender DNS-/Netzwerkauflösung nicht in den lokalen Testcontainer geladen werden.
 - GitHub Actions hat für den aktuellen Head keinen Lauf geliefert. Vercel-Statuscheck bleibt wegen Free-Tier-Deployment-Limit auf failure; kein erneuter Deploymentversuch.
