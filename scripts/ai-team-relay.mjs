@@ -78,14 +78,15 @@ async function api(url, options = {}) {
 
 async function askCouncilModel(model, instructions, input) {
   if (!AI_GATEWAY_API_KEY) throw new Error("AI_GATEWAY_API_KEY is missing.");
-  if (taskExecutionBudget && !isWithinUtf8ByteLimit(`${instructions}\n${input}`, taskExecutionBudget.maxInputBytes)) {
+  const requestBody = JSON.stringify(buildGatewayChatCompletion({ model, instructions, input, maxTokens: MAX_OUTPUT_TOKENS }));
+  if (taskExecutionBudget && !isWithinUtf8ByteLimit(requestBody, taskExecutionBudget.maxInputBytes)) {
     throw new Error("Council task input exceeds the declared UTF-8 byte limit.");
   }
   const data = await api(VERCEL_AI_GATEWAY_URL, {
     method: "POST",
     taskBudgeted: Boolean(taskExecutionBudget),
     headers: { Authorization: `Bearer ${AI_GATEWAY_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify(buildGatewayChatCompletion({ model, instructions, input, maxTokens: MAX_OUTPUT_TOKENS })),
+    body: requestBody,
   });
   const output = extractGatewayText(data);
   modelAudit.push({

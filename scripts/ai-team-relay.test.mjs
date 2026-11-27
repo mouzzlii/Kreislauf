@@ -117,6 +117,7 @@ test("task envelope runtime and byte limits are enforced at relay boundaries", a
   assert.ok(relaySource.includes("createTaskExecutionBudget("));
   assert.ok(relaySource.includes("taskExecutionBudget.deadlineAt"));
   assert.ok(relaySource.includes("taskExecutionBudget.maxInputBytes"));
+  assert.ok(relaySource.includes("isWithinUtf8ByteLimit(requestBody, taskExecutionBudget.maxInputBytes)"));
   assert.ok(relaySource.includes("taskExecutionBudget.maxOutputBytes"));
   assert.ok(relaySource.includes("taskBudgeted: Boolean(taskExecutionBudget)"));
   assert.ok(relaySource.includes("AbortSignal.timeout(timeoutMs)"));
