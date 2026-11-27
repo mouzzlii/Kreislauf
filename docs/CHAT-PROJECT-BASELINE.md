@@ -490,3 +490,9 @@ Dieser Nachtrag dokumentiert neue, direkt verifizierte Änderungen seit dem letz
 - Keine manuelle Preview-Bereitstellung, keine Kontingentumgehung, keine Migration und keine Produktionsänderung.
 
 **Globale Schutzgrenze:** Alle oben genannten PRs bleiben Arbeitsvorschläge in Draft-Branches. Keine Hauptbranch-Merges, Produktionsfreigaben, kostenpflichtigen Inferenzaufrufe oder riskanten Datenänderungen wurden durch diesen Abgleich ausgeführt.
+
+### TRAKUNA-Gateway – Hermes-AT-Portal in zentraler Registry (27.11.2026)
+- Zentraler Dokumentations-PR [mouzzlii/multi-carrier-gateway #8](https://github.com/mouzzlii/multi-carrier-gateway/pull/8), Head `ab6214a6c0762748cc3943976bb14dcd67e26656`, Draft und konfliktfrei.
+- `docs/CARRIER-REGISTRY.md` führt myHermes.at als öffentliches österreichisches Trackingportal auf; Hermes bleibt `NOT_CONFIGURED`.
+- `docs/HERMES-SYSTEMRECHERCHE.md` grenzt Verbrauchertracking klar von PaketShop-Partner-API, Geräteintegration und automatisierter Shopannahme/-ausgabe ab.
+- Die Dokumentationskorrektur entspricht der App-Allowlist-Korrektur in TRAKUNA PR #25. Keine Carrier-API, Authentifizierung, Buchung, Labelbestellung oder Produktionsfreigabe wurde hinzugefügt.
