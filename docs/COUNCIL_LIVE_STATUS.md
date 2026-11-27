@@ -61,10 +61,10 @@ Der Workflow übergibt **kein** `AI_GATEWAY_API_KEY`; die fünf Vercel-Virtual-M
 ## PR #38 – Gateway-Branch, Sicherheitskorrekturen und CI-Nachweis (27.11.2026)
 
 - Draft PR [#38](https://github.com/mouzzlii/Kreislauf/pull/38) enthält den gemeinsamen Vercel-AI-Gateway-Aufrufweg für die vier fest allowlisteten Aliase GPT, Claude, Gemini und Grok. Der aktive `main`-Relay oben bleibt davon unberührt und verwendet weiterhin die zuvor dokumentierten direkten Provider-Clients.
-- **Aktueller PR-Head:** `1d7614c44ab445e6dabcb0087128bb1e82af7183`.
-- **Erfolgreiche synthetische Relay-CI:** Run [46031375856](https://github.com/mouzzlii/Kreislauf/actions/runs/46031375856) auf exakt diesem Head. Alle Schritte erfolgreich: Syntax, Task-Envelope (17 Tests), Ledger (6), Source-Context (12), Gateway-Provider-Verträge (4), Parser/Integration (2) und Projekt-/Tagesbudgetprüfung. Insgesamt 41 Node-Tests bestanden, 0 fehlgeschlagen. Beide Workflows verwenden verifizierte unveränderliche Commit-SHAs für `actions/checkout` v7 und `actions/setup-node` v6.
+- **Aktueller PR-Head:** `39d7caf42ec543a42ea31b4f0f2247c245c77227` (Dokumentations-Commit nach dem geprüften Code-Head `1d7614c44ab445e6dabcb0087128bb1e82af7183`).
+- **Erfolgreiche synthetische Relay-CI:** Run [46031691434](https://github.com/mouzzlii/Kreislauf/actions/runs/46031691434) auf exakt diesem Head (nachfolgender Dokumentations-Commit). Alle Schritte erfolgreich: Syntax, Task-Envelope (17 Tests), Ledger (6), Source-Context (12), Gateway-Provider-Verträge (4), Parser/Integration (2) und Projekt-/Tagesbudgetprüfung. Insgesamt 41 Node-Tests bestanden, 0 fehlgeschlagen. Beide Workflows verwenden verifizierte unveränderliche Commit-SHAs für `actions/checkout` v7 und `actions/setup-node` v6.
 - Vercel-Preview-Check auf dem PR-Head ist wegen `build-rate-limit` fehlgeschlagen; keine aktuelle Preview-Bereitstellung daraus ableiten.
-- PR #38 bleibt Draft und ungemergt. Aktueller Vergleich mit `main`: 146 Commits voraus / 79 zurück, Merge-Base `71fb0e07740150be13d40b1aef10ba269fe264b8`; GitHub meldet `mergeable=false`. Keine Integration in `main` ohne kontrollierte Konsolidierung und erneute vollständige Prüfung.
+- PR #38 bleibt Draft und ungemergt. Aktueller Vergleich mit `main`: 147 Commits voraus / 81 zurück, Merge-Base `71fb0e07740150be13d40b1aef10ba269fe264b8`; GitHub meldet `mergeable=false`. Keine Integration in `main` ohne kontrollierte Konsolidierung und erneute vollständige Prüfung.
 
 ## Sicherheitsreview des Gateway-PR #38 – korrigierter Stand (27.11.2026)
 
