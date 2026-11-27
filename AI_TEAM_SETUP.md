@@ -27,11 +27,13 @@ Llama wird nicht aufgerufen, bis eine geeignete EU-Datenverarbeitung nachgewiese
 
 Nur ein markierter Kommentar im zentralen Issue [#11](https://github.com/mouzzlii/Kreislauf/issues/11) startet einen Lauf. Pull-Request-Kommentare, andere Issues und Bot-Kommentare werden abgewiesen. Der Absender muss in `AI_TEAM_ALLOWED_USERS` freigegeben sein.
 
-Beispiel für eine freie Projektdiskussion:
+Beispiel für eine freie Projektdiskussion (Datenklassifikation ist Pflicht):
 
 ```text
-/ai-team debate CHRONOS: Prüfe die Backup-Sicherheitsgrenzen.
+/ai-team debate CHRONOS: [public] Prüfe die öffentlich dokumentierten Backup-Sicherheitsgrenzen.
 ```
+
+Jeder freie Debattenauftrag muss unmittelbar nach dem Doppelpunkt `[public]`, `[synthetic]` oder `[anonymized]` deklarieren. Nicht klassifizierte oder als intern/vertraulich/personenbezogen/geheim markierte Aufträge werden vor Quellkontext-Budgetreservierung und Provider-Aufruf abgewiesen. Die Klassifikation ist eine ausdrückliche Erklärung des Auftraggebers, keine automatische Inhaltsprüfung; keine sensiblen Inhalte eingeben.
 
 Zulässige Projektkennungen für Debatten:
 
