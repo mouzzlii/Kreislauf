@@ -1,6 +1,6 @@
 # Chatbasierte Projekt- und Main-Referenz
 
-**Stand:** 26.11.2026  
+**Stand:** 27.11.2026  
 **Zweck:** Diese Übersicht überführt bestätigte Nutzerentscheidungen aus den bisherigen Projekt-Chats in eine nachvollziehbare, chatübergreifende Referenz. Sie ist ein Navigations- und Koordinationsdokument, kein Ersatz für projektspezifische Spezifikationen, Quellcode, Tests oder Freigaben.
 
 ## 1. Verbindliche Arbeitsregeln für alle Projekte
@@ -145,7 +145,7 @@ Eigenständige App zur Erstellung und Verwaltung vieler Produktinserate; eigene 
 - Read-only-Scan, SHA-256-Duplikate, EXIF-/Metadaten, lokale Vorschaubilder, vorsichtige Ähnlichkeitskandidaten, Tages-Zeitleiste und heuristische Ereignisvorschläge.
 - Originalfotos werden nicht verändert oder gelöscht.
 - Lokale API ist nur für Loopback vorgesehen; keine Authentifizierung/TLS für Mehrbenutzerbetrieb.
-- Desktop-Backup enthält Indexdaten und Vorschaubilder, keine Originalfotos; ZIP ist nicht verschlüsselt.
+- Desktop-Backup enthält Indexdaten und Vorschaubilder, keine Originalfotos. main verwendet weiterhin das unverschlüsselte Legacy-ZIP-Format. Draft-PR [#62](https://github.com/mouzzlii/CHRONOS/pull/62) ergänzt optionale AES-256-GCM-Backups und Restore-Härtung (Windows-Gerätenamen, nachgestellte Punkte/Leerzeichen und normalisierte Pfadkollisionen); aktueller Head `1f3ad23b6c4dd1cdf90104b56a1868880cd9f5ad`. CI-Lauf `46010378138` endete für alle drei Python-Matrixjobs vor dem ersten Schritt (keine Steps/Logs); die neuen Änderungen sind daher nicht automatisiert getestet. Explizite Windows-DACL-Erstellung und -Verifikation bleibt ein Sicherheits-/Release-Blocker; Windows-ACL-Privatheit nicht behaupten.
 - Python-CI und Android-/Robolectric-Prüfungen sind in der Statusdokumentation belegt. Echte Android-Geräte-, Prozessabbruch-, Backup-/Restore- und Großbibliothekstests bleiben offen.
 - Gesichtserkennung ist nicht enthalten und darf nicht ohne ausdrückliche Einwilligung sowie Datenschutz-/Rechtsprüfung ergänzt werden.
 
@@ -623,3 +623,13 @@ Der Nutzer hat ausdrücklich angewiesen, laufende Projekte ohne wiederholte Zust
 - Für Foodtrucks ist die passende Gewerbeberechtigung erforderlich, meist Gastgewerbe. Je nach Angebot kann ein einfaches Imbissmodell mit maximal acht Verabreichungsplätzen unter das freie Gastgewerbe fallen; andere Betriebsformen können reglementiert sein. Fahrzeugmiete überträgt keine Gewerbeberechtigung. Startmodell deshalb Kooperation mit einem befugten Betreiber; Rollen für Verkauf, Lebensmittelunternehmer, Kasse, Personal, Hygiene, Standplatz, Haftung und Versicherung vertraglich klarstellen.
 - Standort-/Betriebsstätten-, Betriebsanlagen-, StVO-, Markt-/Veranstaltungs- und Fahrzeuganforderungen sind je Standort/Nutzung zu prüfen. Lebensmittelhygiene gilt auch im Truck.
 - Detailquellen und Abgrenzungen stehen in mouzzlii/book-your-cook/docs/PROJECT-BASELINE.md (Readback-Commit cb7c12fbb7ab71e6318eb5e17f0f85fb2017e1dc). Keine behördliche Einzelfallfreigabe oder Betriebsaufnahme belegt.
+
+
+### JOBPLATTFORM AT – eigenständiges Jobplattform-Projekt (27.11.2026)
+
+**Repository:** [mouzzlii/jobplattform-at](https://github.com/mouzzlii/jobplattform-at)
+
+- Das Repository ist vorhanden und privat; der tatsächliche Quellumfang wurde bislang nur teilweise inventarisiert.
+- Frühere Prüfung ergab ein minimales README, aber keine nachgewiesene vollständige App-Struktur; insbesondere waren `package.json` und `INSTALLATION-ANDROID.md` im geprüften Stand nicht vorhanden.
+- Keine funktionsfähige Plattform, Android-App, Datenbankanbindung oder produktive Bereitstellung behaupten, solange diese Artefakte nicht im aktuellen Repository-Stand verifiziert sind.
+- Nächster sinnvoller Schritt: vollständiges Repository-Inventar, Architektur-/Sicherheitsprüfung und klare Abgrenzung zwischen vorhandenem Code, Konzept und noch fehlender Implementierung. Keine Neuentwicklung parallel zu einem eventuell vorhandenen, noch nicht geprüften Quellstand beginnen.
