@@ -87,7 +87,7 @@ Die Budgetvariable ist ein manueller Freigabeschalter, keine automatische Kosten
 
 Die lokalen Vertragstests prüfen die feste Gateway-Aliasliste, Nachrichtenform, Antwortauswertung, Quellkontextgrenzen, Task-Envelope-Validierung, Ledger-Schutz und die Befehlsverarbeitung. Solche Tests beweisen keine echte Provider-Verbindung.
 
-Für einen realen Council-Lauf müssen zusätzlich die beiden GitHub-Secrets und die manuelle Budgetfreigabe eingerichtet sein. Es wurde bislang kein bezahlter Modellaufruf durch diese Dokumentations-/Codeprüfung ausgelöst. Die Live-Konfiguration der Vercel-Aliase allein beweist weder eine GitHub-Actions-Verbindung noch eine erfolgreiche Mehrmodell-Debatte.
+Unter der aktuell geltenden Zusatzbudgetgrenze von 0 EUR dürfen diese Secrets **nicht** allein zur Aktivierung eingerichtet und `AI_TEAM_BUDGET_CONFIRMED` darf nicht auf `true` gesetzt werden. Der Workflow ist zusätzlich durch das feste `false && ...`-Gate deaktiviert. Eine spätere Aktivierung erfordert eine neue ausdrückliche Freigabe und einen nachweislich harten anbieterübergreifenden Kostenstopp. Die Live-Konfiguration der Vercel-Aliase allein beweist weder eine GitHub-Actions-Verbindung noch eine erfolgreiche Mehrmodell-Debatte.
 
 
 ## Verbindliche Kosten- und Aktivierungssperre
