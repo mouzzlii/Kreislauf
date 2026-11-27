@@ -408,3 +408,12 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 - Aktueller Readback: Das README bezeichnet das Projekt als „Android-Debug-APK build pipeline“ und verweist auf `INSTALLATION-ANDROID.md`; genau diese Datei ist auf `main` nicht abrufbar (404). `package.json` ist ebenfalls nicht abrufbar (404). Damit sind weder eine vollständige App-Struktur noch ein reproduzierbarer APK-Build oder ein APK-Artefakt nachgewiesen; das README allein ist kein Implementierungsnachweis.
 - Keine funktionsfähige Plattform, Android-App, Datenbankanbindung oder produktive Bereitstellung behaupten, solange diese Artefakte nicht im aktuellen Repository-Stand verifiziert sind.
 - Nächster sinnvoller Schritt: vollständiges Repository-Inventar, Architektur-/Sicherheitsprüfung und klare Abgrenzung zwischen vorhandenem Code, Konzept und noch fehlender Implementierung. Keine Neuentwicklung parallel zu einem eventuell vorhandenen, noch nicht geprüften Quellstand beginnen.
+
+
+### KI-ARBEITSPLATZ – zusätzliche HTTP-/Audit-Härtung (27.11.2026)
+- Draft-PR #12 auf mouzzlii/KI-Arbeitsplatz, Branch feat/offline-council-workbench, Head nach Readback: f3e3eb5becdf7d0d5f4c482bcc4270c6fad7e8c3; offen, Draft, ungemergt.
+- Council-Request-Validierung beschränkt Task-/Projektkennungen auf audit-log-sicheres ASCII-Format und lehnt Steuerzeichen ab.
+- HTTP-Handler akzeptiert in seiner Konfiguration ausschließlich kanonische HTTPS-Origins; authentifizierte Subject-IDs werden gegen Log-Injection begrenzt.
+- Vor Audit/Antwort werden Orchestrator-Ergebnisse auf erlaubte Statuswerte, sichere Run-ID und begrenzte Array-Strukturen validiert. Ungültige Rückgaben werden nicht an Clients serialisiert.
+- Testquellstand: 18 Orchestrator- und 12 HTTP-Fälle. Historisch vor den neuesten Ergänzungen 17/17 bzw. 9/9 lokal bestanden; die neuen Härtungsfälle sind noch nicht ausgeführt. GitHub Actions hat für den aktuellen Head keinen Lauf geliefert.
+- Server-Council-README, Root-README, PR-Beschreibung und Council-Integrationsgrenze aktualisiert. Keine echte Auth-/CSRF-/Audit-/Budgetanbindung, keine Provideradapter, keine echten Modellaufrufe, kein Deployment, keine Kosten. PR bleibt Draft.
