@@ -39,6 +39,13 @@ const MAX_OUTPUT_TOKENS = 1000;
 const MAX_DAILY_DEBATES = 2;
 const MARKER_PREFIX = "<!-- ai-team-relay:";
 
+// Never access the private workspace repository, even if another project's
+// environment mapping or a related-repository setting points to it.
+const EXCLUDED_REPOSITORIES = new Set(["mouzzlii/ki-arbeitsplatz"]);
+const isExcludedRepository = (repository) => EXCLUDED_REPOSITORIES.has(
+  String(repository || "").trim().replace(/\\/+$/, "").toLowerCase(),
+);
+
 function fail(message) {
   console.error(message);
   process.exitCode = 1;
@@ -119,6 +126,21 @@ async function fetchProjectContext(project, taskEnvelope = null) {
     };
   }
 
+  const repositories = taskEnvelope
+    ? [repository]
+    : [...new Set([repository, ...(PROJECT_RELATED_REPOS[project] || [])])];
+  if (repositories.some(isExcludedRepository)) {
+    return {
+      repository: null,
+      branch: "",
+      repositories: [],
+      note: "Ein konfiguriertes Repository ist ausdrücklich vom externen Council-Quellzugriff ausgeschlossen.",
+      readme: "",
+      source: "",
+      paths: [],
+    };
+  }
+
   if (!AI_TEAM_REPO_READ_TOKEN) {
     return {
       repository,
@@ -131,9 +153,6 @@ async function fetchProjectContext(project, taskEnvelope = null) {
     };
   }
 
-  const repositories = taskEnvelope
-    ? [repository]
-    : [...new Set([repository, ...(PROJECT_RELATED_REPOS[project] || [])])];
   const headers = {
     Accept: "application/vnd.github+json",
     Authorization: `Bearer ${AI_TEAM_REPO_READ_TOKEN}`,
