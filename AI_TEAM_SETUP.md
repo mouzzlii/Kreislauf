@@ -1,134 +1,95 @@
-# KI-Team-Kommunikation für vier Projekte
+# KI-Team-Relay – Einrichtung und Sicherheitsgrenzen
 
-**Geltungsbereich:** Dieses Dokument beschreibt ausschließlich den technischen Relay und die Council-Zusammenarbeit für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS. Globale Arbeitsweise, Kosten- und Freigabegrenzen richten sich nach [MAINPROMPT 2.0.7](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md); dieses Dokument ist keine zweite globale Arbeitsverfassung.
+Stand: 27.11.2026. Diese Datei beschreibt ausschließlich den aktiven Gateway-Relay in diesem Branch. Frühere direkte OpenAI-/Anthropic-/Meta-/Llama-Provider-Anleitungen sind entfernt, weil sie nicht mehr zum aktiven Workflow passen.
 
-## Aktueller Abgleich – 27.11.2026
+## Aktiver Vercel AI Gateway
 
-Der folgende Abschnitt beschreibt den tatsächlich aktiven Stand auf `main` und ist von den noch nicht integrierten Gateway-Arbeiten zu unterscheiden:
+Der Relay verwendet den OpenAI-kompatiblen Endpunkt:
 
-- Der aktive Workflow `.github/workflows/ai-team-communication.yml` übergibt OpenAI-, Anthropic- und wahlweise Meta-/Llama-Credentials direkt an `scripts/ai-team-relay.mjs`.
-- Die fünf Vercel Virtual Models `vmc/council-gpt`, `vmc/council-claude`, `vmc/council-gemini`, `vmc/council-grok` und `vmc/council-llama` sind zwar aktiv konfiguriert, werden vom aktuellen `main`-Workflow aber nicht aufgerufen. Gemini und Grok sind dort noch keine Council-Mitglieder.
-- Das Vercel-Projekt enthält `AI_GATEWAY_API_KEY` nur für Preview und Development. Diese Variable wird nicht automatisch an GitHub Actions weitergereicht. Der Wert wurde nicht abgerufen.
-- Das bestehende Vercel-Projektbudget von 5 USD/Monat ist laut Vercel ein **Soft Cap**: Ein Request, der die Grenze überschreitet, kann noch abgeschlossen werden. Es ist daher keine harte Kostenobergrenze. Usage vom 20. bis 27.11.2026: 0 Requests, 0 USD.
-- Der Gateway-Umbau in PR #38 ist nicht in `main` integriert und bleibt Draft. Keine echten Provider-Aufrufe, keine Kostenfreigabe und kein Live-Council sind nachgewiesen.
-- MAINPROMPT 2.0.7 bleibt maßgeblich: Zusatzbudget 0 EUR, Live-Council AUS. Keine Provider-Anfragen ohne ausdrückliche Budgetfreigabe und belastbare harte Kostenkontrolle.
+`https://ai-gateway.vercel.sh/v1/chat/completions`
 
-Die verifizierte Modell-, Regions-, Credential- und Kostenübersicht steht in [docs/COUNCIL_LIVE_STATUS.md](docs/COUNCIL_LIVE_STATUS.md).
+Er nutzt ausschließlich diese fest allowlisteten Virtual-Model-Aliase:
 
-## Ziel und Ablauf
+| Rolle | Alias | Verwendung |
+|---|---|---|
+| GPT | `vmc/council-gpt` | unabhängige Erstanalyse und abschließende Synthese |
+| Claude | `vmc/council-claude` | unabhängige Gegenanalyse |
+| Gemini | `vmc/council-gemini` | unabhängige Gegenanalyse |
+| Grok | `vmc/council-grok` | unabhängige Gegenanalyse |
 
-GitHub ist das gemeinsame, dauerhafte Postfach und Entscheidungsprotokoll für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS.
+Alle vier Modelle erhalten denselben ursprünglichen Auftrag und denselben begrenzten, redigierten Quellkontext. Die drei Gegenanalysen erhalten keine vorherigen Agentenantworten. Erst danach erhält GPT die vier Analysen zur Synthese. Es werden keine Provider-Tools oder Schreibaktionen übergeben.
 
-Zentrale Koordination: https://github.com/mouzzlii/Kreislauf/issues/11
+Die Aliase wurden in der verbundenen Vercel-Teamkonfiguration als aktiv und mit Zero Data Retention sowie deaktiviertem Prompt-Training ausgelesen. Das ist **keine EU-Datenresidenz-Garantie**: Nur Claude ist derzeit ausdrücklich auf EU-Provider-Routen beschränkt. Für GPT, Gemini und Grok ist keine explizite EU-Inferenzregion nachgewiesen. Deshalb dürfen über diesen Relay keine personenbezogenen, vertraulichen, Kunden-, Gesundheits-, Zahlungs-, Zugangsdaten oder privaten Inhalte übertragen werden. Zusätzlich gilt jetzt eine technische Public-only-Sperre: Vor dem Lesen von README, Dateibaum oder Quelltext wird GitHub-Metadatenfeld `visibility` geprüft; nur `visibility=public` zusammen mit `private=false` ist zulässig. Private, interne oder nicht eindeutig klassifizierte Repositorys werden fail-closed abgewiesen. Die Primärquelle muss ebenfalls öffentlich sein; private Sekundärrepositorys liefern keinen Quelltext. Die Prüfung erfolgt vor Tagesbudgetreservierung und Provider-Aufrufen. Die Secret-Redaktion erkennt bekannte Muster, ist aber keine vollständige PII-/Secret-Erkennung.
 
-Das KI-Team arbeitet als vierstufiger, unabhängiger Rat:
+Llama wird nicht aufgerufen, bis eine geeignete EU-Datenverarbeitung nachgewiesen ist. Meta Muse ist ebenfalls nicht Teil dieses aktiven Vier-Modell-Ablaufs.
 
-1. **OpenAI / GPT** erstellt die erste technische Analyse.
-2. **Anthropic / Claude** prüft sie unabhängig und widerspricht bei Bedarf.
-3. **Dritter Agent – ausdrücklich wählbar:** entweder Meta Muse über Metas gehostete Model API oder ein echtes Llama-Modell über einen eigenen/externen Inference-Host.
-4. **OpenAI / GPT** moderiert die Synthese und dokumentiert begründete Übereinstimmungen, Widersprüche und offene Nachweise.
+## Auslöser und Projektumfang
 
-Jeder Agent erhält denselben begrenzten Projektkontext und die vorherigen Antworten. Der Relay ändert keine Quellcodes, führt keine Merges oder Deployments aus und nimmt keine produktiven Aktionen vor.
+Nur ein markierter Kommentar im zentralen Issue [#11](https://github.com/mouzzlii/Kreislauf/issues/11) startet einen Lauf. Pull-Request-Kommentare, andere Issues und Bot-Kommentare werden abgewiesen. Der Absender muss in `AI_TEAM_ALLOWED_USERS` freigegeben sein.
 
-## Dritten Agenten auswählen
-
-Die Auswahl erfolgt über die GitHub Actions Variable:
-
-- `AI_TEAM_THIRD_PROVIDER=meta` – nutzt die gehostete Meta Model API mit Muse-Modellen.
-- `AI_TEAM_THIRD_PROVIDER=llama` – nutzt ein echtes Llama-Modell auf einem OpenAI-kompatiblen Inference-Endpunkt.
-
-Diese beiden Varianten sind bewusst getrennt: Die gehostete Meta Model API führt Meta-eigene Muse-Modelle aus; Llama-Gewichte werden nicht über diese API gehostet. Ein echtes Llama-Modell muss durch einen Inference-Anbieter oder eigene Infrastruktur bereitgestellt werden.
-
-## Technische Schnittstellen
-
-- **OpenAI:** Responses API, `POST https://api.openai.com/v1/responses`.
-- **Claude:** Anthropic Messages API, `POST https://api.anthropic.com/v1/messages`, mit `anthropic-version: 2026-10-21` und Bearer-Authentifizierung.
-- **Meta Muse:** OpenAI-kompatible Chat Completions API, fest auf `POST https://api.meta.ai/v1/chat/completions` eingestellt, Bearer-Authentifizierung mit `MODEL_API_KEY`-Secret und einem ausdrücklich gewählten `META_MODEL`.
-- **Llama:** OpenAI-kompatible Chat Completions API, konfigurierbare HTTPS-Adresse mit Pfad `/v1/chat/completions`, Bearer-Authentifizierung und ausdrücklich gewähltem `LLAMA_MODEL`. `localhost` ist von einem GitHub-hosted Runner nicht erreichbar. Eine eigene Llama-Instanz braucht einen abgesicherten, erreichbaren HTTPS-Endpunkt oder einen korrekt abgesicherten Self-hosted Runner im privaten Netz.
-
-Meta und Llama verwenden dasselbe Nachrichtenformat mit System- und Nutzernachricht, begrenzter Ausgabe und ohne Streaming. Der Relay sendet keine Tools an diese beiden Gegenprüfer. Die Schnittstellen werden mit lokalen Vertragstests ohne echte Provider-Aufrufe geprüft.
-
-Offizielle Dokumentation:
-- Anthropic Messages API: https://platform.claude.com/docs/en/api/messages/create
-- Anthropic Authentifizierung: https://platform.claude.com/docs/en/manage-claude/authentication
-- Meta Model API Übersicht: https://dev.meta.ai/docs/overview
-- Meta Chat Completions und Authentifizierung: https://dev.meta.ai/docs/authentication
-- Meta API-Referenz: https://dev.meta.ai/docs/api-reference
-- Meta erklärt den Unterschied zwischen Meta Model API und Llama: https://dev.meta.ai/help/about-model-api/llama-and-model-api
-- Offizielle Llama-Modellfamilie: https://www.llama.com/
-
-## Debatte starten
-
-Nur ein ausdrücklich markierter Kommentar im zentralen Issue #11 startet einen Lauf:
+Beispiel für eine freie Projektdiskussion:
 
 ```text
-/ai-team debate SCAN-PROFIT: Prüft den aktuellen Scan-Lock-Ansatz.
+/ai-team debate CHRONOS: Prüfe die Backup-Sicherheitsgrenzen.
 ```
 
-Zulässige Projektnamen: `KREISLAUF`, `TRAKUNA`, `SCAN-PROFIT`, `CHRONOS`.
+Zulässige Projektkennungen für Debatten:
 
-## Einrichtung durch den Kontoinhaber
+- `KREISLAUF`
+- `TRAKUNA`
+- `SCAN-PROFIT`
+- `CHRONOS`
+- `INSERAT-PROFI-AI`
+- `BOOK-YOUR-COOK`
+- `LARA-QUIZ`
+- `KI-ARBEITSPLATZ`
 
-API-Schlüssel sind nicht in dieser Sitzung vorhanden und dürfen niemals im Chat oder Repository gepostet werden. In GitHub unter `Settings → Secrets and variables → Actions`:
+Der strukturierte Task-Eingang verwendet `/ai-team task:` gefolgt von einem JSON-Envelope. Er ist derzeit ausschließlich für `KI-ARBEITSPLATZ` und den Task-Typ `project.static_review` freigegeben. Er verlangt einen fixierten 40-stelligen Commit-SHA, 1–4 freigegebene Repository-Pfade, `readOnly: true` und `dataClassification` exakt aus `public`, `synthetic` oder `anonymized`. `internal`, `confidential`, `personal` und `secret` werden abgewiesen. Wichtig: Das kanonische Repository `mouzzlii/KI-Arbeitsplatz` ist privat; deshalb wird der strukturierte Task-Eingang derzeit bei der Public-only-Prüfung gestoppt und kann keine privaten Quellen an Modelle senden. Er bleibt bis zu einer ausdrücklich freigegebenen öffentlichen/synthetischen Quelle nicht operativ nutzbar. Das Repository darf nicht nur zur Aktivierung öffentlich gemacht werden. Der Adapter darf nur freigegebene öffentliche Quelltexte lesen und eine begrenzte Markdown-Analyse zurückgeben. Schreib-, Lösch-, Merge-, Deploy-, Veröffentlichungs-, Kauf- und externe Nachrichtenoperationen sind ausdrücklich gesperrt. Ungültige, abgelaufene oder nicht exakt passende Envelopes werden vor Provider-Aufrufen abgewiesen.
 
-**Immer erforderliche Secrets**
-- `OPENAI_API_KEY`
-- `ANTHROPIC_API_KEY`
-- `AI_TEAM_REPO_READ_TOKEN`
+## GitHub-Actions-Einrichtung
 
-**Nur wenn `AI_TEAM_THIRD_PROVIDER=meta`**
-- `META_MODEL_API_KEY`
+Der Workflow benötigt genau diese beiden Repository-Secrets:
 
-**Nur wenn `AI_TEAM_THIRD_PROVIDER=llama`**
-- `LLAMA_API_KEY`
+| Secret | Zweck |
+|---|---|
+| `AI_GATEWAY_API_KEY` | Authentifizierung am Vercel AI Gateway |
+| `AI_TEAM_REPO_READ_TOKEN` | Fine-grained GitHub-Token zum Lesen der freigegebenen Projektquellen |
 
-**Erforderliche Variablen**
-- `AI_TEAM_THIRD_PROVIDER` – exakt `meta` oder `llama`.
-- `OPENAI_MODEL` – aktuell unterstützte Modellkennung für das OpenAI-Konto.
-- `CLAUDE_MODEL` – aktuell unterstützte Modellkennung für Anthropic.
-- `AI_TEAM_ALLOWED_USERS` – erlaubte GitHub-Benutzernamen; standardmäßig nur Repository-Eigentümer.
-- `AI_TEAM_BUDGET_CONFIRMED` – bleibt leer/`false`, bis echte Anbieter-Ausgabenlimits eingerichtet und kontrolliert sind.
+`AI_TEAM_REPO_READ_TOKEN` benötigt ausschließlich Metadata-Lesezugriff und `Contents: read-only` auf die ausdrücklich freigegebenen, öffentlich sichtbaren Quellrepositorys. Es erhält keine Schreibrechte. Private oder interne Repositorys werden unabhängig von Token-Berechtigungen nicht gelesen; der Token sollte dafür keine unnötigen privaten Content-Rechte besitzen.
 
-**Zusätzliche Variablen für Meta**
-- `META_MODEL` – ein im Meta Model API-Konto verfügbares Muse-Modell, z. B. eine in der aktuellen Model API ausgewiesene Muse-Spark-Modellkennung.
+Wichtig: Ein in Vercel gespeichertes `AI_GATEWAY_API_KEY`-Environment-Secret wird **nicht automatisch** an GitHub Actions weitergereicht. Die GitHub-Repository-Secret-Konfiguration ist eine getrennte Einrichtung. Der geheime Wert darf weder in Issues noch in Chats oder Quellcode gepostet werden. Es ist nicht erforderlich, ihn ChatGPT mitzuteilen.
 
-**Zusätzliche Variablen für Llama**
-- `LLAMA_MODEL` – Modellkennung, die der gewählte Llama-Host bereitstellt.
-- `LLAMA_API_BASE_URL` – vollständige HTTPS-Adresse, die auf `/v1/chat/completions` endet.
+Erforderliche Actions-Variablen:
 
-`AI_TEAM_REPO_READ_TOKEN` muss ein Fine-grained GitHub-Token mit ausschließlich `Contents: read-only` und Metadata-Lesezugriff auf die vier Projekt-Repositories sein. Es wird ausschließlich zum Laden des begrenzten Quellkontexts verwendet. Das separate Workflow-`GITHUB_TOKEN` kommentiert nur Issue #11; es erhält keine Merge- oder Quellcode-Schreibrechte.
+| Variable | Bedeutung |
+|---|---|
+| `AI_TEAM_ALLOWED_USERS` | Kommagetrennte GitHub-Logins; Standard ist nur `mouzzlii` |
+| `AI_TEAM_BUDGET_CONFIRMED` | Muss exakt `true` sein, bevor irgendein Modellaufruf zugelassen wird |
+| `PROJECT_REPO_*` | Optionale Repository-Overrides für die im Workflow aufgeführten Projekte |
+| `PROJECT_REPO_KI_ARBEITSPLATZ_REF` | Optionaler Branch-/Commit-Override für die read-only KI-Arbeitsplatz-Quellprüfung |
 
-Fehlende Schlüssel, ein fehlender Provider-Wert, eine unbekannte Modellkennung oder eine unsichere Llama-URL führen zum sicheren Abbruch, bevor ein Provider aufgerufen wird. Modellkennungen werden nicht erraten. Meta erhält keine Llama-Anfragen und der Llama-Adapter wird nicht verwendet, wenn `AI_TEAM_THIRD_PROVIDER=meta` gewählt wurde.
+Die Budgetvariable ist ein manueller Freigabeschalter, keine automatische Kostenkontrolle. Das zuletzt ausgelesene Vercel-Projektbudget beträgt 5 USD pro Monat bei 0 USD Verbrauch. Dieses Budget ist kein garantierter harter Kostenstopp und ersetzt keine Prüfung möglicher Provider-/BYOK-Abrechnung. Ohne ausdrückliche Prüfung und Freigabe bleibt `AI_TEAM_BUDGET_CONFIRMED` leer oder `false`; es werden dann keine Modelle aufgerufen.
 
-## Sicherheits- und Kostenregeln
+## Schutz- und Kostenmechanismen
 
-- Nur markierte Kommentare in Issue #11 und nur erlaubte GitHub-Absender verarbeiten; Bot-Kommentare werden ignoriert.
-- Maximal zwei Debatten pro UTC-Kalendertag. Das Kontingent wird vor dem ersten Provider-Aufruf zentral reserviert; auch fehlgeschlagene Aufrufe verbrauchen es.
-- Workflow-Concurrency serialisiert die Budgetreservierung. Bei unvollständigem Budget-Ledger erfolgt ein sicherer Abbruch.
-- Jede Anfrage ist auf 8.000 Zeichen, der gesamte Projektkontext auf 18.000 Zeichen und jede Modellausgabe auf maximal 1.000 Tokens begrenzt.
-- Der Relay lädt höchstens 80 Dateipfade und bis zu vier Quelltextauszüge je Repository (maximal 1.800 Zeichen je Datei, 6.500 Zeichen pro Repository) aus einer festen Allowlist.
-- Umgebungs-, Secret-, Credential-, Schlüssel-, Lock- und Builddateien werden nicht geladen. Die Secret-Redaktion erkennt gängige Provider-Tokens, PEM-Private-Keys, JWTs, benannte Secret-Zuweisungen und lange Hexwerte. Das ist keine Garantie, dass jedes Geheimnis erkannt wird.
-- Bei Aktivierung werden die ausgewählten Quelltextauszüge und die Anfrage an OpenAI, Anthropic und den jeweils gewählten dritten Provider übertragen. Keine echten Kundendaten, Sendungsdaten, personenbezogenen Daten oder Geheimnisse in den ausgewählten Dateien speichern.
-- Eingabe- und Ausgabelimits sind keine garantierte Geldobergrenze. Für alle tatsächlich verwendeten Anbieter müssen echte Ausgabenlimits bzw. Kostenkontrollen gesetzt werden.
-- `AI_TEAM_BUDGET_CONFIRMED=true` ist nur die manuelle Bestätigung des Kontoinhabers und prüft Anbieterbudgets nicht automatisch.
-- Keine Secrets ausgeben oder anfordern; keine Produktivdatenbanken, Carrier-Systeme oder produktiven Buchungen verändern.
+- Ausschließlich Issue #11, erlaubte Absender und explizite Befehle.
+- Feste Modell-Alias-Allowlist; keine freie Modellkennung aus Kommentartext.
+- Begrenzter Quellkontext mit projektspezifischer Pfadpriorität, Public-only-Metadatenprüfung und bekannten Secret-Redaktionsmustern; die Public-only-Prüfung ist eine zusätzliche Sperre, kein Ersatz für PII-Prüfung.
+- Das kanonische Primärrepository selbst muss einen Branch und einen nichtleeren Quelltextauszug liefern. Ein sekundäres Repository kann diese Prüfung nicht ersetzen.
+- Maximal zwei Debatten pro UTC-Kalendertag. Der globale Workflow-Concurrency-Block serialisiert Reservierungen; der zentrale Kommentar-Ledger wird vor dem ersten Provider-Aufruf geprüft.
+- Reservierungen und Verarbeitungsmarker werden nur von `github-actions[bot]` mit GitHub-Typ `Bot` anerkannt. Fremde Nutzer und andere Bots können keine Reservierung fälschen.
+- Idempotenz verhindert die erneute Verarbeitung desselben Kommentars bzw. desselben strukturierten Task-Schlüssels.
+- Kontext-, Datei-, Laufzeit- und Ausgabelimits sind im Relay-Code fest begrenzt. Fehlgeschlagene Provider-Aufrufe verbrauchen einen bereits reservierten Tagesplatz.
+- Agentenantworten sind nicht vertrauenswürdige Daten. Anweisungen darin dürfen keine System-, Sicherheits- oder Freigaberegeln überschreiben.
+- Der Relay kommentiert ausschließlich die Analyse in Issue #11. Er ändert keinen Quellcode, führt keine Merges oder Deployments aus und nimmt keine produktiven Aktionen vor.
 
-## Repository-Zuordnung
+## Test- und Aktivierungsstatus
 
-- `PROJECT_REPO_KREISLAUF=mouzzlii/Kreislauf`
-- `PROJECT_REPO_TRAKUNA=mouzzlii/multi-carrier-gateway` und `PROJECT_REPO_TRAKUNA_ANDROID=mouzzlii/Fuck`
-- `PROJECT_REPO_CHRONOS=mouzzlii/CHRONOS`
-- `PROJECT_REPO_SCAN_PROFIT=mouzzlii/SCAN-PROFIT`
+Die lokalen Vertragstests prüfen die feste Gateway-Aliasliste, Nachrichtenform, Antwortauswertung, Quellkontextgrenzen, Task-Envelope-Validierung, Ledger-Schutz und die Befehlsverarbeitung. Solche Tests beweisen keine echte Provider-Verbindung.
 
-Für TRAKUNA werden Architektur- und Android-Quellrepository gemeinsam geladen; `multi-carrier-gateway-neu` bleibt ein separates Experiment. Der vollständige SCAN-PROFIT-Next.js-Quellbaum ist noch nicht in GitHub importiert; Relay-Analysen dürfen deshalb nicht als vollständige Quellcodeprüfung dieses Zweigs ausgegeben werden.
+Für einen realen Council-Lauf müssen zusätzlich die beiden GitHub-Secrets und die manuelle Budgetfreigabe eingerichtet sein. Es wurde bislang kein bezahlter Modellaufruf durch diese Dokumentations-/Codeprüfung ausgelöst. Die Live-Konfiguration der Vercel-Aliase allein beweist weder eine GitHub-Actions-Verbindung noch eine erfolgreiche Mehrmodell-Debatte.
 
-## Freigabekriterium
 
-Der Livebetrieb gilt erst als aktiviert, wenn ein synthetischer Ende-zu-Ende-Test nachweist:
-1. Ein markierter Kommentar startet den Workflow.
-2. GPT, Claude und der ausgewählte Meta- oder Llama-Agent erhalten denselben begrenzten Projektkontext.
-3. Die Antworten werden als getrennte Agentenbeiträge zurückgeschrieben.
-4. Bot-Schleifen, doppelte Trigger und Tageslimits funktionieren.
-5. Fehlende Konfiguration, Provider-Fehler, unsichere Llama-Endpunkte und Kostenlimits werden korrekt behandelt.
+## Verbindliche Kosten- und Aktivierungssperre
 
-Der Relay ist in `main` integriert, aber bis zur Einrichtung der tatsächlichen Konten, Modellkennungen, Provider-Ausgabenlimits, read-only GitHub-Zugriff und einer ausdrücklichen Budgetfreigabe gesperrt. Es wurden in dieser Arbeit keine externen KI-Provider aufgerufen.
+Unter der geltenden Zusatzbudgetgrenze von **0 EUR** bleibt der Gateway-Relay technisch deaktiviert: Der GitHub-Actions-Job enthält eine feste `false && ...`-Bedingung. Auch `AI_TEAM_BUDGET_CONFIRMED=true` kann diese Sperre nicht übersteuern. Das vorhandene Vercel-Soft-Cap von 5 USD/Monat ist keine harte Kostenobergrenze. Eine spätere Aktivierung erfordert eine neue ausdrückliche Budgetfreigabe sowie einen nachweislich anbieterübergreifenden numerischen Hard Cap mit Preisgrundlage, atomarer Reservierung, tatsächlicher Nutzungs-/Kostenprüfung und Fail-Closed-Verhalten. Bis dahin keine Provider-Aufrufe und keine Live-Council-Debatte.
