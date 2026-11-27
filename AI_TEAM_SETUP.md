@@ -1,5 +1,7 @@
 # KI-Team-Kommunikation für vier Projekte
 
+**Geltungsbereich:** Dieses Dokument beschreibt ausschließlich den technischen Relay und die Council-Zusammenarbeit für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS. Globale Arbeitsweise, Kosten- und Freigabegrenzen richten sich nach [MAINPROMPT 2.0.6](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md); dieses Dokument ist keine zweite globale Arbeitsverfassung.
+
 ## Ziel und Ablauf
 
 GitHub ist das gemeinsame, dauerhafte Postfach und Entscheidungsprotokoll für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS.
