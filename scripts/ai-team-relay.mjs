@@ -92,6 +92,20 @@ const askGemini = (instructions, input) => askCouncilModel(COUNCIL_MODELS.gemini
 const askGrok = (instructions, input) => askCouncilModel(COUNCIL_MODELS.grok, instructions, input);
 
 async function fetchProjectContext(project, taskEnvelope = null) {
+  // The user's private KI-Arbeitsplatz repository is an explicit no-read/no-export
+  // boundary. Block before even requesting GitHub repository metadata.
+  if (project === "KI-ARBEITSPLATZ") {
+    return {
+      repository: null,
+      branch: "",
+      repositories: [],
+      note: "KI-Arbeitsplatz ist ausdrücklich vom externen Council-Quellzugriff ausgeschlossen.",
+      readme: "",
+      source: "",
+      paths: [],
+    };
+  }
+
   const repository = PROJECT_REPOS[project];
   if (!repository) {
     return {
