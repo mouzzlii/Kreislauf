@@ -54,7 +54,7 @@ function AccountPage() {
     return () => {
       cancel = true;
     };
-  }, [user?.id, profile?.karmaBalance]);
+  }, [user, profile?.karmaBalance]);
 
   const ledger = user && mine ? mine : board.ledger;
 
