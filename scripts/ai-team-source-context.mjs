@@ -147,6 +147,10 @@ export function hasNonEmptySourceExcerpt(source) {
   return source.replace(/^#### [^\n]+\n/gm, "").trim().length > 0;
 }
 
+export function isPublicRepositoryMetadata(metadata) {
+  return Boolean(metadata && typeof metadata === "object" && metadata.visibility === "public");
+}
+
 export function hasUsablePrimaryContext(projectContext) {
   if (!projectContext || typeof projectContext.repository !== "string" || !projectContext.repository) return false;
   if (!Array.isArray(projectContext.repositories)) return false;
@@ -156,6 +160,7 @@ export function hasUsablePrimaryContext(projectContext) {
   );
   return Boolean(
     primary &&
+    primary.visibility === "public" &&
     typeof primary.branch === "string" &&
     primary.branch.trim().length > 0 &&
     primary.hasSourceExcerpt === true
