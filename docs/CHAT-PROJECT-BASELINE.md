@@ -570,3 +570,10 @@ Der Nutzer hat ausdrücklich angewiesen, laufende Projekte ohne wiederholte Zust
 - Draft-PR #12 Head nach Readback: `4d196cc8488c03f94075f77d8c0431401efa44ea`; offen, Draft, ungemergt.
 - HTTP-Grenztests erweitert: Wiederverwendung derselben Einmal-Freigabe muss beim zweiten Versuch abgewiesen werden, ohne einen zweiten Orchestratorlauf auszulösen. Ergebnis: 9/9 lokale HTTP-Tests bestanden.
 - README, PR-Beschreibung und Serverdokumentation aktualisiert. Weiterhin keine echte Auth-/CSRF-/Freigabe-/Audit-/Budgetdienst-Anbindung, keine Provideradapter, kein CI-Nachweis für den aktuellen Head, kein Deployment und keine Live-Aufrufe.
+
+
+### KI-ARBEITSPLATZ – abschließender Readback dieses Arbeitszyklus (27.11.2026)
+- Aktueller PR-#12-Head nach Readback: `5bea4e603805113d3267248e31b412d0d778e9f4`; PR offen, Draft, ungemergt.
+- Server-README bestätigt 9/9 lokal bestandene HTTP-Grenztests inklusive Einmalfreigabe-Replay-Sperre. Lokaler Node-Lauf erneut: 9/9 bestanden; Syntaxprüfung der neuen Handler- und Testdateien bestanden.
+- GitHub-Check-Runs für diesen Head: 0. Vorherige Actions-Läufe scheiterten vor Job-Schritten; daher keine CI-Bestätigung. Der Vercel-Status für den aktuellen Stand meldet Free-Tier-Deployment-Limit (mehr als 100 Deployments/Tag); kein Deployment erfolgt.
+- Keine echte Provideranfrage, kein Schlüssel, keine Kosten, keine produktive Auth-/CSRF-/Freigabe-/Audit-/Budgetdienst-Anbindung. Keine Browser- oder Android-Abnahme.
