@@ -76,7 +76,7 @@ Die Budgetvariable ist ein manueller Freigabeschalter, keine automatische Kosten
 - Feste Modell-Alias-Allowlist; keine freie Modellkennung aus Kommentartext.
 - Begrenzter Quellkontext mit projektspezifischer Pfadpriorität und bekannten Secret-Redaktionsmustern.
 - Das kanonische Primärrepository selbst muss einen Branch und einen nichtleeren Quelltextauszug liefern. Ein sekundäres Repository kann diese Prüfung nicht ersetzen.
-- Höchstens zwei Debatten pro UTC-Kalendertag. Der globale Workflow-Concurrency-Block serialisiert Reservierungen; der zentrale Kommentar-Ledger wird vor dem ersten Provider-Aufruf geprüft.
+- Maximal zwei Debatten pro UTC-Kalendertag. Der globale Workflow-Concurrency-Block serialisiert Reservierungen; der zentrale Kommentar-Ledger wird vor dem ersten Provider-Aufruf geprüft.
 - Reservierungen und Verarbeitungsmarker werden nur von `github-actions[bot]` mit GitHub-Typ `Bot` anerkannt. Fremde Nutzer und andere Bots können keine Reservierung fälschen.
 - Idempotenz verhindert die erneute Verarbeitung desselben Kommentars bzw. desselben strukturierten Task-Schlüssels.
 - Kontext-, Datei-, Laufzeit- und Ausgabelimits sind im Relay-Code fest begrenzt. Fehlgeschlagene Provider-Aufrufe verbrauchen einen bereits reservierten Tagesplatz.
