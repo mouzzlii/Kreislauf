@@ -419,3 +419,32 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 - Vor Audit/Antwort werden Orchestrator-Ergebnisse auf erlaubte Statuswerte, sichere Run-ID und begrenzte Array-Strukturen validiert. Ungültige Rückgaben werden nicht an Clients serialisiert.
 - Testquellstand: 18 Orchestrator- und 12 HTTP-Fälle. Historisch vor den neuesten Ergänzungen 17/17 bzw. 9/9 lokal bestanden; die neuen Härtungsfälle sind noch nicht ausgeführt. GitHub Actions hat für den aktuellen Head keinen Lauf geliefert.
 - Server-Council-README, Root-README, PR-Beschreibung und Council-Integrationsgrenze aktualisiert. Keine echte Auth-/CSRF-/Audit-/Budgetanbindung, keine Provideradapter, keine echten Modellaufrufe, kein Deployment, keine Kosten. PR bleibt Draft.
+
+## Portfolio-Live-Abgleich – 27.11.2026, 16:04 UTC
+
+Dieser kompakte Nachtrag hält ausschließlich den aktuell erneut verifizierten Stand fest. Frühere Einträge bleiben Historie; neue Fakten ersetzen keine noch offenen Abnahmen.
+
+### TRAKUNA
+- Android-Draft-PR [mouzzlii/Fuck #25](https://github.com/mouzzlii/Fuck/pull/25), Head `64e108a552ddbcaa997f49c346b54a9e10c62c4f`.
+- Android Build [46009974496](https://github.com/mouzzlii/Fuck/actions/runs/46009974496) und Emulator-Instrumentierung [46009974511](https://github.com/mouzzlii/Fuck/actions/runs/46009974511) vollständig erfolgreich.
+- Physische Geräte-/Kamera-/Etiketten-/CSV-/Backup-Abnahme bleibt offen. Kein Produktionsrelease, keine Operator-Signierung.
+
+### KI-Council / Vercel AI Gateway
+- Aktive Virtual-Model-Aliase sind Konfiguration, kein Nachweis echter Modellaufrufe. Aktuelle 7-Tage-Abfragen zeigen 0 Requests für das Council-Projekt `prj_cNDChcd0UaknDqECxOemW6lu2A3u` und das Testprojekt `prj_VQgBYdqCuRm3hIyD6JkFNWyZg4jQ`.
+- Ein Projektbudget von 5 USD/Monat mit 0 USD Verbrauch besteht nur für `collective-intelligence-council`; keine Team-/Defaultbudgets. Dies ist kein hartes app-seitiges Kosten-Gate und keine Freigabe für Aufrufe.
+- In der aktuellen Toolverbindung gibt es keine direkte Inferenzaktion für die Aliase. Keine Modellaufrufe, keine erfundenen Council-Antworten, keine neuen Schlüssel oder Kosten. Llama bleibt für nichtöffentliche Daten gesperrt, solange EU-Inferenz nicht nachgewiesen ist.
+
+### KI-Arbeitsplatz
+- Kanonische globale Arbeitsverfassung auf `main`: `docs/MAINPROMPT.md`, Version 2.0.7. Die alte Prompt-/Registerstruktur ist ausdrücklich nicht mehr maßgeblich.
+- Draft-PR [#15](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/15) bereitet MAINPROMPT 2.0.8 mit klaren Antwortoptionen vor; Readback bestätigt Regel und README-Verweis. PR [#16](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/16) dokumentiert Monitoring-/Testnachweise. Beide sind offen, Draft und nicht gemergt.
+- Der alte PR #13 wurde geschlossen, da er nur die nichtkanonischen Dateien änderte. PR #11 bleibt Draft mit bestätigtem Merge-Konflikt.
+- Letzter erfolgreicher Vercel-Testbuild: 6/6 Node-Tests auf Commit `3f3c1f1921f6a5196caa8916acaa135c3a18e499`. Aktueller KI-Arbeitsplatz-`main`-Commit `bec44c18d36d19f743be388d0d5dc2c610a01a30`; App-JS, Service Worker, HTML und Manifest waren beim Readback unverändert zum erfolgreichen Testcommit. Der aktualisierte Projektkatalog wurde separat als valides JSON geprüft; 10/10 begrenzte source-level Prüfungen erfolgreich. Kein neuer vollständiger Node-Testlauf.
+- Ein jüngster fehlgeschlagener Vercel-Deploy betrifft einen alten Branch ohne `app/` und meldet `NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`; kein Fehler des aktuellen `main`. Kein Deployment für PR #15/#16 nachgewiesen.
+- GitHub Actions Runner-Blockade bleibt offen (`runner_id=0`, `steps=[]`); keine Actions-Testschritte.
+
+### Book Your Cook
+- [PR #5](https://github.com/mouzzlii/book-your-cook/pull/5) und gestapelter [PR #6](https://github.com/mouzzlii/book-your-cook/pull/6) bleiben Draft. GitHub Actions-Retries endeten vor dem ersten Schritt mit `runner_id=0`, `steps=[]`; `npm test` wurde nicht ausgeführt.
+- Vercel-Projekt `prj_Fu9m2TtUPXj2YNLg2EVDfYh2AZ0J`: kein Deployment-Datensatz für PR-#5- oder PR-#6-Branch. Ein READY-Preview besteht für den älteren Stripe-Branch aus PR #2. Ein anderer fehlgeschlagener Upload meldete fehlendes Root Directory; die frühere 402-/Tageskontingent-Aussage ließ sich anhand der aktuellen Historie nicht erneut belegen. Ursache für fehlende #5/#6-Previews bleibt offen.
+- Keine manuelle Preview-Bereitstellung, keine Kontingentumgehung, keine Migration, keine Produktionsänderung.
+
+**Globale Schutzgrenze:** Die genannten PRs bleiben Arbeitsvorschläge in Draft-Branches. Keine Hauptbranch-Merges, Produktionsfreigaben, kostenpflichtigen Inferenzaufrufe oder riskanten Datenänderungen wurden durch diesen Abgleich ausgeführt.
