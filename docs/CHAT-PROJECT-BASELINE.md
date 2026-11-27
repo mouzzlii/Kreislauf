@@ -496,3 +496,9 @@ Dieser Nachtrag dokumentiert neue, direkt verifizierte Änderungen seit dem letz
 - `docs/CARRIER-REGISTRY.md` führt myHermes.at als öffentliches österreichisches Trackingportal auf; Hermes bleibt `NOT_CONFIGURED`.
 - `docs/HERMES-SYSTEMRECHERCHE.md` grenzt Verbrauchertracking klar von PaketShop-Partner-API, Geräteintegration und automatisierter Shopannahme/-ausgabe ab.
 - Die Dokumentationskorrektur entspricht der App-Allowlist-Korrektur in TRAKUNA PR #25. Keine Carrier-API, Authentifizierung, Buchung, Labelbestellung oder Produktionsfreigabe wurde hinzugefügt.
+
+### KI-Arbeitsplatz PR #12 – aktueller Preview-Readback (27.11.2026, 16:16 UTC)
+- Aktueller Draft-PR #12 Head nach paralleler Dokumentationsfortschreibung: `1540fa0caba0987122db54d93c4c0456484756e5`; der letzte Commit ergänzt die Council-Budget-Lifecycle-Spezifikation.
+- Für exakt diesen Head gibt es keinen GitHub-Actions-Lauf und keinen Vercel-Deployment-Datensatz. Der jüngste READY-Preview des Branches `feat/offline-council-workbench` gehört zum älteren Commit `1ab57db5a7498b48f7a5d2887c79b63a717511e4`.
+- Aktuelle Vercel-Projekthistorie: 48 Deployment-Datensätze, 45 READY, 2 ERROR, 1 CANCELED. Die frühere Aussage einer aktuellen Blockade wegen mehr als 100 Deployments/Tag ist anhand dieser Daten nicht bestätigt. Kein manueller Deploymentversuch.
+- PR #12 bleibt eine lokale Mock-PWA und isolierte serverseitige Grundlage. Keine Provideradapter, echte Auth-/CSRF-/Freigabe-/Audit-/Budgetdienste, echte Modellaufrufe oder produktive Synthese.
