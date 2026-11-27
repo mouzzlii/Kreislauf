@@ -1,7 +1,7 @@
 import process from "node:process";
 import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, redactSensitiveText, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { hasTrustedRelayMarker, inspectDailyBudgetPage } from "./ai-team-ledger.mjs";
-import { COUNCIL_MODELS, VERCEL_AI_GATEWAY_URL, buildGatewayChatCompletion, extractGatewayText, getMissingProviderConfiguration } from "./ai-team-providers.mjs"; from "./ai-team-providers.mjs";
+import { COUNCIL_MODELS, VERCEL_AI_GATEWAY_URL, buildGatewayChatCompletion, extractGatewayText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
 import { parseCouncilTaskComment, resolveCouncilTaskProject } from "./ai-team-interop.mjs";
 
 const {
@@ -11,7 +11,7 @@ const {
   AI_GATEWAY_API_KEY,
   AI_TEAM_REPO_READ_TOKEN,
   AI_TEAM_BUDGET_CONFIRMED,
-} = process.env;} = process.env;
+} = process.env;
 
 const PROJECT_REPOS = {
   KREISLAUF: process.env.PROJECT_REPO_KREISLAUF || "mouzzlii/Kreislauf",
@@ -31,7 +31,7 @@ const PROJECT_RELATED_REPOS = {
 };
 
 // Fixed Vercel AI Gateway aliases prevent accidental provider/model substitution.
-const AI_TEAM_ALLOWED_USERSconst AI_TEAM_ALLOWED_USERS = process.env.AI_TEAM_ALLOWED_USERS || "mouzzlii";
+const AI_TEAM_ALLOWED_USERS = process.env.AI_TEAM_ALLOWED_USERS || "mouzzlii";
 
 const MAX_INPUT_CHARS = 8000;
 const MAX_CONTEXT_CHARS = 18000;
