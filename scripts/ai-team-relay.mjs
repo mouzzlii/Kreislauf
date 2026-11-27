@@ -410,8 +410,8 @@ async function main() {
     const message = [
       marker,
       "### KI-Team-Relay bleibt aus Sicherheitsgründen deaktiviert",
-      "Vor dem ersten Provider-Aufruf müssen die Kontoinhaber die verfügbaren Ausgabenlimits bzw. Kostenkontrollen bei OpenAI, Anthropic und Llama API selbst prüfen und setzen.",
-      "Danach darf die GitHub-Actions-Variable AI_TEAM_BUDGET_CONFIRMED ausdrücklich auf true gesetzt werden. Diese Variable ist eine manuelle Bestätigung, keine automatische Prüfung der Anbieterbudgets.",
+      "Vor dem ersten Modellaufruf müssen die Kontoinhaber das Vercel-AI-Gateway-Budget und die aktiven virtuellen Modelle prüfen. Das Team-Budget ist derzeit auf 5 USD pro Monat begrenzt; ein Gateway-Budget ersetzt keine zusätzliche Prüfung möglicher Provider-/BYOK-Abrechnung.",
+      "Danach darf die GitHub-Actions-Variable AI_TEAM_BUDGET_CONFIRMED ausdrücklich auf true gesetzt werden. Diese Variable ist eine manuelle Freigabe, keine automatische Prüfung der Gateway- oder Providerbudgets.",
       "Solange die Variable fehlt oder nicht exakt true ist, werden keine KI-Provider aufgerufen.",
     ].join("\n\n");
     await githubRequest(`issues/${issue.number}/comments`, {
