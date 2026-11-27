@@ -4,18 +4,14 @@
 
 Diese Datei ist die kurze operative Koordinationsseite für die Projektfamilie. Die globale Arbeitsverfassung ist ausschließlich [MAINPROMPT 2.0.7](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md). Die chatbasierte Projekt- und Entscheidungsreferenz liegt in [CHAT-PROJECT-BASELINE.md](CHAT-PROJECT-BASELINE.md); sie bündelt bestätigte Ziele, Repository-Zuordnungen, Statusgrenzen und offene Punkte. Die folgenden Regeln sind zusätzliche Projektfamilien-Vorgaben, keine zweite globale Arbeitsverfassung.
 
-## Gemeinsame Projektfamilien-Regeln (ergänzend zum MAINPROMPT 2.0.7)
+## Zusätzliche Projektfamilien-Regeln
 
-- Neueste ausdrücklich bestätigte Nutzerentscheidung hat Vorrang vor älteren Annahmen.
-- Notwendige, minimale Änderungen an `main` sind gemäß ausdrücklicher Nutzerfreigabe und MAINPROMPT 2.0.7 zulässig, sofern keine strengere Repository-/Projektregel oder Schutzmaßnahme entgegensteht. Branch + PR bleiben der bevorzugte Weg für größere, riskantere oder reviewpflichtige Änderungen.
-- Vor jeder Änderung aktuellen Stand, Projektanweisungen, offene PRs/Issues und CI lesen.
+Die globale Arbeitsweise, GitHub-Schutzregeln, Kosten-/Freigabegrenzen, Sicherheits- und Teststatussprache stehen im MAINPROMPT 2.0.7. Für diese Projektfamilie gelten ergänzend:
 - Keine parallelen Änderungen an denselben Dateien ohne Abstimmung; TRAKUNA bearbeitet genau ein priorisiertes Ticket gleichzeitig.
-- Nach jeder Änderung passende Tests ausführen und Ergebnisse mit exakter Commit-SHA dokumentieren.
-- Keine Secrets, Zugangsdaten, Kundendaten, privaten Fotos oder Produktionsdaten committen.
-- Keine kostenpflichtigen Provider-Aufrufe, API-Nutzung, produktiven Buchungen oder Deployments ohne ausdrückliche Kosten-/Aktionsfreigabe.
-- Bestehende Open-Source-/Kommerziellösungen vor Eigenentwicklung prüfen; Lizenz, Sicherheit, Wartbarkeit und Android-Kompatibilität bewerten.
-- Projektübergreifende Module erst nach eigenständigen Tests und Sicherheitsprüfung wiederverwenden.
-- Code vorhanden, CI erfolgreich, reales Gerät getestet, externer Anbieter integriert und produktionsbereit sind getrennte Status.
+- KREISLAUF, Menschheitsfamilie, TRAKUNA, SCAN-PROFIT, INSERAT-PROFI AI und CHRONOS behalten getrennte Daten-, Berechtigungs- und Produktgrenzen.
+- Projektübergreifende Module erst nach eigenständigen Tests, Sicherheitsprüfung und belegtem Wiederverwendungsnutzen übernehmen.
+- Für TRAKUNA bleiben echte Carrier-Buchungen, Labelkäufe und verbindliche Auftragsübermittlungen bis zur jeweiligen Betreiber-/Carrier-Freigabe gesperrt.
+- Für KREISLAUF bleiben echte Nutzerkonten, produktive Punkte-/Treuhandvorgänge und externe Transaktionen bis zur gesonderten Abnahme und Freigabe gesperrt.
 
 ## Operative Projektübersicht
 
