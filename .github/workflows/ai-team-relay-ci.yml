@@ -63,7 +63,7 @@ jobs:
         run: node --test scripts/ai-team-ledger.test.mjs
       - name: Test bounded source context
         run: node --test scripts/ai-team-source-context.test.mjs
-      - name: Test Claude, Meta and Llama provider contracts
+      - name: Test GPT, Claude, Gemini and Grok Gateway contracts
         run: node --test scripts/ai-team-providers.test.mjs
       - name: Test command parser
         run: node scripts/ai-team-relay.test.mjs
@@ -86,32 +86,24 @@ jobs:
           assert.ok(workflow.includes("PROJECT_REPO_LARA_QUIZ"));
           assert.ok(source.includes("getMissingProviderConfiguration({"));
           const incomplete = getMissingProviderConfiguration({});
-          assert.ok(incomplete.missingSecrets.includes("AI_TEAM_REPO_READ_TOKEN"));
-          assert.ok(incomplete.missingVariables.includes("AI_TEAM_THIRD_PROVIDER (muss meta oder llama sein)"));
-          assert.ok(incomplete.missingModels.includes("CLAUDE_MODEL"));
+          assert.deepEqual(incomplete, {
+            missingSecrets: ["AI_GATEWAY_API_KEY", "AI_TEAM_REPO_READ_TOKEN"],
+            missingVariables: [],
+            missingModels: [],
+          });
           const complete = getMissingProviderConfiguration({
-            OPENAI_API_KEY: "test-openai",
-            ANTHROPIC_API_KEY: "test-anthropic",
-            AI_TEAM_THIRD_PROVIDER: "llama",
-            LLAMA_API_KEY: "test-llama",
-            LLAMA_API_BASE_URL: "https://inference.example.test/v1/chat/completions",
+            AI_GATEWAY_API_KEY: "test-gateway",
             AI_TEAM_REPO_READ_TOKEN: "test-readonly",
-            OPENAI_MODEL: "test-gpt",
-            CLAUDE_MODEL: "test-claude",
-            LLAMA_MODEL: "test-llama-model",
           });
           assert.deepEqual(complete, { missingSecrets: [], missingVariables: [], missingModels: [] });
-          const metaComplete = getMissingProviderConfiguration({
-            OPENAI_API_KEY: "test-openai",
-            ANTHROPIC_API_KEY: "test-anthropic",
-            AI_TEAM_THIRD_PROVIDER: "meta",
-            META_MODEL_API_KEY: "test-meta",
-            AI_TEAM_REPO_READ_TOKEN: "test-readonly",
-            OPENAI_MODEL: "test-gpt",
-            CLAUDE_MODEL: "test-claude",
-            META_MODEL: "muse-spark-1.3",
-          });
-          assert.deepEqual(metaComplete, { missingSecrets: [], missingVariables: [], missingModels: [] });
+          assert.ok(source.includes('COUNCIL_MODELS.gpt'));
+          assert.ok(source.includes('COUNCIL_MODELS.claude'));
+          assert.ok(source.includes('COUNCIL_MODELS.gemini'));
+          assert.ok(source.includes('COUNCIL_MODELS.grok'));
+          assert.ok(workflow.includes("AI_GATEWAY_API_KEY"));
+          assert.ok(setup.includes("Vercel AI Gateway"));
+          assert.ok(setup.includes("Gemini"));
+          assert.ok(setup.includes("Grok"));
           assert.ok(source.includes("MAX_DAILY_DEBATES = 2"));
           assert.ok(source.includes('reserveDailyDebate(comment.id, taskEnvelope?.idempotencyKey || "")'));
           assert.ok(source.includes("parseCouncilTaskComment(comment.body)"));
@@ -127,14 +119,5 @@ jobs:
           assert.ok(source.includes("issues/11/comments?per_page=100&sort=created&direction=desc"));
           assert.ok(workflow.includes("group: ai-team-global-budget"));
           assert.ok(setup.includes("Maximal zwei Debatten pro UTC-Kalendertag"));
-          assert.ok(setup.includes("Meta Muse"));
-          assert.ok(setup.includes("Meta Model API"));
-          assert.ok(workflow.includes("ANTHROPIC_API_KEY"));
-          assert.ok(workflow.includes("AI_TEAM_THIRD_PROVIDER"));
-          assert.ok(workflow.includes("META_MODEL_API_KEY"));
-          assert.ok(workflow.includes("LLAMA_API_BASE_URL"));
-          assert.ok(workflow.includes("LLAMA_API_KEY"));
-          assert.ok(setup.includes("Meta Muse"));
-          assert.ok(setup.includes("Meta Model API"));
           console.log("Project mapping and daily invocation cap verified.");
           NODE
