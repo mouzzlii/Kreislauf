@@ -306,3 +306,18 @@ export function resolveCouncilTaskProject(envelope, projectRepositories) {
     allowedPaths: [...allowedPaths],
   };
 }
+
+
+export function parsePublicDebateRequest(value) {
+  if (typeof value !== "string") return { success: false, message: "Auftrag muss als Text vorliegen." };
+  const match = value.match(/^\\[(public|synthetic|anonymized)\\]\\s+([\\s\\S]+)$/i);
+  if (!match) {
+    return {
+      success: false,
+      message: "Freie Council-Aufträge benötigen direkt nach dem Doppelpunkt eine explizite Datenklassifikation: [public], [synthetic] oder [anonymized]. Nicht klassifizierte Inhalte werden nicht an externe Modelle übertragen.",
+    };
+  }
+  const instruction = match[2].trim();
+  if (!instruction) return { success: false, message: "Der klassifizierte Auftrag darf nicht leer sein." };
+  return { success: true, dataClassification: match[1].toLowerCase(), instruction };
+}
