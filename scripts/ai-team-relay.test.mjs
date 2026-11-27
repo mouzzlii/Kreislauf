@@ -70,3 +70,9 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
 });
 
 console.log("AI team Gateway relay integration tests passed.");
+
+
+// A zero-cost authorization must keep the provider workflow disabled.
+assert.match(workflowSource, /if:\s*>-\s*false\s*&&/);
+assert.ok(setup.includes("0 EUR"));
+assert.ok(setup.includes("numerischen Hard Cap"));
