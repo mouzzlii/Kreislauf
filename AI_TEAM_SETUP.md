@@ -30,8 +30,10 @@ Nur ein markierter Kommentar im zentralen Issue [#11](https://github.com/mouzzli
 Beispiel für eine freie Projektdiskussion:
 
 ```text
-/ai-team debate CHRONOS: Prüfe die Backup-Sicherheitsgrenzen.
+/ai-team debate CHRONOS: [public] Prüfe die öffentlich dokumentierten Backup-Sicherheitsgrenzen.
 ```
+
+Jeder freie Debattenauftrag muss unmittelbar nach dem Doppelpunkt `[public]`, `[synthetic]` oder `[anonymized]` deklarieren. Nicht klassifizierte Aufträge sowie `[internal]`, `[confidential]`, `[personal]` oder `[secret]` werden vor Quellkontextzugriff, Tagesbudgetreservierung und Provider-Aufruf abgewiesen. Die Klassifikation ist eine ausdrückliche Erklärung des Auftraggebers, keine automatische Inhalts- oder PII-Prüfung. Keine sensiblen Inhalte in Issue #11 eingeben.
 
 Zulässige Projektkennungen für Debatten:
 
