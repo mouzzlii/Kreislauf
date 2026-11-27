@@ -31,6 +31,7 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   const relaySource = await readFile(new URL("./ai-team-relay.mjs", import.meta.url), "utf8");
   const providerSource = await readFile(new URL("./ai-team-providers.mjs", import.meta.url), "utf8");
   const workflowSource = await readFile(new URL("../.github/workflows/ai-team-communication.yml", import.meta.url), "utf8");
+  const ciWorkflowSource = await readFile(new URL("../.github/workflows/ai-team-relay-ci.yml", import.meta.url), "utf8");
   const setup = await readFile(new URL("../AI_TEAM_SETUP.md", import.meta.url), "utf8");
 
   for (const model of ["gpt", "claude", "gemini", "grok"]) {
@@ -41,6 +42,11 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   assert.ok(relaySource.includes("AI_GATEWAY_API_KEY"));
   assert.ok(workflowSource.includes("AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}"));
   assert.ok(workflowSource.includes("AI_TEAM_REPO_READ_TOKEN: ${{ secrets.AI_TEAM_REPO_READ_TOKEN }}"));
+  for (const workflow of [workflowSource, ciWorkflowSource]) {
+    assert.ok(workflow.includes("actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"));
+    assert.ok(workflow.includes("actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38"));
+    assert.doesNotMatch(workflow, /actions\/(?:checkout|setup-node)@v[0-9]+/);
+  }
   assert.ok(setup.includes("Vercel AI Gateway"));
   assert.ok(setup.includes("Gemini"));
   assert.ok(setup.includes("Grok"));
