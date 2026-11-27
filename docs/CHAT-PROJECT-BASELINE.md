@@ -630,6 +630,6 @@ Der Nutzer hat ausdrücklich angewiesen, laufende Projekte ohne wiederholte Zust
 **Repository:** [mouzzlii/jobplattform-at](https://github.com/mouzzlii/jobplattform-at)
 
 - Das Repository ist vorhanden und privat; der tatsächliche Quellumfang wurde bislang nur teilweise inventarisiert.
-- Frühere Prüfung ergab ein minimales README, aber keine nachgewiesene vollständige App-Struktur; insbesondere waren `package.json` und `INSTALLATION-ANDROID.md` im geprüften Stand nicht vorhanden.
+- Aktueller Readback: Das README bezeichnet das Projekt als „Android-Debug-APK build pipeline“ und verweist auf `INSTALLATION-ANDROID.md`; genau diese Datei ist auf `main` nicht abrufbar (404). `package.json` ist ebenfalls nicht abrufbar (404). Damit sind weder eine vollständige App-Struktur noch ein reproduzierbarer APK-Build oder ein APK-Artefakt nachgewiesen; das README allein ist kein Implementierungsnachweis.
 - Keine funktionsfähige Plattform, Android-App, Datenbankanbindung oder produktive Bereitstellung behaupten, solange diese Artefakte nicht im aktuellen Repository-Stand verifiziert sind.
 - Nächster sinnvoller Schritt: vollständiges Repository-Inventar, Architektur-/Sicherheitsprüfung und klare Abgrenzung zwischen vorhandenem Code, Konzept und noch fehlender Implementierung. Keine Neuentwicklung parallel zu einem eventuell vorhandenen, noch nicht geprüften Quellstand beginnen.
