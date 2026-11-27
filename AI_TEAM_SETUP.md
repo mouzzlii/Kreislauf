@@ -160,3 +160,25 @@ Der Export ist absichtlich auf `project.static_review` begrenzt. Inventar und Ha
 Das Team besitzt bereits das Vercel-Projekt `collective-intelligence-council` mit einer EVE-Webanwendung und acht Subagent-Rollen. Das Projekt ist jedoch nicht mit GitHub verbunden. Im Deployment verwenden aktuell Root-Agent und alle acht Subagents dasselbe Modell `openai/gpt-6-luna-fast`; die vorhandenen fünf Gateway-Virtual-Models werden im EVE-Quellcode noch nicht rollenbezogen verwendet. Die empfohlene Zuordnung, die Kosten-/Sicherheitsgrenzen und der vollständige Quellcode-Recovery-Blocker sind in [docs/VERCEL-EVE-INTEGRATION.md](docs/VERCEL-EVE-INTEGRATION.md) dokumentiert.
 
 Wichtig: Die Deployment-Datei-Lese-Schnittstelle liefert große Quelltextdateien nur gekürzt. Daher wurde kein unvollständiger Import in GitHub erstellt. Die vorhandenen Sandbox-Sitzungen sind gestoppt; eine Wiederaufnahme wurde wegen möglicher Kosten nicht durchgeführt. Keine Provider-Anfragen, keine neue Vercel-App und keine Änderung der SSO-/Deployment-Einstellungen.
+
+
+## Aktualisierte Council-Architektur – 27.11.2026
+
+Die bisherige direkte Provider-Integration (OpenAI Responses API, Anthropic Messages API sowie optional Meta/Llama) wird durch eine einheitliche Vercel-AI-Gateway-Anbindung ersetzt. Verbindlich vorgesehen sind vier voneinander getrennte virtuelle Modelle:
+
+- GPT: `vmc/council-gpt`
+- Claude: `vmc/council-claude`
+- Gemini: `vmc/council-gemini`
+- Grok: `vmc/council-grok`
+
+Alle vier erhalten denselben ursprünglichen, redigierten Quellkontext unabhängig voneinander. Erst GPT erhält anschließend die vier Ergebnisse zur kritischen Synthese. Das Relay verwendet ausschließlich die feste Alias-Allowlist und den Vercel-kompatiblen Chat-Completions-Endpunkt. Ein Alias-/Vertragstest ist kein echter Modellaufruf.
+
+### Erforderliche Actions-Konfiguration
+
+- Secret `AI_GATEWAY_API_KEY`: eigener, nur für das Council-Relay bestimmter Gateway-Schlüssel.
+- Secret `AI_TEAM_REPO_READ_TOKEN`: Fine-grained GitHub-Lesetoken mit Contents: read-only.
+- Variable `AI_TEAM_BUDGET_CONFIRMED=true`: erst nach Prüfung der Gateway-Ausgabenlimits ausdrücklich setzen. Das Relay reserviert maximal zwei Debatten pro UTC-Tag; das ersetzt kein Anbieterbudget.
+
+Der vorhandene Gateway-Schlüssel im Vercel-Projekt wird nicht ausgelesen und ist nicht automatisch ein GitHub-Actions-Secret. Ohne das GitHub-Secret startet das Relay keine Modellaufrufe. Es wurden in diesem Schritt keine Secrets angelegt, keine Provider-Anfragen gesendet und keine Kosten ausgelöst.
+
+Llama ist aus dem privaten Council-Workflow ausgeschlossen, bis eine EU-Datenverarbeitung nachgewiesen ist. Meta/Llama-Adapter werden nicht mehr für die vier verbindlichen Council-Rollen verwendet.
