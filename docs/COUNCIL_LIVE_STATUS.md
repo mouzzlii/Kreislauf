@@ -64,7 +64,7 @@ Der Workflow übergibt **kein** `AI_GATEWAY_API_KEY`; die fünf Vercel-Virtual-M
 - Exakter PR-Head: `1e7abcc03021d6276a8ed947a1877646a367e808`. GitHub Actions Relay-CI Run [46030025648](https://github.com/mouzzlii/Kreislauf/actions/runs/46030025648) wurde auf diesem Commit vollständig ausgeführt und bestand alle Schritte: Syntax, Task-Envelope, Ledger, Quellkontext, Gateway-Verträge, Befehlsparser und Projekt-/Tagesbudgetprüfungen.
 - Ein vorangegangener Lauf auf einem Zwischen-Head scheiterte an zwei Dokumentations-/Test-Textabweichungen. Beide wurden korrigiert; der oben genannte Lauf ist der erfolgreiche Nachweis für den endgültigen Head.
 - Vercel-Preview-Check auf dem PR-Head ist wegen `build-rate-limit` fehlgeschlagen; keine aktuelle Preview-Bereitstellung daraus ableiten.
-- PR #38 bleibt Draft und ungemergt. Der Branch ist gegenüber `main` divergiert (128 Commits voraus, 55 zurück; Merge-Base `71fb0e07740150be13d40b1aef10ba269fe264b8`) und GitHub meldet `mergeable=false`. Keine Integration in `main` ohne kontrollierte Konsolidierung und erneute vollständige Prüfung.
+- PR #38 bleibt Draft und ungemergt. Der Branch ist gegenüber `main` divergiert (128 Commits voraus, 61 zurück; Merge-Base `71fb0e07740150be13d40b1aef10ba269fe264b8`) und GitHub meldet `mergeable=false`. Keine Integration in `main` ohne kontrollierte Konsolidierung und erneute vollständige Prüfung.
 - Keine Modell-Inferenz, keine Kosten, kein Gateway-Request, keine Secrets gelesen oder geändert. MAINPROMPT 2.0.7 setzt Live-Council AUS und Zusatzbudget 0 EUR; der vorhandene 5-USD-Soft-Cap ist keine Freigabe und keine harte Kostenobergrenze.
 
 ## Nächste sichere Schritte
