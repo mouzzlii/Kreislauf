@@ -671,3 +671,16 @@ Dieser Nachtrag ergänzt die vorstehenden Projektentscheidungen um den zuletzt d
 - Der zuvor angelegte PR #13 wurde geschlossen, da er nur die alten Prompt-/Registerdateien änderte und nicht die kanonische Arbeitsverfassung.
 - Die Antwortoptionen-Regel ist nun stattdessen korrekt in MAINPROMPT 2.0.8 und dem README-Versionsverweis vorbereitet: Draft-PR [#15](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/15), Head `d331ea323159b323daefdc83a16e28684f7bed27`. Beide Dateien wurden auf dem Branch erneut gelesen; §3 und Versionshistorie enthalten die Regel, README verweist auf 2.0.8. PR ist konfliktfrei gemeldet, bleibt Draft und ist noch nicht in `main`.
 - PR #11 bleibt offen und Draft mit bestätigtem Merge-Konflikt; nicht erzwingen. Es wird nicht als kanonische Arbeitsgrundlage verwendet.
+
+### Ergänzender Infrastruktur- und Verifikationsreadback (27.11.2026, 16:03 UTC)
+
+**KI-Arbeitsplatz / Vercel-Testprojekt**
+- Projekt-ID `prj_VQgBYdqCuRm3hIyD6JkFNWyZg4jQ`. Letzter erfolgreicher Vercel-`main`-Build ist `dpl_7cDeYJXLmdzN1jQ352kcKh23258b` auf Commit `3f3c1f1921f6a5196caa8916acaa135c3a18e499`; Build-Logs belegen 6/6 Node-Tests.
+- Aktueller `main`-Stand `7bf633e0dee84bdf6807ec31c0a86481ec40a6dd` liegt 11 Commits darüber. `app/app.js`, `app/sw.js`, `app/index.html` und `app/manifest.webmanifest` haben weiterhin dieselben Blob-SHAs wie beim erfolgreichen Build. Der aktualisierte Projektkatalog ist valides JSON (Schema v1, 14 Projekte, 10 HTTPS-Repository-URLs ohne Zugangsdaten). Zusätzlich 10/10 begrenzte source-level Prüfungen; **kein neuer vollständiger Node-Lauf**.
+- Fehlgeschlagener Deploy `dpl_6FmTTTyoZinr1eC1zFas9Qy5sVwP` betrifft einen alten Dokumentationsbranch, dem `app/` fehlt; Vercel meldet `NOW_SANDBOX_WORKER_ROOTDIR_NOT_EXIST`. Kein Fehler des aktuellen `main`. PR #15 und PR #16 haben bislang keine Deployment-Datensätze; keine manuellen Deployments ausgelöst.
+- Neue Draft-PRs: [KI-Arbeitsplatz #15](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/15) – kanonischer MAINPROMPT 2.0.8; [#16](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/16) – Monitoring-Nachtrag. Beide noch nicht in `main`.
+
+**Book Your Cook / Vercel-Readback**
+- Vercel-Projekt-ID `prj_Fu9m2TtUPXj2YNLg2EVDfYh2AZ0J`. Die aktuelle Deployment-Historie enthält keinen Preview-Datensatz für PR #5 (`fix/public-demo-privacy-2026-11-27`) oder PR #6 (`feat/service-portfolio-2026-11-27`).
+- Ein READY-Preview besteht für den älteren Stripe-Branch aus PR #2 (Commit `25a6a584c0b8f8583145e87da6169fa27ab37e1b`). Ein separater älterer fehlgeschlagener Upload (`dpl_8tTevdbD3W5k5rbS2nfiBDc8inUp`) meldete fehlendes Root Directory `book-your-cook-produkt`; er belegt weder einen PR-#5/#6-Fehler noch eine Kontingentursache.
+- Die frühere 402-/Tageskontingent-Aussage konnte anhand der aktuellen Deployment-Historie nicht erneut belegt werden. Daher sind PR #5/#6 weiterhin ohne Preview, aber die Ursache ist derzeit offen. PR-Beschreibungen wurden entsprechend korrigiert; kein manueller Deploy, keine Kontingentumgehung und keine kostenpflichtige Aktion.
