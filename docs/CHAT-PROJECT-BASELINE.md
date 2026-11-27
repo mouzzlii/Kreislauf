@@ -459,3 +459,34 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 - Testquellstand: 18 Orchestrator- und 15 HTTP-Fälle. Historisch waren 17/17 bzw. 9/9 vor den jüngsten Ergänzungen lokal bestanden; neue Härtungsfälle nicht ausgeführt. Node.js 22.16 ist verfügbar, aber das private Repository konnte wegen fehlender DNS-/Netzwerkauflösung nicht in den lokalen Testcontainer geladen werden.
 - GitHub Actions hat für den aktuellen Head keinen Lauf geliefert. Vercel-Statuscheck bleibt wegen Free-Tier-Deployment-Limit auf failure; kein erneuter Deploymentversuch.
 - Keine echte Server-Komposition, persistente Auth-/CSRF-/Freigabe-/Audit-/Budgetdienste, Provideradapter, Synthese, Live-Inferenz, Deployment, Browser-/Android-Abnahme oder Kosten. PR bleibt Draft.
+
+## Portfolio-Live-Abgleich – 27.11.2026, 16:11 UTC
+
+Dieser Nachtrag dokumentiert neue, direkt verifizierte Änderungen seit dem letzten Baseline-Readback. Er ersetzt keine offenen Praxis- oder Produktionsabnahmen.
+
+### TRAKUNA – österreichische Hermes-Domainkorrektur
+- Aktueller Draft-PR [mouzzlii/Fuck #25](https://github.com/mouzzlii/Fuck/pull/25), Head `c11289dc0277191f644edcac94484c816754aa9d`.
+- Korrigiert: Das offizielle österreichische `myhermes.at` wird für Erkennung und HTTPS-Portalrouting akzeptiert. `myhermes.de` wird für die österreichische App-Allowlist vorerst abgelehnt, bis die konkrete Eignung für diesen Shop geklärt ist. Neue Unit-Tests decken beide Fälle ab.
+- Android-Build [46030720906](https://github.com/mouzzlii/Fuck/actions/runs/46030720906): **success** – Unit-Tests, Instrumentierungskompilierung, Lint, APK-Build, Manifest-/Offline-Prüfungen, Prüfsumme und Artefaktbereitstellung erfolgreich.
+- API-35-Emulator [46030720882](https://github.com/mouzzlii/Fuck/actions/runs/46030720882): **success** – 15 Instrumentierungstests gestartet und abgeschlossen, `BUILD SUCCESSFUL`, keine Testfehler gemeldet.
+- APK-Artefakt [15213883174](https://github.com/mouzzlii/Fuck/actions/runs/46030720906/artifacts/15213883174), ZIP-Digest `772001310bb5193b98a71acb92d1ad6afe70d590c45e004702f7741ca395ec23`; Diagnose [15214601437](https://github.com/mouzzlii/Fuck/actions/runs/46030720882/artifacts/15214601437).
+- Die öffentliche österreichische Hermes-Sendungsverfolgung unter [myhermes.at](https://www.myhermes.at/sendungsverfolgung/) ist keine Partner-API. Schriftliche Hermes-/Betreiberfreigabe und verbindliche Partner-/Gerätespezifikation bleiben Produktionsblocker (Issue #15).
+- Reale Smartphone-Kamera-/Autofokus-/Etiketten-, CSV-, Backup-/Restore- und Drucker-/Portalabnahme bleiben offen. PR #25 bleibt Draft, `main` unverändert.
+
+### KI-Arbeitsplatz – kanonische Arbeitsverfassung und Monitoring
+- Kanonische Datei auf `main`: `docs/MAINPROMPT.md`, Version 2.0.7. Draft-PR [#17](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/17) bereitet Version 2.0.8 mit klaren, nummerierten Antwortoptionen, Folgenbeschreibung, begründeter Empfehlung und freier Antwort vor. Readback von MAINPROMPT und README erfolgreich; noch nicht gemergt.
+- Draft-PR [#18](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/18) ergänzt den aktuellen Vercel-/Quellreadback. Beide PRs sind offen und Draft; ihre Branches basieren auf älteren Main-SHAs und müssen vor einer Integration neu auf Merge-Konflikte geprüft werden.
+- PR #11 wurde geschlossen, weil er das aktive Archivintegritäts-Workflowfile `.github/workflows/blank.yml` gelöscht hätte. Die Datei ist auf aktuellem `main` ein echter ZIP-Integritätstest, kein Placeholder.
+- Letzter erfolgreicher Vercel-Node-Testbuild: 6/6 auf Commit `3f3c1f1921f6a5196caa8916acaa135c3a18e499`. Der aktuelle App-JS-, Service-Worker-, HTML- und Manifeststand ist unverändert zu diesem Build; der aktuelle Projektkatalog wurde separat geprüft. 10/10 begrenzte source-level Prüfungen erfolgreich; kein neuer vollständiger Node-Testlauf.
+- GitHub Actions bleibt blockiert: Runner-Jobs mit `runner_id=0` und `steps=[]`, daher keine Testausführung für diese Jobs.
+
+### KI-Council – tatsächlicher Einsatz
+- Die letzten 7-Tage-Abfragen zeigen 0 Gateway-Requests für das Council-Projekt `prj_cNDChcd0UaknDqECxOemW6lu2A3u` und das Testprojekt `prj_VQgBYdqCuRm3hIyD6JkFNWyZg4jQ`.
+- Ein Projektbudget von 5 USD/Monat mit 0 USD Verbrauch besteht nur für das Council-Projekt; es ist kein app-seitiges hartes Kosten-Gate. Keine direkte Inferenzaktion für die konfigurierten Aliase in der aktuellen Toolverbindung. Keine Modellaufrufe, keine neuen Schlüssel und keine Kosten.
+
+### Book Your Cook – CI und Preview
+- [PR #5](https://github.com/mouzzlii/book-your-cook/pull/5) und gestapelter [PR #6](https://github.com/mouzzlii/book-your-cook/pull/6) bleiben Draft. GitHub-Actions-Retries endeten vor dem ersten Schritt mit `runner_id=0`, `steps=[]`; `npm test` wurde nicht ausgeführt.
+- Vercel-Projekt `prj_Fu9m2TtUPXj2YNLg2EVDfYh2AZ0J`: kein Deployment-Datensatz für PR-#5- oder PR-#6-Branch. Ein READY-Preview besteht für den älteren Stripe-Branch aus PR #2. Ein separater fehlgeschlagener Upload meldete fehlendes Root Directory. Die frühere 402-/Tageskontingent-Aussage ließ sich anhand der aktuellen Historie nicht erneut belegen; Ursache der fehlenden #5/#6-Previews bleibt offen.
+- Keine manuelle Preview-Bereitstellung, keine Kontingentumgehung, keine Migration und keine Produktionsänderung.
+
+**Globale Schutzgrenze:** Alle oben genannten PRs bleiben Arbeitsvorschläge in Draft-Branches. Keine Hauptbranch-Merges, Produktionsfreigaben, kostenpflichtigen Inferenzaufrufe oder riskanten Datenänderungen wurden durch diesen Abgleich ausgeführt.
