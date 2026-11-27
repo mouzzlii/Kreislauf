@@ -96,6 +96,7 @@ console.log("AI team routing, Meta/Llama selection, provider credentials, secure
 
 
 // The current 0 EUR authorization must keep the live provider workflow disabled.
-assert.match(workflowSource, /if:\\s*>-\\s*false\\s*&&/);
+assert.match(workflowSource, /if:\s*>-\s*false\s*&&/);
 assert.ok(setup.includes("Zusatzbudget 0 EUR"));
 assert.ok(setup.includes("numerischen Hard Cap"));
+assert.ok(setup.includes("erst nach einem genehmigten Merge auf `main` wirksam"));
