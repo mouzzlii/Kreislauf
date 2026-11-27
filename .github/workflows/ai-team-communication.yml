@@ -14,7 +14,10 @@ concurrency:
 
 jobs:
   debate:
+    # Hard-disabled under the current 0 EUR additional-spend authorization.
+    # The legacy boolean budget flag is not a numeric hard cost limit.
     if: >-
+      false &&
       github.event.issue.pull_request == null &&
       github.event.issue.number == 11 &&
       github.event.comment.user.type != 'Bot' &&
