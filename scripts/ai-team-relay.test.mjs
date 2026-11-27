@@ -66,6 +66,11 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   const metadataRequest = relaySource.indexOf("api(`https://api.github.com/repos/${repo}`", privateWorkspaceGuard);
   assert.ok(privateWorkspaceGuard >= 0 && repositoryLookup > privateWorkspaceGuard && metadataRequest > repositoryLookup,
     "KI-Arbeitsplatz must be blocked before any GitHub repository metadata or content request");
+  const excludedRepositoryGuard = relaySource.indexOf("repositories.some(isExcludedRepository)");
+  const repositoryList = relaySource.indexOf("const repositories = taskEnvelope");
+  assert.ok(relaySource.includes('"mouzzlii/ki-arbeitsplatz"'));
+  assert.ok(repositoryList >= 0 && excludedRepositoryGuard > repositoryList && metadataRequest > excludedRepositoryGuard,
+    "private KI-Arbeitsplatz repository mappings, including related repositories, must be blocked before metadata access");
   assert.ok(sourceContextSource.includes('primary.visibility === "public"'));
   assert.ok(interopSource.includes('["public", "synthetic", "anonymized"]'));
   const publicVisibilityGuard = relaySource.indexOf("if (!isPublicRepositoryMetadata(meta))");
