@@ -556,3 +556,11 @@ Der Nutzer hat ausdrücklich angewiesen, laufende Projekte ohne wiederholte Zust
 - Für den aktuellen PR-Head wurde bei der GitHub-Abfrage kein zugehöriger Actions-Lauf zurückgegeben. Der zuvor dokumentierte Runnerstart-Blocker bleibt offen; daher kein aktueller CI-Nachweis. Browser-/Android-Abnahme bleibt ebenfalls offen; die Preview ist SSO-geschützt.
 - Noch nicht umgesetzt: HTTP/API-Route, Authentifizierung/CSRF-/Origin-Schutz, persistente atomare Budgetreservierung, Provideradapter, Live-Preiskatalog, verifizierte Endpoint-/EU-Routen, Audit-Persistenz, ChatGPT-Synthese, Deployment und echte Modellaufrufe. Keine API-Schlüssel, Kosten, Gateway-Konfigurationsänderungen oder Live-Aufrufe ausgelöst.
 
+
+
+### KI-ARBEITSPLATZ – Fortschreibung HTTP-Sicherheitsgrenze (27.11.2026)
+- Draft-PR #12, Branch `feat/offline-council-workbench`, Head nach Readback: `71ac75286df721ee6577e93834c4a671798cbf95`; weiterhin offen, Draft und ungemergt.
+- Ergänzt wurden `server/council/http-handler.mjs` und `server/tests/council-http-handler.test.mjs`. Der framework-neutrale Handler prüft POST, exakte Origin-Allowlist, JSON-Content-Type, Authentifizierung, CSRF, begrenzte UTF-8-/JSON-Eingabe, striktes Request-Schema, Rate-Limit, serverseitige einmalige Freigabeauflösung und Audit-Fail-Closed. Sicherheitsdienste sind nur injizierte Verträge; es gibt noch keine konkrete Serverroute oder echte Dienstanbindung.
+- Neue HTTP-Grenztests: 8/8 lokal mit Node.js bestanden; Syntaxprüfung der beiden neuen Dateien ebenfalls bestanden. Die Tests verwenden Fake-Sicherheitsdienste und Fake-Orchestrator; sie beweisen keine reale Authentifizierung, CSRF-Absicherung, persistente Freigabe/Audit, Live-Budgetreservierung oder Providerverbindung.
+- Workflow `.github/workflows/pwa-council-tests.yml` enthält jetzt Syntaxchecks sowie PWA-, Orchestrator- und HTTP-Regressionstests. Für den aktuellen Head wurde bei der GitHub-Abfrage noch kein Actions-Lauf zurückgegeben; daher kein aktueller CI-Nachweis.
+- Server-README, Root-README und PR-Beschreibung wurden um den tatsächlichen Implementierungsstand und die offenen Grenzen ergänzt. PR bleibt Draft. Kein Merge, kein Deployment, keine echten Modellaufrufe, keine API-Schlüssel und keine Kosten.
