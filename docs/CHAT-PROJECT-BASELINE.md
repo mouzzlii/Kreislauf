@@ -449,5 +449,5 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 ### KI-ARBEITSPLATZ – Provider-Sitz-/Review-Vollständigkeit abgesichert (27.11.2026)
 - Draft-PR #12 Head: d922ea382eaae3a51b03e95b2288a05fe27229e3; offen, Draft, ungemergt.
 - HTTP-Antwortvalidator bindet Analysen an exakt genehmigte Provider, weist doppelte/fremde Sitze, Selbstreviews, fehlende/doppelte Review-Paare, inkonsistente Statuswerte sowie Null-/Malformed-Einträge ab. Review-Anzahl und Call-/Kosten-Preflight werden gegen die genehmigte Auswahl geprüft.
-- Testquellstand: 18 Orchestrator- und 15 HTTP-Fälle. Historisch 17/17 bzw. 9/9 vor den jüngsten Ergänzungen lokal bestanden; alle neuen Härtungsfälle bleiben ungeprüft, da kein lokaler Node-Zugang im aktuellen Arbeitskontext und kein Actions-Lauf für den aktuellen Head verfügbar ist.
+- Testquellstand: 18 Orchestrator- und 15 HTTP-Fälle. Historisch 17/17 bzw. 9/9 vor den jüngsten Ergänzungen lokal bestanden; alle neuen Härtungsfälle bleiben ungeprüft. Node.js 22.16 ist in der Arbeitsumgebung vorhanden, aber das private Repository konnte wegen fehlender Netzwerkauflösung nicht in den lokalen Testcontainer geladen werden; für den aktuellen Head liegt auch kein Actions-Lauf vor.
 - Keine echte Auth-/CSRF-/Freigabe-/Audit-/Budgetdienst-Anbindung, keine Provideradapter, kein Live-Aufruf, kein Deployment und keine Kosten.
