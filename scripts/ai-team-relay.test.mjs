@@ -83,6 +83,10 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
     "source context and daily budget must be checked before the first model call");
 
   assert.doesNotMatch(relaySource, /api\.openai\.com|api\.anthropic\.com|askMeta|askLlama|META_MODEL_API_KEY|LLAMA_API_KEY/);
+  assert.ok(relaySource.includes("parsePublicDebateRequest"));
+  assert.ok(relaySource.includes('dataClassification = taskEnvelope.dataClassification'));
+  assert.ok(relaySource.includes('request = "Datenklassifikation: " + dataClassification'));
+  assert.ok(setup.includes("[public]"));
   assert.ok(workflowSource.includes("false &&"));
   assert.ok(setup.includes("AI_TEAM_BUDGET_CONFIRMED"));
   assert.ok(setup.includes("0 EUR"));
