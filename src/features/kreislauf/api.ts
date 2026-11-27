@@ -2,7 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { authMiddleware } from "@/lib/auth/middleware";
 import { getSql } from "@/lib/db";
 import {
-  DEFAULT_REGION,
   WELCOME_KARMA,
   type Board,
   type Booking,
@@ -19,6 +18,7 @@ import {
   type TradeRequest,
 } from "./types";
 import { normalizeExchangeListing, normalizeTradeOffer } from "./trade-rules";
+import { normalizeListingImages } from "./media-rules";
 import { CREATE_TRADE_REQUEST_SQL, TRANSITION_TRADE_REQUEST_SQL, CONFIRM_TRADE_REQUEST_SQL } from "./trade-queries";
 
 type Row = Record<string, unknown>;
@@ -436,9 +436,15 @@ export const getItemTemplate = createServerFn({ method: "GET" })
     const row = rows[0];
     if (!row) throw new Error("Dieser Artikel ist dir laut Historie nicht zugeordnet.");
     const images = asImages(row.images);
-    return { itemUuid: data.itemUuid, title: asString(row.title), description: asString(row.description),
-      category: asString(row.category, "goods") as Category, priceKarma: asNumber(row.priceKarma),
-      placeLabel: asString(row.placeLabel), imageDataUrl: images[0]?.startsWith("data:image/jpeg;base64,") ? images[0] : null };
+    return {
+      itemUuid: data.itemUuid,
+      title: asString(row.title),
+      description: asString(row.description),
+      category: asString(row.category, "goods") as Category,
+      priceKarma: asNumber(row.priceKarma),
+      placeLabel: asString(row.placeLabel),
+      imageDataUrls: images.filter((image) => image.startsWith("data:image/jpeg;base64,")).slice(0, 4),
+    };
   });
 
 export const createListing = createServerFn({ method: "POST" })
@@ -478,16 +484,7 @@ export const createListing = createServerFn({ method: "POST" })
       typeof source.placeLabel === "string" && source.placeLabel.trim()
         ? source.placeLabel.trim().slice(0, 60)
         : "In der Region";
-    let imageDataUrl: string | null = null;
-    if (typeof source.imageDataUrl === "string" && source.imageDataUrl.length > 0) {
-      if (
-        !source.imageDataUrl.startsWith("data:image/jpeg;base64,") ||
-        source.imageDataUrl.length > 280_000
-      ) {
-        throw new Error("Foto zu groß oder im falschen Format");
-      }
-      imageDataUrl = source.imageDataUrl;
-    }
+    const imageDataUrls = normalizeListingImages(source.imageDataUrls, source.imageDataUrl);
     const lat = typeof source.lat === "number" ? source.lat : null;
     const lng = typeof source.lng === "number" ? source.lng : null;
     const itemUuid = typeof source.itemUuid === "string" && /^item-[a-z0-9-]{8,80}$/.test(source.itemUuid) ? source.itemUuid : null;
@@ -495,7 +492,7 @@ export const createListing = createServerFn({ method: "POST" })
       regionId, title, description, category, offerType, priceKarma,
       exchangeTerms: terms.exchangeTerms,
       karmaAdjustment: terms.karmaAdjustment,
-      placeLabel, imageDataUrl, lat, lng, what3wordsAddress, itemUuid,
+      placeLabel, imageDataUrls, lat, lng, what3wordsAddress, itemUuid,
     };
   })
   .middleware([authMiddleware])
@@ -536,7 +533,7 @@ export const createListing = createServerFn({ method: "POST" })
       if (!owned.length) throw new Error("Du bist laut Artikelhistorie nicht die aktuelle Station dieses Artikels.");
       handsCount = asNumber(owned[0].hands_count);
     }
-    const images = data.imageDataUrl ? [data.imageDataUrl] : [];
+    const images = data.imageDataUrls;
     const assetKind = data.category === "sharing" ? "tool" : null;
     await sql.query(
       `insert into listings (

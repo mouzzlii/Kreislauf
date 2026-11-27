@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ListingVisual } from "@/components/listing-card";
+import { ListingGallery } from "@/components/listing-card";
 import { Shell } from "@/components/shell";
 import { ListingConversation } from "@/components/listing-conversation";
 import { Button, fieldClass } from "@/components/ui";
@@ -46,7 +46,16 @@ function ListingPage() {
   const navigate = useNavigate();
   const { version, bump, refreshProfile, profile } = useKreislauf();
   const { user, isPending } = useCurrentUserState();
-  const [detail, setDetail] = useState<ListingDetail | null>(initial);
+  const userId = user?.id ?? null;
+  const [detailState, setDetailState] = useState<{
+    listingId: string;
+    source: ListingDetail | null;
+    value: ListingDetail | null;
+  }>({ listingId, source: initial, value: initial });
+  const detail = detailState.listingId === listingId && detailState.source === initial
+    ? detailState.value
+    : initial;
+  const setDetail = (value: ListingDetail | null) => setDetailState({ listingId, source: initial, value });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [meetingPointUrl, setMeetingPointUrl] = useState<string | null>(null);
@@ -70,29 +79,31 @@ function ListingPage() {
   }, [listingId, version]);
 
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setTradeRequests([]);
       return;
     }
+    setTradeRequests([]);
     let cancel = false;
     getTradeRequests({ data: { id: listingId } })
       .then((next) => { if (!cancel) setTradeRequests(next); })
       .catch(() => { if (!cancel) setTradeRequests([]); });
     return () => { cancel = true; };
-  }, [listingId, user?.id, version]);
+  }, [listingId, userId, version]);
 
   useEffect(() => {
     setQrTarget(`${window.location.origin}/inserat/${listingId}`);
   }, [listingId]);
 
   useEffect(() => {
-    if (!user) { setMeetingPointUrl(null); return; }
+    setMeetingPointUrl(null);
+    if (!userId) return;
     let cancel = false;
     getMeetingPoint({ data: { id: listingId } }).then((result) => {
       if (!cancel) setMeetingPointUrl(result.url);
     }).catch(() => { if (!cancel) setMeetingPointUrl(null); });
     return () => { cancel = true; };
-  }, [listingId, user?.id, version]);
+  }, [listingId, userId, version]);
 
   if (!detail) {
     return (
@@ -144,7 +155,7 @@ function ListingPage() {
         Markt
       </Link>
       <div className="mt-3 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-        <ListingVisual listing={listing} className="aspect-[4/3] w-full rounded-3xl" />
+        <ListingGallery key={listing.id} listing={listing} className="aspect-[4/3] w-full rounded-3xl" />
         <div>
           <p className="text-sm text-copper">
             {OFFER_TYPE_LABEL[listing.offerType]} · {CATEGORY_LABEL[listing.category]} · {STATUS_LABEL[listing.status]}
