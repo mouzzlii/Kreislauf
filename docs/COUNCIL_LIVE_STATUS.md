@@ -13,7 +13,7 @@
 - Pro erfolgreichem Modellaufruf protokolliert der Relay angeforderten Alias, Response-ID, zurückgegebenes Modell, einen Provider nur falls das Response-Feld ihn explizit ausweist sowie numerische Tokenwerte. Fehlende Angaben bleiben unbekannt; Tokenzahlen sind keine Kosten. Eine tatsächliche Providerroute und Kosten müssen später mit der Gateway-Nutzungsansicht korreliert werden. Bislang gibt es keine Live-Response-Daten.
 - Vercel-Preview-Check bleibt wegen `build-rate-limit` fehlgeschlagen. Kein Upgrade und kein kostenpflichtiger Retry.
 - **PR #38 ist nur noch historischer Auditstand und darf nicht gemergt werden.** PR #60 ist die einzige aktuelle Council-Integrationslinie. PR #60 bleibt Draft bis unabhängige Code-/Security-Review und Vercel-Preview-/Auth-Abnahme erfolgt sind.
-- Der aktive `main`-Relay ist davon getrennt und verwendet weiterhin die zuvor dokumentierten direkten Provider-Clients. PR #60 ist nicht in `main` integriert.
+- Der aktive `main`-Relay ist davon getrennt und verwendet weiterhin die zuvor dokumentierten direkten Provider-Clients. Der Legacy-Workflow auf `main` ist bis zur Integration von Draft PR #62 noch nicht durch die neuen Hard-Gates geschützt; tatsächliche Secrets-/Variablenwerte sind unbekannt. Issue #11 bis zur ausdrücklichen Prüfung und Integration von PR #62 nicht mit `/ai-team debate` auslösen. PR #60 ist nicht in `main` integriert.
 
 ## Tatsächlicher Status
 
