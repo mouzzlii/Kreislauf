@@ -15,6 +15,7 @@ concurrency:
 jobs:
   debate:
     if: >-
+      false &&
       github.event.issue.pull_request == null &&
       github.event.issue.number == 11 &&
       github.event.comment.user.type != 'Bot' &&
