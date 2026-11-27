@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createCouncilTaskIdempotencyKey, parseCouncilTaskComment, resolveCouncilTaskProject, validateCouncilTaskEnvelope } from "./ai-team-interop.mjs";
+import { createCouncilTaskIdempotencyKey, createTaskExecutionBudget, isWithinUtf8ByteLimit, parseCouncilTaskComment, resolveCouncilTaskProject, validateCouncilTaskEnvelope } from "./ai-team-interop.mjs";
 
 const NOW = new Date("2026-11-26T10:30:00.000Z");
 
@@ -238,4 +238,30 @@ test("canonical idempotency key is independent of allowed-path ordering", () => 
 test("matches the cross-runtime PowerShell canonical idempotency test vector", () => {
   const message = validEnvelope();
   assert.equal(message.idempotencyKey, "kia-190616e6244d6fefac474d3e9dbc38bb62c0efd595bde1f1118d1da6b5f42f9b");
+});
+
+
+test("task execution budget clamps the requested runtime to the workflow ceiling", () => {
+  assert.deepEqual(createTaskExecutionBudget({
+    maxRuntimeSeconds: 1800,
+    maxInputBytes: 4096,
+    maxOutputBytes: 8192,
+  }, { now: 1000, workflowMaxRuntimeSeconds: 420 }), {
+    deadlineAt: 421000,
+    maxInputBytes: 4096,
+    maxOutputBytes: 8192,
+  });
+
+  assert.equal(createTaskExecutionBudget({
+    maxRuntimeSeconds: 90,
+    maxInputBytes: 10,
+    maxOutputBytes: 20,
+  }, { now: 1000 }).deadlineAt, 91000);
+});
+
+test("task byte limits count UTF-8 bytes rather than JavaScript characters", () => {
+  assert.equal(isWithinUtf8ByteLimit("ä", 2), true);
+  assert.equal(isWithinUtf8ByteLimit("ä", 1), false);
+  assert.equal(isWithinUtf8ByteLimit("ok", 2), true);
+  assert.equal(isWithinUtf8ByteLimit("too long", 2), false);
 });

@@ -259,6 +259,34 @@ export function validateCouncilTaskEnvelope(input, { now = new Date() } = {}) {
 
 export const COUNCIL_TASK_ENVELOPE_VERSION = "1.0.0";
 
+// Runtime and byte limits declared by the task envelope are enforced by the relay.
+// Leave one minute for GitHub Actions cleanup/reporting within its 8-minute job cap.
+export function createTaskExecutionBudget({
+  maxRuntimeSeconds,
+  maxInputBytes,
+  maxOutputBytes,
+}, { now = Date.now(), workflowMaxRuntimeSeconds = 420 } = {}) {
+  if (!Number.isInteger(maxRuntimeSeconds) || maxRuntimeSeconds < 1 || maxRuntimeSeconds > 86400 ||
+      !Number.isInteger(maxInputBytes) || maxInputBytes < 1 || maxInputBytes > 104857600 ||
+      !Number.isInteger(maxOutputBytes) || maxOutputBytes < 1 || maxOutputBytes > 104857600 ||
+      !Number.isFinite(now) || !Number.isInteger(workflowMaxRuntimeSeconds) || workflowMaxRuntimeSeconds < 1) {
+    throw new TypeError("Council task execution budget is invalid.");
+  }
+  return {
+    deadlineAt: now + Math.min(maxRuntimeSeconds, workflowMaxRuntimeSeconds) * 1000,
+    maxInputBytes,
+    maxOutputBytes,
+  };
+}
+
+export function isWithinUtf8ByteLimit(value, maxBytes) {
+  return typeof value === "string" &&
+    Number.isInteger(maxBytes) &&
+    maxBytes >= 0 &&
+    Buffer.byteLength(value, "utf8") <= maxBytes;
+}
+
+
 
 export function parseCouncilTaskComment(body, options = {}) {
   if (typeof body !== "string") return { matched: false };

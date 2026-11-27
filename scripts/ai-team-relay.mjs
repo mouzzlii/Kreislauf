@@ -2,7 +2,7 @@ import process from "node:process";
 import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, isPublicRepositoryMetadata, redactSensitiveText, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { hasTrustedRelayMarker, inspectDailyBudgetPage } from "./ai-team-ledger.mjs";
 import { COUNCIL_MODELS, VERCEL_AI_GATEWAY_URL, buildGatewayChatCompletion, extractGatewayText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
-import { parseCouncilTaskComment, resolveCouncilTaskProject } from "./ai-team-interop.mjs";
+import { createTaskExecutionBudget, isWithinUtf8ByteLimit, parseCouncilTaskComment, resolveCouncilTaskProject } from "./ai-team-interop.mjs";
 
 const {
   GITHUB_TOKEN,
@@ -38,6 +38,7 @@ const MAX_CONTEXT_CHARS = 18000;
 const MAX_OUTPUT_TOKENS = 1000;
 const MAX_DAILY_DEBATES = 2;
 const MARKER_PREFIX = "<!-- ai-team-relay:";
+let taskExecutionBudget = null;
 
 function fail(message) {
   console.error(message);
@@ -45,9 +46,16 @@ function fail(message) {
 }
 
 async function api(url, options = {}) {
+  const { taskBudgeted = false, ...fetchOptions } = options;
+  let timeoutMs = 60_000;
+  if (taskBudgeted && taskExecutionBudget) {
+    const remainingMs = taskExecutionBudget.deadlineAt - Date.now();
+    if (remainingMs <= 0) throw new Error("Council task runtime limit exceeded.");
+    timeoutMs = Math.min(timeoutMs, remainingMs);
+  }
   const response = await fetch(url, {
-    ...options,
-    signal: AbortSignal.timeout(60_000),
+    ...fetchOptions,
+    signal: fetchOptions.signal ?? AbortSignal.timeout(timeoutMs),
   });
   const raw = await response.text();
   let data;
@@ -67,8 +75,12 @@ async function api(url, options = {}) {
 
 async function askCouncilModel(model, instructions, input) {
   if (!AI_GATEWAY_API_KEY) throw new Error("AI_GATEWAY_API_KEY is missing.");
+  if (taskExecutionBudget && !isWithinUtf8ByteLimit(`${instructions}\n${input}`, taskExecutionBudget.maxInputBytes)) {
+    throw new Error("Council task input exceeds the declared UTF-8 byte limit.");
+  }
   const data = await api(VERCEL_AI_GATEWAY_URL, {
     method: "POST",
+    taskBudgeted: Boolean(taskExecutionBudget),
     headers: { Authorization: `Bearer ${AI_GATEWAY_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify(buildGatewayChatCompletion({ model, instructions, input, maxTokens: MAX_OUTPUT_TOKENS })),
   });
@@ -119,7 +131,7 @@ async function fetchProjectContext(project, taskEnvelope = null) {
   const contexts = await Promise.all(repositories.map(async (repo) => {
     let visibility = "unknown";
     try {
-      const meta = await api(`https://api.github.com/repos/${repo}`, { headers });
+      const meta = await api(`https://api.github.com/repos/${repo}`, { headers, taskBudgeted: Boolean(taskExecutionBudget) });
       visibility = typeof meta.visibility === "string" ? meta.visibility : (meta.private === true ? "private" : "unknown");
       if (!isPublicRepositoryMetadata(meta)) {
         throw new Error("External Council context is restricted to public repositories; private/internal/unknown visibility is blocked.");
@@ -131,8 +143,8 @@ async function fetchProjectContext(project, taskEnvelope = null) {
       const [readmeResult, treeResult] = await Promise.all([
         taskEnvelope
           ? Promise.resolve({ content: "" })
-          : api(`https://api.github.com/repos/${repo}/readme?ref=${encodeURIComponent(branch)}`, { headers }),
-        api(`https://api.github.com/repos/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`, { headers }),
+          : api(`https://api.github.com/repos/${repo}/readme?ref=${encodeURIComponent(branch)}`, { headers, taskBudgeted: Boolean(taskExecutionBudget) }),
+        api(`https://api.github.com/repos/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`, { headers, taskBudgeted: Boolean(taskExecutionBudget) }),
       ]);
       const treeItems = treeResult.tree || [];
       const allPaths = treeItems
@@ -157,7 +169,7 @@ async function fetchProjectContext(project, taskEnvelope = null) {
         try {
           const file = await api(
             `https://api.github.com/repos/${repo}/contents/${encodedPath}?ref=${encodeURIComponent(branch)}`,
-            { headers },
+            { headers, taskBudgeted: Boolean(taskExecutionBudget) },
           );
           return { path, content: decodeSourceFile(file) };
         } catch {
@@ -347,6 +359,11 @@ async function main() {
       return;
     }
     project = binding.project;
+    taskExecutionBudget = createTaskExecutionBudget({
+      maxRuntimeSeconds: taskEnvelope.payload.constraints.maxRuntimeSeconds,
+      maxInputBytes: taskEnvelope.payload.constraints.maxInputBytes,
+      maxOutputBytes: taskEnvelope.payload.expectedOutput.maxBytes,
+    });
     request = [
       "Aufgabentyp: " + taskEnvelope.payload.taskType,
       "Anweisung: " + taskEnvelope.payload.instruction,
@@ -521,6 +538,21 @@ async function main() {
     "---",
     "_Automatisch erzeugte Analyse. Keine Codeänderung, kein Merge und kein Praxistest wurde durch diesen Relay-Lauf ausgeführt._",
   ].join("\n\n");
+
+  if (taskExecutionBudget && !isWithinUtf8ByteLimit(body, taskExecutionBudget.maxOutputBytes)) {
+    const limitMessage = [
+      marker,
+      ...(idempotencyMarker ? [idempotencyMarker] : []),
+      "### Council-Task-Ausgabe abgelehnt",
+      "Die vollständige veröffentlichte Antwort überschreitet das im Task-Envelope festgelegte UTF-8-Byte-Limit.",
+      "Keine Teilausgabe wurde veröffentlicht.",
+    ].join("\n\n");
+    await githubRequest(`issues/${issue.number}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ body: limitMessage }),
+    });
+    return;
+  }
 
   await githubRequest(`issues/${issue.number}/comments`, {
     method: "POST",
