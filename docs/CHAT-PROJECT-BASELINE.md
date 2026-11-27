@@ -224,269 +224,64 @@ Ein README-Eintrag, ein offener PR, ein erfolgreicher Build oder ein Preview-Lin
 8. Wenn main aktuell ist, nichts ändern.
 
 
-## 8. Verbindlicher Autonomie-, Delegations- und Qualitätsauftrag
+## 8. Historische Herkunft globaler Arbeitsregeln – nicht mehr operative Quelle
 
-### Nutzerauftrag und Arbeitsweise
-Der Nutzer hat in früheren Chats ausdrücklich verlangt:
-- „Weiter bis zum Meisterwerk“: sinnvolle Arbeiten eigenständig fortsetzen, statt nach jedem Teilschritt um Erlaubnis zu fragen.
-- Programmieren, reparieren, verbessern und testen, soweit reale Zugänge, Berechtigungen und technische Möglichkeiten vorhanden sind.
-- Geeignete Arbeiten an andere tatsächlich verfügbare Programme und KI-Systeme delegieren; ChatGPT koordiniert die Ergebnisse und prüft sie unabhängig.
-- Unabhängige Aufgaben parallel bearbeiten, Abhängigkeiten und gemeinsame Ressourcen beachten und Doppelarbeit vermeiden.
-- Bestehende Programme, Open-Source-Lösungen und bewährte kommerzielle Produkte zuerst prüfen; nur nach Lizenz-, Sicherheits-, Kosten-, Kompatibilitäts- und Wartbarkeitsprüfung übernehmen.
-- Vor Änderungen sichern, Backups verifizieren, Regressionstests ausführen und Fortschritt nachvollziehbar dokumentieren.
-- Nicht bei jedem normalen technischen Einzelschritt informieren. Kompakte Updates nach abgeschlossenen Arbeitsabschnitten sowie bei Blockern, Risiken oder nötigen Nutzerentscheidungen geben.
+Die früheren Abschnitte zu Autonomie, Delegation, chatübergreifender Koordination, chirurgischer Arbeitsweise, Qualitätskontrolle, Realbetrieb-Simulation und Council-Nachweisen wurden in die alleinige globale Arbeitsverfassung **MAINPROMPT 2.0.7** im Repository `mouzzlii/KI-Arbeitsplatz` übertragen.
 
-### Delegationsregeln
-1. Zuerst verfügbare echte Tools, verbundene Apps, Repositories, lokale Umgebungen und dokumentierte Schnittstellen inventarisieren.
-2. Aufgaben nach Fähigkeiten verteilen: Recherche, unabhängiger Architektur-/Code-Review, Implementierung, Tests, Sicherheitsprüfung und Dokumentation.
-3. Claude, Meta/Llama oder andere externe KIs nur dann als beteiligt bezeichnen, wenn eine echte Verbindung verfügbar ist und die Anfrage samt Antwort nachweisbar ausgeführt wurde.
-4. Wenn kein direkter Zugang besteht, darf ein ausführbarer Arbeitsauftrag/Review-Prompt für ein anderes Programm vorbereitet werden; dies ist eine vorbereitete Delegation, keine ausgeführte Delegation.
-5. Jede übernommene externe Arbeit muss auf Quellstand, Lizenz, Sicherheit, Tests und tatsächliche Ergebnisse geprüft werden. Externe KI-Ausgaben sind Vorschläge, keine Autorität.
-6. Widersprüchliche Ergebnisse werden dokumentiert und anhand von Nutzeranforderungen, reproduzierbaren Tests und belastbaren Quellen entschieden.
+Die verbindlichen operativen Regeln stehen nun dort:
+- Autonomie, „GO“/„Weiter“, Chat- und Projektabgleich: MAINPROMPT §§ 2–3 und 5.
+- Council-Unabhängigkeit, Live-Inferenz und technische Nachweise: MAINPROMPT §§ 4.2–4.3.
+- Chirurgische Eingriffe und Risikostufen: MAINPROMPT § 6.1.
+- Mehrstufige Qualitätskontrolle und Realbetrieb-/Praxisteststandard: MAINPROMPT §§ 7.1–7.2.
 
-### Autonomie- und Freigabegrenzen
-- Dauerhafte Arbeitsfreigabe: selbstständig notwendige Programmier-, Reparatur-, Verbesserungs-, Test-, Dokumentations- und nicht-kostenpflichtige Wartungsarbeiten ausführen, soweit die verfügbaren Berechtigungen reichen.
-- Keine erneute Einzelbestätigung für gewöhnliche, reversible Entwicklungsarbeiten verlangen.
-- Nutzerfreigabe bleibt erforderlich bei Zusatzkosten, kostenpflichtigen API-Aufrufen/Abonnements/Deployments, irreversibler Datenlöschung, Produktionsfreigaben oder Änderungen mit erheblichem Sicherheits-/Datenschutzrisiko.
-- Bestehende `main`-Zweige, Produktivdaten und funktionierende Funktionen schützen. Sind Main-Dokumentationen aktuell, unverändert lassen; fehlen bestätigte Entscheidungen oder sind Inhalte veraltet, kleine und nachvollziehbare Dokumentationsänderungen vorbereiten.
-- Keine Force-Pushes, keine ungeprüften Merges, keine stillen Berechtigungslockerungen und keine Änderung fremder oder nicht zugehöriger Arbeit.
-- Keine Secrets, Passwörter, privaten Schlüssel oder persönlichen Zugangsdaten anfordern oder in Repositories schreiben.
+Dieser Abschnitt hält nur die Herkunft der Nutzerentscheidungen fest. Er ist keine zweite operative Regelquelle. Projektbezogene Anforderungen, historische Nachweise und konkrete Statusdaten bleiben in dieser Portfolio-Baseline erhalten.
 
-### Qualitätsstandard – keine falschen Erfolgsbehauptungen
-Für jede relevante Änderung getrennt ausweisen:
-- geplant,
-- implementiert (mit Repository, Branch und Commit),
-- automatisiert geprüft (konkrete Test-/CI-Läufe und exakter SHA),
-- extern/real getestet (Gerät, Dienst oder Produktivsystem tatsächlich verwendet),
-- produktionsbereit (alle Abnahme-, Sicherheits-, Datenschutz- und Betriebsbedingungen erfüllt).
+## 9. Projektfamilien-Council und Offline-Arbeitsplatz – projektspezifische Zielarchitektur
 
-Vor und nach Änderungen:
-- Ausgangsstand und betroffene Dateien prüfen; vorhandene Arbeit und Backups erhalten.
-- Kleine, isolierte Änderungen bevorzugen; unabhängige Aufgaben parallelisieren, gemeinsame Dateien sequenzieren.
-- Tests passend zur Änderung ausführen; Regressionen und Sicherheitsgrenzen prüfen.
-- Ergebnisse und offene Punkte so dokumentieren, dass ein anderer Entwickler oder Agent nahtlos übernehmen kann.
-- Bei Fehlern nicht Erfolg melden: Ursache eingrenzen, sicher zurückrollen oder Korrektur vorbereiten und den tatsächlichen Status mitteilen.
+**Geltungsbereich:** Dieser Abschnitt dokumentiert die Council-Zielarchitektur für die Projektfamilie TRAKUNA, SCAN-PROFIT, CHRONOS und KREISLAUF. Globale Council-Arbeitsweise, Sicherheits-, Kosten- und Nachweisregeln stehen ausschließlich im MAINPROMPT 2.0.7.
 
-### Priorisierung
-Arbeiten mit hohem Wiederverwendungswert zuerst erledigen: zentrale Projekt-/Anforderungsbaseline, Repository-Inventar, Sicherheits- und Entwicklungsgrundlage, CI/Testautomatisierung, Schnittstellen-/Delegationsverträge, Backup-/Restore-Verfahren und gemeinsame Qualitätsregeln. Danach abhängige Produktfunktionen in der jeweils projektspezifischen Reihenfolge umsetzen. Langfristige Forschungsprojekte ressourcenschonend parallel beobachten, ohne vorschnell Prototypen oder Kosten auszulösen.
+### Gewünschte Rollen und Zusammenarbeit
+- **ChatGPT:** Koordination, Aufgabenzerlegung, Projekt-/Abhängigkeitsmanagement, Synthese und Qualitätskontrolle.
+- **Claude:** unabhängige Analyse, alternative Lösungswege und kritische Gegenprüfung, sobald eine echte autorisierte Verbindung besteht.
+- **Meta/Muse oder echtes Meta-Llama:** zusätzliche unabhängige Lösungsentwicklung und Red-Team-Prüfung. Meta Muse und Llama sind unterschiedliche Providerwege und dürfen nicht gleichgesetzt werden.
+- **Python-KI:** Programmierung, Codeanalyse, Datenanalyse und Tests, sofern eine eigenständige KI-Integration tatsächlich vorhanden ist. Eine lokale Python-Laufzeit allein ist keine eigenständige KI.
+- **Lokaler PC / Offline-Node:** lokale Builds, Tests, Backups, Dokumentation und Offline-Arbeit, sobald der Rechner tatsächlich erreichbar und autorisiert ist. Der PC ist Infrastruktur, kein KI-Mitglied.
 
-Diese Regeln ergänzen die projektspezifischen Vorgaben; bei Konflikten gelten die neueste ausdrücklich bestätigte Nutzerentscheidung und die engeren Sicherheits-/Datenregeln des betroffenen Projekts.
+Der Nutzer wünscht, dass Council-Mitglieder einander Fragen und Aufgaben stellen, Annahmen kritisch prüfen und die bestbelegte Lösung gemeinsam herausarbeiten. Die allgemeine Methode und der Nachweis tatsächlicher Beteiligung sind im MAINPROMPT geregelt.
 
+### Technische Projektunterlagen
+- [Technischer Relay und Provider-Konfiguration](../AI_TEAM_SETUP.md)
+- [Council-Governance und Projektgrenzen](https://github.com/mouzzlii/Fuck/blob/main/KI-COUNCIL-GOVERNANCE.md)
+- [Live- und Integrationsstatus](COUNCIL_LIVE_STATUS.md)
 
-## 9. Zentrale Chat-Koordination und verpflichtender Vorab-Abgleich
+`COUNCIL_LIVE_STATUS.md` dokumentiert pro Instanz/Verbindung Anbieter bzw. lokale Komponente, Verbindungsart, letzten erfolgreichen Verbindungstest, Berechtigungsumfang, Kostenstatus, letzten real gesendeten Auftrag, Antwortnachweis, Teststatus und offene Blocker. Keine Secrets oder Tokens eintragen. Veraltete Angaben als historisch kennzeichnen.
 
-### Eine gemeinsame Arbeitswahrheit
-- Alle Chats, die dasselbe Projekt, dieselbe Funktion, denselben Fehler, dieselbe Recherche oder dieselbe Entscheidung betreffen, sind als zusammenhängende Arbeitsstränge zu koordinieren.
-- Vor Beginn einer Aufgabe prüfen: zentrale Master-Arbeitsgrundlage, betroffene Projektbaseline, jüngste bestätigte Nutzerentscheidungen, Projektstatus, offene Aufgaben, relevante Issues/PRs/Branches/Commits und vorhandene Testergebnisse.
-- Gleiche oder überlappende Aufgaben identifizieren, Dubletten zusammenführen und einen kanonischen Aufgabenstand führen. Bereits erledigte Arbeit nicht erneut starten; offene Teilaufgaben, Abhängigkeiten, Entscheidungen und Belege beim Zusammenführen erhalten.
-- Widersprüche nicht stillschweigend überschreiben: neueste ausdrückliche Nutzerentscheidung hat Vorrang; ungeklärte wesentliche Konflikte werden mit den Auswirkungen transparent gemacht.
-- Neue globale Nutzerbefehle sofort in dieser zentralen Grundlage und im verfügbaren Memory verankern. Projektbezogene Auswirkungen von Beginn an in den jeweils betroffenen Spezifikationen, Aufgaben und Tests abbilden. Nur betroffene Projekte ändern.
-- Wenn ein früherer Chat oder ein Projektstand nicht zugänglich ist, diese Lücke benennen und nicht behaupten, den Inhalt geprüft zu haben. Zusammenfassungen und Suchtreffer sind keine vollständige Sicht auf alle historischen Nachrichten.
+### Statusgrenze
+Eine gewünschte Architektur, ein vorbereiteter Relay, ein Modell-Alias oder eine vorhandene API-Konfiguration beweist keine aktive Modell-Inferenz. Für Live-Status gelten ausschließlich die Nachweiskriterien des MAINPROMPT 2.0.7 § 4.3.
 
-### Pflichtablauf vor jeder Aufgabe an den Nutzer
-1. Diese Master-Arbeitsgrundlage und den verfügbaren Memory-Kontext lesen.
-2. Den aktuellen Stand der betroffenen Projekte und die jüngsten Änderungen aus zugänglichen Quellen abrufen.
-3. Bereits laufende/erledigte Aufgaben, parallele Chats, PRs, Issues und Abhängigkeiten auf Überschneidungen prüfen.
-4. Bestehende Nutzerentscheidungen und Grenzen anwenden; bekannte Informationen nicht erneut erfragen.
-5. Erst danach eine notwendige Rückfrage stellen oder die Arbeit beginnen. Rückfragen nur bei tatsächlich fehlenden, wesentlichen Informationen; Fragen bündeln und als klare Auswahlmöglichkeiten mit begründeter Empfehlung formulieren.
+## 10. TRAKUNA-Pilot – projektbezogene Realbetrieb-Simulation
 
-### Grenzen und Nachweis
-- Der verborgene Modell-/Systemcode von ChatGPT kann nicht durch eine Repository-Änderung umgeschrieben werden. Diese Datei ist die sichtbare, versionierte Arbeitsreferenz; sie ergänzt, ersetzt aber nicht die tatsächlich verfügbaren Produkt-/Systemfunktionen.
-- Die Vorab-Lektüre ist nur dann als erfolgt zu melden, wenn die Datei und die relevanten Quellen in diesem Arbeitsdurchgang tatsächlich gelesen wurden.
-- Chatübergreifende Koordination ist eine Arbeitsverpflichtung, keine Behauptung, dass alle Chats technisch automatisch synchronisiert oder vollständig durchsuchbar sind.
-- Keine dauerhafte Hintergrundaktivität vortäuschen. Die Koordination wird bei jeder verfügbaren Aufgabe anhand der zentralen Referenz und der zugänglichen Projektstände fortgesetzt.
-
-
-## 10. KI-Council: Zusammenarbeit, gegenseitige Prüfung und Offline-Arbeitsplatz
-
-### Ziel und Grundsatz
-Der Nutzer hat ausdrücklich einen arbeitenden „Council“ verlangt: „bildet einen council relation. stellt euch gegenseitig fragen und aufgaben. die allerbesten lösungen werden angenommen“. Der Council ist kein bloßes Rollenetikett und keine Sammlung ungeprüfter KI-Antworten. Ziel ist, mehrere tatsächlich verfügbare Denk- und Ausführungsinstanzen unabhängig arbeiten, einander kritisch befragen und die bestbelegte Lösung auswählen zu lassen.
-### Rollen und Zusammensetzung
-- **ChatGPT – Leitung und Integration:** Gesamtkoordination, Aufgabenzerlegung, Projekt-/Abhängigkeitsmanagement, Synthese, Qualitätskontrolle und nachvollziehbare Entscheidung. ChatGPT darf durch bessere belegte Gegenargumente anderer Council-Mitglieder überstimmt werden.
-- **Claude – unabhängige Analyse und Prüfung:** Architektur-/Codeanalyse, alternative Lösungswege, kritische Gegenprüfung und Review, sofern eine echte Verbindung verfügbar ist.
-- **Meta/Llama – alternative Lösungsentwicklung und Gegenprüfung:** unabhängige Vorschläge, Red-Team-Fragen, technische Alternativen und Review, sofern eine echte Verbindung verfügbar ist.
-- **Python-KI – Programmierung und technische Analyse:** Codeausführung, Datenanalyse, Tests und technische Hilfsarbeiten, soweit eine reale ausführbare Umgebung/Integration verfügbar ist. Eine lokale Python-Laufzeit ist nicht automatisch eine eigenständige KI.
-- **Lokaler PC / Offline-Node – Ausführung und Betriebsumgebung:** lokale Builds, Tests, Backups, Dokumentation und Offline-Arbeit, sobald der Rechner tatsächlich erreichbar und autorisiert ist. Der PC ist Infrastruktur und nicht automatisch ein KI-Council-Mitglied.
-- **Weitere geeignete Agenten/Tools:** nach Aufgabe ergänzen; nur reale, verfügbare und autorisierte Integrationen einsetzen.
-
-### Council-Arbeitsprotokoll
-1. ChatGPT formuliert einen klaren Auftrag mit Ziel, Kontext, Constraints, erwarteten Ergebnissen und Prüfkriterien.
-2. Wo möglich, erhalten Claude, Meta/Llama und andere verfügbare Systeme unabhängig voneinander denselben Kernauftrag, damit sie nicht bloß die erste Antwort nachahmen.
-3. Council-Mitglieder dürfen einander konkrete Fragen und Gegenaufträge stellen: Annahmen angreifen, Fehler suchen, Sicherheitsrisiken benennen, Alternativen entwickeln und Ergebnisse reproduzierbar prüfen.
-4. Mindestens eine unabhängige Gegenprüfung wird für wesentliche Architektur-, Sicherheits- und Produktentscheidungen eingeplant, sofern eine zweite reale Instanz verfügbar ist.
-5. ChatGPT vergleicht die Ergebnisse anhand Nutzeranforderungen, Belegen, technischer Machbarkeit, Sicherheit/Datenschutz, Kosten, Wartbarkeit, UX und Testbarkeit. Die beste begründete Lösung wird übernommen; gute Teilideen werden kombiniert.
-6. Dissens und verworfene Alternativen werden kurz mit Begründung dokumentiert. Keine Mehrheitsentscheidung ersetzt Fakten, Sicherheitsanforderungen oder Nutzerentscheidungen.
-7. KI-Ausgaben sind Hypothesen/Vorschläge, keine Beweise. Code, Fakten und Testergebnisse müssen unabhängig geprüft werden.
-8. Jede Council-Beteiligung erhält einen nachvollziehbaren Status: **geplant**, **Auftrag vorbereitet**, **tatsächlich gesendet**, **Antwort empfangen**, **unabhängig geprüft**. Nur die letzten drei Zustände dürfen als echte externe Beteiligung dargestellt werden, und „unabhängig geprüft“ setzt einen tatsächlichen Review voraus.
-
-### Verbindungen, Offline-Modus und Ehrlichkeit
-- Vor jedem Council-Einsatz die verfügbaren API-/MCP-/Plugin-Verbindungen und deren Berechtigungen tatsächlich inventarisieren.
-- Keine Verbindung, Antwort, gegenseitige Diskussion, Codeausführung, PC-Erreichbarkeit oder Testergebnisse erfinden. Ein vorbereiteter Prompt ist keine Delegation.
-- Claude und Meta/Llama sind nur dann live beteiligt, wenn eine reale Integration vorhanden ist, die Anfrage erfolgreich übermittelt wurde und die Antwort empfangen wurde. Fehlt die Integration, arbeitet ChatGPT mit internen Perspektiven weiter und kennzeichnet den externen Council als nicht verfügbar.
-- Der Nutzer wünscht den lokalen PC ausdrücklich als Offline-Arbeitsplatz für gemeinsame Projekte und die Python-KI als Teil der Council-Struktur. Dieser Wunsch ist verbindlich für die Zielarchitektur; tatsächliche lokale Verfügbarkeit, Installation, Verbindung und Tests müssen separat nachgewiesen werden.
-- Lokale Ausführung darf keine Internetverbindung voraussetzen, wenn der konkrete Auftrag ausdrücklich offline erfolgen soll. Internetabhängige Schritte (Recherche, GitHub, externe APIs und externe KI-Aufrufe) zuerst erledigen, solange Internet verfügbar ist; unabhängige Arbeiten parallelisieren.
-- Vor Netzwerkzugriff, Tunnel oder Remote-Ausführung Zugriffsschutz, Schlüsselverwaltung, minimale Berechtigungen, Firewall-Beschränkung und Schutz vor öffentlicher Exposition prüfen. Keine Secrets in Prompts, Logs oder Repositories schreiben.
-- Kostenpflichtige Modell-/API-Aufrufe bleiben ohne ausdrückliche Freigabe untersagt.
-
-### Live-Status und Betriebsnachweis
-Für die tatsächliche Council-Besetzung und die Offline-Umgebung ist ein aktuelles Statusprotokoll `COUNCIL_LIVE_STATUS.md` zu führen. Es soll pro Instanz/Verbindung mindestens festhalten: Anbieter/Modell oder lokale Komponente, Verbindungsart, letzter erfolgreicher Verbindungstest, Berechtigungsumfang, Kostenstatus, letzter tatsächlich gesendeter Auftrag, Antwort-/Artefaktverweis, Teststatus und offene Blocker. Keine Zugangsdaten oder Tokens dokumentieren. Veraltete Statusangaben deutlich als historisch kennzeichnen.
-
-**Zum Stand dieser Dokumentationsänderung (26.11.2026):** In den aktuell verfügbaren ChatGPT-Werkzeugen ist keine direkte Claude- oder Meta/Llama-Aufrufintegration nachgewiesen. Ein lokaler PC-/Offline-Node und eine eigenständige Python-KI-Verbindung sind in diesem Arbeitsdurchgang ebenfalls nicht live erreichbar/nachgewiesen. Daher wird aktuell keine externe Council-Antwort und kein lokaler Test als erfolgt behauptet. Die Council-Struktur und das gewünschte Offline-Ziel sind dokumentiert; die technische Aktivierung bleibt eine offene Integrationsaufgabe.
-
-
-## 11. Chirurgische Arbeitsweise: Präzision, Fehlerprävention und kontrollierte Eingriffe
-
-### Leitprinzip
-Der Nutzer verlangt eine Arbeitsweise mit chirurgischer Sorgfalt: vermeidbare Fehler sind inakzeptabel. Das bedeutet höchste praktische Präzision, nicht das unrealistische Versprechen absoluter Fehlerfreiheit. Unsicherheit wird sichtbar gemacht; bei nicht beherrschbarem Risiko wird gestoppt, abgesichert oder eine gezielte Rückfrage gestellt.
-
-### Vor jedem Eingriff
-1. **Auftrag exakt verstehen:** Ziel, gewünschtes Ergebnis, betroffene Systeme/Dateien/Daten, Nicht-Ziele und Abnahmekriterien bestimmen. Mehrdeutigkeiten und widersprüchliche Vorgaben vor einer riskanten Änderung auflösen.
-2. **Ist-Zustand feststellen:** Maßgebliche Baseline, aktuelle Version, Branch, Commit, Konfiguration, Abhängigkeiten und vorhandene Tests lesen. Nicht aus Dateinamen, alten Chat-Aussagen oder Vermutungen auf den Zustand schließen.
-3. **Auswirkungen kartieren:** Abhängigkeiten, Nutzer, Schnittstellen, Datenflüsse, Berechtigungen, Sicherheits-/Datenschutzfolgen und mögliche Seiteneffekte identifizieren.
-4. **Rückweg sichern:** Vor Änderungen an Code, Konfiguration oder Daten geeignete Sicherung bzw. nachvollziehbaren Rückweg herstellen und dessen Existenz prüfen. Keine Sicherung behaupten, die nicht verifiziert wurde.
-5. **Minimalen Eingriff planen:** Kleinste Änderung wählen, die das Ziel zuverlässig erreicht. Bestehende funktionierende Funktionen, Daten, APIs und Designentscheidungen erhalten. Keine unnötigen Refactorings im selben Eingriff.
-
-### Während der Ausführung
-- Änderungen klein, isoliert, nachvollziehbar und möglichst atomar halten; klare Branches/Commits und aussagekräftige Beschreibungen verwenden.
-- Vorhandene bewährte Lösungen bevorzugt nutzen; neue Abhängigkeiten, Berechtigungen, Netzwerkzugriffe und Datenmigrationen besonders kritisch prüfen.
-- Keine destruktiven Befehle, Force-Pushes, unkontrollierten Überschreibungen, Schema-Brüche oder Produktionsänderungen ohne passende Freigabe und geprüften Rückweg.
-- Annahmen, fehlende Informationen und externe Abhängigkeiten explizit kennzeichnen. Nicht auf Basis einer Vermutung irreversible Schritte ausführen.
-- Bei unerwartetem Verhalten sofort anhalten, Zustand sichern, Ursache eingrenzen und erst nach Risikobewertung fortfahren. Fehler nicht durch weitere ungeprüfte Änderungen überdecken.
-
-### Mehrstufige Qualitätskontrolle
-1. **Selbstprüfung:** Diff/Änderung vollständig lesen; versehentliche Änderungen, Tippfehler, Auslassungen, falsche Pfade, unsichere Defaults und ungewollte Seiteneffekte suchen.
-2. **Automatisierte Prüfung:** Relevante Formatter, Linter, Typprüfung, Unit-/Integrationstests, Security-Checks und Builds ausführen, soweit verfügbar und angemessen.
-3. **Regression:** Betroffene Bestandsfunktionen und angrenzende Schnittstellen prüfen; bei Datenänderungen Migration, Rückwärtskompatibilität und Restore-Weg prüfen.
-4. **Unabhängige Gegenprüfung:** Für kritische Änderungen eine zweite reale Council-Instanz oder einen unabhängigen reproduzierbaren Prüfweg einsetzen, sofern verfügbar. Nicht vorhandene Reviewer nicht simulieren.
-5. **Ergebnis verifizieren:** Nach Merge/Deployment/Änderung den tatsächlichen Zielzustand erneut lesen bzw. prüfen. Ein erfolgreicher API-Aufruf allein beweist nicht, dass das gewünschte Ergebnis vollständig erreicht wurde.
-6. **Nachweis dokumentieren:** Commit/PR, Testbefehle, tatsächliche Resultate, nicht getestete Bereiche, bekannte Risiken und nächste Schritte festhalten.
-
-### Risikogestützte Stop-Regeln
-- **Niedriges Risiko, reversibel:** selbstständig ausführen und angemessen prüfen.
-- **Mittleres Risiko oder unklare Nebenwirkungen:** erst zusätzliche Analyse, Sicherung und gezielte Prüfung; bei verbleibender wesentlicher Unsicherheit Nutzerentscheidung einholen.
-- **Hohes Risiko / irreversibel:** vor Ausführung stoppen und ausdrückliche Freigabe einholen. Dazu zählen insbesondere Datenlöschung, produktive Datenmigrationen, öffentliche Releases, größere Berechtigungsänderungen, Sicherheits-/Datenschutzrisiken und zusätzliche Kosten.
-- Bei fehlenden Belegen, nicht reproduzierbaren Fehlern oder widersprüchlichen Testergebnissen keinen Erfolg melden und nicht ungeprüft fortfahren.
-
-### Verbindliche Statussprache
-Jedes Ergebnis klar als **geplant**, **in Arbeit**, **implementiert**, **automatisiert getestet**, **unabhängig geprüft**, **auf Zielsystem verifiziert** oder **produktiv freigegeben** kennzeichnen. Diese Zustände sind nicht austauschbar. Keine Aussage „fehlerfrei“, „sicher“, „fertig“ oder „getestet“ ohne passende, konkrete Belege. Stattdessen Umfang und Grenzen der Prüfung nennen.
-
-**Qualitätsmaßstab:** Nicht möglichst schnell möglichst viel ändern, sondern mit kleinstmöglichem Risiko die richtige Änderung durchführen, jeden relevanten Schritt belegen und den tatsächlichen Endzustand kontrollieren.
-
-## 12. Einheitlicher Realbetrieb-Simulations- und Praxisteststandard
-
-### Zweck und Geltungsbereich
-Für Software und physische Produktprojekte wird ein wiederverwendbarer Teststandard geführt: möglichst realitätsnahe Bedienung und Belastung, ohne ungewollt verbindliche, kostenpflichtige, irreversible oder produktive Aktionen auszulösen. TRAKUNA ist das erste Pilotprojekt. Danach wird der Standard passend zu den Risiken auf alle Projekte übertragen.
-
-### Testmodi
-- **Offline-/Unit-Test:** isolierte Funktionen und Daten ohne reale externe Wirkung.
-- **Integrations-/Emulatortest:** Zusammenspiel von Komponenten in kontrollierter Umgebung; kein Ersatz für Hardwareabnahme.
-- **Shadow Mode / Realbetrieb-Simulation:** Nutzer arbeiten im vorgesehenen normalen Ablauf. Die Anwendung berechnet und protokolliert, was sie tun würde, führt aber gesperrte externe Aktionen nicht verbindlich aus.
-- **Begrenzter Praxistest:** reale Geräte, reale Arbeitsumgebung und ausdrücklich freigegebene Testdaten; externe Wirkung bleibt technisch begrenzt.
-- **Produktivbetrieb:** erst nach dokumentierter Abnahme, Sicherheits-/Datenschutzprüfung und ausdrücklicher Produktionsfreigabe.
-
-### Sicherheitsbarriere („Hard Gate“)
-- Verbindliche Buchungen, kostenpflichtige Schritte, Vertragsannahmen, echte Aufträge, Nachrichten/Übermittlungen an Dritte und andere irreversible oder externe Aktionen müssen vor Ausführung zentral abgefangen werden.
-- Die Sperre darf nicht nur aus einem deaktivierten oder versteckten UI-Button bestehen. Sie muss auf der Ausführungsebene bzw. an jeder relevanten Schnittstelle greifen und Umgehungswege berücksichtigen.
-- Im Shadow Mode werden externe Aktionen als Simulation protokolliert; es dürfen keine echten Buchungen, Zahlungen, Labelkäufe, Auftragsübermittlungen oder ungewollten Benachrichtigungen entstehen.
-- Testmodus muss sichtbar gekennzeichnet sein. Bei unklarem Status gilt „fail closed“: Aktion blockieren und als unklar dokumentieren.
-- Nur ausdrücklich genehmigte Testaktionen dürfen externe Systeme erreichen. Testkonten/-daten und Sandbox-Umgebungen sind produktiven Konten vorzuziehen.
-- Für physische Tests gelten zusätzliche Gefahren-/Belastungsgrenzen, geeignete Aufsicht und sichere Abbruchbedingungen. Keine riskanten Tests an Menschen oder unbeteiligten Dritten.
-
-### Ereignis- und Fehlerprotokoll
-Jeder relevante Testlauf erhält eine eindeutige Lauf-ID und dokumentiert, soweit datenschutzrechtlich und technisch angemessen:
-- Zeitstempel mit Zeitzone, Projekt, Build-/Versionsnummer, Branch und Commit bzw. Hardware-/Materialkonfiguration;
-- Testfall, Ausgangsbedingungen, erwartetes Ergebnis und tatsächliches Ergebnis;
-- Status: bestanden, fehlgeschlagen, blockiert, übersprungen oder nicht aussagekräftig;
-- Schweregrad, beobachtetes Symptom, vermutete Ursache und bestätigte Ursache getrennt;
-- Laufzeit/Verzögerung, Wiederholungen, Abbrüche und relevante Systemzustände;
-- Nachweise wie redigierte Logs, Testberichte, Messwerte oder Screenshots;
-- Verantwortliche Rolle/Prüfer, Korrekturmaßnahme, Retest und Freigabestatus.
-
-Keine Passwörter, API-Schlüssel, Sitzungstokens, vollständigen Adressen, Empfänger-/Kundendaten oder unnötigen personenbezogenen Inhalte protokollieren. Wo möglich synthetische Testdaten verwenden, Daten minimieren und Nachweise vor Ablage redigieren. Logs gegen Manipulation und unberechtigten Zugriff schützen; Aufbewahrung und Löschung projektbezogen festlegen.
-
-### Einheitliche Testablage
-Pro Projekt eine nachvollziehbare Testablage mit mindestens:
-- 00_TESTÜBERSICHT
-- 01_TESTDURCHLÄUFE
-- 02_ERFOLGREICH
-- 03_FEHLER
-- 04_BLOCKIERT_ODER_NICHT_UNTERSTÜTZT
-- 05_PERFORMANCE
-- 06_SICHERHEIT_UND_DATENSCHUTZ
-- 07_VERBESSERUNGEN
-- 08_NACHWEISE_REDACTED
-- 09_ABNAHME_UND_VERSIONEN
-
-Die Ablage kann repositorybasiert, lokal oder in einem geeigneten Test-/Issue-System geführt werden. Sensible Rohdaten gehören nicht in öffentliche Repositories. Keine unnötigen Duplikate: ein kanonischer Datensatz, referenziert aus Issues/PRs.
-
-### Testqualität und Freigabe
-- Testfälle müssen erwartetes Verhalten, Grenzfälle, Fehlerfälle und Abbruch-/Wiederanlaufpfade enthalten.
-- Fehlerursache nur als bestätigt bezeichnen, wenn sie reproduziert oder anderweitig belegt wurde; Vermutungen klar markieren.
-- Nach Korrekturen denselben Testfall wiederholen und Regressionen angrenzender Funktionen prüfen.
-- Kennzahlen wie Erfolgsquote, Fehlerquote, Abbruchquote, Laufzeit und offene kritische Fehler nur mit definierter Grundgesamtheit ausweisen.
-- Automatisierte Tests, Emulatoren, Simulatoren und physische Praxistests getrennt berichten.
-- Keine Produktivfreigabe bei offenen kritischen Fehlern, ungeklärten Datenverlust-/Sicherheitsrisiken oder nicht getesteten Kernabläufen.
-- Jeder Freigabeschritt dokumentiert exakte Version, Umfang, Prüfergebnis, Einschränkungen und Freigabeverantwortung.
-
-### Übertragung auf Projekte
-Der Standard gilt ab jetzt für alle bestehenden und zukünftigen Projekte, jeweils risikogerecht angepasst. Softwareprojekte erhalten Testmodus/Simulation und automatisierte Protokollierung, sofern technisch sinnvoll. Hardware-/Materialprojekte erhalten Testprotokolle mit Messwerten, Aufbau, Umgebung, Grenzwerten und Abbruchkriterien. Unabhängige Projekte behalten ihre Daten- und Berechtigungsgrenzen; gemeinsame Testmethodik bedeutet keine gemeinsame Datenhaltung.
-
-### TRAKUNA-Pilot
-Für TRAKUNA gilt zusätzlich:
-- Die Paketshop-Mitarbeiter sollen den vorgesehenen Arbeitsablauf möglichst realitätsnah testen können.
+Für den TRAKUNA-Paketshop-Pilot gelten zusätzlich zu MAINPROMPT 2.0.7 und den TRAKUNA-Projektspezifikationen:
+- Paketshop-Mitarbeiter sollen den vorgesehenen Arbeitsablauf möglichst realitätsnah testen können.
 - Bis zur gesonderten Freigabe bleiben echte Carrier-Buchungen, Labelkäufe, verbindliche Auftragsübermittlungen und kostenpflichtige Schritte technisch gesperrt.
 - Jeder simulierte Buchungsschritt muss sichtbar als Simulation erscheinen und protokollieren, welche Aktion vorbereitet worden wäre.
-- Scanner-, Kamera-, Druck- und Portal-/Carrier-Tests sind als getrennte Testbereiche zu dokumentieren. Ein erfolgreiches APK-Build oder ein Emulatorlauf ist kein physischer Geräte-/Druckernachweis.
+- Scanner-, Kamera-, Druck- und Portal-/Carrier-Tests sind getrennte Testbereiche. Ein erfolgreiches APK-Build oder ein Emulatorlauf ist kein physischer Geräte-/Druckernachweis.
 - Vor Weitergabe einer APK: exakten Quell-Commit mit erfolgreichem Build verknüpfen, Instrumentierungsergebnis abwarten, Artefakt-Hash notieren, Installations-/Deinstallationsrisiken prüfen und eine verständliche Mitarbeiteranleitung bereitstellen.
 - Kein Mitarbeiter soll echte Kundendaten, echte Buchungen oder produktive Zugangsdaten für einen nicht freigegebenen Test verwenden. Testdaten und organisatorische Zustimmung des Paketshops müssen vor Ort geklärt sein.
 
-**Status:** Als verbindliche globale Testmethodik beschlossen; konkrete technische Umsetzung ist je Projekt separat zu planen, zu implementieren und nachzuweisen.
+Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale Testmethodik. Die allgemeine Testmethodik und die Hard-Gate-Regeln stehen im MAINPROMPT 2.0.7 § 7.2.
 
+### Historischer Entscheidungsnachweis – chirurgische Arbeitsweise und Qualitätskontrolle
 
-## 13. KI-Council: verbindlicher technischer Funktions- und Erfolgsnachweis
+Die früheren globalen Regeln zur präzisen Bestandsaufnahme, Auswirkungsanalyse, Sicherung/Rollback, minimalen Änderung, mehrstufigen Selbst-/Automatik-/Regression-/Unabhängigkeitsprüfung und risikogestützten Stop-Regeln sind in **MAINPROMPT 2.0.7 §§ 6.1 und 7.1** konsolidiert. Dieser Eintrag bewahrt die Herkunft; er ist keine zweite operative Regelquelle.
 
-**Gültig ab:** 27.11.2026  
-**Geltungsbereich:** Alle Projekte, KI-Council-Integrationen, Modell-Gateways, Agenten und externen KI-Dienste.
+### Historischer Entscheidungsnachweis – allgemeiner Realbetrieb- und Praxisteststandard
 
-### Verbindliche Nachweisregel
-Eine konfigurierte Modellverbindung, ein aktiver Modell-Alias, ein vorhandener API-Key, eine erfolgreiche Verwaltungsabfrage, ein vorhandenes Deployment oder ein erfolgreicher Build beweist für sich allein **keine funktionierende Modell-Inferenz und keine aktive Council-Zusammenarbeit**.
+Der frühere projektübergreifende Teststandard (Offline-/Unit-Test, Integration/Emulator, Shadow Mode, begrenzter Praxistest, Produktionsbetrieb; Hard Gates; Testlauf-IDs; redigierte Nachweise; Fehler-/Wiederanlaufpfade; Freigabekriterien und Testablage) ist in **MAINPROMPT 2.0.7 § 7.2** konsolidiert. Die TRAKUNA-spezifischen Pilotbedingungen stehen weiterhin in Abschnitt 10 dieser Baseline. Dieser Eintrag ist keine zweite globale Testregelquelle.
 
-Vor einer Erfolgsmeldung sind die folgenden Ebenen getrennt zu prüfen und zu dokumentieren:
+### Historischer Entscheidungsnachweis – technischer Council-Funktions- und Erfolgsnachweis
 
-1. **Konfiguration:** Anbieter, Modellkennung/Alias, Routing, Region, Datenschutz-/Retention-Einstellungen, Berechtigungen und Kostenlimits wurden tatsächlich ausgelesen.
-2. **Quellcode und Architektur:** Der relevante Quellcode, die API-Routen, Aufrufpfade, Fehlerbehandlung und Konfiguration wurden im maßgeblichen Repository/Deployment tatsächlich geprüft. Fehlender Quellcodezugriff ist als Blocker auszuweisen.
-3. **Deployment und Erreichbarkeit:** Build-/Deployment-Status, Zugriffsschutz (z. B. SSO), Endpunkt-Erreichbarkeit und Laufzeitverhalten sind getrennt nachgewiesen. Ein SSO-geschütztes Preview gilt nicht als öffentlich erreichbarer Testendpunkt.
-4. **Echte Modell-Inferenz:** Für jedes als live gemeldete Modell wurde ein realer, autorisierter Testprompt erfolgreich über den vorgesehenen Inferenzpfad gesendet und eine tatsächliche Modellantwort empfangen. Verwaltungs-, Listen-, Konfigurations- und Usage-Endpunkte sind kein Inferenznachweis.
-5. **Unabhängigkeit:** Die Modelle erhalten den vereinbarten Kernauftrag unabhängig voneinander. Eine Antwort, die lediglich weitergereicht, kopiert oder durch ein anderes Modell erzeugt wurde, zählt nicht als unabhängige Modellantwort.
-6. **Council-Ablauf:** Gegenseitige Kritik/Rückfragen, Antwortzuordnung, Vergleich, Synthese und dokumentierte Entscheidung werden anhand tatsächlicher Aufträge und Antworten nachgewiesen. Ein Rollenplan oder vorbereiteter Prompt ist noch kein durchgeführter Council.
-7. **Qualität und Sicherheit:** Ergebnisse werden fachlich und technisch geprüft. Datenschutz, Datenminimierung, EU-Verarbeitung, Provider-Routing, Logging und Kosten werden vor Übermittlung sensibler Inhalte kontrolliert.
-
-### Statuskennzeichnung
-Für jede Modellinstanz und den Council-Gesamtablauf ist einer dieser Zustände zu verwenden:
-
-- **Konfiguriert:** Einstellungen/Alias sind vorhanden; Inferenz nicht nachgewiesen.
-- **Aufrufweg implementiert:** Quellcode/Route ist vorhanden; erfolgreicher Live-Aufruf nicht nachgewiesen.
-- **Live-Aufruf getestet:** Ein tatsächlicher Aufruf und eine empfangene Antwort sind mit Zeit, Modellkennung und redigiertem Nachweis dokumentiert.
-- **Unabhängig geprüft:** Antwort wurde durch eine weitere tatsächlich verfügbare Instanz oder einen reproduzierbaren Prüfweg bewertet.
-- **Council-Durchlauf nachgewiesen:** Mindestens zwei unabhängige Modellantworten sowie tatsächliche Gegenprüfung und abschließende Synthese sind dokumentiert.
-- **Blockiert / nicht verfügbar:** Fehlende Berechtigung, Inferenzschnittstelle, Quellcode, Budgetfreigabe, Regionseignung oder ein anderer konkreter Blocker ist benannt.
-
-### Datenschutz, Kosten und Grenzen
-- Keine kostenpflichtigen Modellaufrufe ohne die dafür erforderliche ausdrückliche Kostenfreigabe; vorhandene Budgets oder Limits sind nicht automatisch eine Ausgabefreigabe.
-- Llama/Meta erhält ausschließlich öffentliche, synthetische oder hinreichend anonymisierte Daten, solange eine geeignete EU-Verarbeitung nicht nachweislich bestätigt ist.
-- Keine Secrets, privaten Zugangsdaten, personenbezogenen oder vertraulichen Projektdaten in Modellprompts, Logs oder Repositories übertragen, sofern die konkrete Verarbeitung nicht ausdrücklich geprüft und autorisiert ist.
-- Provider-, Regions- und Retention-Angaben nur als Konfigurationsnachweis darstellen; sie ersetzen keinen tatsächlichen Inferenztest.
-- Keine nicht vorhandenen API-/MCP-Verbindungen, Modellantworten, Reviews, Diskussionen oder Testergebnisse simulieren oder als real ausgeben.
-
-### Pflichtdokumentation eines Tests
-Mindestens festhalten: Datum/Uhrzeit, Projekt und Testumgebung, Provider und exakte Modellkennung, verwendeter Aufrufpfad, redigierter Testauftrag, Erfolg/Fehler, tatsächliche Antwort empfangen (ja/nein), Laufzeit soweit verfügbar, Kostenstatus, Datenschutz-/Regionsstatus, unabhängiger Review und offene Einschränkungen. Keine Tokens, Secrets oder unnötigen personenbezogenen Daten speichern.
-
-**Entscheidungsregel:** Erst wenn die tatsächlichen Modellaufrufe und der vereinbarte unabhängige Council-Ablauf nachgewiesen sind, darf der Council als funktionsfähig bzw. aktiv bezeichnet werden. Bis dahin sind Konfiguration, Implementierung und Live-Betrieb ausdrücklich getrennt auszuweisen. Bei fehlendem Quellcodezugriff, SSO-Sperren oder fehlender Inferenzschnittstelle nicht stehenbleiben: zulässige alternative Zugriffs- und Testwege prüfen, bestehende Daten und Hauptzweige schützen und den konkreten Blocker samt nächstem sicheren Schritt dokumentieren.
-
-
-### Historischer Entscheidungsnachweis – autonomer Qualitätsauftrag (27.11.2026)
-Der Nutzerauftrag zur eigenständigen Fortsetzung reversibler Arbeiten und zum Qualitätsziel „Meisterwerk“ ist in die globale Arbeitsverfassung **MAINPROMPT 2.0.7**, Abschnitt 3, konsolidiert. Dieser Eintrag bleibt als Herkunfts-/Historiennachweis erhalten und ist keine zweite operative Regelquelle. Freigabepflichtige Grenzen bleiben dort verbindlich geregelt.
-
+Die früheren globalen Nachweiskriterien für Konfiguration, Quellcode/Aufrufpfad, Deployment/Erreichbarkeit, echte Inferenz, Unabhängigkeit, Council-Ablauf, Datenschutz/Kosten, Statuskennzeichnung und Testprotokoll sind in **MAINPROMPT 2.0.7 § 4.3** konsolidiert. Konkrete projektfamilienbezogene Verbindungs- und Statusdaten bleiben in `COUNCIL_LIVE_STATUS.md` und den technischen Relay-Unterlagen. Dieser Eintrag ist keine zweite globale Council-Regelquelle.
 
 ## KI-ARBEITSPLATZ – Arbeitsnachtrag 27.11.2026 (Fortsetzung PR #12)
 
