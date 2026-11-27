@@ -3,7 +3,11 @@ import { test } from "node:test";
 import {
   buildSafeProjectContext,
   buildSourceContext,
+  hasNonEmptySourceExcerpt,
   decodeSourceFile,
+  hasUsablePrimaryContext,
+  isPublicRepositoryMetadata,
+  resolveProjectBranch,
   MAX_SOURCE_CONTEXT_CHARS,
   MAX_SOURCE_FILE_CHARS,
   selectSourcePaths,
@@ -32,10 +36,155 @@ test("source selection prefers coordination, security and real application entry
   assert.equal(selected.some((path) => path.includes("node_modules")), false);
 });
 
+test("KI-Arbeitsplatz selects only its bounded roadmap and offline worker sources", () => {
+  const selected = selectSourcePaths([
+    "MASTERWERK-ROADMAP.md",
+    "Offline-Modus/Lib/Common.ps1",
+    "Offline-Modus/Lib/LocalAI.ps1",
+    "Offline-Modus/Worker.ps1",
+    ".env",
+    "Council/BUDGET-APPROVAL.json",
+  ], undefined, "KI-ARBEITSPLATZ");
+  assert.deepEqual(selected, [
+    "MASTERWERK-ROADMAP.md",
+    "Offline-Modus/Lib/Common.ps1",
+    "Offline-Modus/Lib/LocalAI.ps1",
+    "Offline-Modus/Worker.ps1",
+  ]);
+  assert.equal(selected.length, 4);
+});
+
+test("portfolio project allowlists take priority over generic shared paths", () => {
+  const inseratPaths = [
+    "public/sw.js", "package.json",
+    "src/app/studio.tsx", "src/app/api/ai/analyze/route.ts",
+    "src/app/api/ai/status/route.ts", "src/lib/listing-core.js",
+  ];
+  assert.deepEqual(selectSourcePaths(inseratPaths), [
+    "src/app/studio.tsx", "src/app/api/ai/analyze/route.ts",
+    "src/app/api/ai/status/route.ts", "src/lib/listing-core.js",
+  ]);
+
+  const bookYourCookPaths = [
+    "package.json", "src/lib/db.ts",
+    "book-your-cook-produkt/README-DE.md",
+    "book-your-cook-produkt/docs/TAX-PRICE-MODELL-UND-FREIGABE.md",
+    "book-your-cook-produkt/supabase/functions/_shared/pricing.js",
+    "book-your-cook-produkt/supabase/functions/stripe-webhook/index.ts",
+  ];
+  assert.deepEqual(selectSourcePaths(bookYourCookPaths), [
+    "book-your-cook-produkt/README-DE.md",
+    "book-your-cook-produkt/docs/TAX-PRICE-MODELL-UND-FREIGABE.md",
+    "book-your-cook-produkt/supabase/functions/_shared/pricing.js",
+    "book-your-cook-produkt/supabase/functions/stripe-webhook/index.ts",
+  ]);
+
+  assert.deepEqual(selectSourcePaths([
+    "package.json", "public/app.js", "Quiz_Neu_verbessert.html", "scripts/check-quiz.mjs",
+  ]), ["Quiz_Neu_verbessert.html", "scripts/check-quiz.mjs", "public/app.js", "package.json"]);
+});
+
+
+test("KI-Arbeitsplatz prefers its roadmap and offline worker sources", () => {
+  const paths = [
+    "docs/PROJECT-COORDINATION.md",
+    ".github/AI-COLLABORATION.md",
+    "AI_TEAM_SETUP.md",
+    "src/lib/db.ts",
+    "MASTERWERK-ROADMAP.md",
+    "Offline-Modus/Lib/Common.ps1",
+    "Offline-Modus/Lib/LocalAI.ps1",
+    "Offline-Modus/Worker.ps1",
+  ];
+  assert.deepEqual(
+    selectSourcePaths(paths, undefined, "KI-ARBEITSPLATZ"),
+    [
+      "MASTERWERK-ROADMAP.md",
+      "Offline-Modus/Lib/Common.ps1",
+      "Offline-Modus/Lib/LocalAI.ps1",
+      "Offline-Modus/Worker.ps1",
+    ],
+  );
+});
+
+test("project branch override is validated and defaults to the repository branch", () => {
+  assert.equal(resolveProjectBranch("main", ""), "main");
+  assert.equal(resolveProjectBranch("main", "release/offline-masterwerk-v0.2.1"), "release/offline-masterwerk-v0.2.1");
+  assert.throws(() => resolveProjectBranch("main", "../main"), /Unsafe project branch/);
+  assert.throws(() => resolveProjectBranch("main", "bad branch"), /Unsafe project branch/);
+  assert.throws(() => resolveProjectBranch("main", "release//main"), /Unsafe project branch/);
+});
+
+test("primary repository must itself provide a real source excerpt before Council calls", () => {
+  const valid = {
+    repository: "mouzzlii/KI-Arbeitsplatz",
+    branch: "release/offline-masterwerk-v0.2.1",
+    repositories: [{
+      repository: "mouzzlii/KI-Arbeitsplatz",
+      branch: "release/offline-masterwerk-v0.2.1",
+      visibility: "public",
+      hasSourceExcerpt: true,
+    }],
+    source: "#### Offline-Modus/Lib/LocalAI.ps1\\nfunction Test-Example { return $true }",
+  };
+  assert.equal(hasUsablePrimaryContext(valid), true);
+  assert.equal(isPublicRepositoryMetadata({ visibility: "public", private: false }), true);
+  for (const metadata of [{ visibility: "private", private: true }, { visibility: "internal", private: false }, { visibility: "public", private: true }, { private: false }, {}, null]) {
+    assert.equal(isPublicRepositoryMetadata(metadata), false);
+  }
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", visibility: "private", hasSourceExcerpt: true }],
+  }), false);
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", hasSourceExcerpt: true }],
+  }), false);
+
+  const secondaryOnly = {
+    ...valid,
+    repositories: [
+      { repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", visibility: "public", hasSourceExcerpt: false },
+      { repository: "mouzzlii/Fuck", branch: "main", visibility: "public", hasSourceExcerpt: true },
+    ],
+    // Secondary Android source may remain in the prompt but cannot satisfy
+    // the canonical gateway repository's own source prerequisite.
+    source: "#### mouzzlii/Fuck/app/src/main/java/MainActivity.kt\\nclass MainActivity",
+  };
+  assert.equal(hasUsablePrimaryContext(secondaryOnly), false);
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "main", hasSourceExcerpt: false }],
+  }), false);
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/KI-Arbeitsplatz", branch: "", hasSourceExcerpt: true }],
+  }), false);
+  assert.equal(hasUsablePrimaryContext({
+    ...valid,
+    repositories: [{ repository: "mouzzlii/Kreislauf", branch: "main", hasSourceExcerpt: true }],
+  }), false);
+  assert.equal(hasUsablePrimaryContext({ ...valid, repository: "" }), false);
+});
+
+test("source excerpt detection ignores empty file headings", () => {
+  assert.equal(hasNonEmptySourceExcerpt("#### repo/file.ts\nexport const ok = true;"), true);
+  assert.equal(hasNonEmptySourceExcerpt("#### repo/file.ts\n"), false);
+  assert.equal(hasNonEmptySourceExcerpt("  \n  "), false);
+  assert.equal(hasNonEmptySourceExcerpt(null), false);
+});
+
 test("sensitive tokens, inline secrets and private keys are redacted before context is built", () => {
   const hexSecret = "a".repeat(64);
   const stripeFake = ["sk", "live", "A".repeat(24)].join("_");
   const slackFake = ["xoxb", "1234567890", "A".repeat(20)].join("-");
+  const githubPatFake = `github_pat_${"A".repeat(40)}`;
+  const metaFake = `LLM_1234567890_${"B".repeat(24)}`;
+  const gitlabFake = `glpat-${"C".repeat(30)}`;
+  const huggingFaceFake = `hf_${"D".repeat(30)}`;
+  const npmFake = `npm_${"E".repeat(30)}`;
+  const supabaseFake = `sb_secret_${"F".repeat(30)}`;
+  const awsSessionFake = `ASIA${"G".repeat(16)}`;
   const sample = [
     'const OPENAI_API_KEY = "sk-abcdefghijklmnopqrstuvwxyz123456";',
     'const XAI_TOKEN = "xai-abcdefghijklmnopqrstuvwxyz123456";',
@@ -44,6 +193,13 @@ test("sensitive tokens, inline secrets and private keys are redacted before cont
     'const client_secret = "very-private-client-secret-value";',
     `const STRIPE_KEY = "${stripeFake}";`,
     `const SLACK_TOKEN = "${slackFake}";`,
+    githubPatFake,
+    metaFake,
+    gitlabFake,
+    huggingFaceFake,
+    npmFake,
+    supabaseFake,
+    awsSessionFake,
     `const PREVIEW_SHARED = "${hexSecret}";`,
     'Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signaturevalue";',
     "https://example.test/?access_token=very-private-token-value",
@@ -58,6 +214,13 @@ test("sensitive tokens, inline secrets and private keys are redacted before cont
     "very-private-client-secret-value",
     stripeFake,
     slackFake,
+    githubPatFake,
+    metaFake,
+    gitlabFake,
+    huggingFaceFake,
+    npmFake,
+    supabaseFake,
+    awsSessionFake,
     hexSecret,
     "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signaturevalue",
     "very-private-token-value",
