@@ -1,6 +1,6 @@
 # KI-Team-Relay – Einrichtung und Sicherheitsgrenzen
 
-Stand: 27.11.2026. Diese Datei beschreibt ausschließlich den aktiven Gateway-Relay. Die globale Arbeitsweise, Kosten- und Freigabegrenzen richten sich weiterhin nach [MAINPROMPT 2.0.7](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md); dieses Dokument ersetzt keine globale Projektvorgabe. Frühere direkte OpenAI-/Anthropic-/Meta-/Llama-Provider-Anleitungen sind entfernt, weil sie nicht mehr zum aktiven Workflow passen.
+Stand: 27.11.2026. Diese Datei beschreibt ausschließlich den aktiven Gateway-Relay. Die globale Arbeitsweise, Kosten- und Freigabegrenzen richten sich weiterhin nach [MAINPROMPT 2.0.8](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md); dieses Dokument ersetzt keine globale Projektvorgabe. Frühere direkte OpenAI-/Anthropic-/Meta-/Llama-Provider-Anleitungen sind entfernt, weil sie nicht mehr zum aktiven Workflow passen.
 
 ## Aktiver Vercel AI Gateway
 

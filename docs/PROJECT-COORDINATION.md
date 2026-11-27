@@ -2,11 +2,11 @@
 
 **Stand:** 27.11.2026
 
-Diese Datei ist die kurze operative Koordinationsseite für die Projektfamilie. Die globale Arbeitsverfassung ist ausschließlich [MAINPROMPT 2.0.7](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md). Die chatbasierte Projekt- und Entscheidungsreferenz liegt in [CHAT-PROJECT-BASELINE.md](CHAT-PROJECT-BASELINE.md); sie bündelt bestätigte Ziele, Repository-Zuordnungen, Statusgrenzen und offene Punkte. Die folgenden Regeln sind zusätzliche Projektfamilien-Vorgaben, keine zweite globale Arbeitsverfassung.
+Diese Datei ist die kurze operative Koordinationsseite für die Projektfamilie. Die globale Arbeitsverfassung ist ausschließlich [MAINPROMPT 2.0.8](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md). Die chatbasierte Projekt- und Entscheidungsreferenz liegt in [CHAT-PROJECT-BASELINE.md](CHAT-PROJECT-BASELINE.md); sie bündelt bestätigte Ziele, Repository-Zuordnungen, Statusgrenzen und offene Punkte. Die folgenden Regeln sind zusätzliche Projektfamilien-Vorgaben, keine zweite globale Arbeitsverfassung.
 
 ## Zusätzliche Projektfamilien-Regeln
 
-Die globale Arbeitsweise, GitHub-Schutzregeln, Kosten-/Freigabegrenzen, Sicherheits- und Teststatussprache stehen im MAINPROMPT 2.0.7. Für diese Projektfamilie gelten ergänzend:
+Die globale Arbeitsweise, GitHub-Schutzregeln, Kosten-/Freigabegrenzen, Sicherheits- und Teststatussprache stehen im MAINPROMPT 2.0.8. Für diese Projektfamilie gelten ergänzend:
 - Keine parallelen Änderungen an denselben Dateien ohne Abstimmung; TRAKUNA bearbeitet genau ein priorisiertes Ticket gleichzeitig.
 - KREISLAUF, Menschheitsfamilie, TRAKUNA, SCAN-PROFIT, INSERAT-PROFI AI und CHRONOS behalten getrennte Daten-, Berechtigungs- und Produktgrenzen.
 - Projektübergreifende Module erst nach eigenständigen Tests, Sicherheitsprüfung und belegtem Wiederverwendungsnutzen übernehmen.
@@ -37,10 +37,10 @@ Weitere Konzept- und Forschungsstränge (KRONOS 01, KREISLAUF ReFlex/VacMail, VR
 - **Integrationsstatus:** PR #38 bleibt Draft/ungemergt; gegenüber `main` divergiert (Merge-Base `71fb0e07740150be13d40b1aef10ba269fe264b8`); Ahead-/Behind-Zahlen ändern sich mit jedem Main-Commit und sind unmittelbar vor einer Konsolidierung neu zu prüfen. GitHub meldete zuletzt `mergeable=false`. Vercel-Preview wegen `build-rate-limit` fehlgeschlagen. Keine Integration ohne kontrollierte Konsolidierung und erneute Prüfung.
 - **Gateway-Konfiguration:** Fünf aktive Vercel-Aliase für GPT-5, Claude Sonnet 4.6, Gemini 3 Flash, Grok 4.7 und Llama 4 Maverick sind read-only bestätigt. Alle führen ZDR und No-Prompt-Training. Nur Claude ist explizit auf EU-Bedrock/Vertex-Routen beschränkt; Llama bleibt auf öffentliche, synthetische oder anonymisierte Daten begrenzt.
 - **Credentials:** `AI_GATEWAY_API_KEY` liegt im Vercel-Projekt nur für Preview/Development und wird nicht automatisch an GitHub Actions weitergereicht. Keine Secrets ausgelesen oder verändert.
-- **Kosten:** Gateway-Projektbudget 5 USD/Monat, zuletzt 0 USD Verbrauch und 0 Requests im Sieben-Tage-Fenster. Dieses Budget ist ein Soft Cap. MAINPROMPT 2.0.7 setzt Zusatzbudget weiterhin auf 0 EUR; keine kostenpflichtigen Inferenzaufrufe ohne ausdrückliche Freigabe und harte anwendungsseitige Kostenkontrolle.
+- **Kosten:** Gateway-Projektbudget 5 USD/Monat, zuletzt 0 USD Verbrauch und 0 Requests im Sieben-Tage-Fenster. Dieses Budget ist ein Soft Cap. MAINPROMPT 2.0.8 setzt Zusatzbudget weiterhin auf 0 EUR; keine kostenpflichtigen Inferenzaufrufe ohne ausdrückliche Freigabe und harte anwendungsseitige Kostenkontrolle.
 - **KI-Arbeitsplatz PR #12:** Lokale PWA-Mock-Workbench und isolierte serverseitige Orchestrierungs-/HTTP-Bausteine sind im Draft-Branch vorhanden. Aktueller Head `8498028a621126382e74044d5f586b028f4e18e1`, 18 geänderte Dateien; 106 Commits voraus und 38 zurück, `mergeable=false`. Quellstand: 22 Orchestrator- und 16 HTTP-Fälle, für den exakten Head ohne nachgewiesenen Actions-Lauf. `budget_settlement_failed` wird neu mit HTTP 503 behandelt. Vercel meldet `api-deployments-free-per-day` (>100 Deployments/24 h). Es fehlen persistente transaktionale Budget-/Recovery-/Usage-Dienste, eine deploybare Route, echte Auth-/CSRF-/Freigabe-/Audit-Dienste, Provideradapter und ChatGPT-Synthese.
 - **Status:** Keine echten Provider-Aufrufe, keine unabhängigen externen Modellantworten und kein nachgewiesener Council-Durchlauf. Keine Inferenzkosten, keine Budgetänderung.
-- **Nachweise:** [Council Live Status](COUNCIL_LIVE_STATUS.md), [Council Setup](../AI_TEAM_SETUP.md), [Projektbaseline](CHAT-PROJECT-BASELINE.md) und [MAINPROMPT 2.0.7](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md).
+- **Nachweise:** [Council Live Status](COUNCIL_LIVE_STATUS.md), [Council Setup](../AI_TEAM_SETUP.md), [Projektbaseline](CHAT-PROJECT-BASELINE.md) und [MAINPROMPT 2.0.8](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md).
 
 ## Abnahme-Gates
 
@@ -66,11 +66,11 @@ Weitere Konzept- und Forschungsstränge (KRONOS 01, KREISLAUF ReFlex/VacMail, VR
 Nie einen Status aus einem anderen ableiten.
 
 
-## Aktualisierung: Council-Relay auf aktuellem Mainline-Stand – 27.11.2026
+## Council Relay – Integrationszweig PR #63 (27.11.2026)
 
-- **Sauberer Integrationszweig:** `integration/council-relay-mainline`, PR [#63](https://github.com/mouzzlii/Kreislauf/pull/63). Direkt von `main` erstellt; der Zweig enthält keine Commits, die in `main` fehlen. GitHub meldet den PR als zusammenführbar. Der alte PR #38 bleibt Draft und unverändert; sein Zweig ist weiterhin 163 Commits voraus und 98 zurück und wird nicht blind zusammengeführt.
-- **Übernommener Umfang:** feste Gateway-Aliase für GPT, Claude, Gemini und Grok, Interop-Envelope, Idempotenz-/Tagesbudget-Ledger, Public-only-Quellkontext, Secret-Redaktion, Parser und gezielte Tests. Die aktuelle globale Prompt-Referenz und bestehende Projektübersicht wurden beim Portieren nicht durch ältere Branch-Dokumentation ersetzt.
-- **Automatisiert geprüft – exakter Relay-Commit `78e31b5d044b11904096bffd50ab2a04172b60af`:** GitHub Actions `KI-Team-Relay CI` Run #366 erfolgreich; Syntax, Envelope-, Ledger-, Source-Context-, Provider-Vertrags- und Parsertests sowie Mapping-/Budgetprüfungen erfolgreich. KREISLAUF-Build/Test Run #1270 ebenfalls erfolgreich; TypeScript, automatisierte Tests, Code-Qualität und Produktionsbuild erfolgreich.
-- **Vercel:** Status meldet weiterhin `build-rate-limit`. Dies ist ein separates Deployment-/Preview-Problem; es wurde kein Vercel-Deployment ausgelöst oder als erfolgreich gewertet.
-- **Kosten-/Live-Sperre:** Der Issue-Comment-Workflow bleibt durch `false && ...` deaktiviert. Keine externen Modellaufrufe, keine Council-Antworten, keine Inferenzkosten. Die technische Implementierung und Vertragstests beweisen keine aktive Providerverbindung.
-- **Nächster Gate:** Code-Review des neuen PR #63, Prüfung der Branch-Änderungen gegen die aktuelle Projektbaseline und erneute CI nach jeder Korrektur. Kein Merge oder Livebetrieb ohne ausdrückliche Freigabe und harte Kostenkontrolle.
+- Draft PR [#63](https://github.com/mouzzlii/Kreislauf/pull/63) portiert die Gateway-Relay-Module und Vertragstests auf einen sauberen Integrationszweig. Der Branch wurde jetzt mit dem aktuellen `main`-Stand `8d90ae2b540c03a316d6b9ae39051c22605f736a` als zweitem Merge-Elternteil abgeglichen; die vier neueren Mainline-Dokumentationsänderungen bleiben erhalten.
+- Enthalten sind feste Gateway-Aliase für GPT, Claude, Gemini und Grok, Interop-Envelope, Ledger, Provider-Adapter, Public-only-Quellkontext, Secret-Redaktion und Parser samt Tests.
+- Die CI-Läufe #369 (Relay CI) und #1273 (KREISLAUF Build/Test) waren auf dem vorherigen Branch-Head `50dc729c3e9de06a201548df76d502c1be948e47` erfolgreich. Für den neuen Merge-Commit ist eine erneute CI-Prüfung erforderlich; die alten Ergebnisse gelten nicht automatisch für ihn.
+- Das Live-Gate im Issue-Comment-Workflow bleibt technisch deaktiviert (`false && ...`). Keine Provider-Aufrufe, keine Inferenzkosten, keine echten Council-Antworten. Llama bleibt ausgeschlossen.
+- Vercel-Preview/Deployment bleibt vom Status `build-rate-limit` blockiert. Kein Deployment ausgelöst.
+- PR #63 bleibt Draft und ungemergt. PR #38 bleibt unverändert offen und wird wegen seiner starken Divergenz nicht blind integriert.
