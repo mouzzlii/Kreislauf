@@ -65,16 +65,6 @@ async function api(url, options = {}) {
   return data;
 }
 
-function textFromResponses(data) {
-  return (data.output || [])
-    .filter((item) => item.type === "message")
-    .flatMap((item) => item.content || [])
-    .filter((part) => part.type === "output_text" || part.type === "text")
-    .map((part) => part.text || "")
-    .join("\n")
-    .trim();
-}
-
 async function askCouncilModel(model, instructions, input) {
   if (!AI_GATEWAY_API_KEY) throw new Error("AI_GATEWAY_API_KEY is missing.");
   const data = await api(VERCEL_AI_GATEWAY_URL, {
