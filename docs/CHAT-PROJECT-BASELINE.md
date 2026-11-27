@@ -486,3 +486,13 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 - GitHub Actions für den aktuellen Head lieferte 0 PR-Workflow-Runs; Reviews und Review-Threads: 0. Das ist kein Testnachweis. Historische 17/17 bzw. 9/9 Testläufe beziehen sich auf einen älteren Quellstand; 18 Orchestrator- und 15 HTTP-Testfälle sind vorhanden, die jüngsten Härtungsfälle sind nicht ausgeführt.
 - Vercel-Deployment bleibt blockiert durch das zuvor dokumentierte Free-Tier-Limit; kein neuer Deploymentversuch. Keine Browser-/Android-Abnahme, keine Provideradapter, keine Live-Aufrufe, keine Kosten.
 - Keine vorhandene KREISLAUF-Supabase-Datenbank ungeprüft wiederverwendet; kein konkreter Speicher-/Auth-Anbieter festgelegt.
+
+
+## KI-ARBEITSPLATZ – aktueller technischer Nachtrag (27.11.2026)
+
+- Draft PR [#12](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/12), Branch `feat/offline-council-workbench`, aktueller Head nach GitHub-Readback: `8498028a621126382e74044d5f586b028f4e18e1`; offen, Draft, ungemergt, 18 geänderte Dateien. Branch-Vergleich: 106 Commits voraus, 38 zurück; `mergeable=false`. Keine Zusammenführung.
+- Budget-Lifecycle: Orchestrator verlangt `reserveBudget()` und `settleBudget()`. Nach möglichem Dispatch bleibt die Reservierung konservativ `pending_reconciliation`; Freigabe des Restbetrags ist erst nach vertrauenswürdigen Provider-Usage-Daten vorgesehen. Persistente atomare Transaktion, Idempotenz-/Crash-Recovery-Implementierung und Usage-Reconciliation fehlen.
+- HTTP-Fehlerbehandlung verbessert: `budget_settlement_failed` wird als HTTP 503 statt HTTP 409 ausgegeben. Ein neuer synthetischer HTTP-Regressionstest prüft die sichere Status-/JSON-Antwort.
+- Aktueller Testquellstand: 22 Orchestrator- und 16 HTTP-Fälle. Für den exakten Head liefert die GitHub-Actions-Abfrage keinen Lauf; der neue Test und die jüngsten Härtungen sind nicht als ausgeführt bestätigt. Der Commit-Status zeigt den fehlgeschlagenen Vercel-Check.
+- Vercel-Bot meldet `api-deployments-free-per-day` mit mehr als 100 Deployments innerhalb von 24 Stunden. Das kostenlose Tageslimit blockiert weitere Deployments; keine weiteren Deployments auslösen und kein Upgrade ohne Freigabe.
+- Keine echte Provider-Inferenz, keine Kosten, keine produktive API-Route, keine produktive Auth-/CSRF-/Freigabe-/Audit-/Budgetintegration, keine Browser-/Android-Abnahme. PR bleibt Draft.
