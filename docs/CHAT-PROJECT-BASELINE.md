@@ -160,8 +160,8 @@ Bestehendes Projekt „KI-Arbeitsplatz – Meisterwerk Edition v1.0.0“ fortfü
 - Das ZIP wurde laut Repository-Audit vollständig inventarisiert; zehn Textdateien wurden extrahiert und gelesen. Die separat versionierte Windows-Quellfassung enthält ausgewählte Sicherheitskorrekturen 1.0.1; das Originalarchiv v1.0.0 blieb unverändert. Windows-Laufzeittests und ein neues Installationspaket sind nicht nachgewiesen.
 - Unter `app/` liegt ein statischer Android-PWA-Prototyp mit Projektkatalog, Service Worker und dokumentiertem Testplan. Browser-/Android-Installation, Offlineverhalten und End-to-End-Betrieb sind noch nicht als erfolgreich abgenommen.
 - Die Windows-Quellfassung ist eine lokale PowerShell-/CMD-Anwendung, keine autonome Agentenplattform und kein Council.
-- `docs/COUNCIL-INTEGRATION-BOUNDARY.md` beschreibt die getrennte Zielarchitektur. Eine produktive Council-Engine, ihre Integration in die PWA und echte Provider-Aufrufe sind nicht nachgewiesen.
-- Der GitHub-Actions-Runner war laut README beim letzten dokumentierten Audit vor Ausführung eines Schritts ausgefallen; CI-Erfolg darf daraus nicht abgeleitet werden.
+- `docs/COUNCIL-INTEGRATION-BOUNDARY.md` beschreibt die getrennte Zielarchitektur. PR #12 im Repository `mouzzlii/KI-Arbeitsplatz` ergänzt auf `feat/offline-council-workbench` einen lokalen PWA-Council-Testplatz mit synthetischen Mock-Rollen, strikter Schema-Prüfung, JSON-Export/Import und festem Kostenlimit 0 EUR. Der PR ist Draft/offen und nicht in `main`; keine produktive Council-Engine, echten Provider-Aufrufe oder unabhängigen Modellreviews behaupten.
+- Der GitHub-Actions-Runner ist weiterhin ein nachgewiesener Blocker: Der neue PR-Workflow `pwa-council-tests.yml` scheiterte am 27.11.2026 bereits vor dem ersten Schritt, mit `runner_id=0`, leerer Step-Liste und ohne Job-Logs. Eine isolierte lokale Node-Prüfung der Engine-Logik/Modulsyntax anhand der implementierten Quellfassung war erfolgreich; das ersetzt keinen Lauf des vollständigen Repository-Testpakets. Browser-/Android-Tests bleiben offen.
 - Keine parallele Agentenbasis aufbauen: vorhandene Windows-Quelle, PWA und Council-Architektur getrennt weiterprüfen und gezielt integrieren.
 
 ### Weitere Konzept- und Forschungsprojekte
@@ -193,7 +193,7 @@ Das Repository [logo-M-glichkeiten-](https://github.com/mouzzlii/logo-M-glichkei
 - Provider-Secrets, explizite Modellkennungen, read-only GitHub-Kontextzugriff, echte Anbieter-Ausgabenlimits und ausdrückliche Budgetfreigabe sind Voraussetzungen. Die vorhandenen Vertrags-/Mock-Tests beweisen keine Live-Inferenz.
 - Die Vercel-Aliase `council-claude`, `council-gemini`, `council-gpt`, `council-grok` und `council-llama` belegen nur Modellkonfiguration. Das separate Vercel-Projekt `collective-intelligence-council` hat ein READY-Deployment, ist aber durch SSO für alle Deployment-Zugriffe geschützt; eine öffentliche Erreichbarkeit oder eine nachgewiesene Quellcode-/Inferenzintegration folgt daraus nicht.
 - Aktueller Freigabestand: keine kostenpflichtigen Modellaufrufe ohne ausdrückliche Budgetfreigabe; der im KI-Arbeitsplatz-Master-Prompt dokumentierte Kostenrahmen beträgt 0 EUR. Llama bleibt auf öffentliche, synthetische oder anonymisierte Daten beschränkt, solange geeignete EU-Verarbeitung nicht nachgewiesen ist.
-- Ohne echte Provider-Aufrufe keine Claude-/Meta-/Llama-Antworten oder unabhängige Reviews behaupten. Keine Secrets oder persönlichen Zugangsdaten im Chat oder in GitHub ablegen.
+- Ohne echte Provider-Aufrufe keine Claude-/Meta-/Llama-Antworten oder unabhängige Reviews behaupten. Der PWA-Mock-Testplatz in KI-Arbeitsplatz PR #12 ist nur ein lokaler Ablauf-/Schema-Test und keine Council-Inferenz. Keine Secrets oder persönlichen Zugangsdaten im Chat oder in GitHub ablegen.
 
 ## 5. Priorisierung und Arbeitsmodus
 
