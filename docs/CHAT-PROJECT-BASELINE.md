@@ -434,7 +434,7 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 - Der Gateway-Adapter speichert derzeit nur den Antworttext; tatsächliche Provider-/Modell-/Endpoint-/Request-Identität wird nicht verifiziert oder im Ergebnis protokolliert.
 - Das Relay hat nur einen booleschen manuellen Budgetschalter, ein Tageslimit von zwei Debatten und Tokenlimits; keine verifizierte Preisobergrenze und keine atomare monetäre Budgetreservierung. Das Vercel-Budget von 5 USD ist ein Soft Cap und erfüllt den 0-EUR-Standard nicht.
 - Council-Ablauf: vier unabhängige Erstanalysen laufen nacheinander; danach GPT-Synthese. Eine Peer-Review-Runde durch die anderen Modelle fehlt. Erstanalysen sollen parallelisiert und anschließend gegeneinander geprüft werden.
-- PR #38 bleibt Draft/ungemergt und divergiert gegenüber `main` (128 Commits voraus, 61 zurück; Merge-Base `71fb0e07740150be13d40b1aef10ba269fe264b8`). GitHub meldete zuletzt `mergeable=false`; Vercel-Preview scheiterte wegen `build-rate-limit`. Keine Integration ohne kontrollierte Konsolidierung und erneute Prüfung.
+- PR #38 bleibt Draft/ungemergt und divergiert gegenüber `main` (Merge-Base `71fb0e07740150be13d40b1aef10ba269fe264b8`). Ahead-/Behind-Zahlen sind dynamisch und unmittelbar vor einer Konsolidierung neu zu prüfen; GitHub meldete zuletzt `mergeable=false`. Vercel-Preview scheiterte wegen `build-rate-limit`. Keine Integration ohne kontrollierte Konsolidierung und erneute Prüfung.
 - Keine Secrets gelesen/geändert, keine API-/Gateway-Requests, keine Kosten, kein Merge und kein Deployment.
 
 ### KI-ARBEITSPLATZ PR #12 – strikte verschachtelte Antwortvalidierung (27.11.2026)
