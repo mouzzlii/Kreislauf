@@ -378,12 +378,12 @@ async function main() {
           "### KI-Team-Auftrag abgelehnt",
           classifiedRequest.message,
           "Keine Provider wurden aufgerufen und kein Tageskontingent reserviert.",
-        ].join("\\n\\n") }),
+        ].join("\n\n") }),
       });
       return;
     }
     dataClassification = classifiedRequest.dataClassification;
-    request = "Datenklassifikation: " + dataClassification + "\\nAuftrag: " + classifiedRequest.instruction;
+    request = "Datenklassifikation: " + dataClassification + "\nAuftrag: " + classifiedRequest.instruction;
   }
 
   if (!request || request.length > MAX_INPUT_CHARS) {
