@@ -334,3 +334,20 @@ export function resolveCouncilTaskProject(envelope, projectRepositories) {
     allowedPaths: [...allowedPaths],
   };
 }
+
+export function parsePublicDebateRequest(value) {
+  const rejection = "Freie Council-Aufträge benötigen direkt nach dem Doppelpunkt eine explizite Datenklassifikation: [public], [synthetic] oder [anonymized]. Nicht klassifizierte Inhalte werden nicht an externe Modelle übertragen.";
+  if (typeof value !== "string") return { success: false, message: "Auftrag muss als Text vorliegen." };
+  const trimmed = value.trim();
+  const closingBracket = trimmed.indexOf("]");
+  if (!trimmed.startsWith("[") || closingBracket < 2) {
+    return { success: false, message: rejection };
+  }
+  const dataClassification = trimmed.slice(1, closingBracket).toLowerCase();
+  if (!["public", "synthetic", "anonymized"].includes(dataClassification)) {
+    return { success: false, message: rejection };
+  }
+  const instruction = trimmed.slice(closingBracket + 1).trim();
+  if (!instruction) return { success: false, message: "Der klassifizierte Auftrag darf nicht leer sein." };
+  return { success: true, dataClassification, instruction };
+}
