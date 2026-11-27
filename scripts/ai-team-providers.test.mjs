@@ -4,6 +4,7 @@ import {
   COUNCIL_MODELS,
   VERCEL_AI_GATEWAY_URL,
   buildGatewayChatCompletion,
+  extractGatewayResponseMetadata,
   extractGatewayText,
   getMissingProviderConfiguration,
 } from "./ai-team-providers.mjs";
@@ -68,5 +69,27 @@ test("only Gateway key and read-only repository token are required", () => {
     missingSecrets: [],
     missingVariables: [],
     missingModels: [],
+  });
+});
+
+test("Gateway response audit records only returned identity and numeric usage", () => {
+  assert.deepEqual(extractGatewayResponseMetadata({
+    id: "chatcmpl-test-123",
+    model: "openai/gpt-5",
+    provider: "openai",
+    usage: { prompt_tokens: 120, completion_tokens: 80, total_tokens: 200 },
+  }, "vmc/council-gpt"), {
+    requestedAlias: "vmc/council-gpt",
+    responseId: "chatcmpl-test-123",
+    returnedModel: "openai/gpt-5",
+    providerReported: "openai",
+    usage: { promptTokens: 120, completionTokens: 80, totalTokens: 200 },
+  });
+  assert.deepEqual(extractGatewayResponseMetadata({ id: 12, usage: { prompt_tokens: "10", total_tokens: -1 } }, "vmc/council-claude"), {
+    requestedAlias: "vmc/council-claude",
+    responseId: null,
+    returnedModel: null,
+    providerReported: null,
+    usage: { promptTokens: null, completionTokens: null, totalTokens: null },
   });
 });
