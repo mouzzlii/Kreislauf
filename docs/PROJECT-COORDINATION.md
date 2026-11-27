@@ -2,12 +2,12 @@
 
 **Stand:** 26.11.2026
 
-Diese Datei ist die kurze operative Koordinationsseite. Die chatbasierte Projekt- und Entscheidungsreferenz liegt in [CHAT-PROJECT-BASELINE.md](CHAT-PROJECT-BASELINE.md). Dort sind die bestätigten Ziele, Repository-Zuordnungen, Statusgrenzen und offenen Punkte der Projektfamilie zusammengeführt.
+Diese Datei ist die kurze operative Koordinationsseite für die Projektfamilie. Die globale Arbeitsverfassung ist ausschließlich [MAINPROMPT 2.0.6](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md). Die chatbasierte Projekt- und Entscheidungsreferenz liegt in [CHAT-PROJECT-BASELINE.md](CHAT-PROJECT-BASELINE.md); sie bündelt bestätigte Ziele, Repository-Zuordnungen, Statusgrenzen und offene Punkte. Die folgenden Regeln sind zusätzliche Projektfamilien-Vorgaben, keine zweite globale Arbeitsverfassung.
 
-## Gemeinsame Regeln
+## Gemeinsame Projektfamilien-Regeln (ergänzend zum MAINPROMPT 2.0.6)
 
 - Neueste ausdrücklich bestätigte Nutzerentscheidung hat Vorrang vor älteren Annahmen.
-- GitHub-main bleibt unverändert, wenn die Dokumentation aktuell ist. Veraltete oder fehlende bestätigte Entscheidungen werden kontrolliert über Branch und PR aktualisiert.
+- Notwendige, minimale Änderungen an `main` sind gemäß ausdrücklicher Nutzerfreigabe und MAINPROMPT 2.0.6 zulässig, sofern keine strengere Repository-/Projektregel oder Schutzmaßnahme entgegensteht. Branch + PR bleiben der bevorzugte Weg für größere, riskantere oder reviewpflichtige Änderungen.
 - Vor jeder Änderung aktuellen Stand, Projektanweisungen, offene PRs/Issues und CI lesen.
 - Keine parallelen Änderungen an denselben Dateien ohne Abstimmung; TRAKUNA bearbeitet genau ein priorisiertes Ticket gleichzeitig.
 - Nach jeder Änderung passende Tests ausführen und Ergebnisse mit exakter Commit-SHA dokumentieren.
