@@ -1,5 +1,9 @@
 # KI-Team-Kommunikation und Projektportfolio
 
+> **Verbindlicher Stand vom 27.11.2026 – bitte vor der Einrichtung beachten:** Der aktive Relay verwendet ausschließlich die vier Vercel-AI-Gateway-Virtual-Model-Aliase `vmc/council-gpt`, `vmc/council-claude`, `vmc/council-gemini` und `vmc/council-grok`. Die älteren direkten OpenAI-/Anthropic-/Meta-/Llama-Einrichtungsabschnitte weiter unten sind historisch und für den aktuellen Relay nicht mehr gültig. Aktuell erforderliche GitHub-Actions-Secrets sind ausschließlich `AI_GATEWAY_API_KEY` und `AI_TEAM_REPO_READ_TOKEN`; die manuelle Kostenfreigabe bleibt `AI_TEAM_BUDGET_CONFIRMED=true` und darf erst nach Prüfung der tatsächlichen Budgets gesetzt werden. **Llama wird nicht aufgerufen.**
+>
+> **Datenschutzgrenze:** Alle vier aktiven Virtual Models sind mit Zero Data Retention und „Disallow Prompt Training“ konfiguriert. Das ist keine EU-Datenresidenz-Garantie. Nur der Claude-Alias ist derzeit ausdrücklich auf EU-Provider-Routen beschränkt (Bedrock und Vertex Anthropic). Für GPT, Gemini und Grok ist in den gespeicherten Alias-Konfigurationen aktuell keine explizite EU-Inferenzregion festgelegt. Deshalb nur redigierten, nicht personenbezogenen und nicht geheimen Quellkontext übertragen; keine Kunden-, Gesundheits-, Zahlungs-, Zugangsdaten oder sonstigen vertraulichen Inhalte. Die Alias-Konfiguration wurde gelesen; es fand kein Modellaufruf statt.
+
 ## Ziel und Ablauf
 
 GitHub ist das gemeinsame, dauerhafte Postfach und Entscheidungsprotokoll für KREISLAUF, TRAKUNA, SCAN-PROFIT und CHRONOS.
