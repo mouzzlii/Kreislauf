@@ -61,6 +61,11 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   assert.ok(relaySource.includes("AI_TEAM_BUDGET_CONFIRMED !== \"true\""));
   assert.ok(relaySource.includes("hasUsablePrimaryContext(projectContext)"));
   assert.ok(relaySource.includes("isPublicRepositoryMetadata(meta)"));
+  const privateWorkspaceGuard = relaySource.indexOf('if (project === "KI-ARBEITSPLATZ")');
+  const repositoryLookup = relaySource.indexOf("const repository = PROJECT_REPOS[project]", privateWorkspaceGuard);
+  const metadataRequest = relaySource.indexOf("api(`https://api.github.com/repos/${repo}`", privateWorkspaceGuard);
+  assert.ok(privateWorkspaceGuard >= 0 && repositoryLookup > privateWorkspaceGuard && metadataRequest > repositoryLookup,
+    "KI-Arbeitsplatz must be blocked before any GitHub repository metadata or content request");
   assert.ok(sourceContextSource.includes('primary.visibility === "public"'));
   assert.ok(interopSource.includes('["public", "synthetic", "anonymized"]'));
   const publicVisibilityGuard = relaySource.indexOf("if (!isPublicRepositoryMetadata(meta))");
