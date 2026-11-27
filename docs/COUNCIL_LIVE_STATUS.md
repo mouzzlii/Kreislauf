@@ -3,6 +3,18 @@
 **Letzte Prüfung:** 27.11.2026, 17:00 Europe/Vienna  
 **Zweck:** Nachweisbare Übersicht der tatsächlich verfügbaren Council-Instanzen, Modellkonfigurationen, Aufrufwege, Datenschutzgrenzen und Kostenkontrollen. Keine Zugangsdaten, Tokens oder Secrets eintragen.
 
+## Aktueller Integrationskandidat – Draft PR #60 (27.11.2026)
+
+- **PR:** [#60 – clean Council relay integration](https://github.com/mouzzlii/Kreislauf/pull/60), Branch `ai/chatgpt-council-clean-integration`, Head `da0e056604d2e4aa1c46bad2bf68d3464a1a47b6`. Offen, Draft, GitHub meldet `mergeable=true`.
+- **Relay-CI auf exakt diesem Head:** [Run 46035537092](https://github.com/mouzzlii/Kreislauf/actions/runs/46035537092) erfolgreich: 46/46 Tests bestanden, 0 fehlgeschlagen (20 Task-Envelope/Interop, 6 Ledger, 12 Source-Context, 5 Gateway-Provider, 3 Parser/Integration); Syntax-, Projektmapping- und Tagesbudgetprüfungen ebenfalls erfolgreich.
+- **KREISLAUF Build & Tests auf exakt diesem Head:** [Run 46035536891](https://github.com/mouzzlii/Kreislauf/actions/runs/46035536891) erfolgreich: 246 JavaScript- und 79 TypeScript-Tests bestanden, 0 fehlgeschlagen; TypeScript-Prüfung, Qualitätsprüfung und Produktions-Build erfolgreich. ESLint: 0 Fehler, 6 Warnungen.
+- Der Branch enthält vier fest allowlistete Vercel-AI-Gateway-Aliase (GPT, Claude, Gemini, Grok), Public-only-Quellschutz, explizite Datenklassifikation für freie Debattenaufträge, strenge Task-Envelope-/Pfad-/Idempotenzprüfung, einen vertrauenswürdigen Tagesbudget-Ledger und durchgesetzte Laufzeit-/UTF-8-Eingabe-/Ausgabelimits. Fehlende Task-Quelltexte führen fail-closed zum Abbruch. Pro Antwort werden angeforderter Alias, Response-ID, zurückgegebenes Modell, optional tatsächlich gemeldeter Provider und Input-, Output- und Gesamt-Tokenwerte erfasst; fehlende Werte bleiben unbekannt. Tatsächliche Upstream-Route und Kosten müssen später mit der Gateway-Nutzungsansicht korreliert werden.
+- Der Live-Workflow in diesem Branch hat zwei unabhängige harte Sperren: `false &&` im GitHub-Actions-Workflow und `RELAY_LIVE_ENABLED = false` am Anfang des Programms. Das Programm beendet sich vor Event-Lesen und jeder Netzwerkaktivität. Keine echten Provideraufrufe, keine Providerantworten, keine Secrets gelesen/geändert und keine Kosten.
+- Pro erfolgreichem Modellaufruf protokolliert der Relay angeforderten Alias, Response-ID, zurückgegebenes Modell, einen Provider nur falls das Response-Feld ihn explizit ausweist sowie numerische Tokenwerte. Fehlende Angaben bleiben unbekannt; Tokenzahlen sind keine Kosten. Eine tatsächliche Providerroute und Kosten müssen später mit der Gateway-Nutzungsansicht korreliert werden. Bislang gibt es keine Live-Response-Daten.
+- Vercel-Preview-Check bleibt wegen `build-rate-limit` fehlgeschlagen. Kein Upgrade und kein kostenpflichtiger Retry.
+- **PR #38 ist nur noch historischer Auditstand und darf nicht gemergt werden.** PR #60 ist die einzige aktuelle Council-Integrationslinie. PR #60 bleibt Draft bis unabhängige Code-/Security-Review und Vercel-Preview-/Auth-Abnahme erfolgt sind.
+- Der aktive `main`-Relay ist davon getrennt und verwendet weiterhin die zuvor dokumentierten direkten Provider-Clients. Der Legacy-Workflow auf `main` ist bis zur Integration von Draft PR #62 noch nicht durch die neuen Hard-Gates geschützt; tatsächliche Secrets-/Variablenwerte sind unbekannt. Issue #11 bis zur ausdrücklichen Prüfung und Integration von PR #62 nicht mit `/ai-team debate` auslösen. PR #60 ist nicht in `main` integriert.
+
 ## Tatsächlicher Status
 
 | Instanz | Konfiguration | Aktiver Aufrufweg in `main` | Live-Inferenz |
@@ -37,7 +49,7 @@ Der aktive Workflow `.github/workflows/ai-team-communication.yml` und `scripts/a
 3. wahlweise Meta Muse oder Llama als dritten Provider,
 4. OpenAI direkt für die abschließende Synthese.
 
-Der Workflow übergibt **kein** `AI_GATEWAY_API_KEY`; die fünf Vercel-Virtual-Model-Aliase werden vom aktiven `main`-Relay nicht aufgerufen. Gemini und Grok sind dort keine auswählbaren Council-Mitglieder. Der Gateway-Umbau in KREISLAUF PR #38 ist ein separater Draft-Branch und nicht Bestandteil von `main`; er bleibt wegen divergierender Historie und fehlender aktueller Freigaben ungemergt.
+Der Workflow übergibt **kein** `AI_GATEWAY_API_KEY`; die fünf Vercel-Virtual-Model-Aliase werden vom aktiven `main`-Relay nicht aufgerufen. Gemini und Grok sind dort keine auswählbaren Council-Mitglieder. Der historische Gateway-Umbau in PR #38 ist nicht Bestandteil von `main` und wurde wegen seiner divergierenden Historie durch den fokussierten Draft PR #60 ersetzt. PR #60 ist ebenfalls nicht in `main` integriert.
 
 ## Credential- und Kostenstatus
 
@@ -58,7 +70,7 @@ Der Workflow übergibt **kein** `AI_GATEWAY_API_KEY`; die fünf Vercel-Virtual-M
 
 
 
-## PR #38 – Gateway-Branch, Sicherheitskorrekturen und CI-Nachweis (27.11.2026)
+## Historischer Draft PR #38 – Gateway-Branch und frühere CI-Nachweise
 
 - Draft PR [#38](https://github.com/mouzzlii/Kreislauf/pull/38) enthält den gemeinsamen Vercel-AI-Gateway-Aufrufweg für die vier fest allowlisteten Aliase GPT, Claude, Gemini und Grok. Der aktive `main`-Relay oben bleibt davon unberührt und verwendet weiterhin die zuvor dokumentierten direkten Provider-Clients.
 - **Aktueller PR-Head:** `78f83010f08feb7b7434b9fdec351f0f8772a684` (Dokumentations-Commit nach dem geprüften Parser-Code-Head `290a6ef9073573fcdde2083a00e3d98effe72881`).
@@ -66,7 +78,7 @@ Der Workflow übergibt **kein** `AI_GATEWAY_API_KEY`; die fünf Vercel-Virtual-M
 - Vercel-Preview-Check auf dem PR-Head ist wegen `build-rate-limit` fehlgeschlagen; keine aktuelle Preview-Bereitstellung daraus ableiten.
 - PR #38 bleibt Draft und ungemergt. Der Branch ist gegenüber `main` deutlich divergiert; GitHub meldet `mergeable=false`. Ahead-/Behind-Zahlen ändern sich mit jedem Main-Commit und müssen unmittelbar vor einer kontrollierten Konsolidierung neu ermittelt werden. Keine Integration ohne erneute vollständige Prüfung.
 
-## Sicherheitsreview des Gateway-PR #38 – korrigierter Stand (27.11.2026)
+## Historischer Sicherheitsreview PR #38 – Korrekturen in PR #60 fortgeführt
 
 1. **Private Repository-Inhalte – auf PR-Branch technisch gesperrt, nicht in main:** Ein vorheriger Review hatte festgestellt, dass private Quelltexte als `internal` an alle vier Modelle gelangen könnten. Das wurde im aktuellen PR-Branch korrigiert:
    - Vor dem Lesen von README, Dateibaum oder Quelltext wird GitHub-Metadatenfeld `visibility` geprüft. Zulässig ist nur `visibility=public` zusammen mit `private=false`; private, interne oder unbekannte Sichtbarkeit wird fail-closed abgewiesen.
@@ -74,17 +86,17 @@ Der Workflow übergibt **kein** `AI_GATEWAY_API_KEY`; die fünf Vercel-Virtual-M
    - Task-Envelopes akzeptieren nur `public`, `synthetic` oder `anonymized`; `internal`, `confidential`, `personal` und `secret` werden abgewiesen. Auch freie `/ai-team debate`-Aufträge benötigen direkt nach dem Doppelpunkt `[public]`, `[synthetic]` oder `[anonymized]`; fehlende/andere Klassifikationen werden vor Quellkontext, Budgetreservierung und Provider-Aufruf gestoppt.
    - Diese Prüfung erfolgt vor Tagesbudgetreservierung und Provider-Aufrufen. Das private Repository `mouzzlii/KI-Arbeitsplatz` wird daher nicht gelesen; der strukturierte Task-Eingang ist für dessen aktuellen privaten Quellstand nicht operativ nutzbar.
    - Die Tests prüfen öffentliche/private/interne/unbekannte Metadaten, fehlende Sichtbarkeit, Datenklassifikation und die Reihenfolge der Metadatenprüfung vor README-/Tree-/Dateizugriff. Relay-CI Run 46031375856 ist auf dem exakten PR-Head grün.
-2. **Modell-/Endpoint-Identität weiterhin offen:** `askCouncilModel` extrahiert nur Antworttext. Provider, tatsächliches Modell, Endpoint/Route und Request-ID werden nicht anhand von Antwortmetadaten gespeichert und geprüft. Ein späterer Live-Status wäre damit noch nicht belastbar nachweisbar.
+2. **Modell-/Endpoint-Identität teilweise vorbereitet:** Der Relay erfasst jetzt Response-ID, zurückgegebenes Modell, optional explizit gemeldeten Provider und Tokenwerte. Es gab noch keine Live-Response; tatsächliche Upstream-Route und Kosten sind daher weiterhin nicht nachgewiesen und müssen später mit der Gateway-Nutzungsansicht korreliert werden.
 3. **Harter monetärer Kostenstopp weiterhin offen:** Das Relay nutzt einen manuellen booleschen Freigabeschalter, maximal zwei Debatten pro UTC-Tag und begrenzte Ausgabetokens. Eine verifizierte Preisobergrenze und atomare monetäre Budgetreservierung fehlen. Das Vercel-Projektbudget von 5 USD ist ein Soft Cap und erfüllt den 0-EUR-Standard des MAINPROMPT 2.0.7 nicht.
 4. **Council-Peer-Review weiterhin offen:** GPT, Claude, Gemini und Grok erstellen getrennte Erstanalysen; danach erstellt GPT die Synthese. Eine echte unabhängige Peer-Review-Runde, in der die anderen Modelle die Erstanalysen kritisch gegeneinander prüfen, ist noch nicht implementiert.
-5. **Harte Aktivierungssperre:** `.github/workflows/ai-team-communication.yml` enthält ein explizites `false &&`-Gate. Auch vorhandene Secrets oder `AI_TEAM_BUDGET_CONFIRMED=true` können keinen Provider-Aufruf auslösen, solange dieses Gate nicht nach Kostenkontrolle und ausdrücklicher Freigabe bewusst entfernt wird.
-6. **Integrationsrisiko:** PR #38 bleibt Draft. Der Branch liegt 146 Commits vor und 79 hinter `main`; GitHub meldet `mergeable=false`. Kein Merge oder automatisches Update dieses Branches.
+5. **Harte Aktivierungssperre:** `.github/workflows/ai-team-communication.yml` enthält ein explizites `false &&`-Gate; zusätzlich beendet `RELAY_LIVE_ENABLED = false` das Programm vor Event-Lesen und Netzwerkaktivität. Auch vorhandene Secrets oder `AI_TEAM_BUDGET_CONFIRMED=true` können diese beiden Sperren nicht übersteuern.
+6. **Integrationsrisiko:** PR #38 ist historischer Auditstand und darf nicht gemergt werden. PR #60 ist die aktuelle, fokussierte Integrationslinie. Kein Merge ohne unabhängige Review und ausdrückliche Entscheidung.
 
-**Nachweisgrenze:** Run 46031375856 belegt ausschließlich synthetische Tests des Relay-Codes auf dem genannten PR-Head. Es gab keinen Gateway-Request, keine Modell-Inferenz, keine Providerantwort, kein Peer-Review und keine Kosten. Der Vercel-Preview-Check bleibt wegen `build-rate-limit` fehlgeschlagen. Alle vier Virtual Models sind konfiguriert; Konfiguration ist kein Live-Council.
+**Nachweisgrenze:** Die aktuellen Runs 46035537092 und 46035536891 belegen ausschließlich synthetische Relay-Tests und den Projekt-Build auf den exakten PR-#60-Heads. Es gab keinen Gateway-Request, keine Modell-Inferenz, keine Providerantwort, kein Peer-Review und keine Kosten. Der Vercel-Preview-Check bleibt wegen `build-rate-limit` fehlgeschlagen. Alle vier Virtual Models sind konfiguriert; Konfiguration ist kein Live-Council.
 
 ## Nächste sichere Schritte
 
-1. Gateway-Adapter und unabhängige Erstanalysen für GPT, Claude, Gemini und Grok auf einem frischen Branch von aktuellem `main` synthetisch implementieren und testen; Llama aus privaten Projektkontexten ausschließen.
+1. PR #60 unabhängig sicherheitsprüfen, die Vercel-Preview-/Auth-Abnahme nach Aufhebung des build-rate-limit durchführen und erst danach über eine Integration entscheiden; der Live-Workflow bleibt bis zu einer ausdrücklichen Kostenfreigabe hart deaktiviert.
 2. Vor jeder Live-Nutzung eine echte, nicht überschreitbare Kostenkontrolle festlegen. Das bestehende Vercel-Soft-Cap reicht dafür allein nicht.
 3. Datenklassen und zulässige Provider-Regionen pro Modell festlegen; bis dahin keine privaten Projektquellen an nicht nachweislich geeignete Routen senden.
 4. Gateway-Credential für GitHub Actions nur durch den Kontoinhaber in GitHub Secrets hinterlegen; niemals aus Vercel auslesen oder im Chat übertragen.
