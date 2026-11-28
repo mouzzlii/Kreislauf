@@ -5,11 +5,11 @@ import { extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SOURCE_EXTENSIONS = new Set([".js", ".mjs", ".cjs", ".json"]);
-const FORBIDDEN_ASSET = /pglite|\\.wasm$|\\.data$/i;
+const FORBIDDEN_ASSET = /pglite|\.wasm$|\.data$/i;
 const FORBIDDEN_SOURCE = [
-  { label: "PGLite package import", pattern: /@electric-sql\\/pglite/ },
-  { label: "PGLite runtime constructor", pattern: /\\bnew\\s+PGlite\\s*\\(/ },
-  { label: "PGLite runtime factory", pattern: /\\bcreatePgliteSql\\b/ },
+  { label: "PGLite package import", pattern: /@electric-sql\/pglite/ },
+  { label: "PGLite runtime constructor", pattern: /\bnew\s+PGlite\s*\(/ },
+  { label: "PGLite runtime factory", pattern: /\bcreatePgliteSql\b/ },
   { label: "PGLite runtime instance", pattern: /__pgliteInstance__/ },
 ];
 
@@ -30,7 +30,7 @@ export async function inspectNetlifyBundle(directory) {
 
   const violations = [];
   for (const file of files) {
-    const relativePath = file.slice(root.length + 1).replaceAll("\\\\", "/");
+    const relativePath = file.slice(root.length + 1).replaceAll("\\", "/");
     if (FORBIDDEN_ASSET.test(relativePath)) {
       violations.push(relativePath + ": forbidden PGLite/WASM/data asset");
       continue;
