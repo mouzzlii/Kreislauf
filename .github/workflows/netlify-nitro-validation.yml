@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: netlify-nitro-validation-${{ github.ref }}
@@ -74,6 +74,11 @@ jobs:
           git diff --check -- package.json package-lock.json
           git diff --stat -- package.json package-lock.json
 
+      - name: Lockfile-Reproduzierbarkeit mit npm ci prüfen
+        run: |
+          rm -rf node_modules
+          npm ci --no-audit --no-fund
+
       - name: TypeScript mit Nitro RC prüfen
         run: npm run typecheck
 
@@ -82,6 +87,11 @@ jobs:
 
       - name: Code-Qualität mit Nitro RC prüfen
         run: npm run lint
+
+      - name: Vercel-Standardbuild mit Nitro RC prüfen
+        run: npm run build:dev
+        env:
+          CI: "true"
 
       - name: Aktuellen Nitro RC für Netlify bauen
         run: npm run build:netlify
@@ -112,3 +122,17 @@ jobs:
           path: netlify-nitro-lockfiles/
           if-no-files-found: error
           retention-days: 1
+
+      - name: Getestete Nitro-RC-Abhängigkeiten im Testbranch sichern
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          if git diff --cached --quiet; then
+            echo "Nitro-RC package files already committed."
+          else
+            git commit -m "build(deps): upgrade Nitro for Netlify Frameworks API"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
