@@ -5,14 +5,14 @@
 
 ## 1. Rolle dieser Projektbaseline und Abgrenzung zum MAINPROMPT
 
-Die globale Arbeits- und Projektverfassung ist ausschließlich **MAINPROMPT 2.0.8** im privaten Repository [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz), Datei `docs/MAINPROMPT.md`. Sie regelt chatübergreifend Arbeitsweise, Autonomie, Recherche, KI-Council, Kosten, Sicherheit, GitHub-Schutz, Qualität und Ergebnislieferung.
+Die globale Arbeits- und Projektverfassung ist ausschließlich **MAINPROMPT 2.2.2** im privaten Repository [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz), Datei `docs/MAINPROMPT.md`. Sie regelt chatübergreifend Arbeitsweise, Autonomie, Recherche, KI-Council, Kosten, Sicherheit, GitHub-Schutz, Qualität und Ergebnislieferung.
 
 Diese Datei ist dagegen die **KREISLAUF-Projekt- und Portfolio-Baseline**. Sie dokumentiert bestätigte Projektentscheidungen, Repository-Zuordnungen, Abhängigkeiten, Statusnachweise und offene Punkte. Sie ist keine zweite globale Arbeitsverfassung und überschreibt den MAINPROMPT nicht.
 
 Für Arbeiten an KREISLAUF gilt:
 - Diese Baseline und anschließend die jeweils betroffenen KREISLAUF-Spezifikationen, Aufgaben, Issues/PRs und tatsächlichen Quellstände prüfen.
 - Neueste ausdrücklich bestätigte Nutzerentscheidung für KREISLAUF verwenden; ältere Entscheidungen nur als gekennzeichnete Historie behalten.
-- KREISLAUF, Menschheitsfamilie und andere Projekte trotz möglicher fachlicher Verbindung mit getrennten Daten-/Berechtigungsgrenzen behandeln.
+- KREISLAUF und Menschheitsfamilie als eine gemeinsame Plattform führen. Innerhalb der Plattform bleiben erforderliche Rollen-, Datenschutz- und Berechtigungsgrenzen erhalten; daraus werden keine getrennten Produkte oder Plattformen.
 - Produktanforderungen, Vorschläge, vorhandene Implementierung, automatisierte Tests, externe Prüfungen und Produktionsfreigaben strikt auseinanderhalten.
 - Keine Projektfunktion, Anbieterintegration, KI-Antwort, Datenbankverbindung oder Geräteprüfung ohne tatsächlichen Nachweis als vorhanden bezeichnen.
 
@@ -80,7 +80,7 @@ Ein regionales Kreislauf-, Tausch- und Hilfesystem für Menschen, Vereine, Schul
 
 ### MENSCHHEITSFAMILIE – „Der Tausch verbindet uns“
 
-**Projektstatus:** eigenständige Community-/Gesellschaftsebene mit konzeptioneller Verbindung zu KREISLAUF; Daten- und Berechtigungsgrenzen bleiben getrennt.
+**Projektstatus:** integrierte Community-/Gesellschaftsebene der gemeinsamen KREISLAUF-Plattform „Menschheitsfamilie – Der Tausch verbindet uns“. Keine separate Plattform. Funktionsbereiche dürfen angemessene Rollen-, Datenschutz- und Berechtigungsgrenzen haben.
 
 **Bestätigte Leitlinien**
 - Slogan: „Der Tausch verbindet uns“.
@@ -214,7 +214,7 @@ Das Repository [logo-M-glichkeiten-](https://github.com/mouzzlii/logo-M-glichkei
 ## 5. Priorisierung und Arbeitsmodus
 
 - TRAKUNA ist derzeit eine hohe Umsetzungspriorität; innerhalb von TRAKUNA gilt die projektspezifische Regel: genau ein priorisiertes Ticket gleichzeitig.
-- KREISLAUF und Menschheitsfamilie fachlich verbunden, aber mit getrennten Daten- und Berechtigungsgrenzen.
+- KREISLAUF und Menschheitsfamilie bilden eine gemeinsame Plattform. Rollen- und Datenschutzgrenzen gelten innerhalb der Plattform, nicht als Trennung in zwei Produkte.
 - SCAN-PROFIT und INSERAT-PROFI AI bleiben eigenständige Produkte ohne gegenseitige Laufzeitabhängigkeit.
 - KI-Arbeitsplatz soll langfristig zentrale Entwicklungs- und Koordinationshilfe werden; vorhandenes Windows-Cockpit, PWA-Prototyp und getrennte Council-Engine-Architektur gezielt weiterprüfen und integrieren, ohne eine parallele Agentenbasis aufzubauen.
 - AIRLESS und Implosionsmotor als langfristige Hintergrundstränge mit geringem Ressourcenverbrauch verfolgen.
@@ -510,3 +510,12 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 - Das Vercel-Projekt collective-intelligence-council ist eine separate Eve-Prototypbereitstellung ohne nachgewiesene GitHub-Quellverknüpfung. Es ist nicht mit dem KREISLAUF-Relay oder der KI-Arbeitsplatz-PWA gleichzusetzen.
 
 **Nächster sicherer Schritt:** Keine der divergierten Draft-Linien mergen. Die bestehende main-Sperre beibehalten; als Nächstes eine kontrollierte Konsolidierung der Council-Architektur auf Basis des aktuellen main vorbereiten und vor jeder späteren Aktivierung eine numerische, anwendungsseitige Kostenobergrenze mit atomarer Reservierung und ausdrücklicher Nutzerfreigabe nachweisen.
+
+
+### Verbindliche Produktentscheidung – gemeinsame Plattform KREISLAUF / Menschheitsfamilie (28.11.2026)
+
+- **KREISLAUF und „Menschheitsfamilie – Der Tausch verbindet uns“ sind ein gemeinsames Projekt und eine gemeinsame Plattform**, keine zwei getrennten Plattformen.
+- Die Einführung erfolgt stufenweise: zuerst regional in Yspertal und entlang der B36, danach Erweiterung auf weitere Regionen.
+- Marktplatz, Tausch, Gemeinschaft, Hilfe, Punkte und Community-Funktionen werden als zusammenhängende Produktbereiche geplant. Rollen-, Datenschutz- und Berechtigungsgrenzen bleiben dort bestehen, wo sie fachlich und rechtlich erforderlich sind; sie begründen keine getrennten Plattformen.
+- `mouzzlii/Gemeinwohl` bleibt vorerst ein historischer/konzeptioneller Repository-Hinweis. Das vorhandene Inventar belegt keinen separaten aktiven Produktquellstand und ist kein Grund, eine zweite Plattform zu führen.
+- Diese Entscheidung ersetzt die älteren Aussagen in dieser Baseline, die Menschheitsfamilie als eigenständige Plattform oder als separat zu führendes Projekt behandeln. Historische Nachweise bleiben zur Nachvollziehbarkeit erhalten.
