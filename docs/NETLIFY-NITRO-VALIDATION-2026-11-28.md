@@ -21,11 +21,12 @@ The alternative official `@netlify/vite-plugin-tanstack-start` is suitable for T
 - The Netlify build wrapper runs the same `scripts/migrate.mjs` migration step as the existing production build. With no `DATABASE_URL`, the migration script safely skips the external migration.
 - `package.json` and `package-lock.json` pin `nitro@3.0.261103-rc` exactly. The older `3.0.260610-beta` generated a legacy `.netlify/functions-internal` directory; the RC produces the current Frameworks API output at `.netlify/v1/functions`.
 - `vercel.json` disables automatic Vercel deployments only for this validation branch. Vercel's normal behavior on `main` and other branches is unchanged.
+- The Netlify validation workflow is path-filtered to code, package, migration, PWA, and hosting configuration files, avoiding full test/build reruns for documentation-only updates.
 - The existing `build` script remains unchanged. No database URL, Netlify token, OAuth secret, or other credential is committed.
 
 ## Verified CI results
 
-GitHub Actions Run #13 validated the final branch head after a clean checkout and `npm ci`:
+GitHub Actions Run #15 validated the final code/workflow state after a clean checkout and `npm ci`. The workflow runs only when code, package, migration, PWA, or hosting configuration paths change; docs-only updates skip the full build matrix:
 
 | Check | Result |
 |---|---|
