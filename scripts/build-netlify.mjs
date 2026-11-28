@@ -8,6 +8,7 @@
  */
 import { spawn } from "node:child_process";
 import { join } from "node:path";
+import { prepareNetlifyAuthMigration } from "./netlify-auth-schema.mjs";
 import {
   exitStatusFromChild,
   mergeAppEnv,
@@ -56,8 +57,27 @@ function runNode(args, label) {
   });
 }
 
-const buildStatus = await runNode([viteCli, "build"], "Vite");
-if (buildStatus !== 0) process.exit(buildStatus);
+let cleanupAuthMigration = async () => {};
 
-const migrationStatus = await runNode([migrationScript], "database migrations");
-process.exit(migrationStatus);
+try {
+  const authEnabled = env.VITE_AUTH_ENABLED !== "false";
+  const preparedAuthMigration = await prepareNetlifyAuthMigration(root, authEnabled);
+  cleanupAuthMigration = preparedAuthMigration.cleanup;
+  if (preparedAuthMigration.created) {
+    console.log("[build:netlify] Prepared temporary Better Auth schema migration.");
+  }
+
+  const buildStatus = await runNode([viteCli, "build"], "Vite");
+  if (buildStatus !== 0) {
+    process.exitCode = buildStatus;
+  } else {
+    process.exitCode = await runNode([migrationScript], "database migrations");
+  }
+} finally {
+  try {
+    await cleanupAuthMigration();
+  } catch (error) {
+    console.error("[build:netlify] Could not clean up temporary auth migration:", error);
+    process.exitCode = 1;
+  }
+}
