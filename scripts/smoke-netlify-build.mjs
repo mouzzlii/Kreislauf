@@ -25,6 +25,18 @@ assert.equal(
 
 const host = "kreislauf-netlify-smoke.test";
 
+const loginResponse = await handler(
+  new Request(`https://${host}/login`, {
+    method: "GET",
+    headers: { accept: "text/html" },
+  }),
+);
+
+assert.equal(loginResponse.status, 200, "login route must return HTTP 200");
+const loginHtml = await loginResponse.text();
+assert.match(loginHtml, /<main\\b/, "auth-enabled login route must render page content");
+assert.match(loginHtml, /Kreislauf/, "SSR shell must render the application navigation");
+
 const manifestResponse = await handler(
   new Request(`https://${host}/__grok/manifest.webmanifest`, {
     method: "GET",
