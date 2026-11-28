@@ -69,10 +69,11 @@ jobs:
             git push origin HEAD:infra/netlify-tanstack-adapter-spike-2026-11-28
           fi
 
-      - name: Smoke-test Netlify PWA middleware in local emulation
+      - name: Smoke-test Start PWA middleware in local Vite runtime
         env:
           KREISLAUF_NETLIFY_ADAPTER: "1"
           NETLIFY: "true"
+          NETLIFY_DEV: "true"
           KREISLAUF_SKIP_PGLITE_BOOTSTRAP: "1"
         run: |
           set +e
