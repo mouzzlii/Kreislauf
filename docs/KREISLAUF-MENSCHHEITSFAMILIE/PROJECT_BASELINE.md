@@ -1,3 +1,11 @@
+## Einordnung in das X-PHONE-Gesamtkonzept
+
+KREISLAUF – Menschheitsfamilie ist innerhalb der X-PHONE-Produktvision das vorgesehene Systemmodul **LOCAL VALUE GRID**. X-PHONE ist dabei die übergeordnete Präsentations- und Veröffentlichungsarchitektur; KREISLAUF bleibt das eigenständige Produkt mit eigener Codebasis, Datenhoheit, Rollen-/Berechtigungslogik, Releaseplanung und Sicherheitsabnahme.
+
+Diese Zuordnung behauptet keine bereits vorhandene gemeinsame Anmeldung, gemeinsame Datenbank, gemeinsame App-Shell oder technische Kopplung. Eine spätere Integration benötigt eigene API-Verträge, Datenschutz-/Bedrohungsmodell, Rollenabgrenzung und nachgewiesene Tests.
+
+Die übergeordnete X-PHONE-Konzeptbaseline wird in [KI-Arbeitsplatz PR #23](https://github.com/mouzzlii/KI-Arbeitsplatz/pull/23) dokumentiert. Sie ist dort als Draft-PR offen und noch nicht gemergt.
+
 # KREISLAUF – Menschheitsfamilie
 ## Gemeinsame Produktbaseline
 
