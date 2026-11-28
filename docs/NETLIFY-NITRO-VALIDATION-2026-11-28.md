@@ -10,6 +10,12 @@
 
 Use the existing Nitro Netlify preset as the first Netlify integration, rather than adding the separate Netlify TanStack Start adapter. This is the least invasive path because KREISLAUF already registers its platform PWA middleware through Nitro's `serverDir: "./server"`.
 
+### Official Netlify TanStack Start adapter considered
+
+Netlify's current official guide recommends `@netlify/vite-plugin-tanstack-start` for current TanStack Start versions (the project's `@tanstack/react-start` dependency is `^1.168.60`, well beyond the documented 1.132.0 cutoff). The guide also advertises local emulation of Functions, Blobs, Database, Cache, redirects, headers and environment variables. This alternative was explicitly reviewed rather than overlooked.
+
+It is not substituted into this validation branch yet: the existing deployed PWA behavior is implemented as Nitro/H3 global middleware in `server/middleware/grok-pwa.ts` (manifest response, install tutorial and streaming HTML head injection). The official adapter's documented setup does not establish that it auto-registers or preserves this custom Nitro middleware. Replacing Nitro without porting and testing those behaviors would risk silently removing working PWA features. The official adapter is therefore a candidate for a separate, isolated compatibility spike, not a production-ready drop-in replacement. The current Nitro path has stronger project-specific evidence because its generated Function and these middleware responses are directly smoke-tested.
+
 The alternative official `@netlify/vite-plugin-tanstack-start` is suitable for TanStack Start but would replace the existing Nitro build path. Activating both adapters together would create competing server runtimes and is intentionally avoided.
 
 ## Implemented on this branch
@@ -92,7 +98,7 @@ The first validation commits were pushed before the branch-specific Vercel suppr
 
 ## References
 
-- [Netlify: TanStack Start deployment](https://docs.netlify.com/build/frameworks/framework-setup-guides/tanstack-start/)
+- [Netlify: TanStack Start deployment and official Vite adapter](https://docs.netlify.com/build/frameworks/framework-setup-guides/tanstack-start/)
 - [Nitro: Netlify provider](https://nitro.build/deploy/providers/netlify)
 - [Nitro: migration guide and Netlify output directories](https://nitro.build/docs/migration)
 - [Nitro v3 release-candidate announcement](https://nitro.build/blog/v3-rc)
