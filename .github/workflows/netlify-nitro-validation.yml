@@ -1,0 +1,99 @@
+name: KREISLAUF – Netlify Nitro validation
+
+on:
+  push:
+    branches:
+      - infra/netlify-nitro-validation-2026-11-28
+    paths:
+      - ".github/workflows/netlify-nitro-validation.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "netlify.toml"
+      - "vercel.json"
+      - "vite.config.ts"
+      - "tsconfig.json"
+      - "scripts/**"
+      - "server/**"
+      - "src/**"
+      - "migrations/**"
+      - "public/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netlify-nitro-validation
+  cancel-in-progress: true
+
+jobs:
+  netlify-nitro-build:
+    name: Netlify Nitro build (no deployment)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v5
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci --no-audit --no-fund
+
+      - name: Gepinnte Nitro-Version prüfen
+        run: |
+          node -e "if (require('./node_modules/nitro/package.json').version !== '3.0.261103-rc') process.exit(1)"
+          npm ls nitro --depth=0
+
+      - name: Buildskript syntaktisch prüfen
+        run: node --check scripts/build-netlify.mjs
+
+      - name: TypeScript prüfen
+        run: npm run typecheck
+
+      - name: Automatisierte Tests
+        run: npm test
+
+      - name: Code-Qualität prüfen
+        run: npm run lint
+
+      - name: Bestehenden Vercel-Standardbuild prüfen
+        run: npm run build:dev
+        env:
+          CI: "true"
+
+      - name: Netlify Nitro Build ausführen
+        run: npm run build:netlify
+        env:
+          KREISLAUF_NETLIFY_ALLOW_DBLESS_BUILD: "1"
+          VITE_AUTH_ENABLED: "true"
+          CI: "true"
+
+      - name: Netlify Frameworks API Ausgabe prüfen
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d dist
+          test -s .netlify/v1/functions/server/server.mjs
+          test -s .netlify/v1/functions/nitro.json
+          test ! -e migrations/0001_auth.sql
+          grep -R -q "__grok/manifest.webmanifest" .netlify/v1/functions
+          echo "Netlify Frameworks API output and KREISLAUF PWA middleware found."
+          node scripts/check-netlify-bundle.mjs .netlify/v1/functions/server
+
+      - name: Netlify Function Request Smoke Test
+        run: node scripts/smoke-netlify-build.mjs
+
+      - name: Netlify Build-Artefakt hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: kreislauf-netlify-build
+          path: |
+            dist/
+            .netlify/v1/functions/
+          if-no-files-found: error
+          retention-days: 1
