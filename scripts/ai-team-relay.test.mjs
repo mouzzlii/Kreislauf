@@ -104,7 +104,7 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
 
   const contextCheck = relaySource.indexOf("if (!hasUsablePrimaryContext(projectContext))");
   const reserve = relaySource.indexOf('const reservation = await reserveDailyDebate(comment.id, taskEnvelope?.idempotencyKey || "")');
-  const firstModelCall = relaySource.indexOf("const initial = await runPhase");
+  const firstModelCall = relaySource.indexOf("const independentAnalyses = await Promise.allSettled([");
   assert.ok(contextCheck >= 0 && reserve > contextCheck && firstModelCall > reserve,
     "source context and daily budget must be checked before the first model call");
 
