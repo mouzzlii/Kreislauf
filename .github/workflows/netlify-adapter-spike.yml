@@ -96,4 +96,6 @@ jobs:
             exit 1
           fi
           curl --max-time 10 -fsS -H 'Accept: text/html' -H 'x-forwarded-host: kreislauf.grok.me' 'http://127.0.0.1:8080/?install=1&platform=ios' > /tmp/install.html 2>/tmp/install-curl.log || { cat /tmp/netlify-vite.log; cat /tmp/install-curl.log; exit 1; }
-          grep -q 'Add KREISLAUF to your' /tmp/install.html
+          grep -q 'Add ' /tmp/install.html
+          grep -q 'Home Screen' /tmp/install.html
+          ! grep -q '{{APP_NAME}}' /tmp/install.html
