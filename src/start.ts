@@ -22,12 +22,6 @@ function isNetlifyRuntime(): boolean {
   return process.env.NETLIFY === "true" || Boolean(process.env.SITE_ID);
 }
 
-function debugPwa(...values: unknown[]): void {
-  if (process.env.KREISLAUF_NETLIFY_DEBUG === "1") {
-    console.info("[kreislauf-netlify-pwa]", ...values);
-  }
-}
-
 function requestHost(request: Request, url: URL): string {
   return request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? url.host;
 }
@@ -66,10 +60,8 @@ const netlifyPwaMiddleware = createMiddleware().server(async ({ request, next })
   const url = new URL(request.url);
   const host = requestHost(request, url);
   const requestPath = url.pathname + url.search;
-  debugPwa("request", request.method, url.pathname, url.search, request.headers.get("accept"), isNetlifyRuntime());
 
   if (url.pathname === "/__grok/manifest.webmanifest" || url.pathname === "/__grok/manifest.json") {
-    debugPwa("manifest", requestPath);
     return new Response(renderWebManifest(host), {
       headers: {
         "content-type": "application/manifest+json; charset=utf-8",
@@ -81,9 +73,7 @@ const netlifyPwaMiddleware = createMiddleware().server(async ({ request, next })
   const installQuery = isInstallQuery(requestPath);
   const documentPath = isDocumentPath(url.pathname);
   const htmlRequest = acceptsHtml(request.headers.get("accept"));
-  debugPwa("install-check", installQuery, documentPath, htmlRequest, requestPath);
   if (installQuery && documentPath && htmlRequest) {
-    debugPwa("install", requestPath);
     return new Response(renderInstallPageHtml(installPageTemplate, { host, url: requestPath }), {
       headers: {
         "content-type": "text/html; charset=utf-8",
