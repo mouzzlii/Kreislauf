@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - infra/netlify-tanstack-adapter-spike-2026-11-28
-    paths-ignore:
-      - package-lock.json
 
 permissions:
   contents: read
