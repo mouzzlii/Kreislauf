@@ -64,16 +64,15 @@ jobs:
       - name: Vorherige Build-Ausgabe entfernen
         run: rm -rf .netlify dist
 
-      - name: Aktuellen Nitro v3 RC isoliert installieren
-        run: npm install --no-save --package-lock=false --no-audit --no-fund --maxsockets=2 nitro@3.0.261103-rc
-
-      - name: Nitro RC-Version und unveränderte Lockfiles prüfen
-        run: |
-          node -e "if (require('./node_modules/nitro/package.json').version !== '3.0.261103-rc') process.exit(1)"
-          git diff --exit-code -- package.json package-lock.json
-
       - name: Nitro RC in Package und Lockfile übernehmen (Test-Worktree)
         run: npm install --save-exact --no-audit --no-fund --maxsockets=2 nitro@3.0.261103-rc
+
+      - name: Nitro RC-Version und Lockfile-Diff prüfen
+        run: |
+          node -e "if (require('./node_modules/nitro/package.json').version !== '3.0.261103-rc') process.exit(1)"
+          npm ls nitro --depth=0
+          git diff --check -- package.json package-lock.json
+          git diff --stat -- package.json package-lock.json
 
       - name: TypeScript mit Nitro RC prüfen
         run: npm run typecheck
