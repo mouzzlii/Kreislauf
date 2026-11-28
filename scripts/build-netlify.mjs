@@ -20,6 +20,20 @@ const env = mergeAppEnv(readAppEnv(root), {
   ...process.env,
   KREISLAUF_DEPLOY_TARGET: "netlify",
 });
+
+const hasDatabaseUrl =
+  typeof env.DATABASE_URL === "string" && env.DATABASE_URL.trim().length > 0;
+const allowDatabaseLessBuild =
+  env.KREISLAUF_NETLIFY_ALLOW_DBLESS_BUILD === "1";
+
+if (!hasDatabaseUrl && !allowDatabaseLessBuild) {
+  console.error(
+    "[build:netlify] DATABASE_URL is required for a real Netlify build. " +
+      "Configure it for both the Build and Functions scopes. " +
+      "The database-less override is reserved for isolated CI validation.",
+  );
+  process.exit(1);
+}
 const viteCli = join(root, "node_modules", "vite", "bin", "vite.js");
 const migrationScript = join(root, "scripts", "migrate.mjs");
 
