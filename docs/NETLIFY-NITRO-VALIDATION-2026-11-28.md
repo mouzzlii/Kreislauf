@@ -58,16 +58,24 @@ The build output currently bundles PGLite fallback assets even though a deployed
 
 That is approximately 17.5 MB of PGLite-related assets in the generated output. PGLite is loaded only on the fallback path, but these bundled assets increase deployment size. Before a production migration, consider a Netlify-specific production build that fails closed when `DATABASE_URL` is absent and excludes the PGLite fallback from the production function bundle. This optimization must not change local development or the current Vercel preview path.
 
+Netlify Functions currently have these default limits:
+- 1024 MB memory
+- 60 seconds synchronous execution
+- 6 MB buffered request/response payload
+- 20 MB streamed response payload
+
+These limits matter for the planned market media feature. Photo/video binaries should not be sent through a buffered server function. The preferred design is a short-lived, authenticated upload authorization followed by a direct browser-to-object-storage upload, with only validated metadata and object references passed through the KREISLAUF Function. The object-storage provider and its costs still need a separate comparison; no bucket, token, or service has been configured.
+
 Still to verify with a real Netlify site:
 - full SSR response and streamed PWA/OG head injection in a browser
 - Better Auth session, OAuth callback, secure cookies and gate identity
 - Neon/PostgreSQL connection behavior under warm/cold Function invocations
 - all protected Netlify runtime variables
-- upload/body limits, streaming behavior, cold-start times and observed Function usage
+- cold-start times, actual Function usage and object-storage upload flow
 
 ## Cost and deployment guardrails
 
-Netlify Free is currently described as 300 monthly credits with a hard usage limit; production deploys use credits and Functions/traffic add usage. This is not an unlimited production deployment plan. No paid plan has been enabled and no Netlify site, team resource, domain, DNS entry, or deployment has been created.
+Netlify Free is currently described as 300 monthly credits with a hard usage limit. Production deploys use 15 credits each, compute 10 credits per GB-hour, bandwidth 20 credits per GB, and web requests 2 credits per 10,000 requests. At the limit, Free sites are paused. Deploy Previews and branch deploys do not consume deploy credits. This is not an unlimited production deployment plan; repeated production releases and media traffic can consume the allowance. No paid plan has been enabled and no Netlify site, team resource, domain, DNS entry, or deployment has been created.
 
 The first validation commits were pushed before the branch-specific Vercel suppression had been added. They caused two Vercel preview records to reach `READY` and one to end `CANCELED`; their actual billing impact is not established. After `git.deploymentEnabled=false` was added for this branch, no further Vercel deployment records were created. The branch suppression remains scoped to this test branch only.
 
