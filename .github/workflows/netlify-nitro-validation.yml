@@ -72,6 +72,9 @@ jobs:
           node -e "if (require('./node_modules/nitro/package.json').version !== '3.0.261103-rc') process.exit(1)"
           git diff --exit-code -- package.json package-lock.json
 
+      - name: Nitro RC in Package und Lockfile übernehmen (Test-Worktree)
+        run: npm install --save-exact --no-audit --no-fund --maxsockets=2 nitro@3.0.261103-rc
+
       - name: TypeScript mit Nitro RC prüfen
         run: npm run typecheck
 
@@ -97,3 +100,16 @@ jobs:
 
       - name: Nitro RC Function Request Smoke Test
         run: node scripts/smoke-netlify-build.mjs
+
+      - name: Nitro RC Lockfiles als Review-Artefakt sichern
+        run: |
+          mkdir -p netlify-nitro-lockfiles
+          cp package.json package-lock.json netlify-nitro-lockfiles/
+
+      - name: Nitro RC Lockfiles hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: netlify-nitro-rc-lockfiles
+          path: netlify-nitro-lockfiles/
+          if-no-files-found: error
+          retention-days: 1
