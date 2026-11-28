@@ -50,7 +50,13 @@ jobs:
       - name: Official Netlify TanStack Start build
         env:
           KREISLAUF_NETLIFY_ADAPTER: "1"
+          KREISLAUF_DEPLOY_TARGET: "netlify"
         run: npm run build:dev
+
+      - name: Reject PGLite from Netlify runtime bundles
+        run: |
+          node scripts/check-netlify-bundle.mjs .netlify/v1/functions
+          node scripts/check-netlify-bundle.mjs dist/server
 
       - name: Inspect generated deployment output
         run: |
