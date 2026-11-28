@@ -172,7 +172,7 @@ export default defineConfig(({ command, isPreview }) => ({
     tanstackStart(),
     ...(command === "build" || isPreview
       ? useNetlifyTanstackAdapter
-        ? [netlifyTanstackStart()]
+        ? [viteReact(), netlifyTanstackStart()]
         : [
             nitro({
               preset: "vercel",
@@ -181,8 +181,8 @@ export default defineConfig(({ command, isPreview }) => ({
               // false, so removing this silently unwires /?install=1 on deploys.
               serverDir: "./server",
             }),
+            viteReact(),
           ]
-      : []),
-    viteReact(),
+      : [viteReact()]),
   ],
 }));
