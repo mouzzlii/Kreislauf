@@ -34,7 +34,7 @@ test("bundle checker rejects a PGLite package import", async () => {
       'const db = await import("@electric-sql/pglite");',
     );
     const result = await inspectNetlifyBundle(root);
-    assert.match(result.violations.join("\\n"), /PGLite package import/);
+    assert.match(result.violations.join("\n"), /PGLite package import/);
   });
 });
 
@@ -42,7 +42,7 @@ test("bundle checker rejects PGLite runtime construction", async () => {
   await withBundle(async (root) => {
     await writeFile(join(root, "db.mjs"), "const db = new PGlite();");
     const result = await inspectNetlifyBundle(root);
-    assert.match(result.violations.join("\\n"), /PGLite runtime constructor/);
+    assert.match(result.violations.join("\n"), /PGLite runtime constructor/);
   });
 });
 
@@ -52,7 +52,7 @@ test("bundle checker rejects PGLite/WASM/data assets", async () => {
     await writeFile(join(root, "initdb.wasm"), "wasm");
     const result = await inspectNetlifyBundle(root);
     assert.equal(result.violations.length, 2);
-    assert.match(result.violations.join("\\n"), /pglite\\.data/);
-    assert.match(result.violations.join("\\n"), /initdb\\.wasm/);
+    assert.match(result.violations.join("\n"), /pglite\.data/);
+    assert.match(result.violations.join("\n"), /initdb\.wasm/);
   });
 });
