@@ -1,7 +1,7 @@
 import process from "node:process";
 import { buildSafeProjectContext, buildSourceContext, decodeSourceFile, hasNonEmptySourceExcerpt, hasUsablePrimaryContext, isPublicRepositoryMetadata, redactSensitiveText, resolveProjectBranch, selectSourcePaths } from "./ai-team-source-context.mjs";
 import { hasTrustedRelayMarker, inspectDailyBudgetPage } from "./ai-team-ledger.mjs";
-import { COUNCIL_MODELS, VERCEL_AI_GATEWAY_URL, buildGatewayChatCompletion, extractGatewayText, getMissingProviderConfiguration } from "./ai-team-providers.mjs";
+import { COUNCIL_MODELS, COUNCIL_MODEL_TARGETS, VERCEL_AI_GATEWAY_URL, buildGatewayChatCompletion, extractGatewayText, getMissingProviderConfiguration, validateGatewayResponseModel } from "./ai-team-providers.mjs";
 import { parseCouncilTaskComment, parsePublicDebateRequest, resolveCouncilTaskProject } from "./ai-team-interop.mjs";
 
 const {
@@ -92,6 +92,9 @@ async function askCouncilModel(model, instructions, input) {
     headers: { Authorization: `Bearer ${AI_GATEWAY_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify(buildGatewayChatCompletion({ model, instructions, input, maxTokens: MAX_OUTPUT_TOKENS })),
   });
+  const expectedModel = Object.entries(COUNCIL_MODELS).find(([, alias]) => alias === model)?.[0];
+  if (!expectedModel) throw new Error("Council model alias is not recognized.");
+  validateGatewayResponseModel(data, COUNCIL_MODEL_TARGETS[expectedModel]);
   const output = extractGatewayText(data);
   if (!output) throw new Error(`Council model ${model} returned an empty response.`);
   return output;
