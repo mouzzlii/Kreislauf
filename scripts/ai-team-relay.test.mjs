@@ -37,6 +37,14 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   const setup = await readFile(new URL("../AI_TEAM_SETUP.md", import.meta.url), "utf8");
 
   assert.ok(relaySource.includes("const RELAY_LIVE_ENABLED = false;"));
+  const firstRoundStart = relaySource.indexOf("const independentAnalyses = await Promise.allSettled([");
+  const synthesisStart = relaySource.indexOf("const synthesis = await runPhase", firstRoundStart);
+  const firstRound = relaySource.slice(firstRoundStart, synthesisStart);
+  assert.ok(firstRoundStart >= 0 && synthesisStart > firstRoundStart);
+  for (const phase of ["GPT-Erstanalyse", "Claude-unabhängige Analyse", "Gemini-unabhängige Analyse", "Grok-unabhängige Analyse"]) {
+    assert.ok(firstRound.includes(phase), `missing independent first-round phase: ${phase}`);
+  }
+  assert.ok(firstRound.includes("Promise.allSettled"), "independent first analyses must run concurrently and settle before synthesis");
   const mainStart = relaySource.indexOf("async function main()");
   const runtimeGate = relaySource.indexOf("if (!RELAY_LIVE_ENABLED)", mainStart);
   const envValidation = relaySource.indexOf("if (!GITHUB_TOKEN", mainStart);
