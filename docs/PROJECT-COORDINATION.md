@@ -64,3 +64,13 @@ Weitere Konzept- und Forschungsstränge (KRONOS 01, KREISLAUF ReFlex/VacMail, VR
 - **Produktionsbereit:** alle erforderlichen Abnahme-Gates erfüllt.
 
 Nie einen Status aus einem anderen ableiten.
+
+
+## Council Relay – Integrationszweig PR #63 (27.11.2026)
+
+- Draft PR [#63](https://github.com/mouzzlii/Kreislauf/pull/63) portiert die Gateway-Relay-Module und Vertragstests auf einen sauberen Integrationszweig. Der Branch wurde jetzt mit dem aktuellen `main`-Stand `8d90ae2b540c03a316d6b9ae39051c22605f736a` als zweitem Merge-Elternteil abgeglichen; die vier neueren Mainline-Dokumentationsänderungen bleiben erhalten.
+- Enthalten sind feste Gateway-Aliase für GPT, Claude, Gemini und Grok, Interop-Envelope, Ledger, Provider-Adapter, Public-only-Quellkontext, Secret-Redaktion und Parser samt Tests.
+- Die CI-Läufe #369 (Relay CI) und #1273 (KREISLAUF Build/Test) waren auf dem vorherigen Branch-Head `50dc729c3e9de06a201548df76d502c1be948e47` erfolgreich. Für den neuen Merge-Commit ist eine erneute CI-Prüfung erforderlich; die alten Ergebnisse gelten nicht automatisch für ihn.
+- Das Live-Gate im Issue-Comment-Workflow bleibt technisch deaktiviert (`false && ...`). Keine Provider-Aufrufe, keine Inferenzkosten, keine echten Council-Antworten. Llama bleibt ausgeschlossen.
+- Vercel-Preview/Deployment bleibt vom Status `build-rate-limit` blockiert. Kein Deployment ausgelöst.
+- PR #63 bleibt Draft und ungemergt. PR #38 bleibt unverändert offen und wird wegen seiner starken Divergenz nicht blind integriert.
