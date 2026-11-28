@@ -1,4 +1,6 @@
-# KREISLAUF – Regionales Tauschsystem Yspertal
+# KREISLAUF – Menschheitsfamilie
+
+**Der Tausch verbindet uns.** Eine gemeinsame Plattform für geldlosen Austausch, gegenseitige Hilfe und regionale Kreislaufwirtschaft. Yspertal und die B36 sind die vorgesehene Pilotregion; Menschheitsfamilie ist die übergeordnete Gemeinschaftsvision.
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/mouzzlii/logo-M-glichkeiten-/main/1795645501426.jpg" alt="W-Signatur – Gold-Grün, Original" width="180" />
@@ -9,7 +11,11 @@
 </div>
 
 
-**Ziel:** Menschen, Vereine, Schulen und Betriebe im Yspertal und entlang der B36 verbinden – durch Tauschen, Teilen, Helfen und ein transparentes Gemeinschaftsguthaben.
+**Ziel:** Menschen, Vereine, Schulen, Betriebe und Gemeinden verbinden – durch Tauschen, Teilen, Helfen und ein transparentes Gemeinschaftsguthaben. KREISLAUF und Menschheitsfamilie werden als ein Produkt entwickelt; Yspertal/B36 ist der regionale Pilot, spätere Regionen nutzen dieselbe Plattform.
+
+## Gemeinsame Produktbaseline
+
+Die verbindliche Zusammenführung der bisherigen Projekte KREISLAUF und „Menschheitsfamilie – Der Tausch verbindet uns“ ist in [docs/KREISLAUF-MENSCHHEITSFAMILIE/PROJECT_BASELINE.md](docs/KREISLAUF-MENSCHHEITSFAMILIE/PROJECT_BASELINE.md) dokumentiert. Das Repository `mouzzlii/Gemeinwohl` bleibt historische Konzeptquelle und wird nicht als zweite aktive Plattform fortgeführt.
 
 ## Aktueller Stand
 

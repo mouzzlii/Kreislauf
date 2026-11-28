@@ -5,14 +5,14 @@
 
 ## 1. Rolle dieser Projektbaseline und Abgrenzung zum MAINPROMPT
 
-Die globale Arbeits- und Projektverfassung ist ausschließlich **MAINPROMPT 2.0.8** im privaten Repository [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz), Datei `docs/MAINPROMPT.md`. Sie regelt chatübergreifend Arbeitsweise, Autonomie, Recherche, KI-Council, Kosten, Sicherheit, GitHub-Schutz, Qualität und Ergebnislieferung.
+Die globale Arbeits- und Projektverfassung ist ausschließlich **MAINPROMPT 2.2.1** im privaten Repository [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz), Datei `docs/MAINPROMPT.md`. Sie regelt chatübergreifend Arbeitsweise, Autonomie, Recherche, KI-Council, Kosten, Sicherheit, GitHub-Schutz, Qualität und Ergebnislieferung.
 
 Diese Datei ist dagegen die **KREISLAUF-Projekt- und Portfolio-Baseline**. Sie dokumentiert bestätigte Projektentscheidungen, Repository-Zuordnungen, Abhängigkeiten, Statusnachweise und offene Punkte. Sie ist keine zweite globale Arbeitsverfassung und überschreibt den MAINPROMPT nicht.
 
 Für Arbeiten an KREISLAUF gilt:
 - Diese Baseline und anschließend die jeweils betroffenen KREISLAUF-Spezifikationen, Aufgaben, Issues/PRs und tatsächlichen Quellstände prüfen.
 - Neueste ausdrücklich bestätigte Nutzerentscheidung für KREISLAUF verwenden; ältere Entscheidungen nur als gekennzeichnete Historie behalten.
-- KREISLAUF, Menschheitsfamilie und andere Projekte trotz möglicher fachlicher Verbindung mit getrennten Daten-/Berechtigungsgrenzen behandeln.
+- KREISLAUF und Menschheitsfamilie sind gemäß der Nutzerentscheidung vom 28.11.2026 ein gemeinsames Produkt und eine gemeinsame Plattform. Historische Konzeptquellen bleiben erhalten; es gibt keine zweite App. Regionale Daten-, Rollen-, Fonds- und Moderationsgrenzen innerhalb der gemeinsamen Plattform bleiben ausdrücklich erforderlich.
 - Produktanforderungen, Vorschläge, vorhandene Implementierung, automatisierte Tests, externe Prüfungen und Produktionsfreigaben strikt auseinanderhalten.
 - Keine Projektfunktion, Anbieterintegration, KI-Antwort, Datenbankverbindung oder Geräteprüfung ohne tatsächlichen Nachweis als vorhanden bezeichnen.
 
@@ -51,46 +51,16 @@ DPD, GLS, Hermes, UPS, Österreichische Post, DHL Express, FedEx und LogoiX. Die
 - Je Anbieter offiziell unterstützte Labelübergabe nachweisen.
 - Echte Drucktests, Barcode-/QR-Lesbarkeit, Wiederverbindung und Duplikatschutz abnehmen.
 
-### KREISLAUF – regionales Tauschsystem Yspertal / B36
+### KREISLAUF – Menschheitsfamilie (gemeinsames Produkt)
 
-**Repository:** [mouzzlii/Kreislauf](https://github.com/mouzzlii/Kreislauf)
+**Kanonisches Repository:** [mouzzlii/Kreislauf](https://github.com/mouzzlii/Kreislauf)  
+**Historische Konzeptquelle:** [mouzzlii/Gemeinwohl](https://github.com/mouzzlii/Gemeinwohl) – bleibt als Archiv/Quellmaterial bestehen, ist kein zweites aktives Plattformprojekt.
 
-**Bestätigtes Ziel**
-Ein regionales Kreislauf-, Tausch- und Hilfesystem für Menschen, Vereine, Schulen und Betriebe im Yspertal und entlang der B36. Waldgrün/Naturfarben, hochwertige mobile Bedienung und die W-Signatur in Gold/Waldgrün.
+Die Zusammenführung wurde vom Nutzer am 28.11.2026 ausdrücklich beschlossen. KREISLAUF ist der technische Produkt- und Repository-Anker; Menschheitsfamilie ist die übergeordnete Gemeinschaftsvision. Yspertal/B36 ist die Pilotregion, nicht die Grenze des späteren Produkts. Die endgültige Markenarchitektur bleibt offen.
 
-**Bestätigte Funktions- und Produktanforderungen**
-- Marktplatz mit getrennten Bereichen für Gesuche („Ich suche“) und Angebote („Ich biete“) sowie einer Ansicht für Angebote in der Nähe.
-- Inserat öffnet eine Produktdetailseite; dort soll ein gut sichtbarer Weg zu weiteren Inseraten desselben Anbieters vorhanden sein.
-- Produktfoto in der Inseratvorschau.
-- Beim Erstellen eines Inserats Foto- und Kurzvideoauswahl mit den vorgesehenen Begrenzungen: entweder 1 × 60 Sekunden, 2 × 30 Sekunden oder 4 × bis zu 20 Sekunden.
-- Nachrichten sind mit Inseraten, Tauschanfragen, Angeboten und dem zugehörigen Tauschvorgang verbunden; eingehende Angebote lösen passende Nachrichten aus.
-- Direkter Tausch, Tausch gegen Punkte und kombinierte Angebote.
-- Gemeinschaftsfonds und Inflationsschutz sind Teil der gewünschten Punktearchitektur. Die konkrete endgültige Berechnungsregel muss getrennt von vorhandenen Codewerten dokumentiert werden.
-- Das Element „3 Punkte 1 Ort“ soll als Koordinations-/Gemeinschaftselement wieder enthalten sein.
-- Treuhand, Moderation, Profile, mobile Bedienung und Admin gehören zum Funktionsumfang.
-- Keine Nutzer-zu-Nutzer-Geldtransfers. Punkte sind internes Gemeinschaftsguthaben, kein Geld und nicht auszahlbar.
-- Die frühere Produktentscheidung bevorzugt zunächst eine Demo/Testversion; bestehende Supabase-Projekte werden nicht als bereits angebunden ausgegeben.
+Die vollständige konsolidierte Produktbaseline, einschließlich Ziele, Nicht-Ziele, Module, Regionen, Architektur, Roadmap, offene Entscheidungen und Abnahme-Gates, liegt in [docs/KREISLAUF-MENSCHHEITSFAMILIE/PROJECT_BASELINE.md](KREISLAUF-MENSCHHEITSFAMILIE/PROJECT_BASELINE.md).
 
-**Aktueller Repository-Abgleich**
-- main-README beschreibt eine Demo-/Entwicklungsbasis, Waldgrün-Oberfläche, Marktplatz, Karma-Ledger, Profile, Tauschabläufe und Nachrichten.
-- Treuhand-/Sharing-Demo mit Community-Abstimmungen ist laut README weiterhin in einem getrennten Preview-Branch und nicht als Main-/Produktionsfunktion abzunehmen.
-- App-Code verwendet aktuell PGlite oder Neon/Postgres über DATABASE_URL; Supabase ist nicht automatisch verbunden.
-- Authentifizierungslose Demo darf nicht öffentlich betrieben werden.
-- Die oben aufgeführten neueren Medien-, Detailseiten- und Punkteanforderungen sind bestätigte Produktanforderungen; ihre vollständige Umsetzung ist nicht aus dem README allein nachgewiesen.
-
-### MENSCHHEITSFAMILIE – „Der Tausch verbindet uns“
-
-**Projektstatus:** eigenständige Community-/Gesellschaftsebene mit konzeptioneller Verbindung zu KREISLAUF; Daten- und Berechtigungsgrenzen bleiben getrennt.
-
-**Bestätigte Leitlinien**
-- Slogan: „Der Tausch verbindet uns“.
-- „Keine Werbung. Kein Geld. Nur echte Verbindungen.“
-- Geldloser Austausch von Gütern, Dienstleistungen, Punkten, B2B-Leistungen, Bürger-/Hilfsaufgaben und Offline-QR-Märkten.
-- Gemeinschaftspunkte, Community-Fonds, Anti-Inflations-/Anti-Deflationsmechanismen und gemeinnützige Aufgaben als mögliche Verteilungswege.
-- Keine Werbung und keine Nutzergebühren als Leitlinie; Finanzierungsideen über freiwillige Sponsoren-/Partnerbeiträge sind Konzept, nicht als gesicherte Finanzierung ausgeben.
-- Moderation und Treuhand müssen transparent, nachvollziehbar und gegen Interessenkonflikte geschützt sein.
-
-**Repository-Hinweis:** mouzzlii/Gemeinwohl enthält laut aktuellem Root-Inventar derzeit ein ZIP-Artefakt und einen Rechtehinweis, aber keinen aus dem Root-README verifizierbaren vollständigen Quellbaum. Deshalb keine aktive Plattformimplementierung behaupten.
+**Wichtige bestehende Grenzen:** Demo-/Preview-Funktionen nicht als Main-/Produktionsabnahme ausgeben. Der aktuelle App-Code nutzt PGlite oder Neon/Postgres über `DATABASE_URL`; Supabase ist nicht automatisch verbunden. Keine produktiven Nutzerkonten, Punkte-/Treuhandvorgänge oder externen Transaktionen ohne gesonderte Abnahme und Freigabe.
 
 ### SCAN-PROFIT – Reseller-Cockpit
 
@@ -208,13 +178,13 @@ Das Repository [logo-M-glichkeiten-](https://github.com/mouzzlii/logo-M-glichkei
 - **Integrationsstatus:** PR #38 bleibt Draft/offen/ungemergt. Branch ist gegenüber `main` deutlich divergiert; GitHub meldet `mergeable=false`. Ahead-/Behind-Zahlen sind volatil und vor einer kontrollierten Konsolidierung neu zu ermitteln. Vercel-Preview-Check scheiterte wegen `build-rate-limit`. Keine Integration in `main` ohne kontrollierte Konsolidierung und erneute vollständige Prüfung.
 - Die fünf Vercel-Aliase `council-claude`, `council-gemini`, `council-gpt`, `council-grok` und `council-llama` sind aktive Konfigurationen; alle fünf wurden mit Zero Data Retention und deaktiviertem Prompt-Training ausgelesen. Nur Claude ist ausdrücklich auf EU-Provider-Routen beschränkt. Für GPT, Gemini und Grok ist keine explizite EU-Inferenzregion festgelegt; Llama hat keine bestätigte EU-Inferenzregion. ZDR/No-Training ist keine EU-Datenresidenz-Garantie.
 - Im Vercel-Projekt `collective-intelligence-council` ist `AI_GATEWAY_API_KEY` als Sensitive-Variable für Preview und Development vorhanden, nicht Production. Dieser Schlüssel wird nicht automatisch in GitHub verfügbar. Kein Secret-Wert wurde ausgelesen oder geändert.
-- Das Vercel-Projektbudget beträgt 5 USD monatlich und der zuletzt gemeldete Verbrauch 0 USD. Dieses Budget ist ein Soft Cap, keine harte Kostenobergrenze. MAINPROMPT 2.0.8 setzt Zusatzbudget auf 0 EUR und Live-Council AUS. Keine kostenpflichtigen Modellaufrufe ohne ausdrückliche Freigabe und belastbare Kostenkontrolle.
+- Das Vercel-Projektbudget beträgt 5 USD monatlich und der zuletzt gemeldete Verbrauch 0 USD. Dieses Budget ist ein Soft Cap, keine harte Kostenobergrenze. MAINPROMPT 2.2.1 setzt Zusatzbudget auf 0 EUR und Live-Council AUS. Keine kostenpflichtigen Modellaufrufe ohne ausdrückliche Freigabe und belastbare Kostenkontrolle.
 - Ohne echte Provider-Aufrufe keine Claude-/Gemini-/Grok-/Llama-Antworten oder unabhängigen Reviews behaupten. PWA-Mock-/Vertragstests sind keine Council-Inferenz. Keine Secrets oder persönlichen Zugangsdaten im Chat oder in GitHub ablegen.
 
 ## 5. Priorisierung und Arbeitsmodus
 
 - TRAKUNA ist derzeit eine hohe Umsetzungspriorität; innerhalb von TRAKUNA gilt die projektspezifische Regel: genau ein priorisiertes Ticket gleichzeitig.
-- KREISLAUF und Menschheitsfamilie fachlich verbunden, aber mit getrennten Daten- und Berechtigungsgrenzen.
+- KREISLAUF – Menschheitsfamilie ist ein gemeinsames Produkt und eine gemeinsame Plattform; regionale Daten-, Mandanten-, Rollen-, Fonds- und Moderationsgrenzen bleiben darin technisch getrennt.
 - SCAN-PROFIT und INSERAT-PROFI AI bleiben eigenständige Produkte ohne gegenseitige Laufzeitabhängigkeit.
 - KI-Arbeitsplatz soll langfristig zentrale Entwicklungs- und Koordinationshilfe werden; vorhandenes Windows-Cockpit, PWA-Prototyp und getrennte Council-Engine-Architektur gezielt weiterprüfen und integrieren, ohne eine parallele Agentenbasis aufzubauen.
 - AIRLESS und Implosionsmotor als langfristige Hintergrundstränge mit geringem Ressourcenverbrauch verfolgen.
@@ -257,7 +227,7 @@ Dieser Abschnitt hält nur die Herkunft der Nutzerentscheidungen fest. Er ist ke
 
 ## 9. Projektfamilien-Council und Offline-Arbeitsplatz – projektspezifische Zielarchitektur
 
-**Geltungsbereich:** Dieser Abschnitt dokumentiert die Council-Zielarchitektur für die Projektfamilie TRAKUNA, SCAN-PROFIT, CHRONOS und KREISLAUF. Globale Council-Arbeitsweise, Sicherheits-, Kosten- und Nachweisregeln stehen ausschließlich im MAINPROMPT 2.0.8.
+**Geltungsbereich:** Dieser Abschnitt dokumentiert die Council-Zielarchitektur für die Projektfamilie TRAKUNA, SCAN-PROFIT, CHRONOS und KREISLAUF. Globale Council-Arbeitsweise, Sicherheits-, Kosten- und Nachweisregeln stehen ausschließlich im MAINPROMPT 2.2.1.
 
 ### Gewünschte Rollen und Zusammenarbeit
 - **ChatGPT:** Koordination, Aufgabenzerlegung, Projekt-/Abhängigkeitsmanagement, Synthese und Qualitätskontrolle.
@@ -276,11 +246,11 @@ Der Nutzer wünscht, dass Council-Mitglieder einander Fragen und Aufgaben stelle
 `COUNCIL_LIVE_STATUS.md` dokumentiert pro Instanz/Verbindung Anbieter bzw. lokale Komponente, Verbindungsart, letzten erfolgreichen Verbindungstest, Berechtigungsumfang, Kostenstatus, letzten real gesendeten Auftrag, Antwortnachweis, Teststatus und offene Blocker. Keine Secrets oder Tokens eintragen. Veraltete Angaben als historisch kennzeichnen.
 
 ### Statusgrenze
-Eine gewünschte Architektur, ein vorbereiteter Relay, ein Modell-Alias oder eine vorhandene API-Konfiguration beweist keine aktive Modell-Inferenz. Für Live-Status gelten ausschließlich die Nachweiskriterien des MAINPROMPT 2.0.8 § 4.3.
+Eine gewünschte Architektur, ein vorbereiteter Relay, ein Modell-Alias oder eine vorhandene API-Konfiguration beweist keine aktive Modell-Inferenz. Für Live-Status gelten ausschließlich die Nachweiskriterien des MAINPROMPT 2.2.1 § 4.3.
 
 ## 10. TRAKUNA-Pilot – projektbezogene Realbetrieb-Simulation
 
-Für den TRAKUNA-Paketshop-Pilot gelten zusätzlich zu MAINPROMPT 2.0.8 und den TRAKUNA-Projektspezifikationen:
+Für den TRAKUNA-Paketshop-Pilot gelten zusätzlich zu MAINPROMPT 2.2.1 und den TRAKUNA-Projektspezifikationen:
 - Paketshop-Mitarbeiter sollen den vorgesehenen Arbeitsablauf möglichst realitätsnah testen können.
 - Bis zur gesonderten Freigabe bleiben echte Carrier-Buchungen, Labelkäufe, verbindliche Auftragsübermittlungen und kostenpflichtige Schritte technisch gesperrt.
 - Jeder simulierte Buchungsschritt muss sichtbar als Simulation erscheinen und protokollieren, welche Aktion vorbereitet worden wäre.
@@ -288,7 +258,7 @@ Für den TRAKUNA-Paketshop-Pilot gelten zusätzlich zu MAINPROMPT 2.0.8 und den 
 - Vor Weitergabe einer APK: exakten Quell-Commit mit erfolgreichem Build verknüpfen, Instrumentierungsergebnis abwarten, Artefakt-Hash notieren, Installations-/Deinstallationsrisiken prüfen und eine verständliche Mitarbeiteranleitung bereitstellen.
 - Kein Mitarbeiter soll echte Kundendaten, echte Buchungen oder produktive Zugangsdaten für einen nicht freigegebenen Test verwenden. Testdaten und organisatorische Zustimmung des Paketshops müssen vor Ort geklärt sein.
 
-Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale Testmethodik. Die allgemeine Testmethodik und die Hard-Gate-Regeln stehen im MAINPROMPT 2.0.8 § 7.2.
+Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale Testmethodik. Die allgemeine Testmethodik und die Hard-Gate-Regeln stehen im MAINPROMPT 2.2.1 § 7.2.
 
 ## KI-ARBEITSPLATZ – Arbeitsnachtrag 27.11.2026 (Fortsetzung PR #12)
 
@@ -496,3 +466,23 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 - Aktueller Testquellstand: 22 Orchestrator- und 16 HTTP-Fälle. Für den exakten Head liefert die GitHub-Actions-Abfrage keinen Lauf; der neue Test und die jüngsten Härtungen sind nicht als ausgeführt bestätigt. Der Commit-Status zeigt den fehlgeschlagenen Vercel-Check.
 - Vercel-Bot meldet `api-deployments-free-per-day` mit mehr als 100 Deployments innerhalb von 24 Stunden. Das kostenlose Tageslimit blockiert weitere Deployments; keine weiteren Deployments auslösen und kein Upgrade ohne Freigabe.
 - Keine echte Provider-Inferenz, keine Kosten, keine produktive API-Route, keine produktive Auth-/CSRF-/Freigabe-/Audit-/Budgetintegration, keine Browser-/Android-Abnahme. PR bleibt Draft.
+
+
+## Projektübergreifende Nachprüfung – TRAKUNA und KI-Council (28.11.2026)
+
+### TRAKUNA – Repository-Zuordnung und Druckstand
+
+- Die bestehende KREISLAUF-Projektbaseline nennt `mouzzlii/Fuck` als Android-App-Repository und `mouzzlii/multi-carrier-gateway` als Gateway. Ein Read-only-Abruf von Dateien und PR-Metadaten aus `mouzzlii/Fuck` lieferte in dieser Sitzung HTTP 404. Das beweist nicht, dass das Repository fehlt; der Inhalt war über die aktuelle GitHub-Verbindung nicht lesbar.
+- Zusätzlich wurde `mouzzlii/Pakete-Scanner`, Branch `trakuna-2.0-hardening`, PR #6 gefunden. Dieser Branch enthält eine TRAKUNA-2.0-Android-Implementierung mit Code-Erkennung und einem PDF-Druckpfad. Seine kanonische Rolle gegenüber `mouzzlii/Fuck` ist **noch nicht bestätigt**. Bis zur Klärung keine Codekopie, Zusammenführung oder zweite parallele Produktlinie erzeugen.
+- Aktueller Compare von `Pakete-Scanner/trakuna-2.0-hardening` zu dessen `main`: 45 Commits ahead, 0 behind; PR #6 bleibt Draft. Der Android-Code-Head mit nachgewiesenem GitHub-Actions-Lauf #233 enthält 11 bestandene JUnit-Tests und einen erfolgreichen APK-Build; der spätere Dokumentationsstand ist nicht durch einen neuen Lauf auf dem exakten aktuellen Head bestätigt.
+- Die Druckimplementierung normalisiert einseitige PDFs statisch auf 100 × 150 mm und verwendet eine einheitliche Skalierung. Die aktuelle Android-PrintManager-Übergabe speichert/erzwingt jedoch noch keine eindeutige physische Drucker-ID. Es gibt keine Mehrdruckerverwaltung, aber Android kann weiterhin eine Druckerauswahl verlangen.
+- Statische Maßprüfung: 3937 × 5906 mils für 100 × 150 mm, 1181 × 1772 Pixel als gerundetes 300-dpi-Ziel, 283 × 425 PDF-Punkte als gerundete Seitengröße. Die Implementierung zentriert und skaliert einheitlich; tatsächliche Barcode-/QR-Lesbarkeit, Ruhezone, Kontrast und Druckqualität bleiben ohne Hardwaretest unbestätigt.
+- Der konkrete Drucker, Druckdienst und das Smartphone müssen vor einer erzwungenen Ein-Drucker-Implementierung bekannt sein. Standard-Android-Druckdialog ist derzeit kein Nachweis einer gespeicherten oder exklusiv erzwungenen Drucker-ID.
+
+### KI-Council – aktueller Inferenzzugang
+
+- Die fünf Vercel-AI-Gateway-Aliase sind weiterhin nur als Konfiguration bestätigt. Für die letzten 30 Tage wurde zuvor keine Usage-Zeile gefunden; dies ist kein Nachweis für andere direkte Providerwege.
+- Zwei im öffentlichen Modellkatalog gelistete kostenfreie Modelle (`nvidia/nemotron-3.5-lightning-free`, `reflection/beam-free`) weisen jeweils keine ZDR- und keine No-Training-Eigenschaft aus; die Anbieter sind mit Hauptsitz USA gelistet. Private Projektinhalte wurden deshalb nicht übermittelt.
+- Ein generischer, nicht vertraulicher Inferenzversuch wurde mit HTTP 403 abgewiesen, da Vercel AI Gateway eine gültige Kreditkarte am Konto verlangt. Keine Kreditkarten-/Billing-Einstellung geändert, kein weiterer Versuch.
+- Die anschließende Read-only-Usage-Abfrage für das letzte Stundenfenster lieferte sowohl projektweit als auch teamweit keine Request-Zeilen. Es liegt keine externe Modellantwort vor: **kein Live-Council-Durchlauf**.
+- Live-Council bleibt AUS, Zusatzkostenfreigabe 0 EUR. Die Details und Grenzen sind in [COUNCIL-INTEGRATION-BOUNDARY.md](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/COUNCIL-INTEGRATION-BOUNDARY.md) dokumentiert.
