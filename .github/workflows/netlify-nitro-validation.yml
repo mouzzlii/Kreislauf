@@ -80,6 +80,7 @@ jobs:
           test -d dist
           test -s .netlify/v1/functions/server/server.mjs
           test -s .netlify/v1/functions/nitro.json
+          test ! -e migrations/0001_auth.sql
           grep -R -q "__grok/manifest.webmanifest" .netlify/v1/functions
           echo "Netlify Frameworks API output and KREISLAUF PWA middleware found."
           node scripts/check-netlify-bundle.mjs .netlify/v1/functions/server
