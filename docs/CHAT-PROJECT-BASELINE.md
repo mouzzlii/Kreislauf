@@ -5,7 +5,7 @@
 
 ## 1. Rolle dieser Projektbaseline und Abgrenzung zum MAINPROMPT
 
-Die globale Arbeits- und Projektverfassung ist ausschließlich **MAINPROMPT 2.2.0** im privaten Repository [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz), Datei `docs/MAINPROMPT.md`. Sie regelt chatübergreifend Arbeitsweise, Autonomie, Recherche, KI-Council, Kosten, Sicherheit, GitHub-Schutz, Qualität und Ergebnislieferung.
+Die globale Arbeits- und Projektverfassung ist ausschließlich **MAINPROMPT 2.2.1** im privaten Repository [mouzzlii/KI-Arbeitsplatz](https://github.com/mouzzlii/KI-Arbeitsplatz), Datei `docs/MAINPROMPT.md`. Sie regelt chatübergreifend Arbeitsweise, Autonomie, Recherche, KI-Council, Kosten, Sicherheit, GitHub-Schutz, Qualität und Ergebnislieferung.
 
 Diese Datei ist dagegen die **KREISLAUF-Projekt- und Portfolio-Baseline**. Sie dokumentiert bestätigte Projektentscheidungen, Repository-Zuordnungen, Abhängigkeiten, Statusnachweise und offene Punkte. Sie ist keine zweite globale Arbeitsverfassung und überschreibt den MAINPROMPT nicht.
 
@@ -178,7 +178,7 @@ Das Repository [logo-M-glichkeiten-](https://github.com/mouzzlii/logo-M-glichkei
 - **Integrationsstatus:** PR #38 bleibt Draft/offen/ungemergt. Branch ist gegenüber `main` deutlich divergiert; GitHub meldet `mergeable=false`. Ahead-/Behind-Zahlen sind volatil und vor einer kontrollierten Konsolidierung neu zu ermitteln. Vercel-Preview-Check scheiterte wegen `build-rate-limit`. Keine Integration in `main` ohne kontrollierte Konsolidierung und erneute vollständige Prüfung.
 - Die fünf Vercel-Aliase `council-claude`, `council-gemini`, `council-gpt`, `council-grok` und `council-llama` sind aktive Konfigurationen; alle fünf wurden mit Zero Data Retention und deaktiviertem Prompt-Training ausgelesen. Nur Claude ist ausdrücklich auf EU-Provider-Routen beschränkt. Für GPT, Gemini und Grok ist keine explizite EU-Inferenzregion festgelegt; Llama hat keine bestätigte EU-Inferenzregion. ZDR/No-Training ist keine EU-Datenresidenz-Garantie.
 - Im Vercel-Projekt `collective-intelligence-council` ist `AI_GATEWAY_API_KEY` als Sensitive-Variable für Preview und Development vorhanden, nicht Production. Dieser Schlüssel wird nicht automatisch in GitHub verfügbar. Kein Secret-Wert wurde ausgelesen oder geändert.
-- Das Vercel-Projektbudget beträgt 5 USD monatlich und der zuletzt gemeldete Verbrauch 0 USD. Dieses Budget ist ein Soft Cap, keine harte Kostenobergrenze. MAINPROMPT 2.2.0 setzt Zusatzbudget auf 0 EUR und Live-Council AUS. Keine kostenpflichtigen Modellaufrufe ohne ausdrückliche Freigabe und belastbare Kostenkontrolle.
+- Das Vercel-Projektbudget beträgt 5 USD monatlich und der zuletzt gemeldete Verbrauch 0 USD. Dieses Budget ist ein Soft Cap, keine harte Kostenobergrenze. MAINPROMPT 2.2.1 setzt Zusatzbudget auf 0 EUR und Live-Council AUS. Keine kostenpflichtigen Modellaufrufe ohne ausdrückliche Freigabe und belastbare Kostenkontrolle.
 - Ohne echte Provider-Aufrufe keine Claude-/Gemini-/Grok-/Llama-Antworten oder unabhängigen Reviews behaupten. PWA-Mock-/Vertragstests sind keine Council-Inferenz. Keine Secrets oder persönlichen Zugangsdaten im Chat oder in GitHub ablegen.
 
 ## 5. Priorisierung und Arbeitsmodus
@@ -227,7 +227,7 @@ Dieser Abschnitt hält nur die Herkunft der Nutzerentscheidungen fest. Er ist ke
 
 ## 9. Projektfamilien-Council und Offline-Arbeitsplatz – projektspezifische Zielarchitektur
 
-**Geltungsbereich:** Dieser Abschnitt dokumentiert die Council-Zielarchitektur für die Projektfamilie TRAKUNA, SCAN-PROFIT, CHRONOS und KREISLAUF. Globale Council-Arbeitsweise, Sicherheits-, Kosten- und Nachweisregeln stehen ausschließlich im MAINPROMPT 2.2.0.
+**Geltungsbereich:** Dieser Abschnitt dokumentiert die Council-Zielarchitektur für die Projektfamilie TRAKUNA, SCAN-PROFIT, CHRONOS und KREISLAUF. Globale Council-Arbeitsweise, Sicherheits-, Kosten- und Nachweisregeln stehen ausschließlich im MAINPROMPT 2.2.1.
 
 ### Gewünschte Rollen und Zusammenarbeit
 - **ChatGPT:** Koordination, Aufgabenzerlegung, Projekt-/Abhängigkeitsmanagement, Synthese und Qualitätskontrolle.
@@ -246,11 +246,11 @@ Der Nutzer wünscht, dass Council-Mitglieder einander Fragen und Aufgaben stelle
 `COUNCIL_LIVE_STATUS.md` dokumentiert pro Instanz/Verbindung Anbieter bzw. lokale Komponente, Verbindungsart, letzten erfolgreichen Verbindungstest, Berechtigungsumfang, Kostenstatus, letzten real gesendeten Auftrag, Antwortnachweis, Teststatus und offene Blocker. Keine Secrets oder Tokens eintragen. Veraltete Angaben als historisch kennzeichnen.
 
 ### Statusgrenze
-Eine gewünschte Architektur, ein vorbereiteter Relay, ein Modell-Alias oder eine vorhandene API-Konfiguration beweist keine aktive Modell-Inferenz. Für Live-Status gelten ausschließlich die Nachweiskriterien des MAINPROMPT 2.2.0 § 4.3.
+Eine gewünschte Architektur, ein vorbereiteter Relay, ein Modell-Alias oder eine vorhandene API-Konfiguration beweist keine aktive Modell-Inferenz. Für Live-Status gelten ausschließlich die Nachweiskriterien des MAINPROMPT 2.2.1 § 4.3.
 
 ## 10. TRAKUNA-Pilot – projektbezogene Realbetrieb-Simulation
 
-Für den TRAKUNA-Paketshop-Pilot gelten zusätzlich zu MAINPROMPT 2.2.0 und den TRAKUNA-Projektspezifikationen:
+Für den TRAKUNA-Paketshop-Pilot gelten zusätzlich zu MAINPROMPT 2.2.1 und den TRAKUNA-Projektspezifikationen:
 - Paketshop-Mitarbeiter sollen den vorgesehenen Arbeitsablauf möglichst realitätsnah testen können.
 - Bis zur gesonderten Freigabe bleiben echte Carrier-Buchungen, Labelkäufe, verbindliche Auftragsübermittlungen und kostenpflichtige Schritte technisch gesperrt.
 - Jeder simulierte Buchungsschritt muss sichtbar als Simulation erscheinen und protokollieren, welche Aktion vorbereitet worden wäre.
@@ -258,7 +258,7 @@ Für den TRAKUNA-Paketshop-Pilot gelten zusätzlich zu MAINPROMPT 2.2.0 und den 
 - Vor Weitergabe einer APK: exakten Quell-Commit mit erfolgreichem Build verknüpfen, Instrumentierungsergebnis abwarten, Artefakt-Hash notieren, Installations-/Deinstallationsrisiken prüfen und eine verständliche Mitarbeiteranleitung bereitstellen.
 - Kein Mitarbeiter soll echte Kundendaten, echte Buchungen oder produktive Zugangsdaten für einen nicht freigegebenen Test verwenden. Testdaten und organisatorische Zustimmung des Paketshops müssen vor Ort geklärt sein.
 
-Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale Testmethodik. Die allgemeine Testmethodik und die Hard-Gate-Regeln stehen im MAINPROMPT 2.2.0 § 7.2.
+Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale Testmethodik. Die allgemeine Testmethodik und die Hard-Gate-Regeln stehen im MAINPROMPT 2.2.1 § 7.2.
 
 ## KI-ARBEITSPLATZ – Arbeitsnachtrag 27.11.2026 (Fortsetzung PR #12)
 
