@@ -156,6 +156,9 @@ export default defineConfig(({ command, isPreview }) => ({
     port: 8081,
     strictPort: true,
   },
+  define: {
+    __KREISLAUF_NETLIFY_BUILD__: JSON.stringify(process.env.KREISLAUF_DEPLOY_TARGET === "netlify"),
+  },
   resolve: { tsconfigPaths: true },
   plugins: [
     pgliteBootstrapPlugin(),
