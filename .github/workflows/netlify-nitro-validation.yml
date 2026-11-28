@@ -82,6 +82,12 @@ jobs:
           test -s .netlify/v1/functions/nitro.json
           grep -R -q "__grok/manifest.webmanifest" .netlify/v1/functions
           echo "Netlify Frameworks API output and KREISLAUF PWA middleware found."
+          if find .netlify/v1/functions -type f \\( -iname '*pglite*' -o -iname '*.wasm' -o -iname '*.data' \\) -print -quit | grep -q .; then
+            echo "PGLite/native database assets must not be included in the Netlify Function bundle."
+            find .netlify/v1/functions -type f \\( -iname '*pglite*' -o -iname '*.wasm' -o -iname '*.data' \\) -print
+            exit 1
+          fi
+          echo "No PGLite, WASM or database data assets found in Netlify Function bundle."
 
       - name: Netlify Function Request Smoke Test
         run: node scripts/smoke-netlify-build.mjs
