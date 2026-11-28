@@ -65,12 +65,12 @@ jobs:
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           ready=0
-          for attempt in $(seq 1 60); do
-            if curl --connect-timeout 1 --max-time 3 -fsS http://127.0.0.1:4173/__grok/manifest.webmanifest >/tmp/manifest.json; then
+          for attempt in $(seq 1 30); do
+            if curl --connect-timeout 1 --max-time 2 -fsS http://127.0.0.1:4173/__grok/manifest.webmanifest >/tmp/manifest.json; then
               ready=1
               break
             fi
-            sleep 2
+            sleep 1
           done
           if [ "$ready" -ne 1 ]; then
             cat /tmp/netlify-vite.log
