@@ -1,0 +1,59 @@
+name: KREISLAUF – Netlify Nitro validation
+
+on:
+  push:
+    branches:
+      - infra/netlify-nitro-validation-2026-11-28
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netlify-nitro-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  netlify-nitro-build:
+    name: Netlify Nitro build (no deployment)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v5
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci --no-audit --no-fund
+
+      - name: Buildskript syntaktisch prüfen
+        run: node --check scripts/build-netlify.mjs
+
+      - name: TypeScript prüfen
+        run: npm run typecheck
+
+      - name: Automatisierte Tests
+        run: npm test
+
+      - name: Code-Qualität prüfen
+        run: npm run lint
+
+      - name: Netlify Nitro Build ausführen
+        run: npm run build:netlify
+        env:
+          # Intentionally no DATABASE_URL or production secrets in this validation.
+          CI: "true"
+
+      - name: Netlify Nitro-Ausgabe prüfen
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d dist
+          test -s .netlify/functions-internal/server/server.mjs
+          grep -R -q "__grok/manifest.webmanifest" .netlify/functions-internal
+          echo "Netlify legacy Functions output and KREISLAUF PWA middleware found."
