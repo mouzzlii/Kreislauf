@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 /**
  * Exercise the generated Nitro Netlify function directly with Web Requests.
- * This intentionally covers only PWA middleware responses that do not need a
- * database or external credentials.
+ * Supports both the legacy Nitro output directory and the current Frameworks
+ * API directory. This intentionally covers PWA middleware responses that do
+ * not need a database or external credentials.
  */
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 
-const entrypoint = new URL(
-  "../.netlify/functions-internal/server/server.mjs",
-  import.meta.url,
-);
+const entrypoints = [
+  new URL("../.netlify/v1/functions/server/server.mjs", import.meta.url),
+  new URL("../.netlify/functions-internal/server/server.mjs", import.meta.url),
+];
+const entrypoint = entrypoints.find((candidate) => existsSync(candidate));
+
+assert.ok(entrypoint, "Netlify's generated server entrypoint must exist");
 const { default: handler } = await import(entrypoint.href);
 
 assert.equal(
@@ -56,4 +61,4 @@ const installHtml = await installResponse.text();
 assert.match(installHtml, /Add Grok App to your Home Screen/);
 assert.doesNotMatch(installHtml, /\{\{APP_(?:NAME|URL)\}\}/, "install template placeholders must be rendered");
 
-console.log("Netlify function request smoke test passed: manifest + iOS install page.");
+console.log(`Netlify function request smoke test passed (${entrypoint.pathname}): manifest + iOS install page.`);
