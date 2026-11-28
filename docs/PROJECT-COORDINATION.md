@@ -2,11 +2,11 @@
 
 **Stand:** 27.11.2026
 
-Diese Datei ist die kurze operative Koordinationsseite für die Projektfamilie. Die globale Arbeitsverfassung ist ausschließlich [MAINPROMPT 2.0.9](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md). Die chatbasierte Projekt- und Entscheidungsreferenz liegt in [CHAT-PROJECT-BASELINE.md](CHAT-PROJECT-BASELINE.md); sie bündelt bestätigte Ziele, Repository-Zuordnungen, Statusgrenzen und offene Punkte. Die folgenden Regeln sind zusätzliche Projektfamilien-Vorgaben, keine zweite globale Arbeitsverfassung.
+Diese Datei ist die kurze operative Koordinationsseite für die Projektfamilie. Die globale Arbeitsverfassung ist ausschließlich [MAINPROMPT 2.2.0](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md). Die chatbasierte Projekt- und Entscheidungsreferenz liegt in [CHAT-PROJECT-BASELINE.md](CHAT-PROJECT-BASELINE.md); sie bündelt bestätigte Ziele, Repository-Zuordnungen, Statusgrenzen und offene Punkte. Die folgenden Regeln sind zusätzliche Projektfamilien-Vorgaben, keine zweite globale Arbeitsverfassung.
 
 ## Zusätzliche Projektfamilien-Regeln
 
-Die globale Arbeitsweise, GitHub-Schutzregeln, Kosten-/Freigabegrenzen, Sicherheits- und Teststatussprache stehen im MAINPROMPT 2.0.9. Für diese Projektfamilie gelten ergänzend:
+Die globale Arbeitsweise, GitHub-Schutzregeln, Kosten-/Freigabegrenzen, Sicherheits- und Teststatussprache stehen im MAINPROMPT 2.2.0. Für diese Projektfamilie gelten ergänzend:
 - Keine parallelen Änderungen an denselben Dateien ohne Abstimmung; TRAKUNA bearbeitet genau ein priorisiertes Ticket gleichzeitig.
 - KREISLAUF–Menschheitsfamilie ist ein gemeinsames Produkt mit einem kanonischen Repository. Innerhalb der Plattform bleiben regionale Daten-, Rollen-, Fonds- und Moderationsgrenzen erhalten. TRAKUNA, SCAN-PROFIT, INSERAT-PROFI AI und CHRONOS bleiben eigenständige Projekte.
 - Projektübergreifende Module erst nach eigenständigen Tests, Sicherheitsprüfung und belegtem Wiederverwendungsnutzen übernehmen.
@@ -37,10 +37,10 @@ Weitere Konzept- und Forschungsstränge (KRONOS 01, KREISLAUF ReFlex/VacMail, VR
 - **Integrationsstatus:** PR #38 bleibt Draft/ungemergt; gegenüber `main` divergiert (Merge-Base `71fb0e07740150be13d40b1aef10ba269fe264b8`); Ahead-/Behind-Zahlen ändern sich mit jedem Main-Commit und sind unmittelbar vor einer Konsolidierung neu zu prüfen. GitHub meldete zuletzt `mergeable=false`. Vercel-Preview wegen `build-rate-limit` fehlgeschlagen. Keine Integration ohne kontrollierte Konsolidierung und erneute Prüfung.
 - **Gateway-Konfiguration:** Fünf aktive Vercel-Aliase für GPT-5, Claude Sonnet 4.6, Gemini 3 Flash, Grok 4.7 und Llama 4 Maverick sind read-only bestätigt. Alle führen ZDR und No-Prompt-Training. Nur Claude ist explizit auf EU-Bedrock/Vertex-Routen beschränkt; Llama bleibt auf öffentliche, synthetische oder anonymisierte Daten begrenzt.
 - **Credentials:** `AI_GATEWAY_API_KEY` liegt im Vercel-Projekt nur für Preview/Development und wird nicht automatisch an GitHub Actions weitergereicht. Keine Secrets ausgelesen oder verändert.
-- **Kosten:** Gateway-Projektbudget 5 USD/Monat, zuletzt 0 USD Verbrauch und 0 Requests im Sieben-Tage-Fenster. Dieses Budget ist ein Soft Cap. MAINPROMPT 2.0.9 setzt Zusatzbudget weiterhin auf 0 EUR; keine kostenpflichtigen Inferenzaufrufe ohne ausdrückliche Freigabe und harte anwendungsseitige Kostenkontrolle.
+- **Kosten:** Gateway-Projektbudget 5 USD/Monat, zuletzt 0 USD Verbrauch und 0 Requests im Sieben-Tage-Fenster. Dieses Budget ist ein Soft Cap. MAINPROMPT 2.2.0 setzt Zusatzbudget weiterhin auf 0 EUR; keine kostenpflichtigen Inferenzaufrufe ohne ausdrückliche Freigabe und harte anwendungsseitige Kostenkontrolle.
 - **KI-Arbeitsplatz PR #12:** Lokale PWA-Mock-Workbench und isolierte serverseitige Orchestrierungs-/HTTP-Bausteine sind im Draft-Branch vorhanden. Aktueller Head `8498028a621126382e74044d5f586b028f4e18e1`, 18 geänderte Dateien; 106 Commits voraus und 38 zurück, `mergeable=false`. Quellstand: 22 Orchestrator- und 16 HTTP-Fälle, für den exakten Head ohne nachgewiesenen Actions-Lauf. `budget_settlement_failed` wird neu mit HTTP 503 behandelt. Vercel meldet `api-deployments-free-per-day` (>100 Deployments/24 h). Es fehlen persistente transaktionale Budget-/Recovery-/Usage-Dienste, eine deploybare Route, echte Auth-/CSRF-/Freigabe-/Audit-Dienste, Provideradapter und ChatGPT-Synthese.
 - **Status:** Keine echten Provider-Aufrufe, keine unabhängigen externen Modellantworten und kein nachgewiesener Council-Durchlauf. Keine Inferenzkosten, keine Budgetänderung.
-- **Nachweise:** [Council Live Status](COUNCIL_LIVE_STATUS.md), [Council Setup](../AI_TEAM_SETUP.md), [Projektbaseline](CHAT-PROJECT-BASELINE.md) und [MAINPROMPT 2.0.9](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md).
+- **Nachweise:** [Council Live Status](COUNCIL_LIVE_STATUS.md), [Council Setup](../AI_TEAM_SETUP.md), [Projektbaseline](CHAT-PROJECT-BASELINE.md) und [MAINPROMPT 2.2.0](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/MAINPROMPT.md).
 
 ## Abnahme-Gates
 
