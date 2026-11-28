@@ -75,6 +75,7 @@ jobs:
           NETLIFY: "true"
           NETLIFY_DEV: "true"
           KREISLAUF_SKIP_PGLITE_BOOTSTRAP: "1"
+          KREISLAUF_NETLIFY_DEBUG: "1"
         run: |
           set +e
           npm run dev > /tmp/netlify-vite.log 2>&1 &
