@@ -1,90 +1,85 @@
-# Netlify Nitro – isolierte Hosting-Validierung
+# Netlify Nitro – isolated hosting validation
 
-**Stand:** 28. November 2026  
-**Ausgangscommit:** `8d90ae2b540c03a316d6b9ae39051c22605f736a` (`main`)  
-**Arbeitsbranch:** `infra/netlify-nitro-validation-2026-11-28`  
-**Status:** Branchgebundener Nitro-Netlify-Build und CI-Prüfungen erfolgreich (GitHub Actions Run #2). Kein Netlify-Deployment.
+**Date:** 28 November 2026  
+**Base commit:** `8d90ae2b540c03a316d6b9ae39051c22605f736a` (`main`)  
+**Validation branch:** `infra/netlify-nitro-validation-2026-11-28`  
+**Current branch head:** `76e82362015a64c470c6faaf6afd844a700b0b38`  
+**Status:** Netlify build path and generated Function smoke tests pass in GitHub Actions. No Netlify site or deployment has been created.
 
-## Entscheidung
+## Decision
 
-Für den ersten Netlify-Test wird der vorhandene Nitro-Netlify-Preset verwendet, nicht der zusätzliche Netlify-TanStack-Adapter. Das ist zunächst der kleinere Umbau, weil KREISLAUF bereits eine eigene Nitro-Server-Middleware unter `server/middleware/grok-pwa.ts` besitzt. Sie stellt das Manifest und die iOS-Installationsseite bereit und injiziert PWA-/Open-Graph-Tags in HTML-Antworten. `serverDir: "./server"` bleibt im Vite-Setup unverändert erhalten.
+Use the existing Nitro Netlify preset as the first Netlify integration, rather than adding the separate Netlify TanStack Start adapter. This is the least invasive path because KREISLAUF already registers its platform PWA middleware through Nitro's `serverDir: "./server"`.
 
-Der alternative offizielle Adapter `@netlify/vite-plugin-tanstack-start` ist für TanStack Start geeignet, ersetzt aber den Nitro-Buildpfad. Seine parallele Aktivierung neben Nitro wird nicht versucht. Sollte der Nitro-Preset für die aktuelle Netlify-Plattform nicht mehr akzeptiert werden, ist ein separater Adapter-Port mit expliziter Übernahme der PWA-Funktionen der nächste Weg.
+The alternative official `@netlify/vite-plugin-tanstack-start` is suitable for TanStack Start but would replace the existing Nitro build path. Activating both adapters together would create competing server runtimes and is intentionally avoided.
 
-## Was in diesem Zweig umgesetzt ist
+## Implemented on this branch
 
-- `npm run build:netlify` führt einen eigenen Netlify-Build aus.
-- Der Build setzt `KREISLAUF_DEPLOY_TARGET=netlify` nur im Kindprozess. Ohne diese Variable bleibt der bestehende Vercel-Preset der Standard.
-- Nach einem erfolgreichen Build wird derselbe `scripts/migrate.mjs`-Migrationsschritt ausgeführt wie beim normalen Produktions-Build. Ohne `DATABASE_URL` überspringt dieses Skript die Migration wie vorgesehen.
-- `netlify.toml` setzt den Build-Befehl, das statische Verzeichnis `dist` und Node.js 24.
-- `vercel.json` deaktiviert automatische Vercel-Deployments ausschließlich für diesen Netlify-Testbranch. Auf `main` und anderen Branches bleibt das Standardverhalten unverändert.
-- Der bestehende `build`-Befehl für Vercel wird nicht geändert. Es werden keine Datenbankvariablen oder Zugangsdaten in Konfigurationsdateien gespeichert.
+- `npm run build:netlify` creates a Netlify-targeted build using the Nitro preset.
+- The build target is isolated to the build subprocess via `KREISLAUF_DEPLOY_TARGET=netlify`. Without it, `vite.config.ts` continues to use the existing Vercel preset.
+- `serverDir: "./server"` remains enabled, preserving the existing Nitro middleware registration.
+- `netlify.toml` selects `dist` as the static directory and Node.js 24.
+- The Netlify build wrapper runs the same `scripts/migrate.mjs` migration step as the existing production build. With no `DATABASE_URL`, the migration script safely skips the external migration.
+- `package.json` and `package-lock.json` pin `nitro@3.0.261103-rc` exactly. The older `3.0.260610-beta` generated a legacy `.netlify/functions-internal` directory; the RC produces the current Frameworks API output at `.netlify/v1/functions`.
+- `vercel.json` disables automatic Vercel deployments only for this validation branch. Vercel's normal behavior on `main` and other branches is unchanged.
+- The existing `build` script remains unchanged. No database URL, Netlify token, OAuth secret, or other credential is committed.
 
-## Wichtige Versionsabweichung: Nitro-Ausgabeformat
+## Verified CI results
 
-Das Projekt verwendet derzeit exakt `nitro@3.0.260610-beta`. Im Quellcode dieser festgelegten Version schreibt der Netlify-Preset die Functions-Ausgabe nach:
+GitHub Actions Run #11 validated the package/lockfile state committed to this branch:
 
-- `.netlify/functions-internal/server/server.mjs`
-- statische Dateien nach `dist`
-- optionale Deployment-Konfiguration in das ältere Verzeichnis `.netlify/deploy/v1/`
-
-Die aktuelle Nitro-Migrationsdokumentation beschreibt inzwischen das neue Frameworks-API-Ausgabeformat:
-
-- `.netlify/v1/functions`
-- `.netlify/v1/config.json`
-
-Diese Differenz darf nicht übergangen werden. Die branchgebundene CI prüft daher die konkrete Ausgabe der im Projekt gepinnten Nitro-Version. Ein erfolgreicher lokaler/CI-Build beweist aber noch nicht, dass die aktuelle Netlify-Plattform das ältere Ausgabeformat bei einem echten Deploy akzeptiert. Dafür wäre anschließend ein Preview-Deployment in einem Netlify-Konto erforderlich; ein solches wurde nicht gestartet.
-
-Ein vorsorgliches Nitro-Upgrade wird vermieden, bis der unveränderte Preset-Build gemessen wurde. Ein Upgrade kann selbst weitere Runtime- und Lockfile-Änderungen enthalten.
-
-## Laufzeit und bestehende App-Funktionen
-
-Netlify Functions verwenden eine Node.js-Laufzeit. Das passt besser zur vorhandenen Node-basierten PostgreSQL- und Better-Auth-Architektur als Cloudflare Workers, die eine andere Datenbank- und Isolate-Lifecycle-Strategie erfordern würden.
-
-Folgendes bleibt dennoch vor einer produktiven Nutzung zu testen:
-
-- PWA-Manifest, iOS-Installationsseite und Head-/OG-Injection
-- SSR, Server Routes und Server Functions
-- Better Auth, OAuth-Callback, Cookies und Gate-Identität
-- PostgreSQL-Verbindung unter Last und bei kalten Starts
-- Runtime-Secrets und Umgebungsvariablen in Netlify
-- Upload-/Requestgrößen, Antwortstreaming und Function-Timeouts
-
-Die bestehende PostgreSQL-Datenbank wird nicht migriert oder kopiert. Für einen späteren Test müssten die schon vorhandenen Runtime-Secrets sicher im Netlify-UI hinterlegt werden. Sie gehören nicht in Git.
-
-## Kostenrahmen und Einsatzgrenzen
-
-Der Netlify-Free-Plan wird derzeit mit 300 monatlichen Credits und einer harten Verbrauchsgrenze ohne automatische Nachbelastung ausgewiesen. Produktions-Deployments verbrauchen 15 Credits; Function-Compute, Requests und ausgehender Traffic werden zusätzlich nach Nutzung berechnet. Deploy-Previews und fehlgeschlagene Deploys sind laut aktuellem Modell nicht metered. Es gibt eine parallele Build-Ausführung im Free-Plan.
-
-Das ist für Preview-Tests interessant, aber keine unbegrenzte Produktions-Deployment-Flatrate. Maximal 20 reine Produktions-Deployments wären rechnerisch möglich, wenn keinerlei andere Credits verbraucht würden. Der tatsächliche Verbrauch hängt zusätzlich von Function-Laufzeit, Aufrufen und Bandbreite ab. Es wird kein kostenpflichtiger Tarif aktiviert und kein Netlify-Konto oder Site automatisch angelegt.
-
-## Schutzmaßnahmen und tatsächliches Vercel-Verhalten
-
-- `main` bleibt unverändert.
-- Keine Vercel-Projekteinstellungen, Domains oder Secrets wurden verändert. Die branchbezogene Ausnahme liegt ausschließlich in der versionierten `vercel.json` dieses Testbranches.
-- Bei den ersten Branch-Commits vor Aktivierung dieser Ausnahme erzeugte die Git-Integration zwei Vercel-Preview-Deployments mit Status `READY` und einen abgebrochenen Preview-Deploy. Das ist zusätzlicher Deployment-Verbrauch und wird hier ausdrücklich festgehalten.
-- Seit dem Commit mit `git.deploymentEnabled=false` für genau diesen Branch wurden keine weiteren Vercel-Deployment-Datensätze angelegt; auch für den aktuellen Branch-Head wurde kein Vercel-Deployment gefunden.
-- Keine Cloudflare- oder Netlify-Ressource wird erstellt.
-- Die Datenbankmigration wurde im CI-Build übersprungen, weil absichtlich keine `DATABASE_URL` verfügbar war. Es wurde keine externe Datenbank verändert.
-
-## Verifizierungsstatus
-
-| Prüfung | Status |
+| Check | Result |
 |---|---|
-| Ausgangscommit festgehalten | Erledigt |
-| Separater Netlify-Testbranch | Erledigt |
-| Vercel-Standardpreset unverändert als Default | Umgesetzt |
-| Eigener Buildbefehl ohne Vermischung mit Vercel | Umgesetzt |
-| Bestehender Migrationsschritt nach Build erhalten | Umgesetzt |
-| Netlify-Konfiguration | Umgesetzt |
-| Build mit Nitro-Netlify-Preset | GitHub-Actions-Prüfung |
-| Erwartetes Functions-Ausgabeverzeichnis | GitHub-Actions-Prüfung |
-| PWA-Code im gebündelten Serverartefakt | GitHub-Actions-Prüfung |
-| Echter Netlify-Preview-Deploy | Nicht ausgeführt |
-| Runtime-Auth/Postgres auf Netlify | Nicht getestet |
-| Produktivwechsel / DNS / Secrets | Nicht ausgeführt |
+| Clean `npm ci` from the generated RC lockfile | Passed |
+| Nitro version resolved from lockfile | `3.0.261103-rc` |
+| TypeScript with RC | Passed |
+| Automated test suite with RC | Passed: 216 script tests + 79 TypeScript tests |
+| ESLint with RC | Passed |
+| Existing Vercel default build with RC (`npm run build:dev`) | Passed |
+| Netlify Nitro build with RC (`npm run build:netlify`) | Passed |
+| Current Frameworks API output | `.netlify/v1/functions/server/server.mjs` present |
+| PWA manifest middleware in server bundle | Found |
+| Generated Function request smoke test | Passed |
 
-## Quellen
+The Function smoke test imports the generated Netlify server module and sends real Web `Request` objects to it. It verifies:
+- `/__grok/manifest.webmanifest` returns HTTP 200 with a manifest content type, standalone display, and an icon.
+- `/?install=1&platform=ios` returns HTTP 200 HTML with rendered app name and URL placeholders.
+
+This confirms the Nitro function entry point and those two PWA middleware responses. It is not a full browser-render test of SSR, OAuth, account operations, or the database.
+
+## Important runtime requirement: PostgreSQL
+
+The build/preview test deliberately has no `DATABASE_URL`, so it performs no external database migration and changes no database. A real Netlify deployment must have the existing PostgreSQL connection configured as a protected runtime/build environment variable before the app is used. It must also have the required Better Auth and OAuth runtime settings configured through Netlify's secure environment-variable UI. No such values are present in Git and no Netlify environment has been configured.
+
+The build output currently bundles PGLite fallback assets even though a deployed app should use PostgreSQL:
+- PGLite database data asset: about 6.3 MB
+- PGLite WASM asset: about 10.1 MB
+- init database WASM asset: about 0.4 MB
+- additional PGLite JavaScript bundle: about 0.7 MB
+
+That is approximately 17.5 MB of PGLite-related assets in the generated output. PGLite is loaded only on the fallback path, but these bundled assets increase deployment size. Before a production migration, consider a Netlify-specific production build that fails closed when `DATABASE_URL` is absent and excludes the PGLite fallback from the production function bundle. This optimization must not change local development or the current Vercel preview path.
+
+Still to verify with a real Netlify site:
+- full SSR response and streamed PWA/OG head injection in a browser
+- Better Auth session, OAuth callback, secure cookies and gate identity
+- Neon/PostgreSQL connection behavior under warm/cold Function invocations
+- all protected Netlify runtime variables
+- upload/body limits, streaming behavior, cold-start times and observed Function usage
+
+## Cost and deployment guardrails
+
+Netlify Free is currently described as 300 monthly credits with a hard usage limit; production deploys use credits and Functions/traffic add usage. This is not an unlimited production deployment plan. No paid plan has been enabled and no Netlify site, team resource, domain, DNS entry, or deployment has been created.
+
+The first validation commits were pushed before the branch-specific Vercel suppression had been added. They caused two Vercel preview records to reach `READY` and one to end `CANCELED`; their actual billing impact is not established. After `git.deploymentEnabled=false` was added for this branch, no further Vercel deployment records were created. The branch suppression remains scoped to this test branch only.
+
+## Protection and release status
+
+- `main` remains at `8d90ae2b540c03a316d6b9ae39051c22605f736a`.
+- Pull request #67 remains a draft and has not been merged.
+- No production Vercel settings, Vercel secrets, domains, DNS, Netlify credentials, database settings, or Cloudflare resources were changed.
+- No real Netlify deployment has been attempted.
+- The Nitro version is a release candidate, pinned only on this validation branch. It is not being promoted to `main` until a stable release and real Netlify deployment validation are available.
+
+## References
 
 - [Netlify: TanStack Start deployment](https://docs.netlify.com/build/frameworks/framework-setup-guides/tanstack-start/)
 - [Nitro: Netlify provider](https://nitro.build/deploy/providers/netlify)
@@ -94,4 +89,4 @@ Das ist für Preview-Tests interessant, aber keine unbegrenzte Produktions-Deplo
 - [Vercel: Git deployment configuration](https://vercel.com/docs/project-configuration/git-configuration)
 
 ---
-Der Nitro-Netlify-Build ist in GitHub Actions erfolgreich. Die Ausgabe enthält jedoch noch das ältere Nitro-Verzeichnis `.netlify/functions-internal`; die aktuelle Nitro-Dokumentation beschreibt `.netlify/v1/functions`. Der CI-Erfolg beweist daher die Build-Erzeugung und das Vorhandensein der PWA-Middleware, aber nicht die Annahme durch den aktuellen Netlify Deploy-Workflow. Es handelt sich ausdrücklich weder um eine abgeschlossene Migration noch um einen getesteten produktiven Netlify-Deploy.
+This document records a successful isolated build and generated Function smoke test, not a completed migration or verified production deployment.
