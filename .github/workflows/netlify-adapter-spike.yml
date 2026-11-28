@@ -50,8 +50,8 @@ jobs:
       - name: Official Netlify TanStack Start build
         env:
           KREISLAUF_NETLIFY_ADAPTER: "1"
-          KREISLAUF_DEPLOY_TARGET: "netlify"
-        run: npm run build:dev
+          KREISLAUF_NETLIFY_ALLOW_DBLESS_BUILD: "1"
+        run: npm run build:netlify
 
       - name: Reject PGLite from Netlify runtime bundles
         run: |
