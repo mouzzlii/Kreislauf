@@ -12,7 +12,7 @@ Diese Datei ist dagegen die **KREISLAUF-Projekt- und Portfolio-Baseline**. Sie d
 Für Arbeiten an KREISLAUF gilt:
 - Diese Baseline und anschließend die jeweils betroffenen KREISLAUF-Spezifikationen, Aufgaben, Issues/PRs und tatsächlichen Quellstände prüfen.
 - Neueste ausdrücklich bestätigte Nutzerentscheidung für KREISLAUF verwenden; ältere Entscheidungen nur als gekennzeichnete Historie behalten.
-- KREISLAUF, Menschheitsfamilie und andere Projekte trotz möglicher fachlicher Verbindung mit getrennten Daten-/Berechtigungsgrenzen behandeln.
+- KREISLAUF und Menschheitsfamilie sind gemäß der Nutzerentscheidung vom 28.11.2026 ein gemeinsames Produkt und eine gemeinsame Plattform. Historische Konzeptquellen bleiben erhalten; es gibt keine zweite App. Regionale Daten-, Rollen-, Fonds- und Moderationsgrenzen innerhalb der gemeinsamen Plattform bleiben ausdrücklich erforderlich.
 - Produktanforderungen, Vorschläge, vorhandene Implementierung, automatisierte Tests, externe Prüfungen und Produktionsfreigaben strikt auseinanderhalten.
 - Keine Projektfunktion, Anbieterintegration, KI-Antwort, Datenbankverbindung oder Geräteprüfung ohne tatsächlichen Nachweis als vorhanden bezeichnen.
 
@@ -51,46 +51,16 @@ DPD, GLS, Hermes, UPS, Österreichische Post, DHL Express, FedEx und LogoiX. Die
 - Je Anbieter offiziell unterstützte Labelübergabe nachweisen.
 - Echte Drucktests, Barcode-/QR-Lesbarkeit, Wiederverbindung und Duplikatschutz abnehmen.
 
-### KREISLAUF – regionales Tauschsystem Yspertal / B36
+### KREISLAUF – Menschheitsfamilie (gemeinsames Produkt)
 
-**Repository:** [mouzzlii/Kreislauf](https://github.com/mouzzlii/Kreislauf)
+**Kanonisches Repository:** [mouzzlii/Kreislauf](https://github.com/mouzzlii/Kreislauf)  
+**Historische Konzeptquelle:** [mouzzlii/Gemeinwohl](https://github.com/mouzzlii/Gemeinwohl) – bleibt als Archiv/Quellmaterial bestehen, ist kein zweites aktives Plattformprojekt.
 
-**Bestätigtes Ziel**
-Ein regionales Kreislauf-, Tausch- und Hilfesystem für Menschen, Vereine, Schulen und Betriebe im Yspertal und entlang der B36. Waldgrün/Naturfarben, hochwertige mobile Bedienung und die W-Signatur in Gold/Waldgrün.
+Die Zusammenführung wurde vom Nutzer am 28.11.2026 ausdrücklich beschlossen. KREISLAUF ist der technische Produkt- und Repository-Anker; Menschheitsfamilie ist die übergeordnete Gemeinschaftsvision. Yspertal/B36 ist die Pilotregion, nicht die Grenze des späteren Produkts. Die endgültige Markenarchitektur bleibt offen.
 
-**Bestätigte Funktions- und Produktanforderungen**
-- Marktplatz mit getrennten Bereichen für Gesuche („Ich suche“) und Angebote („Ich biete“) sowie einer Ansicht für Angebote in der Nähe.
-- Inserat öffnet eine Produktdetailseite; dort soll ein gut sichtbarer Weg zu weiteren Inseraten desselben Anbieters vorhanden sein.
-- Produktfoto in der Inseratvorschau.
-- Beim Erstellen eines Inserats Foto- und Kurzvideoauswahl mit den vorgesehenen Begrenzungen: entweder 1 × 60 Sekunden, 2 × 30 Sekunden oder 4 × bis zu 20 Sekunden.
-- Nachrichten sind mit Inseraten, Tauschanfragen, Angeboten und dem zugehörigen Tauschvorgang verbunden; eingehende Angebote lösen passende Nachrichten aus.
-- Direkter Tausch, Tausch gegen Punkte und kombinierte Angebote.
-- Gemeinschaftsfonds und Inflationsschutz sind Teil der gewünschten Punktearchitektur. Die konkrete endgültige Berechnungsregel muss getrennt von vorhandenen Codewerten dokumentiert werden.
-- Das Element „3 Punkte 1 Ort“ soll als Koordinations-/Gemeinschaftselement wieder enthalten sein.
-- Treuhand, Moderation, Profile, mobile Bedienung und Admin gehören zum Funktionsumfang.
-- Keine Nutzer-zu-Nutzer-Geldtransfers. Punkte sind internes Gemeinschaftsguthaben, kein Geld und nicht auszahlbar.
-- Die frühere Produktentscheidung bevorzugt zunächst eine Demo/Testversion; bestehende Supabase-Projekte werden nicht als bereits angebunden ausgegeben.
+Die vollständige konsolidierte Produktbaseline, einschließlich Ziele, Nicht-Ziele, Module, Regionen, Architektur, Roadmap, offene Entscheidungen und Abnahme-Gates, liegt in [docs/KREISLAUF-MENSCHHEITSFAMILIE/PROJECT_BASELINE.md](KREISLAUF-MENSCHHEITSFAMILIE/PROJECT_BASELINE.md).
 
-**Aktueller Repository-Abgleich**
-- main-README beschreibt eine Demo-/Entwicklungsbasis, Waldgrün-Oberfläche, Marktplatz, Karma-Ledger, Profile, Tauschabläufe und Nachrichten.
-- Treuhand-/Sharing-Demo mit Community-Abstimmungen ist laut README weiterhin in einem getrennten Preview-Branch und nicht als Main-/Produktionsfunktion abzunehmen.
-- App-Code verwendet aktuell PGlite oder Neon/Postgres über DATABASE_URL; Supabase ist nicht automatisch verbunden.
-- Authentifizierungslose Demo darf nicht öffentlich betrieben werden.
-- Die oben aufgeführten neueren Medien-, Detailseiten- und Punkteanforderungen sind bestätigte Produktanforderungen; ihre vollständige Umsetzung ist nicht aus dem README allein nachgewiesen.
-
-### MENSCHHEITSFAMILIE – „Der Tausch verbindet uns“
-
-**Projektstatus:** eigenständige Community-/Gesellschaftsebene mit konzeptioneller Verbindung zu KREISLAUF; Daten- und Berechtigungsgrenzen bleiben getrennt.
-
-**Bestätigte Leitlinien**
-- Slogan: „Der Tausch verbindet uns“.
-- „Keine Werbung. Kein Geld. Nur echte Verbindungen.“
-- Geldloser Austausch von Gütern, Dienstleistungen, Punkten, B2B-Leistungen, Bürger-/Hilfsaufgaben und Offline-QR-Märkten.
-- Gemeinschaftspunkte, Community-Fonds, Anti-Inflations-/Anti-Deflationsmechanismen und gemeinnützige Aufgaben als mögliche Verteilungswege.
-- Keine Werbung und keine Nutzergebühren als Leitlinie; Finanzierungsideen über freiwillige Sponsoren-/Partnerbeiträge sind Konzept, nicht als gesicherte Finanzierung ausgeben.
-- Moderation und Treuhand müssen transparent, nachvollziehbar und gegen Interessenkonflikte geschützt sein.
-
-**Repository-Hinweis:** mouzzlii/Gemeinwohl enthält laut aktuellem Root-Inventar derzeit ein ZIP-Artefakt und einen Rechtehinweis, aber keinen aus dem Root-README verifizierbaren vollständigen Quellbaum. Deshalb keine aktive Plattformimplementierung behaupten.
+**Wichtige bestehende Grenzen:** Demo-/Preview-Funktionen nicht als Main-/Produktionsabnahme ausgeben. Der aktuelle App-Code nutzt PGlite oder Neon/Postgres über `DATABASE_URL`; Supabase ist nicht automatisch verbunden. Keine produktiven Nutzerkonten, Punkte-/Treuhandvorgänge oder externen Transaktionen ohne gesonderte Abnahme und Freigabe.
 
 ### SCAN-PROFIT – Reseller-Cockpit
 
