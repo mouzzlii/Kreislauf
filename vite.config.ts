@@ -167,7 +167,7 @@ export default defineConfig(({ command, isPreview }) => ({
     // Dev-only /__app-env, read by scripts/check-auth-invariant.mjs.
     appEnvPlugin(),
     // PWA head + ?install=1 tutorial page; runs before Start/Nitro.
-    grokPwaPlugin(),
+    grokPwaPlugin({ disableHtmlMiddleware: useNetlifyTanstackAdapter }),
     tailwindcss(),
     tanstackStart(),
     ...(useNetlifyTanstackAdapter
