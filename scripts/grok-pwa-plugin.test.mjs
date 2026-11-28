@@ -17,7 +17,7 @@ import {
   snapshotOgIdentity,
   stripInstallParams,
 } from "./grok-pwa-shared.mjs";
-import { renderInstallPage } from "./grok-pwa-plugin.mjs";
+import { grokPwaPlugin, renderInstallPage } from "./grok-pwa-plugin.mjs";
 
 // Keep tests independent of the repository's real src/lib/og/site.json.
 // Tests that need a baked site pass it explicitly; disk-card tests still use cwd.
@@ -551,3 +551,21 @@ test("vite plugin bakes og identity as a virtual module", () => {
   assert.match(plugin, /snapshotOgIdentity/);
 });
 
+
+
+test("Netlify Start middleware can own deployed PWA requests without duplicate Vite handlers", () => {
+  const plugin = grokPwaPlugin({ disableHtmlMiddleware: true });
+  const html = "<html><head></head><body></body></html>";
+  assert.equal(plugin.transformIndexHtml(html), html);
+
+  let registered = false;
+  const server = { middlewares: { use() { registered = true; } } };
+  plugin.configureServer(server);
+  assert.equal(registered, false);
+  assert.equal(plugin.configurePreviewServer(server), undefined);
+  assert.equal(registered, false);
+
+  // The virtual OG identity remains available to src/start.ts.
+  assert.equal(plugin.resolveId("virtual:grok-og-identity"), "\\0virtual:grok-og-identity");
+  assert.match(plugin.load("\\0virtual:grok-og-identity"), /grokOgIdentity/);
+});
