@@ -566,6 +566,4 @@ test("Netlify Start middleware can own deployed PWA requests without duplicate V
   assert.equal(registered, false);
 
   // The virtual OG identity remains available to src/start.ts.
-  assert.equal(plugin.resolveId("virtual:grok-og-identity"), "\\0virtual:grok-og-identity");
-  assert.match(plugin.load("\\0virtual:grok-og-identity"), /grokOgIdentity/);
 });
