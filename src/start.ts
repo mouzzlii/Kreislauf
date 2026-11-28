@@ -52,8 +52,8 @@ const csrfMiddleware = createCsrfMiddleware({
   filter: (context) => context.handlerType === "serverFn",
 });
 
-const netlifyPwaMiddleware = createMiddleware().server(async ({ request, handlerType, next }) => {
-  if (!isNetlifyRuntime() || handlerType !== "router" || request.method.toUpperCase() !== "GET") {
+const netlifyPwaMiddleware = createMiddleware().server(async ({ request, next }) => {
+  if (!isNetlifyRuntime() || request.method.toUpperCase() !== "GET") {
     return next();
   }
 
