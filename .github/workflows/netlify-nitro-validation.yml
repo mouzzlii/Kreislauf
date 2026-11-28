@@ -23,7 +23,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: netlify-nitro-validation-\${{ github.ref }}
+  group: netlify-nitro-validation
   cancel-in-progress: true
 
 jobs:
