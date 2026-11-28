@@ -4,7 +4,7 @@
 **Base commit:** `8d90ae2b540c03a316d6b9ae39051c22605f736a` (`main`)  
 **Validation branch:** `infra/netlify-nitro-validation-2026-11-28`  
 **Current branch head:** `76e82362015a64c470c6faaf6afd844a700b0b38`  
-**Status:** Netlify build path and generated Function smoke tests pass in GitHub Actions. No Netlify site or deployment has been created.
+**Status:** Final branch-scoped CI run #13 passed all checks with the pinned Nitro RC. No Netlify site or deployment has been created.
 
 ## Decision
 
@@ -25,11 +25,11 @@ The alternative official `@netlify/vite-plugin-tanstack-start` is suitable for T
 
 ## Verified CI results
 
-GitHub Actions Run #11 validated the package/lockfile state committed to this branch:
+GitHub Actions Run #13 validated the final branch head after a clean checkout and `npm ci`:
 
 | Check | Result |
 |---|---|
-| Clean `npm ci` from the generated RC lockfile | Passed |
+| Clean `npm ci` from the committed RC lockfile | Passed |
 | Nitro version resolved from lockfile | `3.0.261103-rc` |
 | TypeScript with RC | Passed |
 | Automated test suite with RC | Passed: 216 script tests + 79 TypeScript tests |
