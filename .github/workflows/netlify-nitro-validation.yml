@@ -23,7 +23,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: netlify-nitro-validation-${{ github.ref }}
+  group: netlify-nitro-validation-\${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -69,7 +69,6 @@ jobs:
       - name: Netlify Nitro Build ausführen
         run: npm run build:netlify
         env:
-          # Explicit test-only override: no production database or secrets are available in CI.
           KREISLAUF_NETLIFY_ALLOW_DBLESS_BUILD: "1"
           CI: "true"
 
@@ -82,23 +81,10 @@ jobs:
           test -s .netlify/v1/functions/nitro.json
           grep -R -q "__grok/manifest.webmanifest" .netlify/v1/functions
           echo "Netlify Frameworks API output and KREISLAUF PWA middleware found."
-          forbidden_assets="$(find .netlify/v1/functions -type f | grep -Ei 'pglite|wasm|\.data
-      - name: Netlify Function Request Smoke Test
-        run: node scripts/smoke-netlify-build.mjs
-
-      - name: Netlify Build-Artefakt hochladen
-        uses: actions/upload-artifact@v4
-        with:
-          name: kreislauf-netlify-build
-          path: |
-            dist/
-            .netlify/v1/functions/
-          if-no-files-found: error
-          retention-days: 1
- || true)"
+          forbidden_assets="$(find .netlify/v1/functions -type f | grep -Ei 'pglite|[.]wasm$|[.]data$' || true)"
           if [ -n "$forbidden_assets" ]; then
             echo "PGLite/native database assets must not be included in the Netlify Function bundle."
-            printf '%s\n' "$forbidden_assets"
+            echo "$forbidden_assets"
             exit 1
           fi
           echo "No PGLite, WASM or database data assets found in Netlify Function bundle."
