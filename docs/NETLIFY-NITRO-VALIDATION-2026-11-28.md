@@ -26,6 +26,8 @@ The alternative official `@netlify/vite-plugin-tanstack-start` is suitable for T
 - `vercel.json` disables automatic Vercel deployments only for this validation branch. Vercel's normal behavior on `main` and other branches is unchanged.
 - The Netlify validation workflow is path-filtered to code, package, migration, PWA, and hosting configuration files, avoiding full test/build reruns for documentation-only updates.
 - The existing `build` script remains unchanged. No database URL, Netlify token, OAuth secret, or other credential is committed.
+- Nitro v3 is still labelled a release candidate; the stable Nitro line remains v2. The RC is therefore restricted to this isolated validation branch and must not be promoted to production before a stable v3 release or an explicit migration decision.
+
 ## Verified CI results
 
 GitHub Actions Run #30 validated the current implementation after a clean checkout and `npm ci`. The workflow runs only when code, package, migration, PWA, or hosting configuration paths change; docs-only updates skip the full build matrix:
@@ -90,6 +92,8 @@ The first validation commits were pushed before the branch-specific Vercel suppr
 - [Netlify: TanStack Start deployment](https://docs.netlify.com/build/frameworks/framework-setup-guides/tanstack-start/)
 - [Nitro: Netlify provider](https://nitro.build/deploy/providers/netlify)
 - [Nitro: migration guide and Netlify output directories](https://nitro.build/docs/migration)
+- [Nitro v3 release-candidate announcement](https://nitro.build/blog/v3-rc)
+- [Nitro v3 package status on npm](https://www.npmjs.com/package/nitro)
 - [Netlify: credit-based pricing](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/credit-based-pricing-plans/)
 - [Netlify: Functions configuration](https://docs.netlify.com/build/functions/configuration/)
 - [Vercel: Git deployment configuration](https://vercel.com/docs/project-configuration/git-configuration)
