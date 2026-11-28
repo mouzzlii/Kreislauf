@@ -3,7 +3,7 @@
 **Stand:** 28. November 2026  
 **Ausgangscommit:** `8d90ae2b540c03a316d6b9ae39051c22605f736a` (`main`)  
 **Arbeitsbranch:** `infra/netlify-nitro-validation-2026-11-28`  
-**Status:** Isolierter Buildpfad vorbereitet; Netlify-Build/Output-Validierung läuft über die branchgebundene GitHub-Actions-Prüfung. Kein Netlify-Deployment.
+**Status:** Branchgebundener Nitro-Netlify-Build und CI-Prüfungen erfolgreich (GitHub Actions Run #2). Kein Netlify-Deployment.
 
 ## Entscheidung
 
@@ -17,6 +17,7 @@ Der alternative offizielle Adapter `@netlify/vite-plugin-tanstack-start` ist fü
 - Der Build setzt `KREISLAUF_DEPLOY_TARGET=netlify` nur im Kindprozess. Ohne diese Variable bleibt der bestehende Vercel-Preset der Standard.
 - Nach einem erfolgreichen Build wird derselbe `scripts/migrate.mjs`-Migrationsschritt ausgeführt wie beim normalen Produktions-Build. Ohne `DATABASE_URL` überspringt dieses Skript die Migration wie vorgesehen.
 - `netlify.toml` setzt den Build-Befehl, das statische Verzeichnis `dist` und Node.js 24.
+- `vercel.json` deaktiviert automatische Vercel-Deployments ausschließlich für diesen Netlify-Testbranch. Auf `main` und anderen Branches bleibt das Standardverhalten unverändert.
 - Der bestehende `build`-Befehl für Vercel wird nicht geändert. Es werden keine Datenbankvariablen oder Zugangsdaten in Konfigurationsdateien gespeichert.
 
 ## Wichtige Versionsabweichung: Nitro-Ausgabeformat
@@ -57,13 +58,14 @@ Der Netlify-Free-Plan wird derzeit mit 300 monatlichen Credits und einer harten 
 
 Das ist für Preview-Tests interessant, aber keine unbegrenzte Produktions-Deployment-Flatrate. Maximal 20 reine Produktions-Deployments wären rechnerisch möglich, wenn keinerlei andere Credits verbraucht würden. Der tatsächliche Verbrauch hängt zusätzlich von Function-Laufzeit, Aufrufen und Bandbreite ab. Es wird kein kostenpflichtiger Tarif aktiviert und kein Netlify-Konto oder Site automatisch angelegt.
 
-## Schutzmaßnahmen
+## Schutzmaßnahmen und tatsächliches Vercel-Verhalten
 
 - `main` bleibt unverändert.
-- Kein Vercel-Projekt, keine Vercel-Build-Einstellungen, Domains oder Secrets werden geändert.
+- Keine Vercel-Projekteinstellungen, Domains oder Secrets wurden verändert. Die branchbezogene Ausnahme liegt ausschließlich in der versionierten `vercel.json` dieses Testbranches.
+- Bei den ersten Branch-Commits vor Aktivierung dieser Ausnahme erzeugte die Git-Integration zwei Vercel-Preview-Deployments mit Status `READY` und einen abgebrochenen Preview-Deploy. Das ist zusätzlicher Deployment-Verbrauch und wird hier ausdrücklich festgehalten.
+- Seit dem Commit mit `git.deploymentEnabled=false` für genau diesen Branch wurden keine weiteren Vercel-Deployment-Datensätze angelegt; auch für den aktuellen Branch-Head wurde kein Vercel-Deployment gefunden.
 - Keine Cloudflare- oder Netlify-Ressource wird erstellt.
-- Keine Datenbankmigration wird in einer externen Datenbank ausgeführt.
-- Der Branch wird zunächst ohne Pull Request geprüft, um unnötige Vercel-Preview-Builds zu vermeiden.
+- Die Datenbankmigration wurde im CI-Build übersprungen, weil absichtlich keine `DATABASE_URL` verfügbar war. Es wurde keine externe Datenbank verändert.
 
 ## Verifizierungsstatus
 
@@ -92,4 +94,4 @@ Das ist für Preview-Tests interessant, aber keine unbegrenzte Produktions-Deplo
 - [Vercel: Git deployment configuration](https://vercel.com/docs/project-configuration/git-configuration)
 
 ---
-Dies ist eine isolierte technische Validierung. Es handelt sich ausdrücklich weder um eine abgeschlossene Migration noch um einen getesteten produktiven Netlify-Deploy.
+Der Nitro-Netlify-Build ist in GitHub Actions erfolgreich. Die Ausgabe enthält jedoch noch das ältere Nitro-Verzeichnis `.netlify/functions-internal`; die aktuelle Nitro-Dokumentation beschreibt `.netlify/v1/functions`. Der CI-Erfolg beweist daher die Build-Erzeugung und das Vorhandensein der PWA-Middleware, aber nicht die Annahme durch den aktuellen Netlify Deploy-Workflow. Es handelt sich ausdrücklich weder um eine abgeschlossene Migration noch um einen getesteten produktiven Netlify-Deploy.
