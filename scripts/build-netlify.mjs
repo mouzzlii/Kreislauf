@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
- * Build the existing Nitro/TanStack app for Netlify without running database
- * migrations. The normal "build" script remains the Vercel production build.
+ * Build the existing Nitro/TanStack app for Netlify, then run the same
+ * deploy-time database migration used by the normal Vercel build.
+ *
+ * The provider selection is process-local to this child environment; the
+ * default Vercel build remains unchanged. No credentials are stored here.
  */
 import { spawn } from "node:child_process";
 import { join } from "node:path";
@@ -18,18 +21,29 @@ const env = mergeAppEnv(readAppEnv(root), {
   KREISLAUF_DEPLOY_TARGET: "netlify",
 });
 const viteCli = join(root, "node_modules", "vite", "bin", "vite.js");
+const migrationScript = join(root, "scripts", "migrate.mjs");
 
-const child = spawn(process.execPath, [viteCli, "build"], {
-  cwd: root,
-  env,
-  stdio: "inherit",
-});
+function runNode(args, label) {
+  return new Promise((resolve) => {
+    const child = spawn(process.execPath, args, {
+      cwd: root,
+      env,
+      stdio: "inherit",
+    });
 
-child.on("error", (error) => {
-  console.error("[build:netlify] Could not start Vite:", error.message);
-  process.exit(127);
-});
+    child.once("error", (error) => {
+      console.error(`[build:netlify] Could not start ${label}:`, error.message);
+      resolve(127);
+    });
 
-child.on("exit", (code, signal) => {
-  process.exit(exitStatusFromChild(code, signal));
-});
+    child.once("exit", (code, signal) => {
+      resolve(exitStatusFromChild(code, signal));
+    });
+  });
+}
+
+const buildStatus = await runNode([viteCli, "build"], "Vite");
+if (buildStatus !== 0) process.exit(buildStatus);
+
+const migrationStatus = await runNode([migrationScript], "database migrations");
+process.exit(migrationStatus);
