@@ -59,9 +59,9 @@ const netlifyPwaMiddleware = createMiddleware().server(async ({ request, pathnam
 
   const url = new URL(request.url);
   const host = requestHost(request, url);
-  const requestPath = pathname + url.search;
+  const requestPath = url.pathname + url.search;
 
-  if (pathname === "/__grok/manifest.webmanifest" || pathname === "/__grok/manifest.json") {
+  if (url.pathname === "/__grok/manifest.webmanifest" || url.pathname === "/__grok/manifest.json") {
     return new Response(renderWebManifest(host), {
       headers: {
         "content-type": "application/manifest+json; charset=utf-8",
@@ -72,7 +72,7 @@ const netlifyPwaMiddleware = createMiddleware().server(async ({ request, pathnam
 
   if (
     isInstallQuery(requestPath) &&
-    isDocumentPath(pathname) &&
+    isDocumentPath(url.pathname) &&
     acceptsHtml(request.headers.get("accept"))
   ) {
     return new Response(renderInstallPageHtml(installPageTemplate, { host, url: requestPath }), {
@@ -83,7 +83,7 @@ const netlifyPwaMiddleware = createMiddleware().server(async ({ request, pathnam
     });
   }
 
-  if (!isDocumentPath(pathname)) return next();
+  if (!isDocumentPath(url.pathname)) return next();
 
   const result = await next();
   if (result instanceof Response) {
