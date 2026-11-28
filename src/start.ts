@@ -69,7 +69,7 @@ const netlifyPwaMiddleware = createMiddleware().server(async ({ request, next })
       String(result.headers.get("content-type") ?? "").includes("text/html") &&
       !result.headers.get("content-encoding")
     ) {
-      return injectHeadStreaming(result, host);
+      return injectHeadStreaming(result, { host, site: grokOgIdentity.site });
     }
     return result;
   }
