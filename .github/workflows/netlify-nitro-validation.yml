@@ -57,3 +57,6 @@ jobs:
           test -s .netlify/functions-internal/server/server.mjs
           grep -R -q "__grok/manifest.webmanifest" .netlify/functions-internal
           echo "Netlify legacy Functions output and KREISLAUF PWA middleware found."
+
+      - name: Netlify Function Request Smoke Test
+        run: node scripts/smoke-netlify-build.mjs
