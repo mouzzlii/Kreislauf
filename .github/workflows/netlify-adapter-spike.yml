@@ -76,12 +76,12 @@ jobs:
           KREISLAUF_SKIP_PGLITE_BOOTSTRAP: "1"
         run: |
           set +e
-          npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/netlify-vite.log 2>&1 &
+          npm run dev > /tmp/netlify-vite.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           ready=0
           for attempt in $(seq 1 30); do
-            curl --connect-timeout 1 --max-time 2 -fsS http://127.0.0.1:4173/__grok/manifest.webmanifest >/tmp/manifest.json
+            curl --connect-timeout 1 --max-time 2 -fsS http://127.0.0.1:8080/__grok/manifest.webmanifest >/tmp/manifest.json
             curl_status=$?
             if [ "$curl_status" -eq 0 ]; then
               ready=1
@@ -98,11 +98,11 @@ jobs:
             exit 1
           fi
           grep -q '"short_name"' /tmp/manifest.json
-          curl --max-time 10 -fsS -H 'Accept: text/html' -H 'x-forwarded-host: kreislauf.grok.me' 'http://127.0.0.1:4173/?install=1&platform=ios' > /tmp/install.html
+          curl --max-time 10 -fsS -H 'Accept: text/html' -H 'x-forwarded-host: kreislauf.grok.me' 'http://127.0.0.1:8080/?install=1&platform=ios' > /tmp/install.html
           curl_status=$?
           if [ "$curl_status" -ne 0 ]; then cat /tmp/netlify-vite.log; exit 1; fi
           grep -q 'Add KREISLAUF to your' /tmp/install.html
-          curl --max-time 15 -fsS -H 'Accept: text/html' -H 'x-forwarded-host: kreislauf.grok.me' http://127.0.0.1:4173/login > /tmp/login.html
+          curl --max-time 15 -fsS -H 'Accept: text/html' -H 'x-forwarded-host: kreislauf.grok.me' http://127.0.0.1:8080/login > /tmp/login.html
           curl_status=$?
           if [ "$curl_status" -ne 0 ]; then cat /tmp/netlify-vite.log; exit 1; fi
           grep -q 'property="og:title"' /tmp/login.html
