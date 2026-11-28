@@ -105,3 +105,7 @@ jobs:
           grep -q 'Add ' /tmp/install.html
           grep -q 'Home Screen' /tmp/install.html
           ! grep -q '{{APP_NAME}}' /tmp/install.html
+          curl --max-time 15 -fsS -H 'Accept: text/html' -H 'x-forwarded-host: kreislauf.grok.me' http://127.0.0.1:8080/login > /tmp/login.html 2>/tmp/login-curl.log || { cat /tmp/netlify-vite.log; cat /tmp/login-curl.log; exit 1; }
+          grep -q 'property="og:title"' /tmp/login.html
+          grep -q 'rel="manifest"' /tmp/login.html
+          grep -q 'name="theme-color"' /tmp/login.html
