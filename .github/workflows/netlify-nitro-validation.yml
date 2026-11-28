@@ -60,3 +60,31 @@ jobs:
 
       - name: Netlify Function Request Smoke Test
         run: node scripts/smoke-netlify-build.mjs
+
+      - name: Vorherige Build-Ausgabe entfernen
+        run: rm -rf .netlify dist
+
+      - name: Aktuellen Nitro v3 RC isoliert installieren
+        run: npm install --no-save --package-lock=false --no-audit --no-fund --maxsockets=2 nitro@3.0.261103-rc
+
+      - name: Nitro RC-Version und unveränderte Lockfiles prüfen
+        run: |
+          node -e "if (require('./node_modules/nitro/package.json').version !== '3.0.261103-rc') process.exit(1)"
+          git diff --exit-code -- package.json package-lock.json
+
+      - name: Aktuellen Nitro RC für Netlify bauen
+        run: npm run build:netlify
+        env:
+          CI: "true"
+
+      - name: Neues Netlify Frameworks-API-Ausgabeformat prüfen
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d dist
+          test -s .netlify/v1/functions/server/server.mjs
+          grep -R -q "__grok/manifest.webmanifest" .netlify/v1/functions
+          echo "Nitro RC Frameworks API output and KREISLAUF PWA middleware found."
+
+      - name: Nitro RC Function Request Smoke Test
+        run: node scripts/smoke-netlify-build.mjs
