@@ -36,6 +36,14 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   const ciWorkflowSource = await readFile(new URL("../.github/workflows/ai-team-relay-ci.yml", import.meta.url), "utf8");
   const setup = await readFile(new URL("../AI_TEAM_SETUP.md", import.meta.url), "utf8");
 
+  assert.ok(relaySource.includes("const RELAY_LIVE_ENABLED = false;"));
+  const mainStart = relaySource.indexOf("async function main()");
+  const runtimeGate = relaySource.indexOf("if (!RELAY_LIVE_ENABLED)", mainStart);
+  const envValidation = relaySource.indexOf("if (!GITHUB_TOKEN", mainStart);
+  const eventRead = relaySource.indexOf("const event = JSON.parse", mainStart);
+  assert.ok(mainStart >= 0 && runtimeGate > mainStart && envValidation > runtimeGate && eventRead > runtimeGate,
+    "runtime hard gate must stop execution before environment processing and event reads");
+
   for (const model of ["gpt", "claude", "gemini", "grok"]) {
     assert.ok(providerSource.includes(`${model}: "vmc/council-${model}"`), `missing fixed ${model} alias`);
     assert.ok(relaySource.includes(`COUNCIL_MODELS.${model}`), `relay does not call ${model}`);
@@ -98,6 +106,7 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
   assert.ok(relaySource.includes('request = "Datenklassifikation: " + dataClassification'));
   assert.ok(setup.includes("[public]"));
   assert.ok(workflowSource.includes("false &&"));
+  assert.ok(setup.includes("unabhängige Runtime-Sperre"));
   assert.ok(setup.includes("AI_TEAM_BUDGET_CONFIRMED"));
   assert.ok(setup.includes("0 EUR"));
 });
