@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   COUNCIL_MODELS,
+  COUNCIL_MODEL_TARGETS,
+  validateGatewayResponseModel,
   VERCEL_AI_GATEWAY_URL,
   buildGatewayChatCompletion,
   extractGatewayText,
@@ -39,6 +41,15 @@ test("Gateway request is bounded, non-streaming and uses independent messages", 
   assert.throws(() => buildGatewayChatCompletion({
     model: COUNCIL_MODELS.gpt, instructions: "x", input: "y", maxTokens: 5000,
   }), /token limit/);
+});
+
+test("Gateway response must identify the exact configured canonical model target", () => {
+  for (const target of Object.values(COUNCIL_MODEL_TARGETS)) {
+    assert.equal(validateGatewayResponseModel({ model: target }, target), target);
+  }
+  assert.throws(() => validateGatewayResponseModel({}, COUNCIL_MODEL_TARGETS.gpt), /missing the resolved model identity/);
+  assert.throws(() => validateGatewayResponseModel({ model: "vmc/council-gpt" }, COUNCIL_MODEL_TARGETS.gpt), /resolved model mismatch/);
+  assert.throws(() => validateGatewayResponseModel({ model: "openai/gpt-5" }, "openai/gpt-6"), /not allowlisted/);
 });
 
 test("Gateway response extraction accepts text and rejects empty/non-text responses", () => {
