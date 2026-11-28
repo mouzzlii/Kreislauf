@@ -1,0 +1,92 @@
+name: Netlify TanStack adapter spike
+
+on:
+  push:
+    branches:
+      - infra/netlify-tanstack-adapter-spike-2026-11-28
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netlify-adapter-spike-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  adapter-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout isolated spike branch
+        uses: actions/checkout@v5
+        with:
+          ref: infra/netlify-tanstack-adapter-spike-2026-11-28
+
+      - name: Set up Node.js 22 (npm 10 lockfile compatibility)
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install exact locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Existing Vercel build remains intact
+        run: npm run build:dev
+
+      - name: Official Netlify TanStack Start build
+        env:
+          KREISLAUF_NETLIFY_ADAPTER: "1"
+          KREISLAUF_NETLIFY_ALLOW_DBLESS_BUILD: "1"
+        run: npm run build:netlify
+
+      - name: Reject PGLite from Netlify runtime bundles
+        run: |
+          node scripts/check-netlify-bundle.mjs .netlify/v1/functions
+          node scripts/check-netlify-bundle.mjs dist/server
+
+      - name: Inspect generated deployment output
+        run: |
+          echo "=== dist ==="
+          find dist -maxdepth 4 -type f | sort | head -n 120
+          echo "=== .netlify ==="
+          if [ -d .netlify ]; then find .netlify -maxdepth 6 -type f | sort | head -n 160; else echo "No .netlify directory"; fi
+
+      - name: Smoke-test Start PWA manifest and iOS install routes
+        env:
+          KREISLAUF_NETLIFY_ADAPTER: "1"
+          NETLIFY: "true"
+          NETLIFY_DEV: "true"
+          KREISLAUF_SKIP_PGLITE_BOOTSTRAP: "1"
+        run: |
+          set +e
+          npm run dev > /tmp/netlify-vite.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 30); do
+            rm -f /tmp/manifest.json
+            curl --connect-timeout 1 --max-time 2 -fsS http://127.0.0.1:8080/__grok/manifest.webmanifest >/tmp/manifest.json 2>/tmp/manifest-curl.log || true
+            if [ -s /tmp/manifest.json ] && grep -q '"short_name"' /tmp/manifest.json; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "Netlify Vite dev server did not serve the manifest"
+            cat /tmp/netlify-vite.log
+            exit 1
+          fi
+          curl --max-time 10 -fsS -H 'Accept: text/html' -H 'x-forwarded-host: kreislauf.grok.me' 'http://127.0.0.1:8080/?install=1&platform=ios' > /tmp/install.html 2>/tmp/install-curl.log || { cat /tmp/netlify-vite.log; cat /tmp/install-curl.log; exit 1; }
+          grep -q 'Add ' /tmp/install.html
+          grep -q 'Home Screen' /tmp/install.html
+          ! grep -q '{{APP_NAME}}' /tmp/install.html

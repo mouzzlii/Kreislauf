@@ -17,7 +17,7 @@ import {
   snapshotOgIdentity,
   stripInstallParams,
 } from "./grok-pwa-shared.mjs";
-import { renderInstallPage } from "./grok-pwa-plugin.mjs";
+import { grokPwaPlugin, renderInstallPage } from "./grok-pwa-plugin.mjs";
 
 // Keep tests independent of the repository's real src/lib/og/site.json.
 // Tests that need a baked site pass it explicitly; disk-card tests still use cwd.
@@ -533,7 +533,7 @@ test("renders the manifest with the per-app name", () => {
 test("vite config keeps the nitro serverDir wiring", () => {
   const viteConfig = readFileSync(join(TEMPLATE_ROOT, "vite.config.ts"), "utf8");
   assert.match(viteConfig, /serverDir:\s*"\.\/server"/);
-  assert.match(viteConfig, /grokPwaPlugin\(\)/);
+  assert.match(viteConfig, /grokPwaPlugin\(\{\s*disableHtmlMiddleware:\s*useNetlifyTanstackAdapter\s*\}\)/);
 });
 
 test("nitro middleware and its bundled assets exist", () => {
@@ -551,3 +551,19 @@ test("vite plugin bakes og identity as a virtual module", () => {
   assert.match(plugin, /snapshotOgIdentity/);
 });
 
+
+
+test("Netlify Start middleware can own deployed PWA requests without duplicate Vite handlers", () => {
+  const plugin = grokPwaPlugin({ disableHtmlMiddleware: true });
+  const html = "<html><head></head><body></body></html>";
+  assert.equal(plugin.transformIndexHtml(html), html);
+
+  let registered = false;
+  const server = { middlewares: { use() { registered = true; } } };
+  plugin.configureServer(server);
+  assert.equal(registered, false);
+  assert.equal(plugin.configurePreviewServer(server), undefined);
+  assert.equal(registered, false);
+
+  // The virtual OG identity remains available to src/start.ts.
+});
