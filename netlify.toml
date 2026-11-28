@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  publish = "dist/client"
+
+[build.environment]
+  NODE_VERSION = "22"
+  KREISLAUF_NETLIFY_ADAPTER = "1"
+  KREISLAUF_DEPLOY_TARGET = "netlify"
