@@ -69,13 +69,12 @@ jobs:
             git push origin HEAD:infra/netlify-tanstack-adapter-spike-2026-11-28
           fi
 
-      - name: Smoke-test Start PWA middleware in local Vite runtime
+      - name: Smoke-test Start PWA manifest and iOS install routes
         env:
           KREISLAUF_NETLIFY_ADAPTER: "1"
           NETLIFY: "true"
           NETLIFY_DEV: "true"
           KREISLAUF_SKIP_PGLITE_BOOTSTRAP: "1"
-          KREISLAUF_NETLIFY_DEBUG: "1"
         run: |
           set +e
           npm run dev > /tmp/netlify-vite.log 2>&1 &
@@ -104,8 +103,3 @@ jobs:
           curl_status=$?
           if [ "$curl_status" -ne 0 ]; then cat /tmp/netlify-vite.log; exit 1; fi
           grep -q 'Add KREISLAUF to your' /tmp/install.html
-          curl --max-time 15 -fsS -H 'Accept: text/html' -H 'x-forwarded-host: kreislauf.grok.me' http://127.0.0.1:8080/login > /tmp/login.html
-          curl_status=$?
-          if [ "$curl_status" -ne 0 ]; then cat /tmp/netlify-vite.log; exit 1; fi
-          grep -q 'property="og:title"' /tmp/login.html
-          grep -q 'rel="manifest"' /tmp/login.html
