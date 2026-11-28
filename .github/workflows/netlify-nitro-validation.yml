@@ -4,6 +4,19 @@ on:
   push:
     branches:
       - infra/netlify-nitro-validation-2026-11-28
+    paths:
+      - ".github/workflows/netlify-nitro-validation.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "netlify.toml"
+      - "vercel.json"
+      - "vite.config.ts"
+      - "tsconfig.json"
+      - "scripts/**"
+      - "server/**"
+      - "src/**"
+      - "migrations/**"
+      - "public/**"
   workflow_dispatch:
 
 permissions:
