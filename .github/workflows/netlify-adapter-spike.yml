@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: netlify-adapter-spike-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   adapter-validation:
     runs-on: ubuntu-latest
