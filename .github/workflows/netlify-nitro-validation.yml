@@ -81,13 +81,7 @@ jobs:
           test -s .netlify/v1/functions/nitro.json
           grep -R -q "__grok/manifest.webmanifest" .netlify/v1/functions
           echo "Netlify Frameworks API output and KREISLAUF PWA middleware found."
-          forbidden_assets="$(find .netlify/v1/functions -type f | grep -Ei 'pglite|[.]wasm$|[.]data$' || true)"
-          if [ -n "$forbidden_assets" ]; then
-            echo "PGLite/native database assets must not be included in the Netlify Function bundle."
-            echo "$forbidden_assets"
-            exit 1
-          fi
-          echo "No PGLite, WASM or database data assets found in Netlify Function bundle."
+          node scripts/check-netlify-bundle.mjs .netlify/v1/functions/server
 
       - name: Netlify Function Request Smoke Test
         run: node scripts/smoke-netlify-build.mjs
