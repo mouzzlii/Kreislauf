@@ -533,7 +533,7 @@ test("renders the manifest with the per-app name", () => {
 test("vite config keeps the nitro serverDir wiring", () => {
   const viteConfig = readFileSync(join(TEMPLATE_ROOT, "vite.config.ts"), "utf8");
   assert.match(viteConfig, /serverDir:\s*"\.\/server"/);
-  assert.match(viteConfig, /grokPwaPlugin\(\)/);
+  assert.match(viteConfig, /grokPwaPlugin\(\{\s*disableHtmlMiddleware:\s*useNetlifyTanstackAdapter\s*\}\)/);
 });
 
 test("nitro middleware and its bundled assets exist", () => {
