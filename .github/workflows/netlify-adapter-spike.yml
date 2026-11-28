@@ -88,9 +88,6 @@ jobs:
               ready=1
               break
             fi
-            if ! kill -0 "$server_pid" 2>/dev/null; then
-              break
-            fi
             sleep 1
           done
           if [ "$ready" -ne 1 ]; then
