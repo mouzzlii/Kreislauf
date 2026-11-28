@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: netlify-nitro-validation-${{ github.ref }}
@@ -31,6 +31,11 @@ jobs:
       - name: Abhängigkeiten installieren
         run: npm ci --no-audit --no-fund
 
+      - name: Gepinnte Nitro-Version prüfen
+        run: |
+          node -e "if (require('./node_modules/nitro/package.json').version !== '3.0.261103-rc') process.exit(1)"
+          npm ls nitro --depth=0
+
       - name: Buildskript syntaktisch prüfen
         run: node --check scripts/build-netlify.mjs
 
@@ -43,96 +48,36 @@ jobs:
       - name: Code-Qualität prüfen
         run: npm run lint
 
+      - name: Bestehenden Vercel-Standardbuild prüfen
+        run: npm run build:dev
+        env:
+          CI: "true"
+
       - name: Netlify Nitro Build ausführen
         run: npm run build:netlify
         env:
           # Intentionally no DATABASE_URL or production secrets in this validation.
           CI: "true"
 
-      - name: Netlify Nitro-Ausgabe prüfen
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -d dist
-          test -s .netlify/functions-internal/server/server.mjs
-          grep -R -q "__grok/manifest.webmanifest" .netlify/functions-internal
-          echo "Netlify legacy Functions output and KREISLAUF PWA middleware found."
-
-      - name: Netlify Function Request Smoke Test
-        run: node scripts/smoke-netlify-build.mjs
-
-      - name: Vorherige Build-Ausgabe entfernen
-        run: rm -rf .netlify dist
-
-      - name: Nitro RC in Package und Lockfile übernehmen (Test-Worktree)
-        run: npm install --save-exact --no-audit --no-fund --maxsockets=2 nitro@3.0.261103-rc
-
-      - name: Nitro RC-Version und Lockfile-Diff prüfen
-        run: |
-          node -e "if (require('./node_modules/nitro/package.json').version !== '3.0.261103-rc') process.exit(1)"
-          npm ls nitro --depth=0
-          git diff --check -- package.json package-lock.json
-          git diff --stat -- package.json package-lock.json
-
-      - name: Lockfile-Reproduzierbarkeit mit npm ci prüfen
-        run: |
-          rm -rf node_modules
-          npm ci --no-audit --no-fund
-
-      - name: TypeScript mit Nitro RC prüfen
-        run: npm run typecheck
-
-      - name: Automatisierte Tests mit Nitro RC
-        run: npm test
-
-      - name: Code-Qualität mit Nitro RC prüfen
-        run: npm run lint
-
-      - name: Vercel-Standardbuild mit Nitro RC prüfen
-        run: npm run build:dev
-        env:
-          CI: "true"
-
-      - name: Aktuellen Nitro RC für Netlify bauen
-        run: npm run build:netlify
-        env:
-          CI: "true"
-
-      - name: Neues Netlify Frameworks-API-Ausgabeformat prüfen
+      - name: Netlify Frameworks API Ausgabe prüfen
         shell: bash
         run: |
           set -euo pipefail
           test -d dist
           test -s .netlify/v1/functions/server/server.mjs
+          test -s .netlify/v1/functions/nitro.json
           grep -R -q "__grok/manifest.webmanifest" .netlify/v1/functions
-          echo "Nitro RC Frameworks API output and KREISLAUF PWA middleware found."
+          echo "Netlify Frameworks API output and KREISLAUF PWA middleware found."
 
-      - name: Nitro RC Function Request Smoke Test
+      - name: Netlify Function Request Smoke Test
         run: node scripts/smoke-netlify-build.mjs
 
-      - name: Nitro RC Lockfiles als Review-Artefakt sichern
-        run: |
-          mkdir -p netlify-nitro-lockfiles
-          cp package.json package-lock.json netlify-nitro-lockfiles/
-
-      - name: Nitro RC Lockfiles hochladen
+      - name: Netlify Build-Artefakt hochladen
         uses: actions/upload-artifact@v4
         with:
-          name: netlify-nitro-rc-lockfiles
-          path: netlify-nitro-lockfiles/
+          name: kreislauf-netlify-build
+          path: |
+            dist/
+            .netlify/v1/functions/
           if-no-files-found: error
           retention-days: 1
-
-      - name: Getestete Nitro-RC-Abhängigkeiten im Testbranch sichern
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json package-lock.json
-          if git diff --cached --quiet; then
-            echo "Nitro-RC package files already committed."
-          else
-            git commit -m "build(deps): upgrade Nitro for Netlify Frameworks API"
-            git push origin "HEAD:${GITHUB_REF_NAME}"
-          fi
