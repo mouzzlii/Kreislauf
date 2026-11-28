@@ -82,9 +82,9 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           ready=0
           for attempt in $(seq 1 30); do
-            curl --connect-timeout 1 --max-time 2 -fsS http://127.0.0.1:8080/__grok/manifest.webmanifest >/tmp/manifest.json
-            curl_status=$?
-            if [ "$curl_status" -eq 0 ]; then
+            rm -f /tmp/manifest.json
+            curl --connect-timeout 1 --max-time 2 -fsS http://127.0.0.1:8080/__grok/manifest.webmanifest >/tmp/manifest.json 2>/tmp/manifest-curl.log || true
+            if [ -s /tmp/manifest.json ] && grep -q '"short_name"' /tmp/manifest.json; then
               ready=1
               break
             fi
@@ -95,8 +95,5 @@ jobs:
             cat /tmp/netlify-vite.log
             exit 1
           fi
-          grep -q '"short_name"' /tmp/manifest.json
-          curl --max-time 10 -fsS -H 'Accept: text/html' -H 'x-forwarded-host: kreislauf.grok.me' 'http://127.0.0.1:8080/?install=1&platform=ios' > /tmp/install.html
-          curl_status=$?
-          if [ "$curl_status" -ne 0 ]; then cat /tmp/netlify-vite.log; exit 1; fi
+          curl --max-time 10 -fsS -H 'Accept: text/html' -H 'x-forwarded-host: kreislauf.grok.me' 'http://127.0.0.1:8080/?install=1&platform=ios' > /tmp/install.html 2>/tmp/install-curl.log || { cat /tmp/netlify-vite.log; cat /tmp/install-curl.log; exit 1; }
           grep -q 'Add KREISLAUF to your' /tmp/install.html
