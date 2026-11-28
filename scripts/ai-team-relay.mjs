@@ -37,6 +37,9 @@ const MAX_INPUT_CHARS = 8000;
 const MAX_CONTEXT_CHARS = 18000;
 const MAX_OUTPUT_TOKENS = 1000;
 const MAX_DAILY_DEBATES = 2;
+// Independent runtime hard gate: the workflow gate alone is not sufficient.
+// Keep disabled while the authorized additional-spend budget is 0 EUR.
+const RELAY_LIVE_ENABLED = false;
 const MARKER_PREFIX = "<!-- ai-team-relay:";
 
 // Never access the private workspace repository, even if another project's
@@ -334,6 +337,12 @@ async function runPhase(issueNumber, marker, phase, work) {
 }
 
 async function main() {
+  // Stop before reading event data, contacting GitHub, reserving budget or calling a provider.
+  if (!RELAY_LIVE_ENABLED) {
+    console.log("KI-Team-Relay ist durch die unabhängige Runtime-Sperre deaktiviert (Zusatzbudget 0 EUR).");
+    return;
+  }
+
   if (!GITHUB_TOKEN || !GITHUB_REPOSITORY || !GITHUB_EVENT_PATH) {
     throw new Error("Missing GitHub Actions event configuration.");
   }
