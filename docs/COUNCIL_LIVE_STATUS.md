@@ -110,3 +110,14 @@ Der Workflow übergibt **kein** `AI_GATEWAY_API_KEY`; die fünf Vercel-Virtual-M
 - Exakte Quellzählung: 22 Orchestrator- und 16 HTTP-Testfälle. Für Head `8498028a621126382e74044d5f586b028f4e18e1` liefert die GitHub-Abfrage keinen Actions-Lauf; der neue Test wurde daher nicht als ausgeführt bestätigt. Commit-Status enthält nur den fehlgeschlagenen Vercel-Check.
 - Vercel-Bot-Kommentare melden ausdrücklich `api-deployments-free-per-day` und mehr als 100 Deployments in 24 Stunden. Das Tageslimit ist damit als aktueller Deployment-Blocker belegt. Keine weiteren Deployments und kein Upgrade ohne ausdrückliche Freigabe.
 - Keine Provideradapter, echte Modellaufrufe, Produktionsroute, echte Auth-/CSRF-/Audit-/Budgetdienste, Browser-/Android-Abnahme oder Live-Council-Synthese. Keine Kosten und keine Secrets.
+
+
+## Council Relay PR #63 – Präzisionshärtung (28.11.2026)
+
+- Aktueller Draft: [PR #63](https://github.com/mouzzlii/Kreislauf/pull/63), Branch `integration/council-relay-mainline`, Head `74cb0230a98a549a622d2aeea2eea8aa01d70044`; 27 Commits, 14 Dateien, offen, Draft, ungemergt. GitHub meldet derzeit `mergeable=true`.
+- Ergänzt wurde eine **zweite, unabhängige Runtime-Sperre**: `RELAY_LIVE_ENABLED = false`. Sie steht am Anfang von `main()` und beendet den Prozess, bevor Event-Daten gelesen, GitHub kontaktiert, das Tageskontingent reserviert oder ein Provider aufgerufen wird. Die bereits vorhandene Workflow-Sperre `false && ...` bleibt zusätzlich bestehen. Ein boolescher Budget-Schalter kann keine der beiden Sperren übersteuern.
+- Ein Regressionstest prüft die Reihenfolge: Runtime-Sperre vor Umgebungsprüfung und Event-Lesen. Die Einrichtungsdokumentation beschreibt beide Sperren.
+- Read-back der drei geänderten Dateien bestätigt die Runtime-Konstante, den frühen Abbruch, die Regressionstest-Assertion und die Dokumentation.
+- Die vorherigen grünen Relay-/Build-Läufe gehören zum älteren Head `398ccfb48b21c5ab385409712620158177fc8591`; sie werden **nicht** auf den neuen Head übertragen. Für `74cb0230a98a549a622d2aeea2eea8aa01d70044` liegt derzeit kein neuer GitHub-Actions-Lauf vor. Der aktuelle Commit-Status enthält einen fehlgeschlagenen Vercel-Check (`build-rate-limit`). Die neuen Tests gelten daher als **nicht ausgeführt / nicht bestätigt**.
+- Die CI-Änderung wurde nicht durch einen Live-Provider-Test ergänzt. Keine Gateway-/Provider-Aufrufe, keine Modellantworten, keine Secrets gelesen oder geändert, keine Kosten, kein Deployment und kein Merge.
+- Weiterhin offen vor jeder späteren Aktivierung: tatsächliche Antwort-/Modell-/Provideridentität verifizieren, unabhängige Peer-Review-Runde implementieren, harten numerischen anbieterübergreifenden Kostenstopp samt atomarer Reservierung und Reconciliation nachweisen sowie Datenschutz-/PII- und EU-Routenfragen klären. Der Council bleibt deshalb deaktiviert.
