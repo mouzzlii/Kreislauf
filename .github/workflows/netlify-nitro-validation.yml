@@ -69,7 +69,8 @@ jobs:
       - name: Netlify Nitro Build ausführen
         run: npm run build:netlify
         env:
-          # Intentionally no DATABASE_URL or production secrets in this validation.
+          # Explicit test-only override: no production database or secrets are available in CI.
+          KREISLAUF_NETLIFY_ALLOW_DBLESS_BUILD: "1"
           CI: "true"
 
       - name: Netlify Frameworks API Ausgabe prüfen
