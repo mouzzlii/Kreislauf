@@ -57,6 +57,10 @@ test("relay and workflow use the same fixed four-model Gateway contract", async 
     assert.ok(relaySource.includes(`COUNCIL_MODELS.${model}`), `relay does not call ${model}`);
   }
   assert.ok(providerSource.includes("https://ai-gateway.vercel.sh/v1/chat/completions"));
+  assert.ok(providerSource.includes("validateGatewayResponseModel"));
+  assert.ok(relaySource.includes("validateGatewayResponseModel(data, COUNCIL_MODEL_TARGETS[expectedModel])"));
+  assert.ok(relaySource.indexOf("validateGatewayResponseModel(data, COUNCIL_MODEL_TARGETS[expectedModel])") < relaySource.indexOf("extractGatewayText(data)"),
+    "resolved model identity must be validated before response text is accepted");
   assert.ok(relaySource.includes("AI_GATEWAY_API_KEY"));
   assert.ok(workflowSource.includes("AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}"));
   assert.ok(workflowSource.includes("AI_TEAM_REPO_READ_TOKEN: ${{ secrets.AI_TEAM_REPO_READ_TOKEN }}"));
