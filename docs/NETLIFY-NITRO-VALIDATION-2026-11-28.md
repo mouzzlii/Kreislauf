@@ -3,8 +3,8 @@
 **Date:** 28 November 2026  
 **Base commit:** `8d90ae2b540c03a316d6b9ae39051c22605f736a` (`main`)  
 **Validation branch:** `infra/netlify-nitro-validation-2026-11-28`  
-**Current validated implementation:** `62a3ba7bf37e7273507f1f1994a989afcb503d4e` (docs-only updates may advance the branch head)  
-**Status:** Branch-scoped CI run #36 passed all checks, including an auth-enabled SSR-shell smoke test and source-level PGLite bundle scanning. No Netlify site or deployment has been created.
+**Current validated implementation:** `6425ea40849d5ca7118eaa743647c4b5324b867d` (docs-only updates may advance the branch head)  
+**Status:** Branch-scoped CI run #40 passed all checks, including auth-schema migration handling, auth-enabled SSR-shell smoke testing and source-level PGLite bundle scanning. No Netlify site or deployment has been created.
 
 ## Decision
 
@@ -30,14 +30,14 @@ The alternative official `@netlify/vite-plugin-tanstack-start` is suitable for T
 
 ## Verified CI results
 
-GitHub Actions Run #36 validated the current implementation after a clean checkout and `npm ci`. The workflow runs only when code, package, migration, PWA, or hosting configuration paths change; docs-only updates skip the full build matrix:
+GitHub Actions Run #40 validated the current implementation after a clean checkout and `npm ci`. The workflow runs only when code, package, migration, PWA, or hosting configuration paths change; docs-only updates skip the full build matrix:
 
 | Check | Result |
 |---|---|
 | Clean `npm ci` from the committed RC lockfile | Passed |
 | Nitro version resolved from lockfile | `3.0.261103-rc` |
 | TypeScript with RC | Passed |
-| Automated test suite with RC and database guards and bundle scanner | Passed: 226 script tests + 79 TypeScript tests |
+| Automated test suite with RC and database guards and bundle scanner | Passed: 231 script tests + 79 TypeScript tests |
 | ESLint with RC | Passed |
 | Existing Vercel default build with RC (`npm run build:dev`) | Passed |
 | Netlify Nitro build with RC (`npm run build:netlify`) | Passed |
@@ -57,7 +57,9 @@ This confirms the Nitro function entry point, a basic auth-enabled SSR shell, an
 
 The build/preview test deliberately has no `DATABASE_URL`; only the explicit CI override allows it to exercise the generated Function without a real database, and no external database migration is performed. CI sets `VITE_AUTH_ENABLED=true` only for the Netlify build so the login route exercises the SSR shell; no Better Auth/OAuth secrets or real user session are supplied. A real Netlify site must have the existing PostgreSQL connection configured in Netlify's secure environment-variable UI with both **Builds** and **Functions** scopes, because migrations run during the build and queries run in the Function. The runtime resolver in `src/lib/db-runtime-config.mjs` uses Netlify's read-only `SITE_ID` to detect the Function environment and refuses to select PGLite if `DATABASE_URL` is missing. The build wrapper also fails before Vite starts if the build-scoped database URL is absent. Better Auth and OAuth variables must likewise be added securely with the appropriate scopes. No such values are present in Git and no Netlify environment has been configured.
 
-The final Netlify Function build no longer contains PGLite-related runtime code or assets. The compile-time target flag ensures the PostgreSQL-only database and Better Auth branches are selected for Netlify, and CI scans all generated Function files for PGLite package imports, runtime constructors/factories/instances and forbidden PGLite/WASM/data assets. The auth-enabled login SSR shell and PWA endpoints also pass direct Function smoke tests. This was confirmed by GitHub Actions Run #36. The existing PGLite fallback remains available for local development and the existing Vercel build path; the compile-time flag is false for those builds.
+When `VITE_AUTH_ENABLED` is not `false`, the Netlify build temporarily copies `migrations/auth/0001_auth.sql` to the root `migrations/` directory so the existing non-recursive migrator applies the Better Auth schema. The helper verifies byte identity, fails closed on drift, preserves an existing identical user-managed copy, and removes only a copy it created. CI confirms the temporary root file is absent after the build/migration step.
+
+The final Netlify Function build no longer contains PGLite-related runtime code or assets. The compile-time target flag ensures the PostgreSQL-only database and Better Auth branches are selected for Netlify, and CI scans all generated Function files for PGLite package imports, runtime constructors/factories/instances and forbidden PGLite/WASM/data assets. The auth-enabled login SSR shell and PWA endpoints also pass direct Function smoke tests. This was confirmed by GitHub Actions Run #40. The existing PGLite fallback remains available for local development and the existing Vercel build path; the compile-time flag is false for those builds.
 
 Netlify Functions currently have these default limits:
 - 1024 MB memory
@@ -100,4 +102,4 @@ The first validation commits were pushed before the branch-specific Vercel suppr
 - [Vercel: Git deployment configuration](https://vercel.com/docs/project-configuration/git-configuration)
 
 ---
-This document records a successful isolated build, generated Function smoke test, database fail-closed checks, and PGLite-free Netlify bundle. It is not a completed migration or verified production deployment.
+This document records a successful isolated build, generated Function smoke test, database fail-closed checks, temporary Better Auth schema handling, and PGLite-free Netlify bundle. It is not a completed migration or verified production deployment.
