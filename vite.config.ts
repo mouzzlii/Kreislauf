@@ -170,10 +170,10 @@ export default defineConfig(({ command, isPreview }) => ({
     grokPwaPlugin(),
     tailwindcss(),
     tanstackStart(),
-    ...(command === "build" || isPreview
-      ? useNetlifyTanstackAdapter
-        ? [viteReact(), netlifyTanstackStart()]
-        : [
+    ...(useNetlifyTanstackAdapter
+      ? [viteReact(), netlifyTanstackStart()]
+      : command === "build" || isPreview
+        ? [
             nitro({
               preset: "vercel",
               // Auto-registers server/middleware/* (the PWA install page +
@@ -183,6 +183,6 @@ export default defineConfig(({ command, isPreview }) => ({
             }),
             viteReact(),
           ]
-      : [viteReact()]),
+        : [viteReact()]),
   ],
 }));
