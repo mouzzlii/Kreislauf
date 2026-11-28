@@ -16,14 +16,16 @@ The alternative official `@netlify/vite-plugin-tanstack-start` is suitable for T
 
 - `npm run build:netlify` creates a Netlify-targeted build using the Nitro preset.
 - The build target is isolated to the build subprocess via `KREISLAUF_DEPLOY_TARGET=netlify`. Without it, `vite.config.ts` continues to use the existing Vercel preset.
+- `vite.config.ts` sets the compile-time flag `__KREISLAUF_NETLIFY_BUILD__` only for this target. The declaration is isolated in `src/lib/deploy-flags.d.ts`.
 - `serverDir: "./server"` remains enabled, preserving the existing Nitro middleware registration.
 - `netlify.toml` selects `dist` as the static directory and Node.js 24.
-- The Netlify build wrapper runs the same `scripts/migrate.mjs` migration step as the existing production build. It fails before the build if `DATABASE_URL` is absent, unless the explicit `KREISLAUF_NETLIFY_ALLOW_DBLESS_BUILD=1` test-only override is supplied. The GitHub validation workflow supplies that override; it is not set in `netlify.toml` or the Netlify site configuration.
+- The Netlify build wrapper runs the same `scripts/migrate.mjs` migration step as the existing production build. It requires a valid build-scoped `DATABASE_URL`; only the isolated CI uses the explicit `KREISLAUF_NETLIFY_ALLOW_DBLESS_BUILD=1` override.
 - `package.json` and `package-lock.json` pin `nitro@3.0.261103-rc` exactly. The older `3.0.260610-beta` generated a legacy `.netlify/functions-internal` directory; the RC produces the current Frameworks API output at `.netlify/v1/functions`.
+- `src/lib/db.ts` and `src/lib/auth/server.ts` compile to PostgreSQL-only paths for Netlify, allowing Rollup to eliminate the unused PGLite fallback from the production Function.
+- The central database resolver uses Netlify's read-only `SITE_ID` at runtime and refuses the PGLite fallback if `DATABASE_URL` is absent.
 - `vercel.json` disables automatic Vercel deployments only for this validation branch. Vercel's normal behavior on `main` and other branches is unchanged.
 - The Netlify validation workflow is path-filtered to code, package, migration, PWA, and hosting configuration files, avoiding full test/build reruns for documentation-only updates.
 - The existing `build` script remains unchanged. No database URL, Netlify token, OAuth secret, or other credential is committed.
-
 ## Verified CI results
 
 GitHub Actions Run #22 validated the current implementation after a clean checkout and `npm ci`. The workflow runs only when code, package, migration, PWA, or hosting configuration paths change; docs-only updates skip the full build matrix:
@@ -39,6 +41,7 @@ GitHub Actions Run #22 validated the current implementation after a clean checko
 | Netlify Nitro build with RC (`npm run build:netlify`) | Passed |
 | Current Frameworks API output | `.netlify/v1/functions/server/server.mjs` present |
 | PWA manifest middleware in server bundle | Found |
+| PGLite package, WASM and `.data` assets in Netlify Function bundle | None found; CI assertion passed |
 | Generated Function request smoke test | Passed |
 
 The Function smoke test imports the generated Netlify server module and sends real Web `Request` objects to it. It verifies:
@@ -51,13 +54,7 @@ This confirms the Nitro function entry point and those two PWA middleware respon
 
 The build/preview test deliberately has no `DATABASE_URL`; only the explicit CI override allows it to exercise the generated Function without a real database, and no external database migration is performed. A real Netlify site must have the existing PostgreSQL connection configured in Netlify's secure environment-variable UI with both **Builds** and **Functions** scopes, because migrations run during the build and queries run in the Function. The runtime resolver in `src/lib/db-runtime-config.mjs` uses Netlify's read-only `SITE_ID` to detect the Function environment and refuses to select PGLite if `DATABASE_URL` is missing. The build wrapper also fails before Vite starts if the build-scoped database URL is absent. Better Auth and OAuth variables must likewise be added securely with the appropriate scopes. No such values are present in Git and no Netlify environment has been configured.
 
-The build output currently bundles PGLite fallback assets even though a deployed app should use PostgreSQL:
-- PGLite database data asset: about 6.3 MB
-- PGLite WASM asset: about 10.1 MB
-- init database WASM asset: about 0.4 MB
-- additional PGLite JavaScript bundle: about 0.7 MB
-
-That is approximately 17.5 MB of PGLite-related assets in the generated output. The new Netlify runtime guard prevents this fallback from being used on a deployed Function, but the assets are still bundled and increase deployment size. Before a production migration, consider a Netlify-specific build that excludes the PGLite fallback from the production function bundle. This optimization must not change local development or the current Vercel preview path.
+The final Netlify Function build no longer contains PGLite-related runtime assets. The compile-time target flag ensures the PostgreSQL-only database and Better Auth branches are selected for Netlify, and CI asserts that no PGLite-named, WASM, or `.data` files remain under `.netlify/v1/functions`. This was confirmed by GitHub Actions Run #30. The existing Vercel/local fallback remains available and is still present in the separate Vercel build path.
 
 Netlify Functions currently have these default limits:
 - 1024 MB memory
@@ -98,4 +95,4 @@ The first validation commits were pushed before the branch-specific Vercel suppr
 - [Vercel: Git deployment configuration](https://vercel.com/docs/project-configuration/git-configuration)
 
 ---
-This document records a successful isolated build and generated Function smoke test, not a completed migration or verified production deployment.
+This document records a successful isolated build, generated Function smoke test, database fail-closed checks, and PGLite-free Netlify bundle. It is not a completed migration or verified production deployment.
