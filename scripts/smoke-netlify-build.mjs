@@ -34,7 +34,7 @@ const loginResponse = await handler(
 
 assert.equal(loginResponse.status, 200, "login route must return HTTP 200");
 const loginHtml = await loginResponse.text();
-assert.match(loginHtml, /<main\\b/, "auth-enabled login route must render page content");
+assert.match(loginHtml, /<main\b/, "auth-enabled login route must render page content");
 assert.match(loginHtml, /Kreislauf/, "SSR shell must render the application navigation");
 
 const manifestResponse = await handler(
@@ -73,4 +73,4 @@ const installHtml = await installResponse.text();
 assert.match(installHtml, /Add Grok App to your Home Screen/);
 assert.doesNotMatch(installHtml, /\{\{APP_(?:NAME|URL)\}\}/, "install template placeholders must be rendered");
 
-console.log(`Netlify function request smoke test passed (${entrypoint.pathname}): manifest + iOS install page.`);
+console.log(`Netlify function request smoke test passed (${entrypoint.pathname}): auth-enabled login SSR + manifest + iOS install page.`);
