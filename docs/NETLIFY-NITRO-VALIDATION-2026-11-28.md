@@ -64,10 +64,10 @@ The final Netlify Function build no longer contains PGLite-related runtime code 
 Netlify Functions currently have these default limits:
 - 1024 MB memory
 - 60 seconds synchronous execution
-- 6 MB buffered request/response payload
+- 6 MB buffered request/response payload; binary uploads are Base64-encoded and effectively limited to about 4.5 MB
 - 20 MB streamed response payload
 
-These limits matter for the planned market media feature. Photo/video binaries should not be sent through a buffered server function. The preferred design is a short-lived, authenticated upload authorization followed by a direct browser-to-object-storage upload, with only validated metadata and object references passed through the KREISLAUF Function. The object-storage provider and its costs still need a separate comparison; no bucket, token, or service has been configured.
+These limits matter for the planned market media feature. Photo/video binaries should not be sent through a buffered server function. Because Base64 encoding reduces the practical binary request limit to about 4.5 MB, the preferred design is a short-lived, authenticated upload authorization followed by a direct browser-to-object-storage upload, with only validated metadata and object references passed through the KREISLAUF Function. See [Netlify Function payload limits](https://docs.netlify.com/build/functions/configuration/). The object-storage provider and its costs still need a separate comparison; no bucket, token, or service has been configured.
 
 Still to verify with a real Netlify site:
 - full SSR response and streamed PWA/OG head injection in a browser
