@@ -72,6 +72,15 @@ jobs:
           node -e "if (require('./node_modules/nitro/package.json').version !== '3.0.261103-rc') process.exit(1)"
           git diff --exit-code -- package.json package-lock.json
 
+      - name: TypeScript mit Nitro RC prüfen
+        run: npm run typecheck
+
+      - name: Automatisierte Tests mit Nitro RC
+        run: npm test
+
+      - name: Code-Qualität mit Nitro RC prüfen
+        run: npm run lint
+
       - name: Aktuellen Nitro RC für Netlify bauen
         run: npm run build:netlify
         env:
