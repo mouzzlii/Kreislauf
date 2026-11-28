@@ -70,6 +70,7 @@ jobs:
         run: npm run build:netlify
         env:
           KREISLAUF_NETLIFY_ALLOW_DBLESS_BUILD: "1"
+          VITE_AUTH_ENABLED: "true"
           CI: "true"
 
       - name: Netlify Frameworks API Ausgabe prüfen
