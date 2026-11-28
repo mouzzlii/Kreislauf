@@ -3,8 +3,8 @@
 **Date:** 28 November 2026  
 **Base commit:** `8d90ae2b540c03a316d6b9ae39051c22605f736a` (`main`)  
 **Validation branch:** `infra/netlify-nitro-validation-2026-11-28`  
-**Current branch head:** `76e82362015a64c470c6faaf6afd844a700b0b38`  
-**Status:** Final branch-scoped CI run #13 passed all checks with the pinned Nitro RC. No Netlify site or deployment has been created.
+**Current validated code head:** `7bc40b0ee285bcbe86bcb49f66890c9ba01b9469`  
+**Status:** Final branch-scoped CI run #22 passed all checks with the pinned Nitro RC and PostgreSQL fail-closed guards. No Netlify site or deployment has been created.
 
 ## Decision
 
@@ -18,7 +18,7 @@ The alternative official `@netlify/vite-plugin-tanstack-start` is suitable for T
 - The build target is isolated to the build subprocess via `KREISLAUF_DEPLOY_TARGET=netlify`. Without it, `vite.config.ts` continues to use the existing Vercel preset.
 - `serverDir: "./server"` remains enabled, preserving the existing Nitro middleware registration.
 - `netlify.toml` selects `dist` as the static directory and Node.js 24.
-- The Netlify build wrapper runs the same `scripts/migrate.mjs` migration step as the existing production build. With no `DATABASE_URL`, the migration script safely skips the external migration.
+- The Netlify build wrapper runs the same `scripts/migrate.mjs` migration step as the existing production build. It fails before the build if `DATABASE_URL` is absent, unless the explicit `KREISLAUF_NETLIFY_ALLOW_DBLESS_BUILD=1` test-only override is supplied. The GitHub validation workflow supplies that override; it is not set in `netlify.toml` or the Netlify site configuration.
 - `package.json` and `package-lock.json` pin `nitro@3.0.261103-rc` exactly. The older `3.0.260610-beta` generated a legacy `.netlify/functions-internal` directory; the RC produces the current Frameworks API output at `.netlify/v1/functions`.
 - `vercel.json` disables automatic Vercel deployments only for this validation branch. Vercel's normal behavior on `main` and other branches is unchanged.
 - The Netlify validation workflow is path-filtered to code, package, migration, PWA, and hosting configuration files, avoiding full test/build reruns for documentation-only updates.
@@ -26,14 +26,14 @@ The alternative official `@netlify/vite-plugin-tanstack-start` is suitable for T
 
 ## Verified CI results
 
-GitHub Actions Run #15 validated the final code/workflow state after a clean checkout and `npm ci`. The workflow runs only when code, package, migration, PWA, or hosting configuration paths change; docs-only updates skip the full build matrix:
+GitHub Actions Run #22 validated the current implementation after a clean checkout and `npm ci`. The workflow runs only when code, package, migration, PWA, or hosting configuration paths change; docs-only updates skip the full build matrix:
 
 | Check | Result |
 |---|---|
 | Clean `npm ci` from the committed RC lockfile | Passed |
 | Nitro version resolved from lockfile | `3.0.261103-rc` |
 | TypeScript with RC | Passed |
-| Automated test suite with RC | Passed: 216 script tests + 79 TypeScript tests |
+| Automated test suite with RC and database guards | Passed: 222 script tests + 79 TypeScript tests |
 | ESLint with RC | Passed |
 | Existing Vercel default build with RC (`npm run build:dev`) | Passed |
 | Netlify Nitro build with RC (`npm run build:netlify`) | Passed |
@@ -49,7 +49,7 @@ This confirms the Nitro function entry point and those two PWA middleware respon
 
 ## Important runtime requirement: PostgreSQL
 
-The build/preview test deliberately has no `DATABASE_URL`, so it performs no external database migration and changes no database. A real Netlify deployment must have the existing PostgreSQL connection configured as a protected runtime/build environment variable before the app is used. It must also have the required Better Auth and OAuth runtime settings configured through Netlify's secure environment-variable UI. No such values are present in Git and no Netlify environment has been configured.
+The build/preview test deliberately has no `DATABASE_URL`; only the explicit CI override allows it to exercise the generated Function without a real database, and no external database migration is performed. A real Netlify site must have the existing PostgreSQL connection configured in Netlify's secure environment-variable UI with both **Builds** and **Functions** scopes, because migrations run during the build and queries run in the Function. The runtime resolver in `src/lib/db-runtime-config.mjs` uses Netlify's read-only `SITE_ID` to detect the Function environment and refuses to select PGLite if `DATABASE_URL` is missing. The build wrapper also fails before Vite starts if the build-scoped database URL is absent. Better Auth and OAuth variables must likewise be added securely with the appropriate scopes. No such values are present in Git and no Netlify environment has been configured.
 
 The build output currently bundles PGLite fallback assets even though a deployed app should use PostgreSQL:
 - PGLite database data asset: about 6.3 MB
@@ -57,7 +57,7 @@ The build output currently bundles PGLite fallback assets even though a deployed
 - init database WASM asset: about 0.4 MB
 - additional PGLite JavaScript bundle: about 0.7 MB
 
-That is approximately 17.5 MB of PGLite-related assets in the generated output. PGLite is loaded only on the fallback path, but these bundled assets increase deployment size. Before a production migration, consider a Netlify-specific production build that fails closed when `DATABASE_URL` is absent and excludes the PGLite fallback from the production function bundle. This optimization must not change local development or the current Vercel preview path.
+That is approximately 17.5 MB of PGLite-related assets in the generated output. The new Netlify runtime guard prevents this fallback from being used on a deployed Function, but the assets are still bundled and increase deployment size. Before a production migration, consider a Netlify-specific build that excludes the PGLite fallback from the production function bundle. This optimization must not change local development or the current Vercel preview path.
 
 Netlify Functions currently have these default limits:
 - 1024 MB memory
