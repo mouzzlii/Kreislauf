@@ -466,3 +466,23 @@ Diese Punkte sind TRAKUNA-spezifische Pilotanforderungen, keine zweite globale T
 - Aktueller Testquellstand: 22 Orchestrator- und 16 HTTP-Fälle. Für den exakten Head liefert die GitHub-Actions-Abfrage keinen Lauf; der neue Test und die jüngsten Härtungen sind nicht als ausgeführt bestätigt. Der Commit-Status zeigt den fehlgeschlagenen Vercel-Check.
 - Vercel-Bot meldet `api-deployments-free-per-day` mit mehr als 100 Deployments innerhalb von 24 Stunden. Das kostenlose Tageslimit blockiert weitere Deployments; keine weiteren Deployments auslösen und kein Upgrade ohne Freigabe.
 - Keine echte Provider-Inferenz, keine Kosten, keine produktive API-Route, keine produktive Auth-/CSRF-/Freigabe-/Audit-/Budgetintegration, keine Browser-/Android-Abnahme. PR bleibt Draft.
+
+
+## Projektübergreifende Nachprüfung – TRAKUNA und KI-Council (28.11.2026)
+
+### TRAKUNA – Repository-Zuordnung und Druckstand
+
+- Die bestehende KREISLAUF-Projektbaseline nennt `mouzzlii/Fuck` als Android-App-Repository und `mouzzlii/multi-carrier-gateway` als Gateway. Ein Read-only-Abruf von Dateien und PR-Metadaten aus `mouzzlii/Fuck` lieferte in dieser Sitzung HTTP 404. Das beweist nicht, dass das Repository fehlt; der Inhalt war über die aktuelle GitHub-Verbindung nicht lesbar.
+- Zusätzlich wurde `mouzzlii/Pakete-Scanner`, Branch `trakuna-2.0-hardening`, PR #6 gefunden. Dieser Branch enthält eine TRAKUNA-2.0-Android-Implementierung mit Code-Erkennung und einem PDF-Druckpfad. Seine kanonische Rolle gegenüber `mouzzlii/Fuck` ist **noch nicht bestätigt**. Bis zur Klärung keine Codekopie, Zusammenführung oder zweite parallele Produktlinie erzeugen.
+- Aktueller Compare von `Pakete-Scanner/trakuna-2.0-hardening` zu dessen `main`: 45 Commits ahead, 0 behind; PR #6 bleibt Draft. Der Android-Code-Head mit nachgewiesenem GitHub-Actions-Lauf #233 enthält 11 bestandene JUnit-Tests und einen erfolgreichen APK-Build; der spätere Dokumentationsstand ist nicht durch einen neuen Lauf auf dem exakten aktuellen Head bestätigt.
+- Die Druckimplementierung normalisiert einseitige PDFs statisch auf 100 × 150 mm und verwendet eine einheitliche Skalierung. Die aktuelle Android-PrintManager-Übergabe speichert/erzwingt jedoch noch keine eindeutige physische Drucker-ID. Es gibt keine Mehrdruckerverwaltung, aber Android kann weiterhin eine Druckerauswahl verlangen.
+- Statische Maßprüfung: 3937 × 5906 mils für 100 × 150 mm, 1181 × 1772 Pixel als gerundetes 300-dpi-Ziel, 283 × 425 PDF-Punkte als gerundete Seitengröße. Die Implementierung zentriert und skaliert einheitlich; tatsächliche Barcode-/QR-Lesbarkeit, Ruhezone, Kontrast und Druckqualität bleiben ohne Hardwaretest unbestätigt.
+- Der konkrete Drucker, Druckdienst und das Smartphone müssen vor einer erzwungenen Ein-Drucker-Implementierung bekannt sein. Standard-Android-Druckdialog ist derzeit kein Nachweis einer gespeicherten oder exklusiv erzwungenen Drucker-ID.
+
+### KI-Council – aktueller Inferenzzugang
+
+- Die fünf Vercel-AI-Gateway-Aliase sind weiterhin nur als Konfiguration bestätigt. Für die letzten 30 Tage wurde zuvor keine Usage-Zeile gefunden; dies ist kein Nachweis für andere direkte Providerwege.
+- Zwei im öffentlichen Modellkatalog gelistete kostenfreie Modelle (`nvidia/nemotron-3.5-lightning-free`, `reflection/beam-free`) weisen jeweils keine ZDR- und keine No-Training-Eigenschaft aus; die Anbieter sind mit Hauptsitz USA gelistet. Private Projektinhalte wurden deshalb nicht übermittelt.
+- Ein generischer, nicht vertraulicher Inferenzversuch wurde mit HTTP 403 abgewiesen, da Vercel AI Gateway eine gültige Kreditkarte am Konto verlangt. Keine Kreditkarten-/Billing-Einstellung geändert, kein weiterer Versuch.
+- Die anschließende Read-only-Usage-Abfrage für das letzte Stundenfenster lieferte sowohl projektweit als auch teamweit keine Request-Zeilen. Es liegt keine externe Modellantwort vor: **kein Live-Council-Durchlauf**.
+- Live-Council bleibt AUS, Zusatzkostenfreigabe 0 EUR. Die Details und Grenzen sind in [COUNCIL-INTEGRATION-BOUNDARY.md](https://github.com/mouzzlii/KI-Arbeitsplatz/blob/main/docs/COUNCIL-INTEGRATION-BOUNDARY.md) dokumentiert.
