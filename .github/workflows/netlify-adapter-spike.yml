@@ -65,7 +65,7 @@ jobs:
           NETLIFY: "true"
           KREISLAUF_SKIP_PGLITE_BOOTSTRAP: "1"
         run: |
-          node scripts/with-app-env.mjs vite dev --host 127.0.0.1 --port 4173 > /tmp/netlify-vite.log 2>&1 &
+          npm run dev -- --host 127.0.0.1 --port 4173 > /tmp/netlify-vite.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           ready=0
