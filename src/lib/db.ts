@@ -7,15 +7,15 @@ export type DbSource = "neon" | "pglite";
 // Resolve the backend once. Netlify Functions must never silently use the
 // ephemeral PGLite fallback if their PostgreSQL runtime variable is missing.
 const runtimeEnv = typeof process !== "undefined" ? process.env : {};
-const { databaseUrl, dbSource } = resolveDatabaseConfig(runtimeEnv);
+const { databaseUrl, dbSource: resolvedDbSource } = resolveDatabaseConfig(runtimeEnv);
 
 /**
- * Active backend: real **Neon** when `DATABASE_URL` is set (deployed / configured
- * sandbox), otherwise a local embedded **PGLite** (Postgres compiled to WASM) so
- * the app has a working database even with nothing configured — the live preview
- * included. Swap in Neon later by just setting `DATABASE_URL`; no code changes.
+ * Active backend: real **Neon** when `DATABASE_URL` is set. Local development
+ * and gated previews may use embedded **PGLite** when no URL is configured.
+ * Netlify Functions are fail-closed by `resolveDatabaseConfig`: they never use
+ * the ephemeral PGLite fallback when their runtime database variable is absent.
  */
-export const dbSource: DbSource = databaseUrl ? "neon" : "pglite";
+export const dbSource: DbSource = resolvedDbSource;
 
 /**
  * Minimal shared SQL surface, satisfied by both Neon and PGLite. Both the
